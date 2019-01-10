@@ -1,11 +1,10 @@
-# Basic
-title: Vno Jekyll
-subtitle: A blog-orientation theme for Jekyll
-welcome_message: <a href="https://github.com/onevcat/vno-jekyll" target="_blank">Download the theme</a>
-description: Vno Jekyll is a port of my Ghost theme vno.
-creator: <a href="http://onev.cat">@onevcat</a>
+# Handing Reading
+encoding: utf-8
 
-url: "http://vno.onevcat.com"
+# Basic
+title: Johney Zheng
+subtitle: 郑文钢的小站
+description: 不要习惯了黑暗就为黑暗辩护；不要为了自己的苟且而得意，做一个勇敢而热情的人
 
 permalink: /:year/:month/:title/
 
@@ -13,7 +12,7 @@ permalink: /:year/:month/:title/
 highlighter: rouge
 
 # supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
-cover_color: red
+cover_color: 
 
 # The blog button should not be removed.
 blog_button:
@@ -22,7 +21,6 @@ blog_button:
 
 # Navigation buttons in the front page.
 nav:
-    - {title: Projects, description: My Projects, url: 'http://project.onevcat.com'}
     # - {title: Another Button, description: A button, url: 'http://example.com'}
 
 # Pagination
@@ -32,16 +30,15 @@ paginate_path: "page/:num/"
 
 # Comment
 comment:
-    disqus: vno-jekyll
+    disqus: johneyzheng
     # duoshuo: 
     
 # Social
 social:
-    weibo: onevcat
-    github: onevcat
-    twitter: onevcat
-    gplus: 107108267983477358170
-    mail: onev@onevcat.com
+    weibo: 3868964316/profile?topnav=1&wvr=6&is_all=1
+    github: ZhengWG
+    twitter: W1gfs1RV3SXom6L
+    mail: 21625111@zju.edu.cn
 
 # Google Analytics
 ga:
