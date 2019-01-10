@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Ubuntu自建CNN模型
+title: OpenFace自建CNN模型
 date: 2016-11-25 20:25:24.000000000 +09:00
 tags: Ubuntu; OpenFace
 ---
