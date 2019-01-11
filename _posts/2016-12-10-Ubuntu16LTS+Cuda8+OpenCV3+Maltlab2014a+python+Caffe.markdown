@@ -8,7 +8,7 @@ tags: 系统配置; Ubuntu; OpenFace; Caffe
 > [参考博客][参考博客]
 
 # 安装Cuda驱动
-采用下载文件安装，在系统设置选择软件和更新，更改下载源，选择`aliyun`，选择附件驱动，选择`使用NVIDA binary driver.......nvidia-367`
+采用下载文件安装，在系统设置选择软件和更新，更改下载源，选择`aliyun`，选择附件驱动，选择使用`NVIDA binary driver.......nvidia-367`
 
 ![软件更新图片](https://thumbnail10.baidupcs.com/thumbnail/fc9d796178ad1a4191230a11e684dac7?fid=2669703802-250528-598673463397308&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-jcjeSbUgUcpCBbSAT8IyRkUGRJ8%3d&expires=8h&chkbd=0&chkv=0&dp-logid=249185088311834398&dp-callid=0&time=1547197200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
 ![驱动安装图片](https://thumbnail10.baidupcs.com/thumbnail/934bfe3df20d50c84e2045f25927cd2d?fid=2669703802-250528-468014980013160&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-0dnE3V5gA6CaxoMN05SlQnENnjQ%3d&expires=8h&chkbd=0&chkv=0&dp-logid=249206331802147630&dp-callid=0&time=1547197200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
@@ -78,7 +78,7 @@ sudo mount -o loop MATHWORKS_R2014A.iso /media/zheng/study/linux/matlab2014
 cd /media/zheng/software/matlab2014
 sudo ./install
 ```
-选择不联网安装，密钥任意：`12345-67890-12345-67890` ，选择安装目录，最后激活需要`crack`文件夹`的license_405329_R2014a.lic`文件，最后要将对应的`libmwservices.so`复制到matlab安装目录下`/bin/glnxa64/libmwservices.so`
+选择不联网安装，密钥任意：`12345-67890-12345-67890` ，选择安装目录，最后激活需要`crack`文件夹的`license_405329_R2014a.lic`文件，最后要将对应的`libmwservices.so`复制到matlab安装目录下`/bin/glnxa64/libmwservices.so`
 最后安装`Matlabsupport`可以添加快捷方式：
 ```
 sudo apt-get install matlab-support
@@ -183,10 +183,10 @@ sudo cp Makefile.config.example Makefile.config
 sudo gedit Makefile.config
 ```
 打开之后修改如下内容:
-1. 若使用cudnn，则将# USE_CUDNN := 1 修改成： USE_CUDNN := 1
-2. 若使用的opencv版本是3的，则将# OPENCV_VERSION := 3 修改为： OPENCV_VERSION := 3
-3. 若要使用python来编写layer，则需要将# WITH_PYTHON_LAYER := 1 修改为 WITH_PYTHON_LAYER := 1
-4. 重要的一项 将# Whatever else you find you need goes here.下面的
+1. 若使用`cudnn`，则将`# USE_CUDNN := 1`修改成:`USE_CUDNN := 1`
+2. 若使用的opencv版本是3的，则将`# OPENCV_VERSION := 3`修改为：`OPENCV_VERSION := 3`
+3. 若要使用python来编写`layer`，则需要将`# WITH_PYTHON_LAYER := 1`修改为`WITH_PYTHON_LAYER := 1`
+4. 重要的一项 将`# Whatever else you find you need goes here.`下面的
 ```
 INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include
 LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib
@@ -196,7 +196,7 @@ LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib
 INCLUDE_DIRS := $(PYTHON_INCLUDE) /usr/local/include /usr/include/hdf5/serial
 LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/hdf5/serial
 ```
-这是因为ubuntu16.04的文件包含位置发生了变化，尤其是需要用到的hdf5的位置，所以需要更改这一路径
+这是因为ubuntu16.04的文件包含位置发生了变化，尤其是需要用到的`hdf5`的位置，所以需要更改这一路径
 5. 若使用MATLAB接口的话，则要讲`MATLAB_DIR`换成你自己的MATLAB安装路径:
 ```
 MATLAB_DIR := /media/zheng/study-software/linux_matlabmatlab2014a
