@@ -2,7 +2,7 @@
 layout: post
 title: Ubuntu安装OpenFace
 date: 2016-11-15 20:25:24.000000000 +09:00
-tags: Ubuntu; OpenFace
+tags: 系统配置; Ubuntu; OpenFace
 ---
 # 安装准备
 
