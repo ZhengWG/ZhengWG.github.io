@@ -1,0 +1,195 @@
+---
+layout: post
+title: Ubuntu16.04LTS+Cuda9.0+opencv3+python+tensorflow配置
+date: 2018-11-20 20:25:24.000000000 +09:00
+tags: Ubuntu; Tensorflow; Python; Cuda
+---
+> [参考博客][address_blog]
+
+系统：Ubuntu16 （kernel：141）
+# 安装Cuda驱动
+采用下载文件安装，在系统设置选择软件和更新，更改下载源，选择`aliyun`，选择附件驱动，选择使用`NVIDA binary driver.......nvidia-384`:
+![图片1][图片1]
+提示重启后，终端输入：
+```
+sudo nvidia-settings
+```
+弹出界面：
+![图片2][图片2]
+则说明安装成功。通过`nvidia-smi`也可以得到GPU信息。
+
+# 安装Cuda
+官网下载[cuda9.0][address_cuda]的`deb`文件。安装：
+```
+sudo dpkg -i cuda-repo-ubuntu1604-9-0-local_9.0.176-1_amd64.deb(下载的文件名)
+# Install the public CUDA GPG key:
+sudo apt-key add /var/cuda-repo-9-0-local/7fa2af80.pub
+sudo apt-get update
+sudo apt-get install cuda
+```
+安装之后，需要修改配置文件：
+```
+sudo gedit /etc/profile
+```
+最后加入以下两行：
+```
+export PATH=/usr/local/cuda-9.0/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
+```
+然后使其生效：
+```
+source /etc/profile
+```
+可用以下语句验证：
+```
+nvcc --version
+```
+得到版本信息,测试`Cuda`的samples：
+```
+cd /usr/local/cuda-8.0/samples/1_Utilities/deviceQuery
+sudo make
+```
+运行测试程序:
+```
+./deviceQuery
+```
+得到输出：
+```
+./deviceQuery Starting...
+
+ CUDA Device Query (Runtime API) version (CUDART static linking)
+...
+deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 9.0, CUDA Runtime Version = 9.0, NumDevs = 1
+Result = PASS
+```
+
+# 安装Cudnn
+官网下载[cudnn][address_cudnn]，需要注册登录，下载速度很慢，下载`cudnn7.4.1 Library for Linux`版本（与`cuda9.0`匹配），为`tgz`压缩文件，解压文件后进入`include`文件，进行头文件的复制：
+```
+sudo cp cudnn.h /usr/local/cuda/include/
+```
+再转到`lib64`目录下：
+```
+sudo cp lib* /usr/local/cuda/lib64/
+cd /usr/local/cuda/lib64/
+sudo rm -rf libcudnn.so libcudnn.so.7
+sudo ln -s libcudnn.so.7.4.1 libcudnn.so.7
+sudo ln -s libcudnn.so.7 libcudnn.so
+sudo ldconfig
+```
+其中`libcudnn.so.7.4.1`等文件可能因版本不同而不同，注意和自己版本对照。
+
+# Python以及相关库
+Ubuntu16自带的Python版本为`2.7`和`3.5`，可通过以下命令得到：
+```
+ls /usr/bin/python*
+#结果：/usr/bin/python  /usr/bin/python2  /usr/bin/python2.7  /usr/bin/python3  /usr/bin/python3.5  /usr/bin/python3.5m  /usr/bin/python3m
+```
+默认的Python版本为（通过`python --version`得到）：
+```
+Python 2.7.12
+```
+可通过修改`bash`文件得到，在文件`～/.bashrc`文件末尾加入一行：
+```
+alias python='/usr/bin/python3.5'
+```
+脚本生效：
+```
+source ~/.bashrc
+```
+安装python环境下的依赖库,有时候需要更新一下pip：
+```
+sudo pip2 install --upgrade pip
+sudo pip3 install --upgrade pip
+```
+之后安装相关依赖包：
+```
+sudo apt-get install python-dev python-pip python3-dev python3-pip
+sudo -H pip2 install -U pip numpy scipy matplotlib scikit-image scikit-learn ipython==5.4 pandas
+sudo -H pip3 install -U pip numpy scipy matplotlib scikit-image scikit-learn ipython pandas
+```
+# 安装OpenCV3.4.5
+官网下载`linux`版本的[OpenCV3.4.5][address_opencv]以及[OpenCV3.4.5_contrib][address_opencv_contrib]库（将`contrib`库解压到`OpenCV3.4.5`下的文件夹内），先安装`Python`依赖项,依赖项解释如下图：
+![图片3][图片3]
+命令如下：
+```
+sudo apt-get install build-essential checkinstall cmake pkg-config    yasm      gfortran && sudo apt-get install libjpeg8-dev  libjasper-dev     libpng12-dev  libtiff5-dev && sudo apt-get install libavcodec-dev libavformat-dev   libswscale-dev libdc1394-22-dev    x264        v4l-utils && sudo apt-get install libxine2-dev   libv4l-dev && sudo apt-get install libgstreamer0.10-dev  libgstreamer-plugins-base0.10-dev && sudo apt-get install qt5-default  libgtk2.0-dev && sudo apt-get install libtbb-dev           libatlas-base-dev && sudo apt-get install libfaac-dev     libmp3lame-dev   libtheora-dev libvorbis-dev libxvidcore-dev && sudo apt-get install libopencore-amrnb-dev libopencore-amrwb-dev && sudo apt-get install libprotobuf-dev protobuf-compiler && sudo apt-get install libgoogle-glog-dev libgflags-dev && sudo apt-get install libgphoto2-dev libeigen3-dev libhdf5-dev doxygen
+```
+于`OpenCV3.4.5`中建立两个文件夹：`build`和`install`文件夹，前者构建`make`文件，后者为默认安装位置：
+```
+cd build
+```
+`Cmake`编译,通过cmake生成完整编译配置脚本,完成的工作如下：
+
+1. 构建正式`RELEASE`版
+2. 编译好的库安装到`/data/opencv/opencv-3.4.0/install/`
+
+3. 安装C的例子
+
+4. 安装Python的例子
+
+5. 开启`TBB`、`V4L`、`Qt`、`OpenGL`特性
+
+6. 编译安装开源社区贡献库
+
+7. 编译其他例子
+
+在安装过程中，会下载`ippicv`文件，网速会很慢，可采用手动下载`tgz`文件，放在`opencv-3.4.5`文件内，然后修改`opencv-3.4.5/3rdparty/ippicv/ippicv.cmake`文件，修改对应内容为下载文件所在地址：
+```
+ocv_download(FILENAME ${OPENCV_ICV_NAME}
+               HASH ${OPENCV_ICV_HASH}
+               URL
+                 "${OPENCV_IPPICV_URL}"
+                 "$ENV{OPENCV_IPPICV_URL}"
+                 "file:///home/zheng/opencv-3.4.5/"
+```		 
+最后`cmake`：
+```
+cmake  -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/home/zheng/opencv-3.4.5/install/ -D INSTALL_PYTHON_EXAMPLES=ON INSTALL_C_EXAMPLES=ON -D WITH_TBB=ON -D WITH_V4L=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D OPENCV_EXTRA_MODULES_PATH=/home/zheng/opencv-3.4.5/opencv_contrib-3.4.5/modules -D BUILD_EXAMPLES=ON .. 
+```
+最后编译安装：
+```
+sudo make -j4
+sudo make install -j4
+```
+编译环境：
+```
+sudo gedit /etc/ld.so.conf.d/opencv.conf
+```
+写入OpenCV文件目录：
+```
+/home/zheng/opencv-3.4.5/install/lib
+```
+重启`config`文件：
+```
+sudo ldconfig 
+```
+修改`bashrc`文件：
+```
+export PKG_CONFIG_PATH=/home/zheng/opencv-3.4.5/install/lib/ pkgconfig
+export LD_LIBRARY_PATH=/home/zheng/opencv-3.4.5/install/lib
+```
+启动`bashrc`文件：
+```
+source ~/.bashrc
+```
+添加`Python`接口：
+```
+sudo ln -s /home/zheng/opencv-3.4.5/install/lib/python2.7/dist-packages/cv2/python-2.7/cv2.so /usr/local/lib/python2.7/dist-packages/
+sudo ln -s /home/zheng/opencv-3.4.5/install/lib/python3.5/dist-packages/cv2/python-3.5/cv2.cpython-35m-x86_64-linux-gnu.so /usr/local/lib/python3.5/dist-packages
+```
+# 安装tensorflow-gpu和keras
+```
+sudo pip2 install tensorflow-gpu && sudo pip2 install keras
+sudo pip3 install tensorflow-gpu && sudo pip3 install keras
+```
+
+[address_blog]: http://www.douxiao.org/2018/01/20/Ubuntu16-04%E5%AE%89%E8%A3%85%E5%A4%9A%E7%89%88%E6%9C%ACOpencv/
+[address_cuda]: https://developer.nvidia.com/cuda-90-download-archive
+[address_cudnn]: https://developer.nvidia.com/rdp/cudnn-archive
+[address_opencv]: https://opencv.org/releases.html
+[address_opencv_contrib]: https://github.com/opencv/opencv_contrib/releases
+[图片1]: https://thumbnail10.baidupcs.com/thumbnail/1ad424dcbd7fe1f3e7e82d49e9415d5c?fid=2669703802-250528-597334404981646&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-XcguQBvU%2bsbCNnkL7ffA8zT4ihs%3d&expires=8h&chkbd=0&chkv=0&dp-logid=323059757651523877&dp-callid=0&time=1547474400&size=c10000_u10000&quality=90&vuk=2669703802&ft=image
+[图片2]: https://thumbnail10.baidupcs.com/thumbnail/d2ea3caa91ab5ed8f8988dafd85f2558?fid=2669703802-250528-590804906984750&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-SA76RXKX7UbvsB8Crl6684gsmHk%3d&expires=8h&chkbd=0&chkv=0&dp-logid=323059757651523877&dp-callid=0&time=1547474400&size=c10000_u10000&quality=90&vuk=2669703802&ft=image
+[图片3]: https://thumbnail10.baidupcs.com/thumbnail/23080251debd65e68c88e2396859e31b?fid=2669703802-250528-21546261108709&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-uSh7897shkIUT0%2bHTooo1F%2fFCZM%3d&expires=8h&chkbd=0&chkv=0&dp-logid=323059757651523877&dp-callid=0&time=1547474400&size=c10000_u10000&quality=90&vuk=2669703802&ft=image
+
