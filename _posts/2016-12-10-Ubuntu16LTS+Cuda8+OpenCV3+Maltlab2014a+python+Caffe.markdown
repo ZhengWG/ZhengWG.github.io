@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Ubuntu16LTS+Cuda8+OpenCV3+Matlab2014a+python+Caffe配置
+title: Ubuntu16LTS+Caffe基本环境配置
 date: 2016-12-10 20:25:24.000000000 +09:00
 tags: 系统配置; Ubuntu; OpenFace; Caffe
 ---

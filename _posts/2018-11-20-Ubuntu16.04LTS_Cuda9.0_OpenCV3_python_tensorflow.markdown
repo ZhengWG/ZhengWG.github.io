@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Ubuntu16.04LTS+Cuda9.0+opencv3+python+tensorflow配置
+title: Ubuntu16.04LTS+Tensorflow基本环境配置
 date: 2018-11-20 20:25:24.000000000 +09:00
 tags: Ubuntu; Tensorflow; Python; Cuda
 ---
