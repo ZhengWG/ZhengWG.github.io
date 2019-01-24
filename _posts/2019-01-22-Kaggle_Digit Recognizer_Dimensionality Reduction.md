@@ -1,10 +1,10 @@
-
 ---
 layout: post
 title: Kaggle-Digit Recognizer-Dimensionality Reduction
-date: 2019-01-22 23:30:24.000000000 +09:00
+date: 2019-01-22 23:56:24.000000000 +09:00
 tags: Kaggle; Digit Recognizer; Dimensionality Reduction
 ---
+
 > [参考网页](https://www.kaggle.com/arthurtok/digit-recognizer/interactive-intro-to-dimensionality-reduction)
 
 动态图没法动态显示，动态显示效果可参考[本人工程](https://github.com/ZhengWG/Kaggle/blob/master/Competition_minist/Dimensionality%20Reduction/Dimensionality%20Reduction.ipynb)
