@@ -452,7 +452,7 @@ for i in range(6, 9):
 ```
 
 
-![图片1](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/1.png)
+![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_dcnn/1.png)
 
 
 
@@ -512,7 +512,7 @@ plt.xticks(range(10));
 
 
 
-![图片2](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/2.png)
+![图片2](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_dcnn/2.png)
 
 
 # Designing Neural Network Architecture
@@ -623,7 +623,7 @@ plt.show()
 ```
 
 
-![图片3](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/3.png)
+![图片3](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_dcnn/3.png)
 
 
 
@@ -640,7 +640,7 @@ plt.show()
 ```
 
 
-![图片4](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/4.png)
+![图片4](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_dcnn/4.png)
 
 
 ## Fully Connected Model

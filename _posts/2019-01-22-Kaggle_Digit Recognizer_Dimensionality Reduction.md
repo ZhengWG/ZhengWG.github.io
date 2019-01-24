@@ -318,6 +318,7 @@ fig.layout.yaxis = dict(range=[0, 60], title='Explained Variance')
 
 py.iplot(fig, filename='inset example')
 ```
+```
 
     This is the format of your plot grid:
     [ (1,1) x1,y1 ]
@@ -327,7 +328,7 @@ py.iplot(fig, filename='inset example')
 
 ```
 
-![图片1](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
+![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 上图累计解释方差图可知874个数据，利用其中的200个数据便构成了90%的累积方差。所以在特征降维的过程中，只提取得到该200个特征便可以一定程度上替代整个样本。
 
@@ -366,7 +367,7 @@ plt.show()
 ```
 
 
-![图片2](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
+![图片2](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/2.png)
 
 
 从上图可知，特征图的方向演变越来越复杂，以拓展特征空间，扩大特征方差。
@@ -396,7 +397,7 @@ plt.tight_layout()
 
 
 
-![图片3](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
+![图片3](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/3.png)
 
 
 ## PCA Implementation via Sklearn
@@ -478,7 +479,7 @@ layout = go.Layout(
 fig = dict(data=data, layout=layout)
 py.iplot(fig, filename='styled-scatter')
 ```
-![图片4](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
+![图片4](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/4.png)
 
 PCA属于非监督学习，类别信息是外加的，可以看到类别的分类情况不是特别好
 
@@ -529,7 +530,7 @@ data = [trace_Kmeans]
 fig1 = dict(data=data, layout = layout)
 py.iplot(fig1, filename='svm')
 ```
-![图片5](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
+![图片5](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/5.png)
 
 和之前PCA的图相比较可见非监督学习的分类效果不是很好，两者一致性较低
 
@@ -597,7 +598,7 @@ layout = go.Layout(
 fig = dict(data=data, layout=layout)
 py.iplot(fig, filename='styled-scatter')
 ```
-![图片6](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
+![图片6](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/6.png)
 
 # 3. T-SNE(t-Distributed Stochastic Neighbour Embedding)
 
@@ -644,7 +645,7 @@ layout = dict(title = 'TSNE (T-Distributed Stochastic Neighbour Embedding)',
 fig = dict(data=data, layout=layout)
 py.iplot(fig, filename='styled-scatter')
 ```
-![图片7](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
+![图片7](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/7.png)
 
 从图中可以看出TSNE算法的类间分离效果较好，优于之前的PCA和LDA算法，这要归结于算法的拓扑保留特性
 TSNE算法的缺点在于可能存在多个局部最小值，图中可看出有相同颜色的子簇被分离到了两块不同的区域
