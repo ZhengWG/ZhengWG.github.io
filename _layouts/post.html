@@ -13,7 +13,7 @@ layout: default
   <section class="post">
     {{ content }}
   </section>
-  <div id="gitmentContainer"></div>
+  <div id='<%= page.date %>'></div>
   <link rel="stylesheet" href="https://jjeejj.github.io/css/gitment.css">
   <script src="https://jjeejj.github.io/js/gitment.js"></script>
   <script>
@@ -25,7 +25,7 @@ layout: default
        client_secret: '780ed7a7379fea4a1b8dd40198e90e6ccd949a95',
      },
    });
-   gitment.render('gitmentContainer');
+   gitment.render('<%= page.date %>');
   </script>
 </article>
 
