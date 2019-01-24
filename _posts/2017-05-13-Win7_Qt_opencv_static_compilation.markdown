@@ -25,9 +25,9 @@ Qt没有被正确安装，请运行makeinstall
 	可以按照[参考博客][address_blog]修复问题。
 测试：
 新建项目，需要选择两个库，默认的库和新建的`static`库，新建窗口程序：
-![图片1](https://thumbnail10.baidupcs.com/thumbnail/d097290823606717e0b88d89f0101187?fid=2669703802-250528-1048367792772478&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-OF5IUM0WYq31hjPCpECEOMoTe2Q%3d&expires=8h&chkbd=0&chkv=0&dp-logid=315884653773116047&dp-callid=0&time=1547445600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/1.jpg)
 
-![图片2](https://thumbnail10.baidupcs.com/thumbnail/8cfebee4b931ea61188db683536159c0?fid=2669703802-250528-363844389315077&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-1RroPaR%2bq1wxZTCOwudby6tRchU%3d&expires=8h&chkbd=0&chkv=0&dp-logid=316445576312036794&dp-callid=0&time=1547449200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片2](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/2.jpg)
 
 打开界面文件，拖入一个控件：
 
@@ -35,15 +35,15 @@ Qt没有被正确安装，请运行makeinstall
 
 选择static的release进行编译。
 
-![图片4](https://thumbnail10.baidupcs.com/thumbnail/031cd3273b0ce11e6436d66b7efae98a?fid=2669703802-250528-1010196697252779&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-NodN7cM7%2bz2rrRlp944FPI12KPo%3d&expires=8h&chkbd=0&chkv=0&dp-logid=316445576312036794&dp-callid=0&time=1547449200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片4](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/3.jpg)
 
 在生成的目录里面会有一个大概14M的`exe`文件即为静态编译得到的`exe`文件：
 
-![图片5](https://thumbnail10.baidupcs.com/thumbnail/b246208699d6bc6bade464579f46b886?fid=2669703802-250528-72264480203941&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-i8EaBYbmD%2fYqDiJn6gCvVmw4mrw%3d&expires=8h&chkbd=0&chkv=0&dp-logid=316445576312036794&dp-callid=0&time=1547449200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片5](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/5.jpg)
 
 双击`exe`文件便可：
 
-![图片6](https://thumbnail10.baidupcs.com/thumbnail/3be6c044f05ba80fdf7db57b09e87c94?fid=2669703802-250528-492103879842154&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-wk78Nuh0IswY5KSEHDNY%2fL1zWXQ%3d&expires=8h&chkbd=0&chkv=0&dp-logid=316445576312036794&dp-callid=0&time=1547449200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片6](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/6.jpg)
 
 该程序可以在没有配置环境的电脑上运行。
 
@@ -55,7 +55,7 @@ OpenCV版本：`OpenCV3.1`
 双击解压缩OpenCV下载文件：生成OPENCVDIR目录
 打开`CMake`，在`source code`中填写`OpenCV源码`，目录为`%OPENCVDIR%/sources`,在`build the binaries`中填写编译后的目录，本例中填写为`%OPENCVDIR%/bin`,按下下方的`conigure`键，之后会弹出一个对话框，按照下图选择，之后点击Next：
 
-![图片8](https://thumbnail10.baidupcs.com/thumbnail/e0055380052c7d267fcbe37401691412?fid=2669703802-250528-856955799252063&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-N9Pfv%2biO1X06PnALtopAL26IGwE%3d&expires=8h&chkbd=0&chkv=0&dp-logid=316728146123703169&dp-callid=0&time=1547449200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片8](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/8.png)
 
 分别在`C`和`C++`出填写目录：
 ```
@@ -77,7 +77,7 @@ LIBS += D:\software\opencv\opencv\bin\install\x86\mingw\lib\lib*.a \
 ```
 最后需要在`exe`文件中添加`dll`文件,包括OpenCV的`dll`文件和Qt的部分`dll`文件以及一些系统的`dll`文件:
 
-![图片7](https://thumbnail10.baidupcs.com/thumbnail/3be6c044f05ba80fdf7db57b09e87c94?fid=2669703802-250528-492103879842154&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-wk78Nuh0IswY5KSEHDNY%2fL1zWXQ%3d&expires=8h&chkbd=0&chkv=0&dp-logid=316445576312036794&dp-callid=0&time=1547449200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片7](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/7.jpg)
 
 
 [address_blog]: http://www.cnblogs.com/andy65007/p/3493309.html

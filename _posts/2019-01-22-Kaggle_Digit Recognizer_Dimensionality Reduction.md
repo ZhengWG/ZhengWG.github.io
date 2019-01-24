@@ -327,7 +327,7 @@ py.iplot(fig, filename='inset example')
 
 ```
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/3ee902fac23581dfcc74a6f38356ac6c?fid=2669703802-250528-254007089432425&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-iXeIRb8gs7yqC6WljL8bgKtcZlw%3d&expires=8h&chkbd=0&chkv=0&dp-logid=522921532916460375&dp-callid=0&time=1548219600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片1](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 上图累计解释方差图可知874个数据，利用其中的200个数据便构成了90%的累积方差。所以在特征降维的过程中，只提取得到该200个特征便可以一定程度上替代整个样本。
 
@@ -366,7 +366,7 @@ plt.show()
 ```
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/84d4540b94ef4ebe5e8fcd2dc4ef861e?fid=2669703802-250528-188570082064542&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-Q990US%2fReGPyd%2fceH%2fy0pOju6rA%3d&expires=8h&chkbd=0&chkv=0&dp-logid=522921532916460375&dp-callid=0&time=1548219600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片2](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 
 从上图可知，特征图的方向演变越来越复杂，以拓展特征空间，扩大特征方差。
@@ -396,7 +396,7 @@ plt.tight_layout()
 
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/010c8675494f7949322a31215fd8dfbf?fid=2669703802-250528-373513835866648&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-QysRBEXnAqYppQRRllcqXj3e0fo%3d&expires=8h&chkbd=0&chkv=0&dp-logid=522921532916460375&dp-callid=0&time=1548219600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片3](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 
 ## PCA Implementation via Sklearn
@@ -478,7 +478,7 @@ layout = go.Layout(
 fig = dict(data=data, layout=layout)
 py.iplot(fig, filename='styled-scatter')
 ```
-![png](https://thumbnail10.baidupcs.com/thumbnail/591fecb42291ff6ac7af51237fdd92bd?fid=2669703802-250528-593094353237395&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-x1SRGStRnWe4%2b7d3GN4foCqLsHc%3d&expires=8h&chkbd=0&chkv=0&dp-logid=522921532916460375&dp-callid=0&time=1548219600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片4](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 PCA属于非监督学习，类别信息是外加的，可以看到类别的分类情况不是特别好
 
@@ -529,7 +529,7 @@ data = [trace_Kmeans]
 fig1 = dict(data=data, layout = layout)
 py.iplot(fig1, filename='svm')
 ```
-![png](https://thumbnail10.baidupcs.com/thumbnail/3fc895a1cd81ce75467c48d129a24847?fid=2669703802-250528-456125364120384&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-Eks8%2bwd5ZtgYd3C6piVwFwk557s%3d&expires=8h&chkbd=0&chkv=0&dp-logid=522921532916460375&dp-callid=0&time=1548219600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片5](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 和之前PCA的图相比较可见非监督学习的分类效果不是很好，两者一致性较低
 
@@ -597,7 +597,7 @@ layout = go.Layout(
 fig = dict(data=data, layout=layout)
 py.iplot(fig, filename='styled-scatter')
 ```
-![png](https://thumbnail10.baidupcs.com/thumbnail/831306169a6da2f9cd7e1d3b46ee327c?fid=2669703802-250528-533801800529743&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-4ErxB74j6%2bA3al4f5jFJqRuxcOo%3d&expires=8h&chkbd=0&chkv=0&dp-logid=522921532916460375&dp-callid=0&time=1548219600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片6](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 # 3. T-SNE(t-Distributed Stochastic Neighbour Embedding)
 
@@ -644,7 +644,7 @@ layout = dict(title = 'TSNE (T-Distributed Stochastic Neighbour Embedding)',
 fig = dict(data=data, layout=layout)
 py.iplot(fig, filename='styled-scatter')
 ```
-![png](https://thumbnail10.baidupcs.com/thumbnail/b05c4b52532617e6da4c04f19aa0f1c6?fid=2669703802-250528-265953223890434&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-Z%2bvHBiOETv0eF89aR%2fD7qk3TfZ0%3d&expires=8h&chkbd=0&chkv=0&dp-logid=522921532916460375&dp-callid=0&time=1548219600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片7](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle-Digit%20Recognizer-Dimensionality%20Reduction/1.png)
 
 从图中可以看出TSNE算法的类间分离效果较好，优于之前的PCA和LDA算法，这要归结于算法的拓扑保留特性
 TSNE算法的缺点在于可能存在多个局部最小值，图中可看出有相同颜色的子簇被分离到了两块不同的区域

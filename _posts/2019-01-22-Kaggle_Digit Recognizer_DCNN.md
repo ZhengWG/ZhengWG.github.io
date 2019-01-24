@@ -452,7 +452,7 @@ for i in range(6, 9):
 ```
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/bf2fb673eda5584e70e83c58b5c79255?fid=2669703802-250528-608021746288378&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-w%2bsFDCFIG%2bdsm5Knh4PDSGd4uAU%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509416164654692657&dp-callid=0&time=1548169200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片1](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/1.png)
 
 
 
@@ -512,7 +512,7 @@ plt.xticks(range(10));
 
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/e05b00c40e6e2489eb3a765b460d1177?fid=2669703802-250528-205238920545378&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-38hHsY3GX5akuLeCDjdJfV%2bXomM%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509416164654692657&dp-callid=0&time=1548169200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片2](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/2.png)
 
 
 # Designing Neural Network Architecture
@@ -623,7 +623,7 @@ plt.show()
 ```
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/799a13ec2c5c9289e22124ea4dcfa688?fid=2669703802-250528-727438085840877&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-3FhVlIG3cRCVnMaBRqrbNNaSStE%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509416164654692657&dp-callid=0&time=1548169200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片3](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/3.png)
 
 
 
@@ -640,7 +640,7 @@ plt.show()
 ```
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/49c442fe8df0155afa60ed2aaca679a0?fid=2669703802-250528-1116439590664025&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-orloi1%2bNDUvOaUfY2MOjiBJ3yGo%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509416164654692657&dp-callid=0&time=1548169200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片4](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_dcnn/4.png)
 
 
 ## Fully Connected Model

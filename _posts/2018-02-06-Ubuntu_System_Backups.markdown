@@ -139,8 +139,7 @@ sudo cp /boot/grub/grub.cfg /media/用户名/移动硬盘对应盘符/
 
 
 [address_IT之家]: https://www.ithome.com/
-[图片1]: https://thumbnail10.baidupcs.com/thumbnail/bf4f04cc25771426e1354ee24a62eba0?fid=2669703802-250528-886678420642874&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-H6KBkNSj%2bWUQkpJvEJ6olpkJynw%3d&expires=8h&chkbd=0&chkv=0&dp-logid=322645388918808527&dp-callid=0&time=1547470800&size=c10000_u10000&quality=90&vuk=2669703802&ft=image
-[图片2]: https://thumbnail10.baidupcs.com/thumbnail/a3f144a167b8bb8f855b613280c395d4?fid=2669703802-250528-1003171764448725&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-DVeMx0K9oSxZP0xfULswaG7T8qM%3d&expires=8h&chkbd=0&chkv=0&dp-logid=322645388918808527&dp-callid=0&time=1547470800&size=c10000_u10000&quality=90&vuk=2669703802&ft=image
-[图片3]: https://thumbnail10.baidupcs.com/thumbnail/224be15360ef379543abb5da80268b94?fid=2669703802-250528-345047071881643&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-ggV4fhrfeXwoAKDHQOOF1ro%2bnDw%3d&expires=8h&chkbd=0&chkv=0&dp-logid=322645388918808527&dp-callid=0&time=1547470800&size=c10000_u10000&quality=90&vuk=2669703802&ft=image
-[图片4]: https://thumbnail10.baidupcs.com/thumbnail/43db6b469e54d250e25708603aa2a93e?fid=2669703802-250528-90310093717786&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-2vvV7h67WhuSz8%2fppQMjgtVq0RU%3d&expires=8h&chkbd=0&chkv=0&dp-logid=322645388918808527&dp-callid=0&time=1547470800&size=c10000_u10000&quality=90&vuk=2669703802&ft=image
-
+[图片1]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/1.jpg
+[图片2]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/2.png
+[图片3]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/3.jpg
+[图片4]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/4.jpg

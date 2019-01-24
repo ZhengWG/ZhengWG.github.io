@@ -10,15 +10,15 @@ tags: 系统配置; Ubuntu; OpenFace; Caffe
 # 安装Cuda驱动
 采用下载文件安装，在系统设置选择软件和更新，更改下载源，选择`aliyun`，选择附件驱动，选择使用`NVIDA binary driver.......nvidia-367`
 
-![软件更新图片](https://thumbnail10.baidupcs.com/thumbnail/fc9d796178ad1a4191230a11e684dac7?fid=2669703802-250528-598673463397308&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-jcjeSbUgUcpCBbSAT8IyRkUGRJ8%3d&expires=8h&chkbd=0&chkv=0&dp-logid=249185088311834398&dp-callid=0&time=1547197200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
-![驱动安装图片](https://thumbnail10.baidupcs.com/thumbnail/934bfe3df20d50c84e2045f25927cd2d?fid=2669703802-250528-468014980013160&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-0dnE3V5gA6CaxoMN05SlQnENnjQ%3d&expires=8h&chkbd=0&chkv=0&dp-logid=249206331802147630&dp-callid=0&time=1547197200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![软件更新图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/1.png)
+![驱动安装图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/2.png)
 
 提示重启后，终端输入：
 ```
 sudo nvidia-settings 
 ```
 弹出界面如下：
-![驱动测试图片](https://thumbnail10.baidupcs.com/thumbnail/96a222b6e54604539be2ad4c62e20493?fid=2669703802-250528-848509026897922&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-uz9DvLa%2fhpBJ06HMRCB9XeAwv7I%3d&expires=8h&chkbd=0&chkv=0&dp-logid=249206331802147630&dp-callid=0&time=1547197200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![驱动测试图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/3.png)
 
 说明驱动安装成功，通过`nvidia-smi`也可以得到GPU信息。
 # 安装Cuda8
@@ -242,7 +242,7 @@ ln -sf /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /media/zheng/study/linux/MATLAB/
 ```
 运行正确结果如下：
 
-![Caffe编译成功图片](https://thumbnail10.baidupcs.com/thumbnail/df28b3ae80b086b09766adf32f465699?fid=2669703802-250528-164186304842510&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-O5xcwQbXUXtLfT74JpGnOV0khpc%3d&expires=8h&chkbd=0&chkv=0&dp-logid=249206331802147630&dp-callid=0&time=1547197200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![Caffe编译成功图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/4.png)
 
 至此，Caffe配置完毕。
 

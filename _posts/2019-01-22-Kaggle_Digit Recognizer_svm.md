@@ -47,7 +47,7 @@ plt.title(train_labels.iloc[i,0])
 
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/182f113ee1ae5120bc441bfd856e6402?fid=2669703802-250528-1081618836131539&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-ySAdF4iY%2f9umKxOOOWi4Qc3u9ME%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509207438169866408&dp-callid=0&time=1548165600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片1](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_svm/1.png)
 
 
 
@@ -66,7 +66,7 @@ plt.hist(train_images.iloc[i])
 
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/40c11600a94d44e57f264c203b78aadc?fid=2669703802-250528-538743626947747&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-7wqQ2pKiHBgDjGLfqoEOdIgTuwk%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509207438169866408&dp-callid=0&time=1548165600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片2](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_svm/2.png)
 
 
 
@@ -126,7 +126,7 @@ plt.title(train_labels.iloc[i].to_string())
 
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/d201f1e0da6a919b0d7df432b1dee883?fid=2669703802-250528-739471391768408&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-xBBbr4Vqng9axjYRIsiLHLGMK4I%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509207438169866408&dp-callid=0&time=1548165600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片3](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_svm/3.png)
 
 
 
@@ -144,7 +144,7 @@ plt.hist(train_images.iloc[i])
 
 
 
-![png](https://thumbnail10.baidupcs.com/thumbnail/a9aca742f1c37d336da20b1f89480f40?fid=2669703802-250528-567387545657952&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-ECFL8BEmVTnQ3EBs2SXfH8mC510%3d&expires=8h&chkbd=0&chkv=0&dp-logid=509207438169866408&dp-callid=0&time=1548165600&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
+![图片4](https://github.com/ZhengWG/Imgs_blog/blob/master/Kaggle_Digit%20Recognizer_svm/4.png)
 
 
 
