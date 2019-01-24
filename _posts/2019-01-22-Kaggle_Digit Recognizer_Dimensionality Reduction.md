@@ -1,3 +1,4 @@
+
 ---
 layout: post
 title: Kaggle-Digit Recognizer-Dimensionality Reduction
@@ -652,8 +653,5 @@ TSNE算法的缺点在于可能存在多个局部最小值，图中可看出有�
 
 # 4.总结
 
-
-```python
 这里简单总结了几种常见的降维方法，包括：PCA（+KMeans），LDA，TSNE
 还有一些其他的降维方案，包括：Sammon映射、多维缩放、以及一些基于图的可视化方法
-```
