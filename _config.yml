@@ -2,11 +2,9 @@
 encoding: utf-8
 
 # Basic
-name: Johney Zheng's blog
 title: Johney Zheng
 subtitle: 郑文钢的小站
 description: 不要习惯了黑暗就为黑暗辩护；不要为了自己的苟且而得意，做一个勇敢而热情的人
-url: https://www.johneyzheng.top
 
 permalink: /:year/:month/:title/
 
@@ -32,7 +30,7 @@ paginate_path: "page/:num/"
 
 # Comment
 comment:
-    disqus: johneyzheng
+    # disqus: johneyzheng
     # duoshuo: 
     
 # Social

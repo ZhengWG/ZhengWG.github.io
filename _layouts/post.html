@@ -13,6 +13,20 @@ layout: default
   <section class="post">
     {{ content }}
   </section>
+  <div id="gitmentContainer"></div>
+  <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+  <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+  <script>
+   var gitment = new Gitment({
+     owner: 'ZhengWG',
+     repo: 'ZhengWG.github.io',
+     oauth: {
+       client_id: 'd427497a5268ab95f219',
+       client_secret: '780ed7a7379fea4a1b8dd40198e90e6ccd949a95',
+     },
+   });
+   gitment.render('gitmentContainer');
+  </script>
 </article>
 
 {% include read-more.html %}
