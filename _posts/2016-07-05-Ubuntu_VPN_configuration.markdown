@@ -12,9 +12,6 @@ tags: ZJU; Ubuntu; VPN
 sudo gedit /etc/network/interfaces
 ```
 需要先`ifconfig`确定网卡号
-```
-ifconfig
-```
 
 **说明**：DNS也在这里直接设置了，不要去`/etc/resolv.conf`里设置，那个只是临时的，开机就又没用了。寝室里需要绑定`mac`地址请自行google
 ```
