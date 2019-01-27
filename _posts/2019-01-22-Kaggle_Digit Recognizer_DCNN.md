@@ -6,6 +6,35 @@ tags: Kaggle; Digit Recognizer; DCNN
 ---
 > [参考网页](https://www.kaggle.com/poonaml/digit-recognizer/deep-neural-network-keras-way)
 
+# 注意点
+
+BN层编译部分:
+Batchnormalization的axis参数在卷积层和池化层应为1（4维数据）
+Dense层保持默认即可
+但是对于keras 2,2,4和tensorflow-gpu 1.12会出现错误
+可参照[链接](https://github.com/keras-team/keras/commit/e3a2f7d29f2f1c21ecc978bd0038b1d1330d33c2)对对应文件进行修改,文件修改如下：
+```
+if ndim(mean) > 1:
+	#mean = tf.reshape(mean, (-1))
+	#added by zwg 20190121
+	mean = tf.reshape(mean, [-1])
+if ndim(var) > 1:
+	#var = tf.reshape(var, (-1))
+	#added by zwg 20190121
+	var = tf.reshape(var, [-1])
+if beta is None:
+	beta = zeros_like(mean)
+elif ndim(beta) > 1:
+	#beta = tf.reshape(beta, (-1))
+	#added by zwg 20190121
+	beta = tf.reshape(beta, [-1])
+if gamma is None:
+	gamma = ones_like(mean)
+elif ndim(gamma) > 1:
+	#gamma = tf.reshape(gamma, (-1))
+	#added by zwg 20190121
+	gamma = tf.reshape(gamma, [-1])
+```
 # Import all required libraries
 
 
