@@ -1104,7 +1104,7 @@ print('Test accuracy:', scores[1])
     Test accuracy: 0.7866
 
 
- ## 卷积层可视化
+## 卷积层可视化
 
 以VGG16为例进行卷积层的可视化，详细实现原理可参考[机器之心-卷积特征可视化](https://www.jiqizhixin.com/articles/2019-01-31-13)
 
