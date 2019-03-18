@@ -73,6 +73,12 @@ sudo timedatectl set-local-rtc 1
 ```
 然后在windows下更新最新时间即可。
 
+# 更改键位
+
+编辑文件：/usr/share/X11/xkb/keycodes/evdev
+
+该文件定义了按键和keycode的关系，如预设的CAPS_LOCK键为66，需要更改对应的功能键
+
 
 [address_sogou]: https://pinyin.sogou.com/linux/
 [address_wps]: http://www.wps.cn/product/wpslinux/#
