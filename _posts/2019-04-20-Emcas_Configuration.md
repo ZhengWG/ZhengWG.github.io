@@ -243,7 +243,7 @@ Minor Mode: 增强性功能的Mode
     
         (global-set-key (kbd "C-=") 'er/expand-region)
 
--   [Occur-mode](https://www.emacswiki.org/emacs/OccurMode) :能够查询字符并对字符所在行显示，可在显示的缓存内进行编辑， `M-s o=进行选中内容的搜索显示，按 =e` 可进行编辑模式
+-   [Occur-mode](https://www.emacswiki.org/emacs/OccurMode) :能够查询字符并对字符所在行显示，可在显示的缓存内进行编辑， `M-s o`进行选中内容的搜索显示，按 =e可进行编辑模式
 -   [iedit-mode](https://github.com/victorhge/iedit) :能够对选中的内容进行共同编辑，选中内容后，通过 `M-s e` 进入iedit模式(快捷键需要绑定)：
     
         (global-set-key (kbd "M-s e") 'iedit-mode)
