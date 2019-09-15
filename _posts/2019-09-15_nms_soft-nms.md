@@ -78,18 +78,11 @@ tags: nms; CV
 传统的nms对于多个物体重叠的情况来说,会把低分的物体过滤掉,处理过于粗暴,参考上图;soft-nms的方法是将计算得到的iou和box本身的score的输入参数,重新计算box的置信度,最后根据新的置信度判断是否去除这个box,计算公式为:
 
 线性加权:
-
-\[ s_i=\left\{
-\begin{array}{rcl}
-s_i,                   &      &iou(M,b_i)<N_t\\
-s_i(1-iou(M,b_i)),     &      &iou(M,b_i)>=N_t\\
-\end{array} \right. \]
+![线性加权公式](https://github.com/ZhengWG/Imgs_blog/raw/master/nms_and_soft_nms/ltximg/org-ltximg_1180780576c3081aa0d4eb0be10ec0cfc93e1d40.png)
 
 高斯加权:
 
-\[
-s_i = s_ie-\frac{iou(M,b_i)^2}{\sigma}
-\]
+![高斯加权公式](https://github.com/ZhengWG/Imgs_blog/raw/master/nms_and_soft_nms/ltximg/org-ltximg_61f6887da1166368bd2448b5a3d8010748c7ff5c.png)
 
 代码实现步骤如下:
 
