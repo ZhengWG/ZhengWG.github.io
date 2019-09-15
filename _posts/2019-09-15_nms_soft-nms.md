@@ -74,21 +74,26 @@ tags: nms; CV
 
 ## soft-nms
 
-![pic-shortcoming<sub>for</sub><sub>nms</sub>][https://github.com/ZhengWG/Imgs_blog/raw/master/nms_and_soft_nms/shortcoming_for_nms.jpeg]
+![pic-shortcoming for nms](https://github.com/ZhengWG/Imgs_blog/raw/master/nms_and_soft_nms/shortcoming_for_nms.jpeg)
 传统的nms对于多个物体重叠的情况来说,会把低分的物体过滤掉,处理过于粗暴,参考上图;soft-nms的方法是将计算得到的iou和box本身的score的输入参数,重新计算box的置信度,最后根据新的置信度判断是否去除这个box,计算公式为:
+
 线性加权:
+
 \[ s_i=\left\{
 \begin{array}{rcl}
 s_i,                   &      &iou(M,b_i)<N_t\\
 s_i(1-iou(M,b_i)),     &      &iou(M,b_i)>=N_t\\
 \end{array} \right. \]
+
 高斯加权:
+
 \[
 s_i = s_ie-\frac{iou(M,b_i)^2}{\sigma}
 \]
+
 代码实现步骤如下:
 
--   因为过程中需要对score进行更新,需要不能提前对box的score进行排序,需要遍历box,得到max<sub>score的box序号</sub>:
+-   因为过程中需要对score进行更新,需要不能提前对box的score进行排序,需要遍历box,得到max_score的box序号:
     -   得到最高score box序号,交换当前序号和最大score的box参数,包括score,box位置
     -   遍历剩下的box与当前最高score的box进行iou的计算:
         -   根据定义的更新规则(线性加权或者高斯加权)更新score
