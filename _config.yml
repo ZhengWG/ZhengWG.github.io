@@ -1,46 +1,205 @@
-# Handing Reading
-encoding: utf-8
+# The Site Settings
+# v2.0
+# https://github.com/cotes2020/jekyll-theme-chirpy
+# © 2017-2019 Cotes Chung
+# MIT licensed
+
+
+# jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
+#--------------------------
+
 
 # Basic
 title: Johney Zheng
-subtitle: 郑文钢的小站
+tagline: 郑文钢的小站
 description: 不要习惯了黑暗就为黑暗辩护；不要为了自己的苟且而得意，做一个勇敢而热情的人
+url: "https://www.johneyzheng.top/"
+author: 郑文钢(JohneyZheng)
+avatar: /assets/img/avatar.jpg
 
-permalink: /:year/:month/:title/
+github:
+  username: ZhengWG
 
-# Format
+social:
+  name: JohneyZheng
+  email: 21625111@zju.edu.cn
+  links:
+    - https://github.com/ZhengWG
+
+lang: zh-Hans
+
+# google_site_verification: 1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw
+
+#--------------------------
+
+
+# Only if your site type is GitHub Project sites and doesn't have a custom domain,
+# change below value to '/projectname'.
+baseurl: ''
+
+# Change to your timezone › http://www.timezoneconverter.com/cgi-bin/findzone/findzone
+timezone: Asia/China
+
+disqus:
+  comments: false  # boolean type, the global switch for posts comments.
+  shortname: 'JohneyZheng'    # Fill with your Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
+
+# utterances:
+  # comments: true
+  # light_theme: github-light
+  # dark_theme: photon-dark
+  # repo: onevcat/OneV-s-Den-Comments
+
+# Prefer color scheme setting, available values:
+#
+#     dual   - Follow the system prefer color by default, and a toggle will display
+#              in the left bottom of Sidebar, which used for switch the theme between dark and light.
+#
+#     light  - Use the light color scheme
+#
+#     dark   - Use the dark color scheme
+#
+theme_mode: dual
+
+# boolean type, global switch for ToC in posts.
+toc: true
+
+paginate: 10
+
+markdown: kramdown
+
 highlighter: rouge
 
-# supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
-cover_color: 
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts: # Rouge Options › https://github.com/jneen/rouge#full-options
+    css_class: 'highlight'
+    # default_lang: console
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
 
-# The blog button should not be removed.
-blog_button:
-    title: Blog
-    description: Visit blog
+# DO NOT change this unless you're a Pro user on Jekyll and Web development,
+# or you think you're smart enough to change other relevant URLs within this template.
+permalink: /:year/:month/:title/
 
-# Navigation buttons in the front page.
-nav:
-    # - {title: Another Button, description: A button, url: 'http://example.com'}
+defaults:
+  -
+    scope:
+      path: ""          # An empty string here means all files in the project
+      type: posts
+    values:
+      layout: post
+      comments: true    # Enable comments in posts.
+      toc: true         # Display TOC column in posts.
+      location: Post
+      breadcrumb:
+        -
+          label: 主页
+          url: /
+  -
+    scope:
+      path: _drafts
+    values:
+      comments: false
+  -
+    scope:
+      path: tags
+    values:
+      tab_active: Tags
+      location: Tag
+      breadcrumb:
+        -
+          label: 主页
+          url: /
+        -
+          label: 标签
+          url: /tabs/tags/
+  -
+    scope:
+      path: categories
+    values:
+      tab_active: Categories
+      location: Category
+      breadcrumb:
+        -
+          label: 主页
+          url: /
+        -
+          label: 分类
+          url: /tabs/categories/
+  -
+    scope:
+      path: tabs
+    values:
+      layout: page
+      dynamic_title: true    # Hide title in mobile screens.
+      breadcrumb:
+        -
+          label: 主页
+          url: /
 
-# Pagination
-plugins: [jekyll-paginate]
-paginate: 10
-paginate_path: "page/:num/"
 
-# Comment
-comment:
-    # disqus: johneyzheng
-    # duoshuo: 
-    
-# Social
-social:
-    weibo: 3868964316/profile?topnav=1&wvr=6&is_all=1
-    github: ZhengWG
-    twitter: W1gfs1RV3SXom6L
-    mail: 21625111@zju.edu.cn
+sass:
+  sass_dir: /assets/css
+  style: compressed
 
-# Google Analytics
-ga:
-    # id: your_ga_id
-    # host: your_host
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  profile: false
+  blanklines: false
+  ignore:
+    envs: []
+
+exclude:
+  - vendor        # Avoid Jekyll mistakenly read the vendor directory on Travis-CI's VM .
+  - Gemfile.lock
+  - Gemfile
+  - tools
+  - docs
+  - README.md
+  - LICENSE
+
+sitemap_exclude:  # Sitemap will exclude the following items.
+  fuzzy:
+    - /assets/
+  accurate:
+    - /norobots/
+    - /tabs/
+    - /categories/
+    - /tags/
+    - /posts/
+    - /2011/
+    - /2012/
+    - /2013/
+    - /2014/
+    - /2015/
+    - /2016/
+    - /2017/
+    - /2018/
+    - /2019/
+    - /2020/
+    - /2021/
+    - /2022/
+    - /2023/
+    - /2024/
+    - /2025/
+    - /2026/
+    - /2027/
+    - /2028/
+    - /2029/
+    - /2030/
+    - 404.html
+    - feed.xml
+    - sitemap.xml
+    - robots.txt
+    - redirects.json
+    - Brewfile
+    - Brewfile.lock.json
+    - build.sh
+    - config.codekit3
