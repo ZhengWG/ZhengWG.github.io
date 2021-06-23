@@ -2,8 +2,10 @@
 layout: post
 title: 双系统安装(WIN10+Ubuntu16)
 date: 2016-11-17 20:25:24.000000000 +09:00
-tags: 双系统安装; Ubuntu
+categories: [环境配置]
+tags: [双系统]
 ---
+
 # Windows下的安装准备
 插入U盘（最好删除其他文件），打开`ULtraiso`软件，打开`Ubuntu16.04 ISO`文件，`启动`->`写入硬盘映像`，选择自己的U盘，选择`便捷启动`，开始写入。
 ![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/%E5%8F%8C%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85(WIN10%2BUbuntu16.04%20LTS)/1.png)

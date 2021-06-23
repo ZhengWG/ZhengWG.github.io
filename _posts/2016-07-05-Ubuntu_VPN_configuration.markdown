@@ -2,8 +2,10 @@
 layout: post
 title: 浙大玉泉Ubuntu VPN设置
 date: 2016-07-05 20:25:24.000000000 +09:00
-tags: ZJU; Ubuntu; VPN
+categories: [环境配置]
+tags: [ZJU, VPN]
 ---
+
 概述：针对浙大玉泉校区的Ubuntu下的VPN设置
 
 # 内网有线IP设置

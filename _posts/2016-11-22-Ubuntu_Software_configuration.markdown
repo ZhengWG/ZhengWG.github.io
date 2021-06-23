@@ -2,8 +2,10 @@
 layout: post
 title: Ubuntu16常用软件安装
 date: 2016-11-22 20:25:24.000000000 +09:00
-tags: Ubuntu; Emacs
+categories: [环境配置]
+tags: [Ubuntu]
 ---
+
 概述：Ubuntu16下的基本软件环境设置
 
 # 自带软件卸载
