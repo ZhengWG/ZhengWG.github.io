@@ -2,7 +2,8 @@
 layout: post
 title: Kaggle-Digit Recognizer-MLP
 date: 2019-01-22 23:25:24.000000000 +09:00
-tags: Kaggle; Digit Recognizer; MLP
+categories: [Tutorial]
+tags: [Kaggle, CV]
 ---
 > [参考网页](https://www.kaggle.com/fchollet/simple-deep-mlp-with-keras/code)
 
@@ -22,19 +23,19 @@ X_test = (pd.read_csv('../input/test.csv').values).astype('float32')
 ```
 
     Using TensorFlow backend.
-    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:10: DeprecationWarning: 
+    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:10: DeprecationWarning:
     .ix is deprecated. Please use
     .loc for label based indexing or
     .iloc for positional indexing
-    
+
     See the documentation here:
     http://pandas.pydata.org/pandas-docs/stable/indexing.html#ix-indexer-is-deprecated
       # Remove the CWD from sys.path while we load stuff.
-    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:11: DeprecationWarning: 
+    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:11: DeprecationWarning:
     .ix is deprecated. Please use
     .loc for label based indexing or
     .iloc for positional indexing
-    
+
     See the documentation here:
     http://pandas.pydata.org/pandas-docs/stable/indexing.html#ix-indexer-is-deprecated
       # This is added back by InteractiveShellApp.init_path()
@@ -88,7 +89,7 @@ preds = model.predict_classes(X_test, verbose=0)
 
 def write_preds(preds, fname):
     pd.DataFrame({"ImageId":list(range(1, len(preds)+1)), "Label": preds}).to_csv(fname, index=False, header=True)
-    
+
 write_preds(preds, "keras-mlp.csv")
 ```
 
@@ -115,4 +116,3 @@ write_preds(preds, "keras-mlp.csv")
     Epoch 10/10
      - 14s - loss: 0.2000 - val_loss: 0.2004
     Generating test predictions...
-

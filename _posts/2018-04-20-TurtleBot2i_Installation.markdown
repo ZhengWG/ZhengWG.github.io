@@ -2,7 +2,8 @@
 layout: post
 title: Turtlebot2i软件包的安装与配置
 date: 2018-04-20 20:25:24.000000000 +09:00
-tags: Turtlebot2i; ROS
+categories: [环境配置]
+tags: [Turtlebot2i, ROS]
 
 ---
 概述：`Turtlebot2i`是针对`turtlebot2-arm`版本的软件安装包，这里简单介绍一下它的的安装与编译，根据实际情况与官方教程有所不同。本文的软件安装过程：先安装`ROS-kinetic`基本功能包-测试主从机`ssh`通信-配置`Turtlebot2i`软硬件。
@@ -72,7 +73,7 @@ vim /etc/hosts
 ![图片4][图片4]
 重启网络：
 ```
-sudo /etc/init.d/networking restart 
+sudo /etc/init.d/networking restart
 ```
 两台电脑需要进行同步(可能需要安装`sudo apt install ntpdate`)：
 ```
@@ -98,7 +99,7 @@ roscore
 启动`listener`，并且设置`ROS_MASTER_URI`：
 ```
 export ROS_MASTER_URI=http://PC_hostname:11311
-rosrun rospy_tutorials talker.py  
+rosrun rospy_tutorials talker.py
 ```
 笔记本上运行：
 ```
@@ -276,7 +277,7 @@ roslaunch turtlebot2i_bringup turtlebot2i_demo1.launch rviz:=true
 ## 学习资料
 
 开始学习教程 - 立刻进入和开始使用ROS开始学习教程 - 立刻进入和开始使用[ROS教程](http://wiki.ros.org/cn/ROS/Tutorials)
-  
+
 概览 - 通读ROS和它的功能的这个[概览](http://wiki.ros.org/cn/ROS/Introduction)。
 
 有关ROS架构的更多详细信息，请参考[ROS核心文档](http://wiki.ros.org/cn/ROS) 。

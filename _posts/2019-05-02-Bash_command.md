@@ -2,7 +2,8 @@
 layout: post
 title: bash常用命令总结
 date: 2019-05-02 00:25:24.000000000 +09:00
-tags: Bash; grep; xargs; sed; awk; find 
+categories: [语言]
+tags: [Shell]
 ---
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
@@ -109,7 +110,7 @@ s:默认是对每行搜索到的第一个符合要求的字符进行匹配
     # \1为匹配符，能够匹配前面字符内容，在该基础上加上内容，但需要将前面的匹配的内容通过\(\)括号括出来
     # [layer1],[Forward Timer],__conv__,3.10Zheng8
     # [layer2],[layer2],Forward Timer],__conv__,3.1Zheng7
-    sed -n '1,2s/\(\.[0-9]\)/\1zheng/p' test.output 
+    sed -n '1,2s/\(\.[0-9]\)/\1zheng/p' test.output
     # 同上，只是在后面添加内容
     # [layer1],[Forward Timer],__conv__,3.1zheng08
     # [layer2],[layer2],Forward Timer],__conv__,3.1zheng7
@@ -132,7 +133,7 @@ awk保留字：BEGIN,awk程序开始时，尚未读取任何数据之前执行�
 
 awk只要检测不到完整的单引号就不会执行。
 
-    cat test.output 
+    cat test.output
     # [layer1] [backward_Timer] __conv__      3.108
     # [layer2] [Forward_Timer] __conv__       19.17
     # [layer3]                  [backward_Timer] __conv__ 13.17
@@ -144,13 +145,13 @@ awk只要检测不到完整的单引号就不会执行。
     # [backward_Timer]
     # [Forward_Timer]
     # [Forward_Timer]
-    awk 'END {print "Just print layer2 and score>10"} $4>10 && /Forward_Timer/ {print }' test.output 
+    awk 'END {print "Just print layer2 and score>10"} $4>10 && /Forward_Timer/ {print }' test.output
     # END 为执行命令结束后输出
     # awk指令支持正则，需要将正则指令通过//框出
     # &&表示多重与指令，或操作为||
     # [layer2] [Forward_Timer] __conv__       19.17
     # Just print layer2 and score>10
-    awk '{printf "row:%d,column:%d\n",NR,NF}' test.output 
+    awk '{printf "row:%d,column:%d\n",NR,NF}' test.output
     # NR:内置变量，为处理的行数
     # NF:内置变量，为处理的列数
     # %d为格式话输出，需要用printf，和print的区别是可以格式化输出，且默认无换行
@@ -158,7 +159,7 @@ awk只要检测不到完整的单引号就不会执行。
     # row:2,column:4
     # row:3,column:4
     # row:4,column:4
-    awk '/Forward_Timer/ {sum += $4;i++} END {printf "%.2f\n",sum/i}' test.output 
+    awk '/Forward_Timer/ {sum += $4;i++} END {printf "%.2f\n",sum/i}' test.output
     # 多个命令需要;连接
     # 14.17
 

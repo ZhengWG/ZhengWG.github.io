@@ -2,7 +2,8 @@
 layout: post
 title: nms and soft-nms
 date: 2019-09-15 17:16:24.000000000 +09:00
-tags: nms; CV
+categories: [算法篇]
+tags: [NMS, CV]
 ---
 # Table of Contents
 
@@ -38,7 +39,7 @@ tags: nms; CV
 
     #coding:utf-8
     import numpy as np
-    
+
     def py_cpu_nms(dets, thre):
         #输入:dets:为输入的box numpy原始序列:x1,y1,x2,y2,score
         #输入:thre:iou阈值
@@ -102,7 +103,7 @@ tags: nms; CV
     import numpy as np
     #coding:utf-8
     #coding:utf-8
-    
+
     def soft-nms(dets, thre=0.001, Nt=0.1, sigma=0.5, method=1):
         #输入:dets:为输入的box numpy原始序列
         #thre:更新权重后score阈值,Nt为iou阈值,sigma为高斯权重的参数
@@ -131,7 +132,7 @@ tags: nms; CV
             dets[pos][2] = x2
             dets[pos][3] = y2
             dets[pos][4] = score
-    
+
             #更新max score box的参数
             x1 = dets[i][0]
             y1 = dets[i][1]
@@ -176,4 +177,3 @@ tags: nms; CV
         return out
 
 论文参考:[soft-nms论文](http://link.zhihu.com/?target=http%3A//cn.arxiv.org/abs/1704.04503)
-

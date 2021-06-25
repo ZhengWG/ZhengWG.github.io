@@ -27,7 +27,7 @@ sudo apt-get install pkg-config -y
 sudo apt-get install python-dev -y
 sudo apt-get install python-pip -y
 sudo apt-get install wget -y
-sudo apt-get install zip -y 
+sudo apt-get install zip -y
 ```
 # 安装库
 ```
@@ -52,7 +52,7 @@ source ~/.bashrc
 ~/torch/install/bin/luarocks install optim
 ~/torch/install/bin/luarocks install csvigo
 ~/torch/install/bin/luarocks install cunn
-~/torch/install/bin/luarocks install torchx 
+~/torch/install/bin/luarocks install torchx
 ~/torch/install/bin/luarocks install graphicsmagick
 ~/torch/install/bin/luarocks install cutorch
 ```
@@ -66,18 +66,18 @@ cd src
 下载[Dlib][dlib]
 通过以下过程安装：
 ```
-mkdir -p ~/src  
-cd ~/src tar xf dlib-18.16.tar.gz  
-cd dlib-18.16/python_examples  
-mkdir build  
-cd build  
-cmake ../../tools/python  
-cmake --build . --config Release  
-sudo cp dlib.so /usr/local/lib/python2.7/dist-packages 
+mkdir -p ~/src
+cd ~/src tar xf dlib-18.16.tar.gz
+cd dlib-18.16/python_examples
+mkdir build
+cd build
+cmake ../../tools/python
+cmake --build . --config Release
+sudo cp dlib.so /usr/local/lib/python2.7/dist-packages
 ```
 # 安装OpenFace
 ```
-git clone https://github.com/cmusatyalab/openface.git 
+git clone https://github.com/cmusatyalab/openface.git
 sudo python2 setup.py install
 models/get-models.sh
 ```

@@ -2,7 +2,8 @@
 layout: post
 title: ROS与PhantomXArm机械臂配置
 date: 2018-04-19 19:25:24.000000000 +09:00
-tags: ROS; PhantomXArm
+categories: [环境配置]
+tags: [ROS, PhantomXArm]
 ---
 # 硬件接线
 机械臂与排线相连，三个端口等效:
@@ -19,7 +20,7 @@ FTDI串口线，直接与电脑相连(确定方向不要接反)：
 mkdir ~/tools
 cd ~/tools
 ```
-下载`arduino-1.05`或者`1.06` 解压缩到当前目录，启动`arduino` 
+下载`arduino-1.05`或者`1.06` 解压缩到当前目录，启动`arduino`
 ```
 ~/tools/arduino-1.0.5/arduino
 ```
@@ -115,7 +116,7 @@ cat arm.yaml
 修改`port`为`/dev/ttyUSB0`，打开新终端，启动`arm`：
 ```
 roscore
-roslaunch phantomx_pincher_arm_bringup arm.launch 
+roslaunch phantomx_pincher_arm_bringup arm.launch
 ```
 新终端：
 ```

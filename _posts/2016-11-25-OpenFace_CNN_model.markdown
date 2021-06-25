@@ -2,7 +2,8 @@
 layout: post
 title: OpenFace自建CNN模型
 date: 2016-11-25 20:25:24.000000000 +09:00
-tags: Ubuntu; OpenFace
+categories: [Tutorial]
+tags: [OpenFace, CV]
 ---
 # Openface Home
 >重点可参考：[杨存毅的博客][blog_address]

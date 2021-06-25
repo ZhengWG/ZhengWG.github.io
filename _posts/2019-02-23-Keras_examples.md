@@ -2,7 +2,8 @@
 layout: post
 title: Keras样例练习
 date: 2019-02-23 22:25:24.000000000 +09:00
-tags: Keras; Tensorflow
+categories: [Tutorial]
+tags: [Keras, Tensorflow]
 ---
 # Keras应用实例
 
@@ -89,17 +90,17 @@ print('Test accuracy:', score[1])
     60000 train samples
     10000 test samples
     _________________________________________________________________
-    Layer (type)                 Output Shape              Param #   
+    Layer (type)                 Output Shape              Param #
     =================================================================
-    dense_1 (Dense)              (None, 512)               401920    
+    dense_1 (Dense)              (None, 512)               401920
     _________________________________________________________________
-    dropout_1 (Dropout)          (None, 512)               0         
+    dropout_1 (Dropout)          (None, 512)               0
     _________________________________________________________________
-    dense_2 (Dense)              (None, 512)               262656    
+    dense_2 (Dense)              (None, 512)               262656
     _________________________________________________________________
-    dropout_2 (Dropout)          (None, 512)               0         
+    dropout_2 (Dropout)          (None, 512)               0
     _________________________________________________________________
-    dense_3 (Dense)              (None, 10)                5130      
+    dense_3 (Dense)              (None, 10)                5130
     =================================================================
     Total params: 669,706
     Trainable params: 669,706
@@ -381,7 +382,7 @@ print('Test loss:', scores[0])
 print('Test accuracy:', scores[1])
 ```
 
-    Saved trained model at models/keras_cifar10_trained_model.h5 
+    Saved trained model at models/keras_cifar10_trained_model.h5
     10000/10000 [==============================] - 4s 378us/step
     Test loss: 0.8004208864212036
     Test accuracy: 0.723
@@ -497,7 +498,7 @@ def lr_schedule(epoch):
     学习率规划:
     学习率分别在80,120,160,180 epochs进行下降
     在训练每个epoch后通过调用callbacks进行学习率的调整
-    
+
     #参数
         epoch(int):epochs数目
     #返回值
@@ -525,7 +526,7 @@ def resnet_layer(inputs,
                  conv_first=True):
     """
     定义基本的2D 卷积-BN-激活堆栈生成器(stack builder)
-    
+
     #参数：
         inputsr):从输入图片或者之前层中输入的张量(tensor)
         num_filters(int):2维卷积，滤波器数目
@@ -533,7 +534,7 @@ def resnet_layer(inputs,
         activation(string):激活类型名称
         batch_notmalization(bool):是否包含BN层
         conv_first(bool):是否卷积层先，conv-bn-activation(True)或者bn-activation-conv(False)
-        
+
     #返回值:
         x(tensor):作为下一层的输入张量(tensor)
     """
@@ -563,7 +564,7 @@ def resnet_layer(inputs,
 def resnet_v1(input_shape, depth, num_classes=10):
     """
     ResNet V1 模型构建
-    
+
     网络为最基本结构的堆栈组合(stacks):2x(3x3) Conv2D-BN-ReLu结构，3x3为卷积核
     该结构中最后的relu层在short-cut连接之后.
     整个网络分为三个stages，每个stage前面的特征图(feature map)需要降采样(downsampled),
@@ -580,12 +581,12 @@ def resnet_v1(input_shape, depth, num_classes=10):
     ResNet44 0.66M
     ResNet56 0.85M
     ResNet110 1.7M
-    
+
     # 输入参数
         input_shape (tensor):输入图片tensor的尺寸(shape)
         depth(int):核心卷积层数目
         num_classed(int):图像分类类别(CIFAR10 有10类)
-        
+
     # 返回值
         model (Model):keras的模型实例
     """
@@ -650,12 +651,12 @@ def resnet_v2(input_shape, depth, num_classes=10):
     stage 0:32x32, 64
     stage 1:16x16, 128
     stage 2:8x8,   256
-    
+
     # 输入参数
         input_shape(tensor):输入图片tensor的尺寸(shape)
         depth(int):核心卷积层的数目
         num_class(int):类别数目(CIFAR10类别为10)
-        
+
     # 返回值
         model (Model):Keras模型实例
     """
@@ -838,160 +839,160 @@ print('Test accuracy:', scores[1])
 
     Learning rate:  0.001
     __________________________________________________________________________________________________
-    Layer (type)                    Output Shape         Param #     Connected to                     
+    Layer (type)                    Output Shape         Param #     Connected to
     ==================================================================================================
-    input_5 (InputLayer)            (None, 32, 32, 3)    0                                            
+    input_5 (InputLayer)            (None, 32, 32, 3)    0
     __________________________________________________________________________________________________
-    conv2d_85 (Conv2D)              (None, 32, 32, 16)   448         input_5[0][0]                    
+    conv2d_85 (Conv2D)              (None, 32, 32, 16)   448         input_5[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_77 (BatchNo (None, 32, 32, 16)   64          conv2d_85[0][0]                  
+    batch_normalization_77 (BatchNo (None, 32, 32, 16)   64          conv2d_85[0][0]
     __________________________________________________________________________________________________
-    activation_77 (Activation)      (None, 32, 32, 16)   0           batch_normalization_77[0][0]     
+    activation_77 (Activation)      (None, 32, 32, 16)   0           batch_normalization_77[0][0]
     __________________________________________________________________________________________________
-    conv2d_86 (Conv2D)              (None, 32, 32, 16)   2320        activation_77[0][0]              
+    conv2d_86 (Conv2D)              (None, 32, 32, 16)   2320        activation_77[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_78 (BatchNo (None, 32, 32, 16)   64          conv2d_86[0][0]                  
+    batch_normalization_78 (BatchNo (None, 32, 32, 16)   64          conv2d_86[0][0]
     __________________________________________________________________________________________________
-    activation_78 (Activation)      (None, 32, 32, 16)   0           batch_normalization_78[0][0]     
+    activation_78 (Activation)      (None, 32, 32, 16)   0           batch_normalization_78[0][0]
     __________________________________________________________________________________________________
-    conv2d_87 (Conv2D)              (None, 32, 32, 16)   2320        activation_78[0][0]              
+    conv2d_87 (Conv2D)              (None, 32, 32, 16)   2320        activation_78[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_79 (BatchNo (None, 32, 32, 16)   64          conv2d_87[0][0]                  
+    batch_normalization_79 (BatchNo (None, 32, 32, 16)   64          conv2d_87[0][0]
     __________________________________________________________________________________________________
-    add_37 (Add)                    (None, 32, 32, 16)   0           activation_77[0][0]              
-                                                                     batch_normalization_79[0][0]     
+    add_37 (Add)                    (None, 32, 32, 16)   0           activation_77[0][0]
+                                                                     batch_normalization_79[0][0]
     __________________________________________________________________________________________________
-    activation_79 (Activation)      (None, 32, 32, 16)   0           add_37[0][0]                     
+    activation_79 (Activation)      (None, 32, 32, 16)   0           add_37[0][0]
     __________________________________________________________________________________________________
-    conv2d_88 (Conv2D)              (None, 32, 32, 16)   2320        activation_79[0][0]              
+    conv2d_88 (Conv2D)              (None, 32, 32, 16)   2320        activation_79[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_80 (BatchNo (None, 32, 32, 16)   64          conv2d_88[0][0]                  
+    batch_normalization_80 (BatchNo (None, 32, 32, 16)   64          conv2d_88[0][0]
     __________________________________________________________________________________________________
-    activation_80 (Activation)      (None, 32, 32, 16)   0           batch_normalization_80[0][0]     
+    activation_80 (Activation)      (None, 32, 32, 16)   0           batch_normalization_80[0][0]
     __________________________________________________________________________________________________
-    conv2d_89 (Conv2D)              (None, 32, 32, 16)   2320        activation_80[0][0]              
+    conv2d_89 (Conv2D)              (None, 32, 32, 16)   2320        activation_80[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_81 (BatchNo (None, 32, 32, 16)   64          conv2d_89[0][0]                  
+    batch_normalization_81 (BatchNo (None, 32, 32, 16)   64          conv2d_89[0][0]
     __________________________________________________________________________________________________
-    add_38 (Add)                    (None, 32, 32, 16)   0           activation_79[0][0]              
-                                                                     batch_normalization_81[0][0]     
+    add_38 (Add)                    (None, 32, 32, 16)   0           activation_79[0][0]
+                                                                     batch_normalization_81[0][0]
     __________________________________________________________________________________________________
-    activation_81 (Activation)      (None, 32, 32, 16)   0           add_38[0][0]                     
+    activation_81 (Activation)      (None, 32, 32, 16)   0           add_38[0][0]
     __________________________________________________________________________________________________
-    conv2d_90 (Conv2D)              (None, 32, 32, 16)   2320        activation_81[0][0]              
+    conv2d_90 (Conv2D)              (None, 32, 32, 16)   2320        activation_81[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_82 (BatchNo (None, 32, 32, 16)   64          conv2d_90[0][0]                  
+    batch_normalization_82 (BatchNo (None, 32, 32, 16)   64          conv2d_90[0][0]
     __________________________________________________________________________________________________
-    activation_82 (Activation)      (None, 32, 32, 16)   0           batch_normalization_82[0][0]     
+    activation_82 (Activation)      (None, 32, 32, 16)   0           batch_normalization_82[0][0]
     __________________________________________________________________________________________________
-    conv2d_91 (Conv2D)              (None, 32, 32, 16)   2320        activation_82[0][0]              
+    conv2d_91 (Conv2D)              (None, 32, 32, 16)   2320        activation_82[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_83 (BatchNo (None, 32, 32, 16)   64          conv2d_91[0][0]                  
+    batch_normalization_83 (BatchNo (None, 32, 32, 16)   64          conv2d_91[0][0]
     __________________________________________________________________________________________________
-    add_39 (Add)                    (None, 32, 32, 16)   0           activation_81[0][0]              
-                                                                     batch_normalization_83[0][0]     
+    add_39 (Add)                    (None, 32, 32, 16)   0           activation_81[0][0]
+                                                                     batch_normalization_83[0][0]
     __________________________________________________________________________________________________
-    activation_83 (Activation)      (None, 32, 32, 16)   0           add_39[0][0]                     
+    activation_83 (Activation)      (None, 32, 32, 16)   0           add_39[0][0]
     __________________________________________________________________________________________________
-    conv2d_92 (Conv2D)              (None, 16, 16, 32)   4640        activation_83[0][0]              
+    conv2d_92 (Conv2D)              (None, 16, 16, 32)   4640        activation_83[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_84 (BatchNo (None, 16, 16, 32)   128         conv2d_92[0][0]                  
+    batch_normalization_84 (BatchNo (None, 16, 16, 32)   128         conv2d_92[0][0]
     __________________________________________________________________________________________________
-    activation_84 (Activation)      (None, 16, 16, 32)   0           batch_normalization_84[0][0]     
+    activation_84 (Activation)      (None, 16, 16, 32)   0           batch_normalization_84[0][0]
     __________________________________________________________________________________________________
-    conv2d_93 (Conv2D)              (None, 16, 16, 32)   9248        activation_84[0][0]              
+    conv2d_93 (Conv2D)              (None, 16, 16, 32)   9248        activation_84[0][0]
     __________________________________________________________________________________________________
-    conv2d_94 (Conv2D)              (None, 16, 16, 32)   544         activation_83[0][0]              
+    conv2d_94 (Conv2D)              (None, 16, 16, 32)   544         activation_83[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_85 (BatchNo (None, 16, 16, 32)   128         conv2d_93[0][0]                  
+    batch_normalization_85 (BatchNo (None, 16, 16, 32)   128         conv2d_93[0][0]
     __________________________________________________________________________________________________
-    add_40 (Add)                    (None, 16, 16, 32)   0           conv2d_94[0][0]                  
-                                                                     batch_normalization_85[0][0]     
+    add_40 (Add)                    (None, 16, 16, 32)   0           conv2d_94[0][0]
+                                                                     batch_normalization_85[0][0]
     __________________________________________________________________________________________________
-    activation_85 (Activation)      (None, 16, 16, 32)   0           add_40[0][0]                     
+    activation_85 (Activation)      (None, 16, 16, 32)   0           add_40[0][0]
     __________________________________________________________________________________________________
-    conv2d_95 (Conv2D)              (None, 16, 16, 32)   9248        activation_85[0][0]              
+    conv2d_95 (Conv2D)              (None, 16, 16, 32)   9248        activation_85[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_86 (BatchNo (None, 16, 16, 32)   128         conv2d_95[0][0]                  
+    batch_normalization_86 (BatchNo (None, 16, 16, 32)   128         conv2d_95[0][0]
     __________________________________________________________________________________________________
-    activation_86 (Activation)      (None, 16, 16, 32)   0           batch_normalization_86[0][0]     
+    activation_86 (Activation)      (None, 16, 16, 32)   0           batch_normalization_86[0][0]
     __________________________________________________________________________________________________
-    conv2d_96 (Conv2D)              (None, 16, 16, 32)   9248        activation_86[0][0]              
+    conv2d_96 (Conv2D)              (None, 16, 16, 32)   9248        activation_86[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_87 (BatchNo (None, 16, 16, 32)   128         conv2d_96[0][0]                  
+    batch_normalization_87 (BatchNo (None, 16, 16, 32)   128         conv2d_96[0][0]
     __________________________________________________________________________________________________
-    add_41 (Add)                    (None, 16, 16, 32)   0           activation_85[0][0]              
-                                                                     batch_normalization_87[0][0]     
+    add_41 (Add)                    (None, 16, 16, 32)   0           activation_85[0][0]
+                                                                     batch_normalization_87[0][0]
     __________________________________________________________________________________________________
-    activation_87 (Activation)      (None, 16, 16, 32)   0           add_41[0][0]                     
+    activation_87 (Activation)      (None, 16, 16, 32)   0           add_41[0][0]
     __________________________________________________________________________________________________
-    conv2d_97 (Conv2D)              (None, 16, 16, 32)   9248        activation_87[0][0]              
+    conv2d_97 (Conv2D)              (None, 16, 16, 32)   9248        activation_87[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_88 (BatchNo (None, 16, 16, 32)   128         conv2d_97[0][0]                  
+    batch_normalization_88 (BatchNo (None, 16, 16, 32)   128         conv2d_97[0][0]
     __________________________________________________________________________________________________
-    activation_88 (Activation)      (None, 16, 16, 32)   0           batch_normalization_88[0][0]     
+    activation_88 (Activation)      (None, 16, 16, 32)   0           batch_normalization_88[0][0]
     __________________________________________________________________________________________________
-    conv2d_98 (Conv2D)              (None, 16, 16, 32)   9248        activation_88[0][0]              
+    conv2d_98 (Conv2D)              (None, 16, 16, 32)   9248        activation_88[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_89 (BatchNo (None, 16, 16, 32)   128         conv2d_98[0][0]                  
+    batch_normalization_89 (BatchNo (None, 16, 16, 32)   128         conv2d_98[0][0]
     __________________________________________________________________________________________________
-    add_42 (Add)                    (None, 16, 16, 32)   0           activation_87[0][0]              
-                                                                     batch_normalization_89[0][0]     
+    add_42 (Add)                    (None, 16, 16, 32)   0           activation_87[0][0]
+                                                                     batch_normalization_89[0][0]
     __________________________________________________________________________________________________
-    activation_89 (Activation)      (None, 16, 16, 32)   0           add_42[0][0]                     
+    activation_89 (Activation)      (None, 16, 16, 32)   0           add_42[0][0]
     __________________________________________________________________________________________________
-    conv2d_99 (Conv2D)              (None, 8, 8, 64)     18496       activation_89[0][0]              
+    conv2d_99 (Conv2D)              (None, 8, 8, 64)     18496       activation_89[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_90 (BatchNo (None, 8, 8, 64)     256         conv2d_99[0][0]                  
+    batch_normalization_90 (BatchNo (None, 8, 8, 64)     256         conv2d_99[0][0]
     __________________________________________________________________________________________________
-    activation_90 (Activation)      (None, 8, 8, 64)     0           batch_normalization_90[0][0]     
+    activation_90 (Activation)      (None, 8, 8, 64)     0           batch_normalization_90[0][0]
     __________________________________________________________________________________________________
-    conv2d_100 (Conv2D)             (None, 8, 8, 64)     36928       activation_90[0][0]              
+    conv2d_100 (Conv2D)             (None, 8, 8, 64)     36928       activation_90[0][0]
     __________________________________________________________________________________________________
-    conv2d_101 (Conv2D)             (None, 8, 8, 64)     2112        activation_89[0][0]              
+    conv2d_101 (Conv2D)             (None, 8, 8, 64)     2112        activation_89[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_91 (BatchNo (None, 8, 8, 64)     256         conv2d_100[0][0]                 
+    batch_normalization_91 (BatchNo (None, 8, 8, 64)     256         conv2d_100[0][0]
     __________________________________________________________________________________________________
-    add_43 (Add)                    (None, 8, 8, 64)     0           conv2d_101[0][0]                 
-                                                                     batch_normalization_91[0][0]     
+    add_43 (Add)                    (None, 8, 8, 64)     0           conv2d_101[0][0]
+                                                                     batch_normalization_91[0][0]
     __________________________________________________________________________________________________
-    activation_91 (Activation)      (None, 8, 8, 64)     0           add_43[0][0]                     
+    activation_91 (Activation)      (None, 8, 8, 64)     0           add_43[0][0]
     __________________________________________________________________________________________________
-    conv2d_102 (Conv2D)             (None, 8, 8, 64)     36928       activation_91[0][0]              
+    conv2d_102 (Conv2D)             (None, 8, 8, 64)     36928       activation_91[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_92 (BatchNo (None, 8, 8, 64)     256         conv2d_102[0][0]                 
+    batch_normalization_92 (BatchNo (None, 8, 8, 64)     256         conv2d_102[0][0]
     __________________________________________________________________________________________________
-    activation_92 (Activation)      (None, 8, 8, 64)     0           batch_normalization_92[0][0]     
+    activation_92 (Activation)      (None, 8, 8, 64)     0           batch_normalization_92[0][0]
     __________________________________________________________________________________________________
-    conv2d_103 (Conv2D)             (None, 8, 8, 64)     36928       activation_92[0][0]              
+    conv2d_103 (Conv2D)             (None, 8, 8, 64)     36928       activation_92[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_93 (BatchNo (None, 8, 8, 64)     256         conv2d_103[0][0]                 
+    batch_normalization_93 (BatchNo (None, 8, 8, 64)     256         conv2d_103[0][0]
     __________________________________________________________________________________________________
-    add_44 (Add)                    (None, 8, 8, 64)     0           activation_91[0][0]              
-                                                                     batch_normalization_93[0][0]     
+    add_44 (Add)                    (None, 8, 8, 64)     0           activation_91[0][0]
+                                                                     batch_normalization_93[0][0]
     __________________________________________________________________________________________________
-    activation_93 (Activation)      (None, 8, 8, 64)     0           add_44[0][0]                     
+    activation_93 (Activation)      (None, 8, 8, 64)     0           add_44[0][0]
     __________________________________________________________________________________________________
-    conv2d_104 (Conv2D)             (None, 8, 8, 64)     36928       activation_93[0][0]              
+    conv2d_104 (Conv2D)             (None, 8, 8, 64)     36928       activation_93[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_94 (BatchNo (None, 8, 8, 64)     256         conv2d_104[0][0]                 
+    batch_normalization_94 (BatchNo (None, 8, 8, 64)     256         conv2d_104[0][0]
     __________________________________________________________________________________________________
-    activation_94 (Activation)      (None, 8, 8, 64)     0           batch_normalization_94[0][0]     
+    activation_94 (Activation)      (None, 8, 8, 64)     0           batch_normalization_94[0][0]
     __________________________________________________________________________________________________
-    conv2d_105 (Conv2D)             (None, 8, 8, 64)     36928       activation_94[0][0]              
+    conv2d_105 (Conv2D)             (None, 8, 8, 64)     36928       activation_94[0][0]
     __________________________________________________________________________________________________
-    batch_normalization_95 (BatchNo (None, 8, 8, 64)     256         conv2d_105[0][0]                 
+    batch_normalization_95 (BatchNo (None, 8, 8, 64)     256         conv2d_105[0][0]
     __________________________________________________________________________________________________
-    add_45 (Add)                    (None, 8, 8, 64)     0           activation_93[0][0]              
-                                                                     batch_normalization_95[0][0]     
+    add_45 (Add)                    (None, 8, 8, 64)     0           activation_93[0][0]
+                                                                     batch_normalization_95[0][0]
     __________________________________________________________________________________________________
-    activation_95 (Activation)      (None, 8, 8, 64)     0           add_45[0][0]                     
+    activation_95 (Activation)      (None, 8, 8, 64)     0           add_45[0][0]
     __________________________________________________________________________________________________
-    average_pooling2d_5 (AveragePoo (None, 1, 1, 64)     0           activation_95[0][0]              
+    average_pooling2d_5 (AveragePoo (None, 1, 1, 64)     0           activation_95[0][0]
     __________________________________________________________________________________________________
-    flatten_5 (Flatten)             (None, 64)           0           average_pooling2d_5[0][0]        
+    flatten_5 (Flatten)             (None, 64)           0           average_pooling2d_5[0][0]
     __________________________________________________________________________________________________
-    dense_5 (Dense)                 (None, 10)           650         flatten_5[0][0]                  
+    dense_5 (Dense)                 (None, 10)           650         flatten_5[0][0]
     ==================================================================================================
     Total params: 274,442
     Trainable params: 273,066
@@ -1002,102 +1003,102 @@ print('Test accuracy:', scores[1])
     Epoch 1/20
     Learning rate:  0.001
     3125/3125 [==============================] - 312s 100ms/step - loss: 1.5947 - acc: 0.4818 - val_loss: 1.5713 - val_acc: 0.5164
-    
+
     Epoch 00001: val_acc improved from -inf to 0.51640, saving model to models/cifar10_ResNet20v1_model.001.h5
     Epoch 2/20
     Learning rate:  0.001
     3125/3125 [==============================] - 265s 85ms/step - loss: 1.2072 - acc: 0.6370 - val_loss: 1.3945 - val_acc: 0.6066
-    
+
     Epoch 00002: val_acc improved from 0.51640 to 0.60660, saving model to models/cifar10_ResNet20v1_model.002.h5
     Epoch 3/20
     Learning rate:  0.001
     3125/3125 [==============================] - 276s 88ms/step - loss: 1.0676 - acc: 0.6917 - val_loss: 0.9612 - val_acc: 0.7268
-    
+
     Epoch 00003: val_acc improved from 0.60660 to 0.72680, saving model to models/cifar10_ResNet20v1_model.003.h5
     Epoch 4/20
     Learning rate:  0.001
     3125/3125 [==============================] - 261s 84ms/step - loss: 0.9786 - acc: 0.7284 - val_loss: 1.1044 - val_acc: 0.6874
-    
+
     Epoch 00004: val_acc did not improve from 0.72680
     Epoch 5/20
     Learning rate:  0.001
     3125/3125 [==============================] - 261s 84ms/step - loss: 0.9215 - acc: 0.7491 - val_loss: 0.9581 - val_acc: 0.7372
-    
+
     Epoch 00005: val_acc improved from 0.72680 to 0.73720, saving model to models/cifar10_ResNet20v1_model.005.h5
     Epoch 6/20
     Learning rate:  0.001
     3125/3125 [==============================] - 261s 84ms/step - loss: 0.8801 - acc: 0.7683 - val_loss: 0.8495 - val_acc: 0.7835
-    
+
     Epoch 00006: val_acc improved from 0.73720 to 0.78350, saving model to models/cifar10_ResNet20v1_model.006.h5
     Epoch 7/20
     Learning rate:  0.001
     3125/3125 [==============================] - 260s 83ms/step - loss: 0.8514 - acc: 0.7766 - val_loss: 1.1488 - val_acc: 0.6938
-    
+
     Epoch 00007: val_acc did not improve from 0.78350
     Epoch 8/20
     Learning rate:  0.001
     3125/3125 [==============================] - 260s 83ms/step - loss: 0.8275 - acc: 0.7875 - val_loss: 0.8583 - val_acc: 0.7840
-    
+
     Epoch 00008: val_acc improved from 0.78350 to 0.78400, saving model to models/cifar10_ResNet20v1_model.008.h5
     Epoch 9/20
     Learning rate:  0.001
     3125/3125 [==============================] - 260s 83ms/step - loss: 0.8053 - acc: 0.7958 - val_loss: 0.9273 - val_acc: 0.7574
-    
+
     Epoch 00009: val_acc did not improve from 0.78400
     Epoch 10/20
     Learning rate:  0.001
     3125/3125 [==============================] - 260s 83ms/step - loss: 0.7858 - acc: 0.8045 - val_loss: 0.8533 - val_acc: 0.7881
-    
+
     Epoch 00010: val_acc improved from 0.78400 to 0.78810, saving model to models/cifar10_ResNet20v1_model.010.h5
     Epoch 11/20
     Learning rate:  0.001
     3125/3125 [==============================] - 261s 83ms/step - loss: 0.7727 - acc: 0.8092 - val_loss: 1.0937 - val_acc: 0.7302
-    
+
     Epoch 00011: val_acc did not improve from 0.78810
     Epoch 12/20
     Learning rate:  0.001
     3125/3125 [==============================] - 260s 83ms/step - loss: 0.7609 - acc: 0.8139 - val_loss: 0.7869 - val_acc: 0.8089
-    
+
     Epoch 00012: val_acc improved from 0.78810 to 0.80890, saving model to models/cifar10_ResNet20v1_model.012.h5
     Epoch 13/20
     Learning rate:  0.001
     3125/3125 [==============================] - 259s 83ms/step - loss: 0.7482 - acc: 0.8195 - val_loss: 0.8320 - val_acc: 0.7997
-    
+
     Epoch 00013: val_acc did not improve from 0.80890
     Epoch 14/20
     Learning rate:  0.001
     3125/3125 [==============================] - 260s 83ms/step - loss: 0.7348 - acc: 0.8249 - val_loss: 0.7548 - val_acc: 0.8166
-    
+
     Epoch 00014: val_acc improved from 0.80890 to 0.81660, saving model to models/cifar10_ResNet20v1_model.014.h5
     Epoch 15/20
     Learning rate:  0.001
     3125/3125 [==============================] - 260s 83ms/step - loss: 0.7285 - acc: 0.8258 - val_loss: 1.0691 - val_acc: 0.7290
-    
+
     Epoch 00015: val_acc did not improve from 0.81660
     Epoch 16/20
     Learning rate:  0.001
     3125/3125 [==============================] - 264s 84ms/step - loss: 0.7197 - acc: 0.8296 - val_loss: 0.8380 - val_acc: 0.7988
-    
+
     Epoch 00016: val_acc did not improve from 0.81660
     Epoch 17/20
     Learning rate:  0.001
     3125/3125 [==============================] - 263s 84ms/step - loss: 0.7089 - acc: 0.8344 - val_loss: 0.8024 - val_acc: 0.8096
-    
+
     Epoch 00017: val_acc did not improve from 0.81660
     Epoch 18/20
     Learning rate:  0.001
     3125/3125 [==============================] - 348s 111ms/step - loss: 0.7017 - acc: 0.8357 - val_loss: 0.7371 - val_acc: 0.8262
-    
+
     Epoch 00018: val_acc improved from 0.81660 to 0.82620, saving model to models/cifar10_ResNet20v1_model.018.h5
     Epoch 19/20
     Learning rate:  0.001
     3125/3125 [==============================] - 300s 96ms/step - loss: 0.6954 - acc: 0.8394 - val_loss: 0.7666 - val_acc: 0.8267
-    
+
     Epoch 00019: val_acc improved from 0.82620 to 0.82670, saving model to models/cifar10_ResNet20v1_model.019.h5
     Epoch 20/20
     Learning rate:  0.001
     3125/3125 [==============================] - 276s 88ms/step - loss: 0.6929 - acc: 0.8393 - val_loss: 0.8844 - val_acc: 0.7866
-    
+
     Epoch 00020: val_acc did not improve from 0.82670
     10000/10000 [==============================] - 13s 1ms/step
     Test loss: 0.8843909492492675
@@ -1124,7 +1125,7 @@ from keras import backend as K
 
 # GPU性能不够，禁用GPU，用CPU来跑
 import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 def normalize(x):
@@ -1142,7 +1143,7 @@ def normalize(x):
 def deprocess_image(x):
     """
     功能函数:将浮点数数组转化为有效的uint8类型图片
-    
+
     # 输入参数
         x:代表生成图片的Numpy向量数组
     # 输出
@@ -1170,12 +1171,12 @@ def process_image(x, former):
     """
     功能函数:将有效的uint8类型图片格式转化为浮点数数组
     为'deprocess_image'的反向操作
-    
+
     # 输入参数
         x:numpy数值，能够通过imshow等进行显示
         fromer: 之前的numpy-array数据.
                 需要确定之前的均值(mean)和variance(方差).
-                
+
     #返回值
         处理过的代表图片的numpy数组
     """
@@ -1195,7 +1196,7 @@ def visualize_layer(model,
                     filter_range=(0, None)):
     """
     可视化得到模型指定层最大相关的滤波器(通过激活层的均值大小判断)
-    
+
     #输入参数
         model:包含层名称的模型
         layer_name:需要进行可视化的层名称，需要为模型的一部分
@@ -1217,13 +1218,13 @@ def visualize_layer(model,
                                filter_index):
         """
         生成指定卷积核的图像
-        
+
         # 输入参数
             input_img:输入图像张量
             layer_output:输出图像张量
             filter_index:需要进行处理的滤波器序号
                         　需保证序号有效
-            
+
         # 返回值
             返回None，如无图片
             如有图片，则返回tuple类型的图片数组(iamge array)以及最终的loss值
@@ -1291,7 +1292,7 @@ def visualize_layer(model,
     def _draw_filters(filters, n=None):
         """
         绘制得到最佳的卷积核输入图像(激活均值最大),nxn网格形式
-        
+
         # 输入参数
             filters:一系列对应卷积核的生成图片以及损失值(loss)
             n:网格维度
@@ -1306,7 +1307,7 @@ def visualize_layer(model,
         filters = filters[:n * n]
 
         # 先建立一张足够大的黑色背景图
-        # 如8*8的卷积核数目,图像大小为412*412，间隔为5px 
+        # 如8*8的卷积核数目,图像大小为412*412，间隔为5px
         MARGIN = 5
         width = n * output_dim[0] + (n - 1) * MARGIN
         height = n * output_dim[1] + (n - 1) * MARGIN
@@ -1326,7 +1327,7 @@ def visualize_layer(model,
         # 将得到的图像结果存盘
         save_img('out_pics/vgg_{0:}_{1:}x{1:}.png'.format(layer_name, n), stitched_filters)
 
-    #　正式进行图片输出    
+    #　正式进行图片输出
     # 输入图片的占位符(placeholder)
     assert len(model.inputs) == 1
     input_img = model.inputs[0]
@@ -1382,45 +1383,45 @@ if __name__ == '__main__':
 
     Model loaded.
     _________________________________________________________________
-    Layer (type)                 Output Shape              Param #   
+    Layer (type)                 Output Shape              Param #
     =================================================================
-    input_1 (InputLayer)         (None, None, None, 3)     0         
+    input_1 (InputLayer)         (None, None, None, 3)     0
     _________________________________________________________________
-    block1_conv1 (Conv2D)        (None, None, None, 64)    1792      
+    block1_conv1 (Conv2D)        (None, None, None, 64)    1792
     _________________________________________________________________
-    block1_conv2 (Conv2D)        (None, None, None, 64)    36928     
+    block1_conv2 (Conv2D)        (None, None, None, 64)    36928
     _________________________________________________________________
-    block1_pool (MaxPooling2D)   (None, None, None, 64)    0         
+    block1_pool (MaxPooling2D)   (None, None, None, 64)    0
     _________________________________________________________________
-    block2_conv1 (Conv2D)        (None, None, None, 128)   73856     
+    block2_conv1 (Conv2D)        (None, None, None, 128)   73856
     _________________________________________________________________
-    block2_conv2 (Conv2D)        (None, None, None, 128)   147584    
+    block2_conv2 (Conv2D)        (None, None, None, 128)   147584
     _________________________________________________________________
-    block2_pool (MaxPooling2D)   (None, None, None, 128)   0         
+    block2_pool (MaxPooling2D)   (None, None, None, 128)   0
     _________________________________________________________________
-    block3_conv1 (Conv2D)        (None, None, None, 256)   295168    
+    block3_conv1 (Conv2D)        (None, None, None, 256)   295168
     _________________________________________________________________
-    block3_conv2 (Conv2D)        (None, None, None, 256)   590080    
+    block3_conv2 (Conv2D)        (None, None, None, 256)   590080
     _________________________________________________________________
-    block3_conv3 (Conv2D)        (None, None, None, 256)   590080    
+    block3_conv3 (Conv2D)        (None, None, None, 256)   590080
     _________________________________________________________________
-    block3_pool (MaxPooling2D)   (None, None, None, 256)   0         
+    block3_pool (MaxPooling2D)   (None, None, None, 256)   0
     _________________________________________________________________
-    block4_conv1 (Conv2D)        (None, None, None, 512)   1180160   
+    block4_conv1 (Conv2D)        (None, None, None, 512)   1180160
     _________________________________________________________________
-    block4_conv2 (Conv2D)        (None, None, None, 512)   2359808   
+    block4_conv2 (Conv2D)        (None, None, None, 512)   2359808
     _________________________________________________________________
-    block4_conv3 (Conv2D)        (None, None, None, 512)   2359808   
+    block4_conv3 (Conv2D)        (None, None, None, 512)   2359808
     _________________________________________________________________
-    block4_pool (MaxPooling2D)   (None, None, None, 512)   0         
+    block4_pool (MaxPooling2D)   (None, None, None, 512)   0
     _________________________________________________________________
-    block5_conv1 (Conv2D)        (None, None, None, 512)   2359808   
+    block5_conv1 (Conv2D)        (None, None, None, 512)   2359808
     _________________________________________________________________
-    block5_conv2 (Conv2D)        (None, None, None, 512)   2359808   
+    block5_conv2 (Conv2D)        (None, None, None, 512)   2359808
     _________________________________________________________________
-    block5_conv3 (Conv2D)        (None, None, None, 512)   2359808   
+    block5_conv3 (Conv2D)        (None, None, None, 512)   2359808
     _________________________________________________________________
-    block5_pool (MaxPooling2D)   (None, None, None, 512)   0         
+    block5_pool (MaxPooling2D)   (None, None, None, 512)   0
     =================================================================
     Total params: 14,714,688
     Trainable params: 14,714,688

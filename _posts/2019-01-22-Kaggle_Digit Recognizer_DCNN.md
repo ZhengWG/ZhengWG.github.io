@@ -2,7 +2,8 @@
 layout: post
 title: Kaggle-Digit Recognizer-DCNN
 date: 2019-01-22 22:25:24.000000000 +09:00
-tags: Kaggle; Digit Recognizer; DCNN
+categories: [Tutorial]
+tags: [Kaggle, CV]
 ---
 > [参考网页](https://www.kaggle.com/poonaml/digit-recognizer/deep-neural-network-keras-way)
 
@@ -65,7 +66,7 @@ print(check_output(["ls", "../input"]).decode("utf8"))
     sample_submission.csv
     test.csv
     train.csv
-    
+
 
 
 # Load Train and Test data
@@ -520,7 +521,7 @@ X_test.shape
 mean_px = X_train.mean().astype(np.float32)
 std_px = X_train.std().astype(np.float32)
 
-def standardize(x): 
+def standardize(x):
     return (x-mean_px)/std_px
 ```
 
@@ -584,7 +585,7 @@ print("output shape ",model.output_shape)
 
 
 ```python
-# Add a loss layer 
+# Add a loss layer
 # Add an optimizer
 # Add a metrics to monitor the performance of the network
 from keras.optimizers import RMSprop
@@ -700,7 +701,7 @@ fc.optimizer.lr=0.01
 
 ```python
 # history = fc.fit_generator(generator=batches, steps_per_epoch=batches.n,
-#                           epochs=1, validation_data=val_batches, 
+#                           epochs=1, validation_data=val_batches,
 #                           validation_steps=val_batches.n)
 ```
 

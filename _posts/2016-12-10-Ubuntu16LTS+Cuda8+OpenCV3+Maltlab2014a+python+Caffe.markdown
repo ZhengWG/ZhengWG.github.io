@@ -2,11 +2,12 @@
 layout: post
 title: Ubuntu16LTS+Caffe基本环境配置
 date: 2016-12-10 20:25:24.000000000 +09:00
-tags: 系统配置; Ubuntu; OpenFace; Caffe
+categories: [环境配置]
+tags: [Ubuntu, OpenFace, Caffe]
 ---
 ---
 layout: post
-title: 
+title:
 date: 2021-06-23 22:11:23.000000000 +09:00
 categories: []
 tags: []
@@ -22,7 +23,7 @@ tags: []
 
 提示重启后，终端输入：
 ```
-sudo nvidia-settings 
+sudo nvidia-settings
 ```
 弹出界面如下：
 ![驱动测试图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/3.png)
@@ -102,10 +103,10 @@ sudo apt-get install -y --no-install-recommends libboost-all-dev
 sudo apt-get install -y libgflags-dev libgoogle-glog-dev liblmdb-dev
 sudo apt-get install -y python-pip
 sudo apt-get install -y python-dev
-sudo apt-get install -y python-numpy python-scipy 
+sudo apt-get install -y python-numpy python-scipy
 ```
 ```
-sudo apt-get install --assume-yes libopencv-dev build-essential cmake git libgtk2.0-dev pkg-config python-dev python-numpy libdc1394-22 libdc1394-22-dev libjpeg-dev libpng12-dev libtiff5-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libxine2-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev libtbb-dev libqt4-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils unzip 
+sudo apt-get install --assume-yes libopencv-dev build-essential cmake git libgtk2.0-dev pkg-config python-dev python-numpy libdc1394-22 libdc1394-22-dev libjpeg-dev libpng12-dev libtiff5-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libxine2-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev libtbb-dev libqt4-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils unzip
 ```
 安装Opencv依赖项：
 ```
@@ -163,7 +164,7 @@ export PKG_CONFIG_PATH
 最后将`ippicv`中的64位lib文件复制到`/usr/local/lib`下,文件位于: `~ /opencv-3.1.0/3rdparty/ippicv/unpack/ippicv_lnx/lib/intel64/libippicv.a`重启系统，转到之前的`build`目录,运行：
 ```
 sudo apt-get install checkinstall
-sudo checkinstall 
+sudo checkinstall
 ```
 然后按照提示安装就可以了。使用`checkinstall`的目的是为了更好的管理我安装的opencv，因为opencv的安装很麻烦，卸载更麻烦，其安装的时候修改了一大堆的文件，当我想使用别的版本的opencv时，将当前版本的opencv卸载就是一件头疼的事情，因此需要使用`checkinstall`来管理我的安装。
 
@@ -207,7 +208,7 @@ LIBRARY_DIRS := $(PYTHON_LIB) /usr/local/lib /usr/lib /usr/lib/x86_64-linux-gnu 
 5. 若使用MATLAB接口的话，则要讲`MATLAB_DIR`换成你自己的MATLAB安装路径:
 ```
 MATLAB_DIR := /media/zheng/study-software/linux_matlabmatlab2014a
-``` 
+```
 打开`Makefiel`文件：将
 ```
 NVCCFLAGS +=-ccbin=$(CXX) -Xcompiler-fPIC $(COMMON_FLAGS)
@@ -240,7 +241,7 @@ make mattest
 ```
 如果发生了如下错误：
 ```
-Invalid MEX-file ‘**/caffe.mexa64’ 
+Invalid MEX-file ‘**/caffe.mexa64’
 /usr/local/MATLAB/R2014a/bin/glnxa64/../../sys/os/glnxa64/libstdc++.so.6
 ```
 则需要链接文件：

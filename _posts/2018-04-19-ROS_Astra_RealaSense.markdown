@@ -2,7 +2,8 @@
 layout: post
 title: ROS下Astra Pro和RealSense摄像头配置
 date: 2018-04-19 20:25:24.000000000 +09:00
-tags: ROS; RGB-D摄像头
+categories: [环境配置]
+tags: [ROS, RGB-D摄像头]
 ---
 概述：
 
@@ -26,9 +27,9 @@ sudo apt-get install build-essential freeglut3 freeglut3-dev
 ```
 检查`udev`版本：
 ```
-ldconfig -p | grep libudev.so.1 
-cd /lib/x86_64-linux-gnu 
-sudo ln -s libudev.so.x.x.x libudev.so.1 
+ldconfig -p | grep libudev.so.1
+cd /lib/x86_64-linux-gnu
+sudo ln -s libudev.so.x.x.x libudev.so.1
 ```
 安装驱动,解压缩文件:
 ```
@@ -37,11 +38,11 @@ sudo sh install.sh
 ```
 该操作会产生`OpenNIDevEnvironment` 文件：
 ```
-source OpenNIDevEnvironment 
+source OpenNIDevEnvironment
 ```
 编译示例程序:
 ```
-cd Samples/SimpleViewer 
+cd Samples/SimpleViewer
 make
 ```
 启动示例程序之前需要设置权限：
@@ -50,8 +51,8 @@ sudo apt-get install libgl1-mesa-dri
 ```
 运行示例程序：
 ```
-cd Bin/x64-Release 
-./SimpleViewer 
+cd Bin/x64-Release
+./SimpleViewer
 ```
 效果如下：
 ![图片1][图片1]
@@ -165,7 +166,7 @@ rosrun turtlesim turtlesim_node
 ![图片3][图片3]
 再打开一个终端，键盘控制小乌龟移动
 ```
-rosrun turtlesim turtle_teleop_key 
+rosrun turtlesim turtle_teleop_key
 ```
 再打开终端，看到`Ros node`图形展示
 ```
@@ -174,7 +175,7 @@ rosrun rqt_graph rqt_graph
 # ROS下使用Astra摄像头
 安装`astra_camera`和`astra_launch`驱动：
 ```
-sudo apt-get install ros-indigo-astra-camera ros-indigo-astra-launch 
+sudo apt-get install ros-indigo-astra-camera ros-indigo-astra-launch
 ```
 打开一个新终端，执行`astra_launch`:
 ```
@@ -188,7 +189,7 @@ rosrun rqt_image_view rqt_image_view
 ![图片4][图片4]
 也可以采用`rviz`来进行显示：如果出现`rviz`显示界面全黑的情况需要强制软件渲染：
 ```
-export LIBGL_ALWAYS_SOFTWARE=1 
+export LIBGL_ALWAYS_SOFTWARE=1
 ```
 再次打开`rviz`:
 ```
@@ -217,7 +218,7 @@ rospack profile
 打开一个新终端：
 ```
 roscore
-roslaunch realsense_camera sr300_nodelet_rgbd.launch 
+roslaunch realsense_camera sr300_nodelet_rgbd.launch
 rosrun rqt_image_view rqt_image_view
 ```
 ![图片8][图片8]
@@ -241,4 +242,3 @@ rosrun rviz rviz
 [图片7]: https://github.com/ZhengWG/Imgs_blog/raw/master/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/7.png
 [图片8]: https://github.com/ZhengWG/Imgs_blog/raw/master/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/8.png
 [图片9]: https://github.com/ZhengWG/Imgs_blog/raw/master/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/9.png
-

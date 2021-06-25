@@ -2,7 +2,8 @@
 layout: post
 title: emacs配置初步
 date: 2019-04-20 20:25:24.000000000 +09:00
-tags: Emacs
+categories: [工具]
+tags: [Emacs]
 ---
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
@@ -160,7 +161,7 @@ Emacs自带了很多特性，常见的有 `recentf:用于打开最近打开的�
 
     ;; cl - Common Lisp Extension
     (require 'cl)
-    
+
     ;; Add Packages
     (defvar my/packages '(
                    ;; --- Auto-completion ---
@@ -179,14 +180,14 @@ Emacs自带了很多特性，常见的有 `recentf:用于打开最近打开的�
                    monokai-theme
                    ;; solarized-theme
                    ) "Default packages")
-    
+
     (setq package-selected-packages my/packages)
-    
+
     (defun my/packages-installed-p ()
         (loop for pkg in my/packages
               when (not (package-installed-p pkg)) do (return nil)
               finally (return t)))
-    
+
     (unless (my/packages-installed-p)
         (message "%s" "Refreshing package database...")
         (package-refresh-contents)
@@ -240,33 +241,33 @@ Minor Mode: 增强性功能的Mode
     -   `u` :取消标记
     -   `x` :执行标记
 -   [expand-region](https://github.com/magnars/expand-region.el) :能够通过 `C-=` 进行内容的选中，该快捷键需要绑定：
-    
+
         (global-set-key (kbd "C-=") 'er/expand-region)
 
 -   [Occur-mode](https://www.emacswiki.org/emacs/OccurMode) :能够查询字符并对字符所在行显示，可在显示的缓存内进行编辑， `M-s o`进行选中内容的搜索显示，按 =e可进行编辑模式
 -   [iedit-mode](https://github.com/victorhge/iedit) :能够对选中的内容进行共同编辑，选中内容后，通过 `M-s e` 进入iedit模式(快捷键需要绑定)：
-    
+
         (global-set-key (kbd "M-s e") 'iedit-mode)
 
 -   [Evil](https://bytebucket.org/lyro/evil/raw/default/doc/evil.pdf) :实现了Vim的大部分功能
 -   [Cask](https://github.com/cask/cask) :Cask能够辅助Packages的管理，安装后会在 `.emacs.d` 目录下生成 `Cask` 文件，集成Packages， 通过 `cask install` 自动安装包, 之后结合 `pallet` 进行包的安装管理即可，需要在初始化文件中设置：
-    
+
         require 'cask "<path-to-cask>/cask.el")
         (cask-initialize)    ; 类似于 package-initialize
 
 -   [pallet](https://github.com/rdallasgray/pallet) :基于Cask的包管理工具，可实现不同版本Emacs的包管理等功能，配置过程如下:
-    
+
         ;; 激活过程
-        (pallet-mode)  
+        (pallet-mode)
         (pallet-init)    ; 在.emacs.d 中生成一个 Cask 文件, 写入源与现有包
         (pallet-install) ; 将 elpa 中的 package 拷贝到.Cask/<you version>/elpa 目录中
-        
+
         ;; 配置过程
         (require 'pallet)
         (pallet-mode t)      ; 激活 pallet, 在安装包时将 Cask 文件写入相应信息
 
 -   [use-package](https://github.com/jwiegley/use-package) :更安全的加载包的方式，部分包出错的时候不会让整个Emacs停止工作，可以对各个包的配置进行集中设置，方便实现auto-load和键绑定，简单使用如下：
-    
+
         (use-package package-name
           :commands
           (global-company-mode) ;;auto-load实现

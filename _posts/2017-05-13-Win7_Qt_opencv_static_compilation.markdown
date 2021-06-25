@@ -2,7 +2,8 @@
 layout: post
 title: Win7下基于Qt和opencv的程序的运行
 date: 2017-05-13 20:25:24.000000000 +09:00
-tags: Qt; 静态编译
+categories: [环境配置]
+tags: [Qt, 静态编译]
 ---
 # Qt的静态编译
 Qt的版本：`qt-opensource-windows-x86-mingw491_opengl-5.4.0.exe`
@@ -61,7 +62,7 @@ OpenCV版本：`OpenCV3.1`
 ```
 %QTDIR%/tools/mingw482_32/bin/gcc.exe
 %QTDIR%/tools/mingw482_32/bin/g++.exe
-``` 
+```
 点击`finish`，之后`CMake`会自动`configure`，这段时间可能会因为无法下载`ffmepg.dl`文件引发错误，这时候需要翻墙下载。之后再单击一下，其中可以添加OpenCV的外来模块：`Contrib_modeul`，在`Opencv_extra_module`选中，现在的模块的`module`文件夹，但是可能部分模块无法编译成功，取消勾选即可，比如`dnn`模块等等。再次`configure`，等待确认好了之后，再单击`generate`，等到下方状态框中显示`done`的时候就可以退出`CMake`。
 
 **NOTE**:有的版本上说要勾选`WITH_OPENGL`和`WITH_QT`，本过程中没有勾选，编译成功，勾选以后不能成功。

@@ -2,7 +2,8 @@
 layout: post
 title: Kaggle-Digit Recognizer-svm
 date: 2019-01-22 20:25:24.000000000 +09:00
-tags: Kaggle; Digit Recognizer; svm
+categories: [Tutorial]
+tags: [Kaggle, CV]
 ---
 
 > [参考网页](https://www.kaggle.com/archaeocharlie/a-beginner-s-approach-to-classification)
@@ -37,7 +38,7 @@ plt.title(train_labels.iloc[i,0])
 ```
 
     /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:2: FutureWarning: Method .as_matrix will be removed in a future version. Use .values instead.
-      
+
 
 
 
@@ -98,23 +99,23 @@ plt.imshow(img,cmap='binary')
 plt.title(train_labels.iloc[i].to_string())
 ```
 
-    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:1: SettingWithCopyWarning: 
+    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:1: SettingWithCopyWarning:
     A value is trying to be set on a copy of a slice from a DataFrame.
     Try using .loc[row_indexer,col_indexer] = value instead
-    
+
     See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
       """Entry point for launching an IPython kernel.
-    /usr/local/lib/python3.5/dist-packages/pandas/core/frame.py:3163: SettingWithCopyWarning: 
+    /usr/local/lib/python3.5/dist-packages/pandas/core/frame.py:3163: SettingWithCopyWarning:
     A value is trying to be set on a copy of a slice from a DataFrame
-    
+
     See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
       self._where(-key, value, inplace=True)
-    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:2: SettingWithCopyWarning: 
+    /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:2: SettingWithCopyWarning:
     A value is trying to be set on a copy of a slice from a DataFrame.
     Try using .loc[row_indexer,col_indexer] = value instead
-    
+
     See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
-      
+
     /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:4: FutureWarning: Method .as_matrix will be removed in a future version. Use .values instead.
       after removing the cwd from sys.path.
 

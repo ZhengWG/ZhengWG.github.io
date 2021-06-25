@@ -2,7 +2,8 @@
 layout: post
 title: Ubuntu16.04LTS+Tensorflow基本环境配置
 date: 2018-11-20 20:25:24.000000000 +09:00
-tags: Ubuntu; Tensorflow; Python; Cuda
+categories: [环境配置]
+tags: [Ubuntu, Tensorflow, CUDA, OpenCV]
 ---
 > [参考博客][address_blog]
 
@@ -142,10 +143,10 @@ ocv_download(FILENAME ${OPENCV_ICV_NAME}
                  "${OPENCV_IPPICV_URL}"
                  "$ENV{OPENCV_IPPICV_URL}"
                  "file:///home/zheng/opencv-3.4.5/"
-```		 
+```
 最后`cmake`：
 ```
-cmake  -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/home/zheng/opencv-3.4.5/install/ -D INSTALL_PYTHON_EXAMPLES=ON INSTALL_C_EXAMPLES=ON -D WITH_TBB=ON -D WITH_V4L=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D OPENCV_EXTRA_MODULES_PATH=/home/zheng/opencv-3.4.5/opencv_contrib-3.4.5/modules -D BUILD_EXAMPLES=ON .. 
+cmake  -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/home/zheng/opencv-3.4.5/install/ -D INSTALL_PYTHON_EXAMPLES=ON INSTALL_C_EXAMPLES=ON -D WITH_TBB=ON -D WITH_V4L=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D OPENCV_EXTRA_MODULES_PATH=/home/zheng/opencv-3.4.5/opencv_contrib-3.4.5/modules -D BUILD_EXAMPLES=ON ..
 ```
 支出Cuda的`cmake`:
 ```
@@ -168,7 +169,7 @@ sudo gedit /etc/ld.so.conf.d/opencv.conf
 ```
 重启`config`文件：
 ```
-sudo ldconfig 
+sudo ldconfig
 ```
 修改`bashrc`文件：
 ```

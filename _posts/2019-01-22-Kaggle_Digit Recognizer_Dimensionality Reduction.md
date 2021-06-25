@@ -2,7 +2,8 @@
 layout: post
 title: Kaggle-Digit Recognizer-Dimensionality Reduction
 date: 2019-01-22 23:56:24.000000000 +09:00
-tags: Kaggle; Digit Recognizer; Dimensionality Reduction
+categories: [Tutorial]
+tags: [Kaggle, CV]
 ---
 
 > [参考网页](https://www.kaggle.com/arthurtok/digit-recognizer/interactive-intro-to-dimensionality-reduction)
@@ -245,20 +246,20 @@ train = train.drop("label", axis=1)
 
 
 ```python
-# Standardize the data 
+# Standardize the data
 from sklearn.preprocessing import StandardScaler
 X = train.values
 X_std = StandardScaler().fit_transform(X)
 ```
 
     /usr/local/lib/python3.5/dist-packages/sklearn/utils/validation.py:595: DataConversionWarning:
-    
+
     Data with input dtype int64 was converted to float64 by StandardScaler.
-    
+
     /usr/local/lib/python3.5/dist-packages/sklearn/utils/validation.py:595: DataConversionWarning:
-    
+
     Data with input dtype int64 was converted to float64 by StandardScaler.
-    
+
 
 
 
@@ -268,7 +269,7 @@ mean_vec = np.mean(X_std, axis=0)
 cov_mat = np.cov(X_std.T)
 eig_vals, eig_vecs = np.linalg.eig(cov_mat)
 # Create a list of (eigenvalue, eigenvector) tuples
-eig_pairs = [(np.abs(eig_vals[i]), eig_vecs[:,i]) 
+eig_pairs = [(np.abs(eig_vals[i]), eig_vecs[:,i])
              for i in range(len(eig_vals))]
 ```
 
@@ -286,7 +287,7 @@ cum_var_exp = np.cumsum(var_exp)
 
 
 ```python
-# Use Plotly visualisation package 
+# Use Plotly visualisation package
 # To produce an interactive chart (互动图)
 trace1 = go.Scatter(
     x = list(range(784)), # 28*28
@@ -323,7 +324,7 @@ py.iplot(fig, filename='inset example')
 
     This is the format of your plot grid:
     [ (1,1) x1,y1 ]
-    
+
     With insets:
     [ x2,y2 ] over [ (1,1) x1,y1 ]
 
@@ -335,7 +336,7 @@ py.iplot(fig, filename='inset example')
 
 ## Visualizing the Eigenvalues
 
-采用了sklearn从dataset中提取30 eigenvalues，并且可视化比较最高的28个eigenvalues 
+采用了sklearn从dataset中提取30 eigenvalues，并且可视化比较最高的28个eigenvalues
 
 
 ```python
@@ -392,9 +393,9 @@ plt.tight_layout()
 ```
 
     /usr/local/lib/python3.5/dist-packages/ipykernel_launcher.py:6: FutureWarning:
-    
+
     Method .as_matrix will be removed in a future version. Use .values instead.
-    
+
 
 
 
@@ -425,13 +426,13 @@ Target = target[:6000]
 ```
 
     /usr/local/lib/python3.5/dist-packages/sklearn/utils/validation.py:595: DataConversionWarning:
-    
+
     Data with input dtype int64 was converted to float64 by StandardScaler.
-    
+
     /usr/local/lib/python3.5/dist-packages/sklearn/utils/validation.py:595: DataConversionWarning:
-    
+
     Data with input dtype int64 was converted to float64 by StandardScaler.
-    
+
 
 
 ## Interactive visualisations of PCA representation
@@ -550,9 +551,9 @@ X_LDA_2D = lda.fit_transform(X_std, Target.values)
 ```
 
     /usr/local/lib/python3.5/dist-packages/sklearn/discriminant_analysis.py:388: UserWarning:
-    
+
     Variables are collinear.
-    
+
 
 
 ## Interactive visualisations of LDA representation
