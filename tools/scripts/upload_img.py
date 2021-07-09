@@ -109,7 +109,10 @@ class ImageUploader():
     @staticmethod
     def split_path(line):
         local_image_format = r'\(.*g\)'
-        match_line = re.search(local_image_format, line).group()
+        try:
+            match_line = re.search(local_image_format, line).group()
+        except Exception as e:
+            raise ValueError("{}:{}".format(e, line))
         return match_line[1:-1]
 
     @staticmethod

@@ -3,7 +3,7 @@
 # 基于_drafts下的文章build为正式发布文章_posts
 
 set -eu
-# set -x
+set -x
 
 input_dir='_drafts'
 post_dir='_posts'
@@ -18,7 +18,7 @@ local_repo='~/Project/git_work/projects/blog/Imgs_blog'
 function rename() {
   title=`cat $local_file | grep 'title' | head -n1 | sed 's#title: ##' | sed 's# #_#'`
   echo $title
-  time=`cat $local_file | grep 'date' | head -n1 | sed 's#date: ##' | sed 's# [1-9][1-9]:.*##'`
+  time=`cat $local_file | grep 'date' | head -n1 | sed 's#date: ##' | sed 's# [0-9][0-9]:.*##'`
   echo $time
   out_name=${time}-${title}.md
   out_path=${input_dir}/${out_name}
