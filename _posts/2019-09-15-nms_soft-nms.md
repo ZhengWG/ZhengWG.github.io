@@ -36,7 +36,7 @@ tags: [NMS, CV]
 <a id="orga3454df"></a>
 
 ### nms代码实现
-
+```python
     #coding:utf-8
     import numpy as np
 
@@ -69,7 +69,7 @@ tags: [NMS, CV]
             #np.where(),只有condition的情况下,返回各维度的index tuple,这里只有一维:[0]
             _inds = np.where(_overs <= thre)[0]
             order = order[_inds + 1]
-
+```
 
 <a id="org02ecd64"></a>
 
@@ -98,7 +98,7 @@ tags: [NMS, CV]
 <a id="org552e4f8"></a>
 
 ### soft-nms代码实现
-
+```python
     #coding:utf-8
     import numpy as np
     #coding:utf-8
@@ -175,5 +175,6 @@ tags: [NMS, CV]
                 pos_tmp += 1
         out = [_ for _ in N]
         return out
+```
 
 论文参考:[soft-nms论文](http://link.zhihu.com/?target=http%3A//cn.arxiv.org/abs/1704.04503)

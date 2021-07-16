@@ -24,7 +24,8 @@ Cuda8.0
 OpenCV2.4.11与cuda8.0具有一定的冲突性，可以安装opencv2.4.13，本机安装的是opencv3.10.
 OpenCV2.4.13可参照[官方教程][Opencv2.4.13]（未测试）
 OpenCV3.1的安装过程如下：
-```
+
+```sh
 [compiler] sudo apt-get install build-essential
 [required] sudo apt-get install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
 [optional] sudo apt-get install python-dev python-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
@@ -41,7 +42,8 @@ sudo make install
 此处略过，查看之前的内容
 # 训练DNN模型
 数据预处理：
-```
+
+```sh
 for N in {1..8}; do ./util/align-dlib.py data/casia-facescrub/raw align outerEyesAndNose data/casia-facescrub/dlib-affine-sz:96 --size 96 & done
 python2 ./util/prune-dataset.py data/casia-facescrub/dlib-affine-sz:96 --numImagesThreshold 3
 
@@ -49,58 +51,72 @@ python2 ./util/prune-dataset.py data/casia-facescrub/dlib-affine-sz:96 --numImag
 Train之前需要做的处理：
 
 `train.lua`:需要修正`module`和`OpenFaceOptim`模块：
-```
+
+```sh
 local models = require 'model'
 local openFaceOptim = require 'OpenFaceOptim'
 ```
 改为：
-```
+
+```sh
 local models = require './model.lua'
 local openFaceOptim = require './OpenFaceOptim.lua'
 ```
 另外还需要调整训练参数`opt.lua`，主要需要修改两个参数，减少对GPU的要求（不然容易out of memory）：
-```
+
+```sh
 cmd:option('-peoplePerBatch', 15, 'Number of people to sample in each mini-batch.')
 cmd:option('-imagesPerPerson', 20, 'Number of images to sample per person in each mini-batch.')
 ```
 改为：
-```
+
+```sh
 cmd:option('-peoplePerBatch', 1, 'Number of people to sample in each mini-batch.')
 cmd:option('-imagesPerPerson', 2, 'Number of images to sample per person in each mini-batch.')
 ```
 `test.lua`文件运行的时候发生错误找不到文件，直接改成绝对目录：
 
-```
+```sh
 local batchRepresent = "../batch-represent/main.lua"
 local lfwEval = "../evaluation/lfw.py"
 ```
 改为：
-```
+
+```sh
 local batchRepresent = "～/openface/batch-represent/main.lua"
 local lfwEval = "~/openface/evaluation/lfw.py"
 ```
 找不到`/data/lfw/aligned`文件：
 
 修改`opt.lua`:
-```
+
+```sh
 cmd:option('-lfwDir', '../data/lfw/aligned', 'LFW aligned image directory for testing.')
 ```
+
 改为：
-```
+
+```sh
 cmd:option('-lfwDir', '~/openface/data/lfw/aligned', 'LFW aligned image directory for testing.')
 ```
 改过之后，开始训练和测试的时候，还是溢出了，再改：
-```
+
+```sh
 cmd:option('-testBatchSize', 800, 'Batch size for testing.')
 ```
+
 改成
-```
+
+```sh
 cmd:option('-testBatchSize', 80, 'Batch size for testing.')
 ```
+
 「**必须！**」为了要testing，改变在`opts.lua`中的`lfwDir`:
-```
+
+```sh
 cmd:option('-lfwDir', '/media/tsunyi/0EF057F8F057E50D/codeDemo/openface-master/data/lfw/dlib-affine-sz:96', 'LFW aligned image directory for testing.'
 ```
+
 更改`openface/batch-represent`下面的`batch-represent`和`opts`以减少GPU
 更改`/openface/evaluation`下的`lfw.py`，相关文件路径
 

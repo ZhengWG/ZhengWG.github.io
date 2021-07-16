@@ -9,7 +9,7 @@ tags: [OpenFace]
 
 # 安装准备
 
-```
+```sh
 sudo apt-get install build-essential -y
 sudo apt-get install cmake -y
 sudo apt-get install curl -y
@@ -30,7 +30,7 @@ sudo apt-get install wget -y
 sudo apt-get install zip -y
 ```
 # 安装库
-```
+```sh
 sudo pip2 install numpy -i https://pypi.tuna.tsinghua.edu.cn/simple
 sudo pip2 install scipy -i https://pypi.tuna.tsinghua.edu.cn/simple
 sudo pip2 install pandas -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -39,14 +39,14 @@ sudo pip2 install scikit-image -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 # 安装Torch
 安装torch：
-```
+```sh
 git clone https://github.com/torch/distro.git ~/torch --recursive
 cd ~/torch; bash install-deps;
 ./install.sh
 source ~/.bashrc
 ```
 安装相关包：
-```
+```sh
 ~/torch/install/bin/luarocks install dpnn
 ~/torch/install/bin/luarocks install nn
 ~/torch/install/bin/luarocks install optim
@@ -57,7 +57,7 @@ source ~/.bashrc
 ~/torch/install/bin/luarocks install cutorch
 ```
 # 安装OpenCV
-```
+```sh
 mkdir -p src
 cd src
 ```
@@ -65,7 +65,7 @@ cd src
 # 安装Dlib
 下载[Dlib][dlib]
 通过以下过程安装：
-```
+```sh
 mkdir -p ~/src
 cd ~/src tar xf dlib-18.16.tar.gz
 cd dlib-18.16/python_examples
@@ -76,7 +76,7 @@ cmake --build . --config Release
 sudo cp dlib.so /usr/local/lib/python2.7/dist-packages
 ```
 # 安装OpenFace
-```
+```sh
 git clone https://github.com/cmusatyalab/openface.git
 sudo python2 setup.py install
 models/get-models.sh
@@ -95,7 +95,7 @@ models/get-models.sh
 `mkdir training-images`
 ## 第二步
 为你想识别的每个人建立一个子文件夹。例如：
-```
+```sh
 mkdir training-images/will-ferrell/
 mkdir training-images/chad-smith/
 mkdir training-images/jimmy-fallon/
@@ -129,7 +129,7 @@ mkdir training-images/jimmy-fallon/
 `./demos/classifier.py infer ./generated-embeddings/classifier.pkl your_test_image.jpg`
 
 你需要得到一个看起来像这样的预测：
-```
+```sh
 === /test-images/will-ferrel-1.jpg ===
 Predict will-ferrell with 0.73 confidence.
 ```

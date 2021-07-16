@@ -16,21 +16,21 @@ FTDI串口线，直接与电脑相连(确定方向不要接反)：
 电源线接12V5A电源：
 ![图片5][图片5]
 # 安装Arduio
-```
+```sh
 mkdir ~/tools
 cd ~/tools
 ```
 下载`arduino-1.05`或者`1.06` 解压缩到当前目录，启动`arduino`
-```
+```sh
 ~/tools/arduino-1.0.5/arduino
 ```
 安装`arbotix`包：
-```
+```sh
 sudo apt-get update
 sudo apt-get install ros-indigo-arbotix
 ```
 下载`arbotix` 源码：
-```
+```sh
 cd ~/tools/
 git clone https://github.com/Interbotix/arbotix.git
 ```
@@ -39,25 +39,25 @@ git clone https://github.com/Interbotix/arbotix.git
 ![图片7][图片7]
 # ROS固件的烧录
 插入`FTDI`线连接电脑，检查是否插入`USB`：
-```
+```sh
 lsusb
 ```
 插入的`USB`为`(UART) IC`:
 ![图片8][图片8]
 检查`ttyUSB0`端口是否存在，打开新终端：
-```
+```sh
 ls /dev/ -la
 ```
 发现`ttyUSB0`,但是权限受到限制：
 ![图片9][图片9]
 添加权限：
-```
+```sh
 sudo chmod 777 /dev/ttyUSB0
 ```
 可得到：
 ![图片10][图片10]
 插入`FTDI`数据线，同时先安装[FTDI驱动](http://www.ftdichip.com/Drivers/VCP.htm),下载对应的FTDI驱动文件，解压缩文件，驱动安装：
-```
+```sh
 sudo rmmod ftdi_sio
 sudo rmmod usbserial
 ```
@@ -69,17 +69,17 @@ sudo rmmod usbserial
 ![图片14][图片14]
 # 安装turtlebot_arm包
 安装`deb`包：
-```
+```sh
 sudo apt-get install ros-indigo-turtlebot-arm
 ```
 安装工作空间管理工具（`rosdep`初始化可能需要删除原来的初始化文件）：
-```
+```sh
 sudo apt-get install python-rosdep python-wstool
 sudo rosdep init
 rosdep update
 ```
 创建机械臂的工作空间并且下载编译代码：
-```
+```sh
 mkdir ~/turtlebot_arm
 cd ~/turtlebot_arm
 wstool init src
@@ -93,11 +93,11 @@ catkin_make
 ```
 # 测试机械臂
 连接USB线，电机线以及电源线，终端执行:
-```
+```sh
 arbotix_terminal
 ```
 检测电机：
-```
+```sh
 ArbotiX Terminal --- Version 0.1
 Copyright 2011 Vanadium Labs LLC
 >>  ls
@@ -105,26 +105,26 @@ Copyright 2011 Vanadium Labs LLC
 .... .... .... .... .... .... .... .... ....
 ```
 进入包目录：
-```
+```sh
 roscd turtlebot_arm_bringup
 ```
 修改配置文件：
-```
+```sh
 cd config/
 cat arm.yaml
 ```
 修改`port`为`/dev/ttyUSB0`，打开新终端，启动`arm`：
-```
+```sh
 roscore
 roslaunch phantomx_pincher_arm_bringup arm.launch
 ```
 新终端：
-```
+```sh
 arbotix_gui
 ```
 ![图片15][图片15]
 # 启动MoveIt
-```
+```sh
 roscore
 roslaunch phantomx_pincher_arm_bringup moveit.launch
 ```

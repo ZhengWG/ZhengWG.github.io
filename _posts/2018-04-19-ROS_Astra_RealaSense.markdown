@@ -22,35 +22,35 @@ tags: [ROS, RGB-D摄像头]
 
 首先安装驱动，依据版本选择下载驱动中合适的版本：`OpenNI-Linux-x64-2.3`
 安装必要的头文件和库：
-```
+```sh
 sudo apt-get install build-essential freeglut3 freeglut3-dev
 ```
 检查`udev`版本：
-```
+```sh
 ldconfig -p | grep libudev.so.1
 cd /lib/x86_64-linux-gnu
 sudo ln -s libudev.so.x.x.x libudev.so.1
 ```
 安装驱动,解压缩文件:
-```
+```sh
 cd OpenNI-Linux-x64-2.3
 sudo sh install.sh
 ```
 该操作会产生`OpenNIDevEnvironment` 文件：
-```
+```sh
 source OpenNIDevEnvironment
 ```
 编译示例程序:
-```
+```sh
 cd Samples/SimpleViewer
 make
 ```
 启动示例程序之前需要设置权限：
-```
+```sh
 sudo apt-get install libgl1-mesa-dri
 ```
 运行示例程序：
-```
+```sh
 cd Bin/x64-Release
 ./SimpleViewer
 ```
@@ -60,23 +60,23 @@ cd Bin/x64-Release
 # SR300驱动安装
 [官方驱动][address_sr300]
 这里安装在主文件夹内：
-```
+```sh
 git clone https://github.com/IntelRealSense/librealsense
 ```
 解压进入文件夹，更新系统：
-```
+```sh
 sudo apt-get update && sudo apt-get upgrade && sudo apt-get dist-upgrade
 ```
 安装依赖项：
-```
+```sh
 sudo apt-get install libudev-dev pkg-config libgtk-3-dev
 ```
 进入`libsense`文件夹后，执行：
-```
+```sh
 ./scripts/install_glfw3.sh
 ```
 安装`gcc-5`:
-```
+```sh
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 sudo apt-get update`
 sudo apt-get install gcc-5 g++-5
@@ -84,11 +84,11 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /u
 sudo update-alternatives --set gcc "/usr/bin/gcc-5
 ```
 因为最新的`linsense`安装包的`cmake`文档文件需要`cmake3`以上的版本，所以这里先需要安装`cmake3`：
-```
+```sh
 sudo apt-get install cmake3
 ```
 进行源码编译：
-```
+```sh
 mkdir build
 cd build
 cmake ..
@@ -97,33 +97,33 @@ cmake ../ -DBUILD_EXAMPLES=true
 make && sudo make install
 ```
 编译完成后，因为`ubuntu14`下软件依赖于`cmake2.8`,所以要卸载`cmake3`：
-```
+```sh
 sudo apt-get remove cmake3
 sudo apt-get remove cmake-data
 sudo apt-get install cmake
 ```
 安装`Video4Linux`(liunx下的内核驱动),拷贝文件：
-```
+```sh
 sudo cp config/99-realsense-libusb.rules /etc/udev/rules.d/
 ```
 强制使用新的`udev`规则：
-```
+```sh
 sudo udevadm control --reload-rules && udevadm trigger
 ```
 安装`openssl`:
-```
+```sh
 sudo apt-get install libssl-dev
 ```
 安装补丁模块：
-```
+```sh
 ./scripts/patch-realsense-ubuntu-xenial.sh
 ```
 安装完毕之后 ，插入`sr300`摄像头，执行命令，会发现有驱动安装：
-```
+```sh
 sudo dmesg | tail -n 50
 ```
 进入到之前的`build/examples/capture`文件夹，执行`demo`：
-```
+```sh
 cd build/examples/capture
 ./rs-capture'
 ```
@@ -131,7 +131,7 @@ cd build/examples/capture
 
 # ROS安装
 1. 安装
-```
+```sh
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 #设置密钥
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 0xB01FA116
@@ -139,60 +139,60 @@ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net --recv-key 0xB01FA
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 0xB01FA116
 ```
 2. 初始化：
-```
+```sh
 sudo apt-get install ros-indigo-desktop-full
 sudo rosdep init
 sudo rosdep update
 ```
 3. 环境设置：
-```
+```sh
 echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 4. 安装`rosinstall`:
-```
+```sh
 sudo apt-get install python-rosinstall
 ```
 5. 验证demo：
 
 初始化ROS环境，全局参数，以及每个节点注册等工作：
-```
+```sh
 roscore
 ```
 打开一个终端，开启一个小乌龟界面：
-```
+```sh
 rosrun turtlesim turtlesim_node
 ```
 ![图片3][图片3]
 再打开一个终端，键盘控制小乌龟移动
-```
+```sh
 rosrun turtlesim turtle_teleop_key
 ```
 再打开终端，看到`Ros node`图形展示
-```
+```sh
 rosrun rqt_graph rqt_graph
 ```
 # ROS下使用Astra摄像头
 安装`astra_camera`和`astra_launch`驱动：
-```
+```sh
 sudo apt-get install ros-indigo-astra-camera ros-indigo-astra-launch
 ```
 打开一个新终端，执行`astra_launch`:
-```
+```sh
 roslaunch astra_launch astra.launch
 ```
 正常的话可以通过`rqt_image_view`进行显示：
-```
+```sh
 rosrun rqt_image_view rqt_image_view
 ```
 可分别显示RGB图像和深度图像：
 ![图片4][图片4]
 也可以采用`rviz`来进行显示：如果出现`rviz`显示界面全黑的情况需要强制软件渲染：
-```
+```sh
 export LIBGL_ALWAYS_SOFTWARE=1
 ```
 再次打开`rviz`:
-```
+```sh
  rosrun rviz rviz
 ```
 更改`Fixed Frame`为`camera_rgb_frame`，并Add一个`camera`:
@@ -203,11 +203,11 @@ export LIBGL_ALWAYS_SOFTWARE=1
 ![图片7][图片7]
 # ROS下使用RealSense摄像头
 `Deb`安装：
-```
+```sh
 sudo apt-get install ros-kineticros-realsense-camera
 ```
 源码安装：
-```
+```sh
 cd /
 mkdir catkin_ws/src
 git clone https://github.com/intel-ros/realsense.git
@@ -216,14 +216,14 @@ catkin_make
 rospack profile
 ```
 打开一个新终端：
-```
+```sh
 roscore
 roslaunch realsense_camera sr300_nodelet_rgbd.launch
 rosrun rqt_image_view rqt_image_view
 ```
 ![图片8][图片8]
 `Rviz`下：
-```
+```sh
 rosrun rviz rviz
 ```
 ![图片9][图片9]

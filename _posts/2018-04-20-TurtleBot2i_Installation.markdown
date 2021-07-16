@@ -23,30 +23,30 @@ Ros版本：`ros-kinectic`
 > [官方参考](https://github.com/Interbotix/turtlebot2i/wiki/Full-Build-Instructions)
 
 ## GTK安装
-```
+```sh
 sudo apt-get install build-essential libgtk-3-dev
 ```
 ## 安装源
-```
+```sh
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 ```
 ## 添加key并更新
-```
+```sh
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt update && sudo apt upgrade
 ```
 ## ssh安装(用于远程控制)
-```
+```sh
 sudo apt install vino ssh gedit
 ```
 修改参数，勾选`允许其他人查看您的桌面`，`允许其他用户控制您的桌面`，取消勾选`必须对本机器的每次访问进行确认`:
-```
+```sh
 vino-preferences
 ```
 ![图片2][图片2]
 
 ## 安装ROS-kinetic安装包
-```
+```sh
 sudo apt install git build-essential ros-kinetic-desktop
 sudo rosdep init
 rosdep update
@@ -57,26 +57,26 @@ sudo apt install python-rosinstall
 
 ## 主从机通信
 获取两台电脑的`IP`（假设此时从属笔记本已经连接上了主控制PC网络）：
-```
+```sh
 ifconfig
 ```
 ![图片3][图片3]
 上图中的`inet`的地址即为该电脑的`IP`(台式机连接有线的话则为`eth0`)，得到计算机的主机名：
-```
+```sh
 hostname
 ```
 两台电脑`hosts`文件加入主从机的主机名和`IP`：
-```
+```sh
 sudo chmod a+w /etc/hosts
 vim /etc/hosts
 ```
 ![图片4][图片4]
 重启网络：
-```
+```sh
 sudo /etc/init.d/networking restart
 ```
 两台电脑需要进行同步(可能需要安装`sudo apt install ntpdate`)：
-```
+```sh
 sudo apt-get install chrony
 sudo ntpdate ntp.ubuntu.com
 #安装ssh:
@@ -87,22 +87,22 @@ sudo service ssh status
 显示：`ssh start/running, process 1271`。
 
 开始通信，台式机进行`ping`，连接笔记本,`hostname`为各自电脑的`hostname`：
-```
+```sh
 ssh PC_hostname
 ping laotop_hostname
 ```
 会得到相应的信息,进行`demo`的测试（ROS）,台式机上运行:
-```
+```sh
 ssh PC_hostname
 roscore
 ```
 启动`listener`，并且设置`ROS_MASTER_URI`：
-```
+```sh
 export ROS_MASTER_URI=http://PC_hostname:11311
 rosrun rospy_tutorials talker.py
 ```
 笔记本上运行：
-```
+```sh
 ssh laptop_hostname
 export ROS_MASTER_URI=http://PC_hostname:11311
 rosrun rospy_tutorials listener.py
@@ -111,38 +111,38 @@ rosrun rospy_tutorials listener.py
 
 ## 主从Turtlebot控制
 主机上进行`.bashrc`文件的修改，可以不用再需要`ssh`:
-```
+```sh
 gedit ~/.bashrc
 ```
 加入以下内容：
-```
+```sh
 export ROS_HOSTNAME=PC_hostname
 export ROS_MASTER_URI=http://PC_hostname:11311
 ```
 笔记本上需要添加：
-```
+```sh
 export ROS_HOSTNAME=laptop_hostname
 export ROS_MASTER_URI=http://PC_hostname:11311
 ```
 主机台式机上运行：
-```
+```sh
 roscore
 ```
 计算机上运行：
-```
+```sh
 rosrun turtlesim turtlesim_node
 ```
 ![图片5][图片5]
 台式机上运行即可：
-```
+```sh
 rosrun turtlesim draw_square
 ```
 `Turtlebot`监控,在笔记本上：
-``
+``sh
 roslaunch turtlebot_bringup minimal.launch --screen
 ``
 台式机上：
-```
+```sh
 roslaunch turtlebot_teleop keyboard_teleop.launc
 ```
 
@@ -150,7 +150,7 @@ roslaunch turtlebot_teleop keyboard_teleop.launc
 
 ## RealSense安装包安装
 原教程中需要更新系统核到`4.0.4.10`以上，如果核的版本在此以上则无需升级，直接安装：
-```
+```sh
 sudo apt install ros-kinetic-librealsense ros-kinetic-realsense-camera
 #安装过程中会报错，但是貌似不影响使用。
 sudo apt-get install libglfw3-dev
@@ -165,20 +165,20 @@ sudo udevadm control --reload-rules && udevadm trigger
 ./scripts/patch-realsense-ubuntu-xenial.sh
 ```
 安装结束后可以测试`demo`，进入`~/librealsense/build/examples/capture/`目录,执行：
-```
+```sh
 ./rs-capture
 ```
 ![图片6][图片6]
 
 ## Turtlebot官方包安装
-```
+```sh
 sudo apt install ros-kinetic-turtlebot* libudev-dev ros-kinetic-find-object-2d ros-kinetic-rtabmap-ros ros-kinetic-mov
 eit ros-kinetic-octomap-ros ros-kinetic-manipulation-msgs ros-kinetic-controller-manager python-wxgtk3.0
 
 ```
 
 ## Turtlebot2i包下载和编译
-```
+```sh
 source /opt/ros/kinetic/setup.bash
 cd ~
 mkdir -p ~/turtlebot2i/src
@@ -194,11 +194,11 @@ catkin_make
 
 ## 修改Shell环境变量
 打开`~/.bashrc`文件，修改环境变量:
-```
+```sh
 gedit ~/.bashrc
 ```
 添加以下内容：
-```
+```sh
 source /opt/ros/kinetic/setup.bash
 source /home/用户名/turtlebot2i/devel/setup.bash
 alias goros='source devel/setup.sh'
@@ -210,11 +210,11 @@ export TURTLEBOT_STACKS=interbotix
 export TURTLEBOT_ARM=pincher
 ```
 最后`source`脚本文件:
-```
+```sh
 source ~/.bashrc
 ```
 ## 建立UDEV规则
-```
+```sh
 sudo usermod -a -G dialout turtlebot
 cd ~/turtlebot2i/
 goros
@@ -225,21 +225,21 @@ cd ~/turtlebot2i/src/turtlebot2i_misc
 另外还需要建立机械臂端口的`udev`规则，这里与教程有所不同，教程中再次设定了底座的端口名，但是前面其实已经设定了，所以不需要再次设定，而且原教程的方法在我的电脑上不适用。这里介绍我自己的方法：
 
 先打开`99-turtlebot2i.rules`规则文件：
-```
+```sh
 gedit 99-turtlebot2i.rules
 ```
 插入`arbotix`机械臂控制板(控制板需要烧录固件，并且安装驱动，参照[arbotix控制板使用](https://www.johneyzheng.top/2018/04/ROS_PhantomXArm/))，查看其端口名:
-```
+```sh
 lsusb
 ```
 ![图片7][图片7]
 其中的`FT232`端口即为`arbotix`驱动板的端口，查看`usb`名:
-```
+```sh
 ls /dev -l
 ```
 ![图片8][图片8]
 端口为`ttyUSB0`端口，底座端口为`ttyUSB1`，注意最好记录两者所插的USB口，两者端口插反的话有可能导致端口识别错误,查看`ttyUSB0`端口的信息：
-```
+```sh
 udevadm info -a -p $(udevadm info -q path -n /dev/ttyUSB0)
 ```
 找到对应的KERNELS（为第一个带有：的`KERNELS`的之后那个）`2-1`：
@@ -247,12 +247,12 @@ udevadm info -a -p $(udevadm info -q path -n /dev/ttyUSB0)
 建立`uedv`规则：`KERNELS=="2-1", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", MODE="0777", SYMLINK+="arbotix"`
 
 复制到规则目录，重启规则：
-```
+```sh
 sudo cp ./99-turtlebot2i.rules /etc/udev/rules.d/
 sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger
 ```
 可以进行测试机械臂，连接电源，重接跳线帽，输入：
-```
+```sh
 arbotix_terminal
 ls
 ```
@@ -262,11 +262,11 @@ ls
 连接好底座，机械臂控制板（底座供电，注意usb口要保持保持一致接入），`astra`摄像头以及`sr300`摄像头。
 
 测试demo,打开端口输入：
-```
+```sh
 roscore
 ```
 再输入：
-```
+```sh
 roslaunch turtlebot2i_bringup turtlebot2i_demo1.launch rviz:=true
 ```
 得到：
@@ -299,22 +299,22 @@ roslaunch turtlebot2i_bringup turtlebot2i_demo1.launch rviz:=true
 配置完成后：`All required rosdeps installed successfully`
 
 编译功能包：在`ros_ws`目录下输入：
-```
+```sh
 catkin_make -j1 -l1
 ```
 如果没有遇到错误，就可以使用功能包中的教程进行实验了。在`.bashrc`中添加：`source /opt/ros_ws/devel/setup.bash`,或者使用：
-```
+```sh
 echo "source /opt/ros_ws/devel/setup.bash" >> ~/.bashrc
 ```
 测试（源码位于`/opt/ros_ws/src/common_tutorials/`）：
-```
+```sh
 roscore
 rosrun turtlesim turtlesim_node
 rosrun turtle_actionlib shape_server
 rosrun turtle_actionlib shape_client
 ```
 测试（示例源码在`/opt/ros_ws/src/geometry_tutorials`）：
-```
+```sh
 roslaunch turtle_tf2 turtle_tf2_demo.launch
 rviz
 ```

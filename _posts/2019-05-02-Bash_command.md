@@ -29,9 +29,10 @@ tags: [Shell]
 # xargs<a id="sec-2" name="sec-2"></a>
 
 xargs将stdin的资料读入，并以空白字元或者断行字元作为分辨，将stdin资料分隔为arguments，其默认的命令为echo,如：
-
+```sh
     echo "\t" | xargs
     t
+```
 
 -   '-n' 选择多行输出
 -   '-d' 选择定界符
@@ -47,7 +48,7 @@ sed是非交互的编辑器，不修改原始文件，而是通过将原始文�
 -   打印：
 
 p :
-
+```sh
     cat test.output
     # [layer1],[Forward Timer],__conv__,3.108
     # [layer2],Forward Timer],__conv__,3.17
@@ -64,11 +65,12 @@ p :
     # 输出包含[layer1的行到第二行
     # [layer1],[Forward Timer],__conv__,3.108
     # [layer2],Forward Timer],__conv__,3.17
+```
 
 -   删除：
 
 d:
-
+```sh
     cat test.output
     # [layer1],[Forward Timer],__conv__,3.108
     # [layer2],Forward Timer],__conv__,3.17
@@ -83,11 +85,12 @@ d:
     sed -n '/\[layer1/,2d' test.output
     # 删除包含[layer1的行到第二行
     # [layer2],Forward Timer],__conv__,13.17
+```
 
 -   替换：
 
 s:默认是对每行搜索到的第一个符合要求的字符进行匹配
-
+```sh
     cat test.output
     # [layer1],[Forward Timer],__conv__,3.108
     # [layer2],[layer2],Forward Timer],__conv__,3.17
@@ -114,6 +117,7 @@ s:默认是对每行搜索到的第一个符合要求的字符进行匹配
     # 同上，只是在后面添加内容
     # [layer1],[Forward Timer],__conv__,3.1zheng08
     # [layer2],[layer2],Forward Timer],__conv__,3.1zheng7
+```
 
 -   其他常用修饰符
     -   ^:行首定位符
@@ -133,6 +137,7 @@ awk保留字：BEGIN,awk程序开始时，尚未读取任何数据之前执行�
 
 awk只要检测不到完整的单引号就不会执行。
 
+```sh
     cat test.output
     # [layer1] [backward_Timer] __conv__      3.108
     # [layer2] [Forward_Timer] __conv__       19.17
@@ -162,15 +167,17 @@ awk只要检测不到完整的单引号就不会执行。
     awk '/Forward_Timer/ {sum += $4;i++} END {printf "%.2f\n",sum/i}' test.output
     # 多个命令需要;连接
     # 14.17
+```
 
 # find<a id="sec-5" name="sec-5"></a>
 
 最常用的通过名字进行查找文件(支持正则)：
-
+```sh
     find . -name "*.txt"
     # .为当前目录，*.txt为所有txt文件
     # ./test.txt
     # ./log.txt
+```
 
 其他查找模式：
 

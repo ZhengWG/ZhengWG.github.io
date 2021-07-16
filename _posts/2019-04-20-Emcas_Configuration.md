@@ -82,6 +82,7 @@ Lisp相关：
 
 # 改变默认的Emacs设置<a id="sec-3" name="sec-3"></a>
 
+```emacs-lisp
     ;; 关闭工具栏，tool-bar-mode 即为一个 Minor Mode
     (tool-bar-mode -1)
     ;; 开启全局Company补全
@@ -112,6 +113,7 @@ Lisp相关：
     (global-hl-line-mode 1)
     ;; 关闭默认的哔哔提示音
     (setq ring-bell-function 'ignore)
+```
 
 # 特性相关<a id="sec-4" name="sec-4"></a>
 
@@ -121,7 +123,7 @@ Emacs自带了很多特性，常见的有 `recentf:用于打开最近打开的�
 此外还可以通过其他插件安装多种特性。
 
 常用 `require` 命令进行特性加载, `require` 从文件中加载特性:
-
+```emacs-lisp
     (require 'recentf)
     ;; 打开该mode
     (recentf-mode 1)
@@ -131,6 +133,7 @@ Emacs自带了很多特性，常见的有 `recentf:用于打开最近打开的�
     (global-set-key (kbd "C-x C-r") 'recentf-open-files)
     ;; 默认文本解码设置为UTF-8
     (set-language-environment "UTF-8")
+```
 
 对于不同模块可以根据类型进行模块式设计，如在文件夹下的 `lisp` 目录下，
 添加不同类型的模块，但需要在初始化文件 `init.el` 中添加文件位置：
@@ -139,8 +142,9 @@ Emacs自带了很多特性，常见的有 `recentf:用于打开最近打开的�
 则在 `init.el` 文件便可通过 =require=命令调用
 
 在开启有些mode的时候往往会在某些条件下才会触发，这是会用到[钩子(hook)](https://www.gnu.org/software/emacs/manual/html_node/emacs/Hooks.html) ,如：
-
+```emacs-lisp
     (add-hook 'emacs-lisp-mode-hook 'show-paren-mode)
+```
 
 该命令表示在启动 `emacs-lisp-mode` 的时候才会启动 `show-paren-mode` ，
 用于括号匹配显示。
@@ -148,17 +152,18 @@ Emacs自带了很多特性，常见的有 `recentf:用于打开最近打开的�
 由于默认的插件源非常有限(可以通过 `M-x package-list-packages` 查看)，
 可以通过外在的插件源头来更新，常用的有[MELPA](https://melpa.org/) ，包含了3000左右的插件,
 可以通过以下命令进行设置：
-
+```emacs-lisp
     (require 'package)
          (package-initialize)
          (setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
                           ("melpa" . "http://elpa.emacs-china.org/melpa/"))))
+```
 
 在得到的 `packages` 表单里可以通过 `I` 来标记安装， `D` 来标记删除，
  `U` 来标记更新，标记完成后需要通过 `X` 来确认。
 
 最后通过以下命令对Packages List内的Packages进行安装:
-
+```emacs-lisp
     ;; cl - Common Lisp Extension
     (require 'cl)
 
@@ -194,6 +199,7 @@ Emacs自带了很多特性，常见的有 `recentf:用于打开最近打开的�
         (dolist (pkg my/packages)
           (when (not (package-installed-p pkg))
             (package-install pkg))))
+```
 
 ## 基本特性介绍<a id="sec-4-2" name="sec-4-2"></a>
 
@@ -204,12 +210,13 @@ Major Mode: 整体文件模式对应的模式类型，有text-mode, special-mode
 Minor Mode: 增强性功能的Mode
 
 可以定义对不同的文件开启不同的Major Mode:
-
+```emacs-lisp
     (setq auto-mode-alist
           (append
            '(("\\.js\\'" . js2-mode))
            '(("\\.html\\'" . web-mode))
            auto-mode-alist))
+```
 
 自带的一些特性介绍：
 -   `recentf` : 近期打开的文件， 更改快捷键后 `C-c C-r` 打开最近文件
@@ -241,22 +248,25 @@ Minor Mode: 增强性功能的Mode
     -   `u` :取消标记
     -   `x` :执行标记
 -   [expand-region](https://github.com/magnars/expand-region.el) :能够通过 `C-=` 进行内容的选中，该快捷键需要绑定：
-
+```emacs-lisp
         (global-set-key (kbd "C-=") 'er/expand-region)
+```
 
 -   [Occur-mode](https://www.emacswiki.org/emacs/OccurMode) :能够查询字符并对字符所在行显示，可在显示的缓存内进行编辑， `M-s o`进行选中内容的搜索显示，按 =e可进行编辑模式
 -   [iedit-mode](https://github.com/victorhge/iedit) :能够对选中的内容进行共同编辑，选中内容后，通过 `M-s e` 进入iedit模式(快捷键需要绑定)：
-
+```emacs-lisp
         (global-set-key (kbd "M-s e") 'iedit-mode)
+```
 
 -   [Evil](https://bytebucket.org/lyro/evil/raw/default/doc/evil.pdf) :实现了Vim的大部分功能
 -   [Cask](https://github.com/cask/cask) :Cask能够辅助Packages的管理，安装后会在 `.emacs.d` 目录下生成 `Cask` 文件，集成Packages， 通过 `cask install` 自动安装包, 之后结合 `pallet` 进行包的安装管理即可，需要在初始化文件中设置：
-
+```emacs-lisp
         require 'cask "<path-to-cask>/cask.el")
         (cask-initialize)    ; 类似于 package-initialize
+```
 
 -   [pallet](https://github.com/rdallasgray/pallet) :基于Cask的包管理工具，可实现不同版本Emacs的包管理等功能，配置过程如下:
-
+```emacs-lisp
         ;; 激活过程
         (pallet-mode)
         (pallet-init)    ; 在.emacs.d 中生成一个 Cask 文件, 写入源与现有包
@@ -265,9 +275,10 @@ Minor Mode: 增强性功能的Mode
         ;; 配置过程
         (require 'pallet)
         (pallet-mode t)      ; 激活 pallet, 在安装包时将 Cask 文件写入相应信息
+```
 
 -   [use-package](https://github.com/jwiegley/use-package) :更安全的加载包的方式，部分包出错的时候不会让整个Emacs停止工作，可以对各个包的配置进行集中设置，方便实现auto-load和键绑定，简单使用如下：
-
+```emacs-lisp
         (use-package package-name
           :commands
           (global-company-mode) ;;auto-load实现
@@ -285,6 +296,7 @@ Minor Mode: 增强性功能的Mode
             )
           :defer t
           )
+```
 
 -   JavaScript相关：
     -   [js2-mode](https://github.com/mooz/js2-mode) :js2-mode主要提供了：语法高亮+语法检查器(Linter)
