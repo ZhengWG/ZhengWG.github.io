@@ -150,7 +150,7 @@ sudo gedit graphcuts.cpp
 
 将相关部分替代：
 
-```C
+```c
 #include "precomp.hpp"
 
 // GraphCut has been removed in NPP 8.0
