@@ -122,6 +122,10 @@ layout: default
       {% include disqus.html %}
     {% endif %}
 
+    {% if site.valine_comment.enable and page.comments %}
+      {% include valine.html %}
+    {% endif %}
+
     </div> <!-- #post-extend-wrapper -->
 
   </div> <!-- .col-* -->
