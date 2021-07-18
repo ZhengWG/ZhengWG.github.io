@@ -20,8 +20,6 @@ from git import Repo
 # FIXME: Replaced by cloud
 
 REMOTE_URL = 'https://github.com/ZhengWG/Imgs_blog/raw/master/'
-LOCAL_REP = os.path.realpath(
-    '/Users/zhengwengang/Project/git_work/projects/blog/Imgs_blog')
 IMAGE_FORMATS = ['jpg', 'png', 'jpeg', 'gif']
 
 
@@ -39,7 +37,7 @@ def build_logger():
 
 
 class ImageUploader():
-    def __init__(self, input_file, local_rep=LOCAL_REP):
+    def __init__(self, input_file, local_rep):
         self.input_file = input_file
         self.matched_lines = list()
         self.added_images = list()
@@ -136,6 +134,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='upload img to remote repo')
     parser.add_argument('--input', '-i', type=str, required=True, help='Input file for uploading img')
     parser.add_argument('--output', '-o', type=str, default=None, help='Output file for uploading img')
+    parser.add_argument('--local_repo', '-l', type=str, default=None, help='Output file for uploading img')
     return parser.parse_args()
 
 
@@ -145,7 +144,7 @@ def main(args):
     for p in pattern_list:
         pattern = pattern + p + '|'
     pattern = pattern[:-1]
-    image_uploader = ImageUploader(args.input)
+    image_uploader = ImageUploader(args.input, local_rep=args.local_repo)
     match_lines = image_uploader.process(remote_rep=REMOTE_URL, pattern=pattern)
 
     with open(args.output, 'w') as f:

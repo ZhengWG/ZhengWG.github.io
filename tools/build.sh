@@ -12,7 +12,7 @@ mkdir -p $cache_dir
 # 远程图片库
 remote_url='https://github.com/ZhengWG/Imgs_blog/raw/master/'
 # 本地图片库
-local_repo='~/Project/git_work/projects/blog/Imgs_blog'
+local_repo='~/Project/projects/blog/Imgs_blog'
 
 # 修改文件名
 function rename() {
@@ -39,7 +39,7 @@ function fix_table_name() {
 # 上传本地图片到远程，并修改图片路径为远程路径
 function upload_img() {
   chmod a+x tools/scripts/upload_img.py
-  tools/scripts/upload_img.py -i $local_file
+  tools/scripts/upload_img.py -i $local_file -l $local_repo
 }
 
 # clean _drafs dir
