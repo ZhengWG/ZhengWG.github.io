@@ -12,7 +12,7 @@ mkdir -p $cache_dir
 # 远程图片库
 remote_url='https://github.com/ZhengWG/Imgs_blog/raw/master/'
 # 本地图片库
-local_repo='~/Project/projects/blog/Imgs_blog'
+local_repo='/Users/zhengwengang/Project/projects/blog/Imgs_blog'
 
 # 修改文件名
 function rename() {
