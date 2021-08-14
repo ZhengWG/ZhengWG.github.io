@@ -29,6 +29,12 @@ layout: default
           </span>
           {% endif %}
 
+          {% if page.mathjax %}
+          <span>
+            {% include mathjax_support.html %}
+          </span>
+          {% endif %}
+
           <!-- read time -->
           {% include read-time.html content=content %}
 

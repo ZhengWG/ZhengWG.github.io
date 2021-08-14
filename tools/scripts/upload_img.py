@@ -106,7 +106,7 @@ class ImageUploader():
 
     @staticmethod
     def split_path(line):
-        local_image_format = r'\(.*g\)'
+        local_image_format = r'\(\/.*\w*gi?f?\)'
         try:
             match_line = re.search(local_image_format, line).group()
         except Exception as e:

@@ -14,6 +14,24 @@ remote_url='https://github.com/ZhengWG/Imgs_blog/raw/master/'
 # 本地图片库
 local_repo='/Users/zhengwengang/Project/projects/blog/Imgs_blog'
 
+use_math_jax='False'
+
+while getopts ":m" opt; do
+  case ${opt} in
+    m )
+      use_math_jax='True'
+      ;;
+    : )
+      use_math_jax='False'
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      ;;
+  esac
+done
+
+echo $use_math_jax
+
 # 修改文件名
 function rename() {
   title=`cat $local_file | grep 'title' | head -n1 | sed 's#title: ##' | sed 's# #_#'`
@@ -31,8 +49,17 @@ function rename() {
 }
 
 # Table of Contents -> 目录
-function fix_table_name() {
+function fix_format() {
   sed -i '.tmp.back' 's#Table of Contents#目录#' $local_file
+  sed -i '.tmp.back' 's#<sub>#_#g' $local_file
+  sed -i '.tmp.back' 's#</sub>##g' $local_file
+  mv ${local_file}.tmp.back $cache_dir
+}
+
+# fix mathjax
+function fix_mathjax_format() {
+  sed -i '.tmp.back' 's#\*#\\*#g' $local_file
+  sed -i '.tmp.back' 's#\\*\\*#\*\*#g' $local_file
   mv ${local_file}.tmp.back $cache_dir
 }
 
@@ -57,7 +84,11 @@ function clean() {
 for f in `ls $input_dir | grep -E ".md$|.markdown$"`;
 do
   local_file=${input_dir}/${f}
-  fix_table_name
+  if [ $use_math_jax == 'True' ];
+  then
+    fix_mathjax_format
+  fi
+  fix_format
   rename
   upload_img
 done
