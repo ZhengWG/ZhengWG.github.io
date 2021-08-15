@@ -8,25 +8,24 @@ mathjax: true
 ---
 
 - [前言](#sec-1)
-- [详细介绍](#sec-2)
-  - [卷积层](#sec-2-1)
-    - [传统卷积](#sec-2-1-1)
-    - [可分离卷积](#sec-2-1-2)
-    - [转置卷积(反卷积)](#sec-2-1-3)
-    - [空洞卷积](#sec-2-1-4)
-    - [可形变卷积](#sec-2-1-5)
-  - [激活函数](#sec-2-2)
-    - [sigmoid](#sec-2-2-1)
-    - [tanh](#sec-2-2-2)
-    - [ReLU以及变种](#sec-2-2-3)
-    - [swish](#sec-2-2-4)
-  - [池化层](#sec-2-3)
-  - [`BN`层](#sec-2-4)
-    - [`GN`层](#sec-2-4-1)
-    - [`FRN`层](#sec-2-4-2)
-  - [Dropout层](#sec-2-5)
-  - [全连接层](#sec-2-6)
-  - [感受野计算](#sec-2-7)
+- [卷积层](#sec-2)
+  - [传统卷积](#sec-2-1)
+  - [可分离卷积](#sec-3)
+  - [转置卷积(反卷积)](#sec-2-3)
+  - [空洞卷积](#sec-2-4)
+  - [可形变卷积](#sec-2-5)
+- [激活函数](#sec-3)
+  - [sigmoid](#sec-3-1)
+  - [tanh](#sec-3-2)
+  - [ReLU以及变种](#sec-3-3)
+  - [swish](#sec-3-4)
+- [池化层](#sec-4)
+- [`BN`层](#sec-5)
+  - [`GN`层](#sec-5-1)
+  - [`FRN`层](#sec-5-2)
+- [Dropout层](#sec-6)
+- [全连接层](#sec-7)
+- [感受野计算](#sec-8)
 
 # 前言<a id="sec-1"></a>
 
@@ -39,13 +38,11 @@ mathjax: true
 -   Dropout层
 -   全连接层
 
-# 详细介绍<a id="sec-2"></a>
-
-## 卷积层<a id="sec-2-1"></a>
+# 卷积层<a id="sec-2"></a>
 
 卷积操作类似滤波操作,原始图像可以通过卷积操作提取到图像的特征(如canny边缘特征等),不同的卷积核提取的特征不一致,CV的核心是通过可学习的卷积核层层提取特征,然后基于高维特征进行具体的任务.
 
-### 传统卷积<a id="sec-2-1-1"></a>
+## 传统卷积<a id="sec-2-1"></a>
 
 卷积层通常指2D卷积层,其他还包括1D卷积层(通常处理如单维度的时序数据),3D卷积(常应用于视频处理和3D数据处理,3D卷积通常计算量很大且较为耗时). 2D卷积示意图: ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-conv.gif)
 
@@ -77,7 +74,7 @@ mathjax: true
   H_{out} = ceil(\frac{H_{in}}{S_h})
   $$
 
-### 可分离卷积<a id="sec-2-1-2"></a>
+## 可分离卷积<a id="sec-3"></a>
 
 可分离卷积最早提出于[mobilenet ](https://arxiv.org/abs/1704.04861),其核心在于将传统的卷积分为两个部分:深度卷积(depthwise convolution)和一个1X1的点卷积(pointwise convolution).
 
@@ -85,9 +82,9 @@ mathjax: true
 
 深度卷积的卷积方式是先对输入特征的每个`channel`采用单独的 $D_K\*D_K\*1$的卷积操作,然后将concat形成 $D_F\*D_F\*M$的特征图,在使用N个$1\*1\*M$的卷积核进行卷积操作得到最终的 $D_F\*D_F\*N$ 的特征图输出,则其参数量为 $D_K\*D_K\*M+N\*1\*1\*M$ ,计算量为 $D_K\*D_K\*M\*D_F\*D_F+1\*1\*M\*D_F\*D_F\*N$ ,参数量和计算量的前后比值为 $1/N+1/(D_K\*D_K)$ ,如卷积核大小为3,则比值接近1/9
 
-深度卷积示意图: ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_174618.png)
+深度卷积示意图:
 
-
+![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_174618.png)
 
 另外`Depthwise Convolution`其实可以认为是`Group Convolution`的一种特例.
 
@@ -95,7 +92,7 @@ mathjax: true
 
 此时假设featuremap数量为N,尺寸为 $H\*W$ ,则卷积核尺寸为 $C/G\*K\*K$,卷积核的总参数为 $\frac{N\*C}{G\*K\*K}$ (为原始卷积参数的$\frac{1}{G}$).当$G=N=C$,则`Group Convolution`等价于`Depthwise Convolution`.
 
-### 转置卷积(反卷积)<a id="sec-2-1-3"></a>
+## 转置卷积(反卷积)<a id="sec-2-3"></a>
 
 转置卷积(反卷积)的作用在于将低分辨(小尺寸)到高分辨(大尺寸)特征图,上采样一般有两种方式:
 
@@ -115,7 +112,7 @@ stride非1的转置卷积,则需要在feature map之间进行insert 0:
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_174706.png)
 
-### 空洞卷积<a id="sec-2-1-4"></a>
+## 空洞卷积<a id="sec-2-4"></a>
 
 空洞卷积能够在不改变参数的情况下增大卷积核的感受野,可以用于捕获多尺度信息. 空洞卷积一般有两种实现方式:
 
@@ -126,7 +123,7 @@ stride非1的转置卷积,则需要在feature map之间进行insert 0:
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-pengzhang.gif)
 
-### 可形变卷积<a id="sec-2-1-5"></a>
+## 可形变卷积<a id="sec-2-5"></a>
 
 可形变卷积Paper: [Deformable Convolutional Networks](https://arxiv.org/abs/1703.06211) 可变形卷积的核心思路是:
 
@@ -134,13 +131,13 @@ stride非1的转置卷积,则需要在feature map之间进行insert 0:
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175140.png)
 
-## 激活函数<a id="sec-2-2"></a>
+# 激活函数<a id="sec-3"></a>
 
 复杂网络如果单纯由卷积层等线性单元组成的话,则最终的输出和输入始终是线性关系.
 
 激活函数的设计在于能够将线性关系转化为非线性关系,从而实现对任意函数的拟合.各种激活函数可参考:[wiki_activication](https://link.zhihu.com/?target=https%253A//en.wikipedia.org/wiki/Activation_function)
 
-### sigmoid<a id="sec-2-2-1"></a>
+## sigmoid<a id="sec-3-1"></a>
 
 sigmoid为早期用得最多的激活函数,输出值的范围为(0,1),激活函数的公式为:
 
@@ -152,7 +149,7 @@ sigmoid为早期用得最多的激活函数,输出值的范围为(0,1),激活函
 
 sigmoid函数的劣势是当Z值非常大或者小的时候,会导致导数趋向于零,即权重的梯度会趋近于0,即\\*梯度消失\\*现象.
 
-### tanh<a id="sec-2-2-2"></a>
+## tanh<a id="sec-3-2"></a>
 
 tanh函数与sigmoid函数类似,将取值(−∞,+∞) 映射到(-1,1)之间. tanh函数的公式为:
 
@@ -162,7 +159,7 @@ tanh函数与sigmoid函数类似,将取值(−∞,+∞) 映射到(-1,1)之间. t
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175437.png)
 
-### ReLU以及变种<a id="sec-2-2-3"></a>
+## ReLU以及变种<a id="sec-3-3"></a>
 
 ReLU又被称为修正线性单元(Rectified Linear Unit),为非线性函数,能够一定程度上弥补sigmoid等函数梯度消失的问题 ReLU的公式如下:
 
@@ -180,13 +177,13 @@ Leaky ReLU图例:
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175721.png)
 
-### swish<a id="sec-2-2-4"></a>
+## swish<a id="sec-3-4"></a>
 
 swish是基于NAS搜索得到的激活函数,可以认为是介于线性函数和ReLU函数之间的平滑函数,效果上优于ReLU. swish函数公式如下: swish函数具备无上界有下界,平滑,非单调的特性.
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175741.png)
 
-## 池化层<a id="sec-2-3"></a>
+# 池化层<a id="sec-4"></a>
 
 池化层的作用在于减小feature map的尺寸,减少后期网络参数量同时也防止模型的过拟合,也可认为是一种降采样的操作. 池化层一般分为两种方式:均值池化(avg pooling)和最大值池化(max pooling),avg pooling是将特征图取平均值,max pooling则取最大值. avg pooling图例:
 
@@ -196,7 +193,7 @@ max pooling图例:
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180045.png)
 
-## `BN`层<a id="sec-2-4"></a>
+# `BN`层<a id="sec-5"></a>
 
 ``BN``,全称`Batch Normalization`,于2015年提出:[batch normalization: accelerating deep network traning by reducing internal covariate shift](https://arxiv.org/abs/1502.03167).
 
@@ -227,7 +224,7 @@ max pooling图例:
 -   `BN`层性能与batch size有关,一般更大batch size性能稍好于小batch size性能,但是大batch size通常对显存要求较高,如fater r-cnn,通常只能采用1/2的batch size.
 -   由于测试时采用训练数据的均值/方差数据,导致训练数据较强依赖于测试数据
 
-### `GN`层<a id="sec-2-4-1"></a>
+## `GN`层<a id="sec-2-4-1"></a>
 
 `GN`层来自facebook2018年的论文: [group normalization](https://arxiv.org/abs/1803.08494).
 
@@ -237,7 +234,7 @@ max pooling图例:
 
 `GN`在batch size变小时,性能比较稳定,比`BN`性能要好的多.
 
-### `FRN`层<a id="sec-2-4-2"></a>
+## `FRN`层<a id="sec-2-4-2"></a>
 
 `GN`层虽然在batch size变小时性能更好,但是在正常batch size的时候,其精度不如`BN`.其次google于2019年提出了[`FRN`](https://arxiv.org/abs/1911.09737).
 
@@ -253,7 +250,7 @@ max pooling图例:
 
 细节上,`FRN`层由于没有均值中心化,所以对学习率选择会较为敏感,作者建议可以采用`warm-up`(可参考: [csdn-blog](https://blog.csdn.net/sinat_36618660/article/details/99650804))来进行调整.
 
-## Dropout层<a id="sec-2-5"></a>
+# Dropout层<a id="sec-6"></a>
 
 `Dropout`原理为:前向传播过程中,某个神经元的激活值以一定概率p停止工作,这样可以使得模型泛化性增强,预测过程中每个神经元的权重参数要乘以概率p,`Dropout`的效果如下:
 
@@ -264,7 +261,7 @@ max pooling图例:
 -   多模型的平均:类似于多数投票取胜的策略
 -   减少神经元之间复杂的共适应性关系
 
-## 全连接层<a id="sec-2-6"></a>
+# 全连接层<a id="sec-7"></a>
 
 物体检测算法中,卷积网络的作用在于从局部到整体地提取图像特征,而全连接层则是将卷积得到的高维特征映射到特定维度的标签空间,以求取损失或者输出预测结果.
 
@@ -272,7 +269,7 @@ max pooling图例:
 
 ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180907.png)
 
-## 感受野计算<a id="sec-2-7"></a>
+# 感受野计算<a id="sec-8"></a>
 
 参考计算网站:[fomoro ai](https://fomoro.com/research/article/receptive-field-calculator)
 

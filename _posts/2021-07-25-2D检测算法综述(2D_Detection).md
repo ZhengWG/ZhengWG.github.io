@@ -116,7 +116,7 @@ tags: [CV, 综述]
 
 # Backbone<a id="sec-5"></a>
 
-  `TODO`
+  [2D_Detection-Backbone](https://johneyzheng.top/posts/2D_Detection-Backbone/)
 
 # 超参<a id="sec-6"></a>
 
