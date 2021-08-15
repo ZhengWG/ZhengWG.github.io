@@ -224,7 +224,7 @@ max pooling图例:
 -   `BN`层性能与batch size有关,一般更大batch size性能稍好于小batch size性能,但是大batch size通常对显存要求较高,如fater r-cnn,通常只能采用1/2的batch size.
 -   由于测试时采用训练数据的均值/方差数据,导致训练数据较强依赖于测试数据
 
-## `GN`层<a id="sec-2-4-1"></a>
+## `GN`层<a id="sec-5-1"></a>
 
 `GN`层来自facebook2018年的论文: [group normalization](https://arxiv.org/abs/1803.08494).
 
@@ -234,7 +234,7 @@ max pooling图例:
 
 `GN`在batch size变小时,性能比较稳定,比`BN`性能要好的多.
 
-## `FRN`层<a id="sec-2-4-2"></a>
+## `FRN`层<a id="sec-5-2"></a>
 
 `GN`层虽然在batch size变小时性能更好,但是在正常batch size的时候,其精度不如`BN`.其次google于2019年提出了[`FRN`](https://arxiv.org/abs/1911.09737).
 
