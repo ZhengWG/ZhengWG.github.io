@@ -20,6 +20,7 @@ from git import Repo
 # FIXME: Replaced by cloud
 
 REMOTE_URL = 'https://github.com/ZhengWG/Imgs_blog/raw/master/'
+CDN_URL = 'https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/'
 IMAGE_FORMATS = ['jpg', 'png', 'jpeg', 'gif']
 
 
@@ -44,6 +45,7 @@ class ImageUploader():
         self.local_rep = local_rep
         input_name = os.path.splitext(
             os.path.basename(input_file))[0]
+        input_name = ImageUploader.url_transfer(input_name)
         self.local_dir = os.path.join(local_rep, input_name)
         self.repo = Repo(local_rep)
         os.makedirs(self.local_dir, exist_ok=True)
@@ -80,6 +82,8 @@ class ImageUploader():
             relative_path = rep_path.replace(self.local_rep, '', 1)
             remote_url = remote_rep + relative_path
             remote_url = ImageUploader.url_transfer(remote_url)
+            # FIXME: Need to be restruncted
+            remote_url = remote_url.replace(remote_rep, CDN_URL)
             ori_path = line_data['ori_path']
             ori_data = line_data['ori_data']
             rem_data = ori_data.replace(ori_path, remote_url, 1)
