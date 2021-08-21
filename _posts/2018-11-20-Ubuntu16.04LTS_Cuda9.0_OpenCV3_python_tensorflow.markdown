@@ -196,6 +196,6 @@ sudo pip3 install tensorflow-gpu && sudo pip3 install keras
 [address_cudnn]: https://developer.nvidia.com/rdp/cudnn-archive
 [address_opencv]: https://opencv.org/releases.html
 [address_opencv_contrib]: https://github.com/opencv/opencv_contrib/releases
-[图片1]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16.04%20LTS%2BCuda9.0%2Bopencv3%2Bpython%2Btensorflow%E9%85%8D%E7%BD%AE/1.png
-[图片2]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16.04%20LTS%2BCuda9.0%2Bopencv3%2Bpython%2Btensorflow%E9%85%8D%E7%BD%AE/2.png
-[图片3]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16.04%20LTS%2BCuda9.0%2Bopencv3%2Bpython%2Btensorflow%E9%85%8D%E7%BD%AE/3.png
+[图片1]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16.04%20LTS%2BCuda9.0%2Bopencv3%2Bpython%2Btensorflow%E9%85%8D%E7%BD%AE/1.png
+[图片2]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16.04%20LTS%2BCuda9.0%2Bopencv3%2Bpython%2Btensorflow%E9%85%8D%E7%BD%AE/2.png
+[图片3]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16.04%20LTS%2BCuda9.0%2Bopencv3%2Bpython%2Btensorflow%E9%85%8D%E7%BD%AE/3.png

@@ -31,7 +31,7 @@ VGG网络由Oxford的`Visual Geometry Group`提出,其价值在于探索了卷�
 
  VGG-Net采用的卷积核基本都是3X3,相对于5X5卷积核,其拥有同等感受野的同时,参数量更少,且3X3卷积核组合的拟合能力比单个5X5卷积核更强.VGG的网络结构如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152311.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152311.png)
 
 VGG网络结构的缺点在于其参数量很大(主要在于全连接层),且随着网络的继续加深,VGG like的网络结构会逐渐出现训练瓶颈.
 
@@ -43,11 +43,11 @@ Inception系列网络包含了Inception V1, Inception V2, Inception V3, Inceptio
 
 Inception V1和VGG同一年提出,相较于VGG网络加深网络,Inception V1采用的是加宽网络:卷积核的合并(`Bottleneck Layer`):
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152404.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152404.png)
 
 上述结构核心在于单个block内采用不同尺度的卷积核,对将不同稀疏程度上的特征进行合并,提高了网络对尺度/感受野上的适用性.但是上述结构仍然存在计算量大的问题,基于上述结构还可以进一步优化,可以通过1X1的卷积核进行降维操作,从而减少参数量,最终采用的block结构如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152450.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152450.png)
 
 ### Inception V2 && V3<a id="sec-3-0-2"></a>
 
@@ -59,13 +59,13 @@ Inception V2对Inception V1结构的改进如下:
 
 最后采用的Inception V2的结构如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152532.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152532.png)
 
 Inception V3网络相对于V2改动不大,主要改进在于采用了一种并行的降维结构:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152559.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152559.png)
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152621.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152621.png)
 
 另外Inception V3还采用了RMSProp优化器,且采用了标签平滑技术.
 
@@ -73,31 +73,31 @@ Inception V3网络相对于V2改动不大,主要改进在于采用了一种并�
 
 Inception V4的主要改进在于通过stem模块替换前置的卷积,池化的顺次连接,stem的模块结构如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152651.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152651.png)
 
 stem结构之后便是inception 结构和reduction结构:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152720.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152720.png)
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152744.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152744.png)
 
 最后的Inception V4结构:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152823.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152823.png)
 
 ### Inception ResNet V2<a id="sec-3-0-4"></a>
 
 Inception-resnet有V1,V2两个版本,V2表现更好更复杂,所以仅谈V2.其关键设计在于引入了残差结构:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152850.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152850.png)
 
 reduction-resnet模块与Inception V4模块相近:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152925.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152925.png)
 
 最终得到的Inceotion-renset V2模块如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152950.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152950.png)
 
 # ResNet<a id="sec-4"></a>
 
@@ -105,7 +105,7 @@ reduction-resnet模块与Inception V4模块相近:
 
 [Resnet](http://cn.arxiv.org/pdf/1512.03385.pdf)的出现较好地解决了这个问题,其思想在于引入残差结构,具体结构如下(左侧为浅层模型残差结构,右侧为深层模型残差结构):
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_153845.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_153845.png)
 
 其核心分为三个部分:
 
@@ -129,8 +129,8 @@ DetNet基于上述问题,进行了一系列的改进(基于ResNet50),主要包�
 
 其中,采用了空洞卷积后的bottleneck结构如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_154036.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_154036.png)
 
 DetNet的整体结构如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_154106.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_154106.png)

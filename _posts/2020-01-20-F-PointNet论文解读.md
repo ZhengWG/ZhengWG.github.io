@@ -29,8 +29,8 @@ tags: [Paper_Reading, CV, 3D]
 -   流程：论文先采用2d detector在RGB图上得到2D box作为Proposal，然后通过Depth数据映射到3D的视锥中，得到对应的三维点云（不是精确的分割得到的点云）。然后将视锥内的三维点云，通过PointNet进行3D的Segmentation，本质是对点进行的2分类（多类的话是多分类：one-hot class vector）。之后3D Box的预测会在Masking后的点云上进行，以点云中心作为坐标原点，坐标系方向与视锥方向一致。之后通过T-Net（轻量PointNet进行center点的再次预测，可以认为是alignment），之后再通过3D Box Estimation PointNet进行检测框的预测
 
 -   框架图：
-    ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003128.png)
-    ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003218.png)
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003128.png)
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003218.png)
 
 -   核心点：
     -   通过2D detection结果和depth数据得到视锥坐标下的点云
@@ -45,13 +45,13 @@ tags: [Paper_Reading, CV, 3D]
 -   其他细节:
     -   Corner loss：计算各corner点L1距离loss
     -   3D box预测基于local coordinate
-        ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003248.png)
+        ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003248.png)
     
     -   数据增强：在2d图上进行物体的翻转平移，对应三维视锥再进行点云的采样，翻转和平移操作
 -   缺陷:
     -   比较依赖于2D detector性能
     -   同一视锥下的不同物体难以检出
 -   消融实验:
-    ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003415.png)
-    ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003433.png)
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003415.png)
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-20-F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-PointNet_20210710_003433.png)
 

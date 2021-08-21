@@ -55,7 +55,7 @@ sudo gedit wps
 export XMODIFIERS="@im=fcitx"
 export QT_IM_MODULE="fcitx"
 ```
-![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/1.png)
+![图片1](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16%E5%B8%B8%E7%94%A8%E8%BD%AF%E4%BB%B6%E5%AE%89%E8%A3%85/1.png)
 ppt、excel部分和word一样的方法添加环境变量，只是编辑的文件各不同：
 ```sh
 sudo gedit /usr/bin/wpp

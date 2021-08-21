@@ -55,7 +55,7 @@ SSD作为One-Stage系列的论文，如今已经作为基本网络被广泛应�
 # 算法基本流程
 
 SSD算法框架:
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004704.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004704.png)
 
 SSD模型主要分为以下几个部分:
 
@@ -73,15 +73,15 @@ Traing
 -   `Matching strategy` :区别于[MultiBox](https://arxiv.org/pdf/1312.2249.pdf)，SSD对所有与GT的IOU阈值大于0.5的default box作为positive，即default box与GT是多对一的关系，而不是MultiBox的取最大IOU的一对一的关系
 -   Loss设计：Loss主要分为两个部分:`localization loss` 和 `confidence loss` :
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004754.png)
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004817.png)
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004827.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004754.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004817.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004827.png)
 
 其中，N为匹配上的box数目，如N=0，则loss=0。localization loss采用的是L1 loss，localization loss包括(cx,cy,w,h)，即中心位置和宽，长四部分loss，confidence loss采用的是softmax loss。
 
 -   Choosing scales and aspect ratios for detection:不同尺度的ferature map拥有不同的感受野，所有应当设计不同大小的default box。SSD采用的default box大小设计如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004846.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004846.png)
 
 其中，s_min为0.2，s_max为0.9,长宽比设计为a_r={1,2,3,1/2,1/3}
 
@@ -102,11 +102,11 @@ sample得到的patch大小为[0.1,1],长宽比为1/2,2，保留中心点在sampl
 
 -   PASCAL VOC2007 test detection results:SSD在大物体上性能很好，小物体上性能略差(因为物体过小的话，在前面的feature层也不一定有足够的信息)，增大输入size能提升小物体性能。
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004909.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004909.png)
 
 -   模型各模块性能分析:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004936.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004936.png)
 
 主要为以下三个结论:
 
@@ -114,30 +114,30 @@ sample得到的patch大小为[0.1,1],长宽比为1/2,2，保留中心点在sampl
 -   `More default box shapes` :更多的aspect box的设计会涵盖更多的尺寸的的deafault box,有利于模型预测多尺寸的物体
 -   `Atrous is faster` :采用空洞卷积的方式能够在不降低性能的情况下，加快20%
 -   SSD512在animals,vehicles,furniture三类上在VOC2007上的性能:
-    ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005012.png)
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005012.png)
 
 -   BBox尺寸对各类性能的影响：同一类的小物体性能明显较差
-    ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005040.png)
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005040.png)
 
 -   Multiple output layers at different resolutions:在多尺度feature map上进行预测能够获得更好的性能，同时保留边界box性能会更好(在引入后续更高level的feature层后):
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005103.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005103.png)
 
 -   PASCAL_VOC2012:结论与VOC2007上类似:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005124.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005124.png)
 
 -   COCO:SSD这里采用了更小的default box尺寸，相比faster-rcnn来说，其在小物体上的性能略差:
-    ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005142.png)
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005142.png)
 
 -   Data Augumentation for Small Object Accuracy:针对小物体，提出了"zoom out"的ramdom-expansion的增强方式:先将图片随机放置到16Xsize的画布上，再进行random crop操作，能明显提升小物体的性能:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005333.png)
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005348.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005333.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005348.png)
 
 -   Inference time:SSD在得到网络的prediction结果后需要进一步的NMS，耗时1.7msec per image for SSD300 and 20 VOC classes,模型整体Infer时间对比如下：
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005412.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005412.png)
 
 
 <a id="orga72aba3"></a>

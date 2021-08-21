@@ -1671,4 +1671,4 @@ if __name__ == '__main__':
 ```
 
 最终得到结果如下:
-![卷积可视化图](https://github.com/ZhengWG/Imgs_blog/raw/master/Keras-exercise/vgg_block5_conv1_15x15.png)
+![卷积可视化图](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Keras-exercise/vgg_block5_conv1_15x15.png)

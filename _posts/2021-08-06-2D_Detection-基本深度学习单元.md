@@ -44,9 +44,9 @@ mathjax: true
 
 ## 传统卷积<a id="sec-2-1"></a>
 
-卷积层通常指2D卷积层,其他还包括1D卷积层(通常处理如单维度的时序数据),3D卷积(常应用于视频处理和3D数据处理,3D卷积通常计算量很大且较为耗时). 2D卷积示意图: ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-conv.gif)
+卷积层通常指2D卷积层,其他还包括1D卷积层(通常处理如单维度的时序数据),3D卷积(常应用于视频处理和3D数据处理,3D卷积通常计算量很大且较为耗时). 2D卷积示意图: ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-conv.gif)
 
-3D卷积示意图: ![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/3d-conv.gif)
+3D卷积示意图: ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/3d-conv.gif)
 
 `padding` 方式:进行卷积操作的时候,通常会进行padding操作,常见包括两种padding方式:
 
@@ -84,7 +84,7 @@ mathjax: true
 
 深度卷积示意图:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_174618.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_174618.png)
 
 另外`Depthwise Convolution`其实可以认为是`Group Convolution`的一种特例.
 
@@ -106,11 +106,11 @@ mathjax: true
 
 正常卷积操作示例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-conv.gif)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-conv.gif)
 
 stride非1的转置卷积,则需要在feature map之间进行insert 0:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_174706.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_174706.png)
 
 ## 空洞卷积<a id="sec-2-4"></a>
 
@@ -121,7 +121,7 @@ stride非1的转置卷积,则需要在feature map之间进行insert 0:
 
 其中,空洞卷积的卷积核间隔数量被称为**膨胀率**(**diation rate**).
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-pengzhang.gif)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d-pengzhang.gif)
 
 ## 可形变卷积<a id="sec-2-5"></a>
 
@@ -129,7 +129,7 @@ stride非1的转置卷积,则需要在feature map之间进行insert 0:
 
 在标准卷积的基础上增加一个分支取学习卷积核的位置偏移权重,从而得到不规则形状的卷积核,可形变卷积在提取不规则形状目标的特征比较work. 可形变卷积示例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175140.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175140.png)
 
 # 激活函数<a id="sec-3"></a>
 
@@ -141,11 +141,11 @@ stride非1的转置卷积,则需要在feature map之间进行insert 0:
 
 sigmoid为早期用得最多的激活函数,输出值的范围为(0,1),激活函数的公式为:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175328.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175328.png)
 
 激活函数的转换关系图例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175352.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175352.png)
 
 sigmoid函数的劣势是当Z值非常大或者小的时候,会导致导数趋向于零,即权重的梯度会趋近于0,即\\*梯度消失\\*现象.
 
@@ -153,45 +153,45 @@ sigmoid函数的劣势是当Z值非常大或者小的时候,会导致导数趋�
 
 tanh函数与sigmoid函数类似,将取值(−∞,+∞) 映射到(-1,1)之间. tanh函数的公式为:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175418.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175418.png)
 
 激活函数的转换关系图例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175437.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175437.png)
 
 ## ReLU以及变种<a id="sec-3-3"></a>
 
 ReLU又被称为修正线性单元(Rectified Linear Unit),为非线性函数,能够一定程度上弥补sigmoid等函数梯度消失的问题 ReLU的公式如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175647.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175647.png)
 
 ReLU图例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175504.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175504.png)
 
 ReLU的优势在于输入为正的时候,不存在梯度消失的问题,且运行速度很快(线性),但是在输入为负的时候,会发生梯度消失的问题. 基于ReLU的变种函数很多,如:Leaky ReLU,Parameteric ReLU等,解决了ReLU函数在输入为负的情况下产生的梯度消失的问题. Leaky ReLU公式:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175704.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175704.png)
 
 Leaky ReLU图例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175721.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175721.png)
 
 ## swish<a id="sec-3-4"></a>
 
 swish是基于NAS搜索得到的激活函数,可以认为是介于线性函数和ReLU函数之间的平滑函数,效果上优于ReLU. swish函数公式如下: swish函数具备无上界有下界,平滑,非单调的特性.
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175741.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175741.png)
 
 # 池化层<a id="sec-4"></a>
 
 池化层的作用在于减小feature map的尺寸,减少后期网络参数量同时也防止模型的过拟合,也可认为是一种降采样的操作. 池化层一般分为两种方式:均值池化(avg pooling)和最大值池化(max pooling),avg pooling是将特征图取平均值,max pooling则取最大值. avg pooling图例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175958.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_175958.png)
 
 max pooling图例:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180045.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180045.png)
 
 # `BN`层<a id="sec-5"></a>
 
@@ -205,19 +205,17 @@ max pooling图例:
 
 ``BN``层的思路在于:对每一层的输入数据进行归一化操作,相对于最基本的归一化操作,``BN``层进行了变换重构:引入可以学习参数,主要是对归一化进行大小(`scale`)变换和偏移(`shift`)变换操作.关键函数如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180110.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180110.png)
 
 训练过程中,数据均值和方差均为每个batch中学习得到,scale和shift偏移也基于每个batch学习.infer过程中,`BN`的参数为固定参数,其中数据均值和标准采用训练过程所有mini batch的均值和标准差(其中标准差采用的是无偏估计结果):
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180130.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180130.png)
 
 `BN`层的优势在于三点:
 
 -   缓解梯度消失,`BN`层可以让数据分布不在于饱和区域,实现了层间解耦,加快网络收敛
 -   简化调参,`BN`层使得网络训练对参数的敏感性下降,调参难度更小,可以采用更大学习率,加速收敛
--   防止过拟合,因为训练过程中数据的均值和方差均为每个batch的数据生成,相当于加入一定的随机噪声,可以一定程度
-
-替代dropout,l2正则
+-   防止过拟合,因为训练过程中数据的均值和方差均为每个batch的数据生成,相当于加入一定的随机噪声,可以一定程度替代dropout,l2正则
 
 `BN`层的缺点:
 
@@ -230,7 +228,7 @@ max pooling图例:
 
 其思路核心是将n通道特征分成g组,以此计算均值和方差,实现样本的归一化操作.其算法原理在于不同通道表述的特征并不是毫不关联的,几组特征往往具有同分布的性质,因此进行组内normalize是比较合理的方式.不同normalize的方式如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180154.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180154.png)
 
 `GN`在batch size变小时,性能比较稳定,比`BN`性能要好的多.
 
@@ -238,9 +236,9 @@ max pooling图例:
 
 `GN`层虽然在batch size变小时性能更好,但是在正常batch size的时候,其精度不如`BN`.其次google于2019年提出了[`FRN`](https://arxiv.org/abs/1911.09737).
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180220.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180220.png)
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180246.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180246.png)
 
 `FRN`分为两个部分: `FRN`+`tlu`.`FRN`完成的是数据的normalize操作,假设输入的shape为 `(b,c,h,w)` ,分别为 batch size, 通道数, 特征图的高,宽.
 
@@ -254,7 +252,7 @@ max pooling图例:
 
 `Dropout`原理为:前向传播过程中,某个神经元的激活值以一定概率p停止工作,这样可以使得模型泛化性增强,预测过程中每个神经元的权重参数要乘以概率p,`Dropout`的效果如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180746.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180746.png)
 
 `Dropout`层的作用在于:
 
@@ -267,7 +265,7 @@ max pooling图例:
 
 全连接层问题在于参数量过大,容易产生过拟合现象.后期也有很多场景使用全局池化层(`GAP`, `Global Average Pooling`)来取代全连接层. `GAP`的优势在于:降低网络参数量的同时降低了网络的过拟合成都,同时去除了网络输入尺寸的限制,且赋予了每层featuemap一定语义.全连接层和`GAP`的区别如下:
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180907.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_180907.png)
 
 # 感受野计算<a id="sec-8"></a>
 
@@ -275,6 +273,6 @@ max pooling图例:
 
 感受野(`receptive field`):
 
-![img](https://github.com/ZhengWG/Imgs_blog/raw/master/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_181022.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_181022.png)
 
 计算公式: 其中 $R_n$ 对应n层的感受野, $f_(n-1)$ 为n层卷积核大小, $s_i$为$i$层的步长

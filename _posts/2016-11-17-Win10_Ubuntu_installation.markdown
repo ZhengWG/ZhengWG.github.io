@@ -8,9 +8,9 @@ tags: [双系统]
 
 # Windows下的安装准备
 插入U盘（最好删除其他文件），打开`ULtraiso`软件，打开`Ubuntu16.04 ISO`文件，`启动`->`写入硬盘映像`，选择自己的U盘，选择`便捷启动`，开始写入。
-![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/%E5%8F%8C%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85(WIN10%2BUbuntu16.04%20LTS)/1.png)
+![图片1](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/%E5%8F%8C%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85(WIN10%2BUbuntu16.04%20LTS)/1.png)
 
-![图片2](https://github.com/ZhengWG/Imgs_blog/raw/master/%E5%8F%8C%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85(WIN10%2BUbuntu16.04%20LTS)/2.png)
+![图片2](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/%E5%8F%8C%E7%B3%BB%E7%BB%9F%E5%AE%89%E8%A3%85(WIN10%2BUbuntu16.04%20LTS)/2.png)
 
 划分硬盘分区（50G为例）：Win10下，右键点击Windows键（`Windows+X`）选择`磁盘管理`；进入`磁盘管理`之后，选择分区的磁盘（建议选择最后一个磁盘），右键，选择`压缩卷`，系统会自动查询压缩空间，然后选择需要压缩的空间，这里选择50G，点击压缩，压缩成功（这里不需要新建压缩卷）。
 

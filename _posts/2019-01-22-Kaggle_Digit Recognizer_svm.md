@@ -49,7 +49,7 @@ plt.title(train_labels.iloc[i,0])
 
 
 
-![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_svm/1.png)
+![图片1](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Kaggle_Digit%20Recognizer_svm/1.png)
 
 
 
@@ -68,7 +68,7 @@ plt.hist(train_images.iloc[i])
 
 
 
-![图片2](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_svm/2.png)
+![图片2](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Kaggle_Digit%20Recognizer_svm/2.png)
 
 
 
@@ -128,7 +128,7 @@ plt.title(train_labels.iloc[i].to_string())
 
 
 
-![图片3](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_svm/3.png)
+![图片3](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Kaggle_Digit%20Recognizer_svm/3.png)
 
 
 
@@ -146,7 +146,7 @@ plt.hist(train_images.iloc[i])
 
 
 
-![图片4](https://github.com/ZhengWG/Imgs_blog/raw/master/Kaggle_Digit%20Recognizer_svm/4.png)
+![图片4](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Kaggle_Digit%20Recognizer_svm/4.png)
 
 
 

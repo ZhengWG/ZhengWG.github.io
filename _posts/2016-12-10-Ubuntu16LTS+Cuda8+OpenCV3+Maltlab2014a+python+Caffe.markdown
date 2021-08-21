@@ -18,8 +18,8 @@ tags: []
 # 安装Cuda驱动
 采用下载文件安装，在系统设置选择软件和更新，更改下载源，选择`aliyun`，选择附件驱动，选择使用`NVIDA binary driver.......nvidia-367`
 
-![软件更新图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/1.png)
-![驱动安装图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/2.png)
+![软件更新图片](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/1.png)
+![驱动安装图片](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/2.png)
 
 提示重启后，终端输入：
 
@@ -28,7 +28,7 @@ sudo nvidia-settings
 ```
 
 弹出界面如下：
-![驱动测试图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/3.png)
+![驱动测试图片](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/3.png)
 
 说明驱动安装成功，通过`nvidia-smi`也可以得到GPU信息。
 # 安装Cuda8
@@ -313,7 +313,7 @@ ln -sf /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /media/zheng/study/linux/MATLAB/
 ```
 运行正确结果如下：
 
-![Caffe编译成功图片](https://github.com/ZhengWG/Imgs_blog/raw/master/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/4.png)
+![Caffe编译成功图片](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/4.png)
 
 至此，Caffe配置完毕。
 

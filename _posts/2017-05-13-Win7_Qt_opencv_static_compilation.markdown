@@ -26,9 +26,9 @@ Qt没有被正确安装，请运行makeinstall
 	可以按照[参考博客][address_blog]修复问题。
 测试：
 新建项目，需要选择两个库，默认的库和新建的`static`库，新建窗口程序：
-![图片1](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/1.jpg)
+![图片1](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/1.jpg)
 
-![图片2](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/2.jpg)
+![图片2](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/2.jpg)
 
 打开界面文件，拖入一个控件：
 
@@ -36,15 +36,15 @@ Qt没有被正确安装，请运行makeinstall
 
 选择static的release进行编译。
 
-![图片4](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/3.jpg)
+![图片4](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/3.jpg)
 
 在生成的目录里面会有一个大概14M的`exe`文件即为静态编译得到的`exe`文件：
 
-![图片5](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/5.jpg)
+![图片5](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/5.jpg)
 
 双击`exe`文件便可：
 
-![图片6](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/6.jpg)
+![图片6](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/6.jpg)
 
 该程序可以在没有配置环境的电脑上运行。
 
@@ -56,7 +56,7 @@ OpenCV版本：`OpenCV3.1`
 双击解压缩OpenCV下载文件：生成OPENCVDIR目录
 打开`CMake`，在`source code`中填写`OpenCV源码`，目录为`%OPENCVDIR%/sources`,在`build the binaries`中填写编译后的目录，本例中填写为`%OPENCVDIR%/bin`,按下下方的`conigure`键，之后会弹出一个对话框，按照下图选择，之后点击Next：
 
-![图片8](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/8.png)
+![图片8](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/8.png)
 
 分别在`C`和`C++`出填写目录：
 ```
@@ -78,7 +78,7 @@ LIBS += D:\software\opencv\opencv\bin\install\x86\mingw\lib\lib*.a \
 ```
 最后需要在`exe`文件中添加`dll`文件,包括OpenCV的`dll`文件和Qt的部分`dll`文件以及一些系统的`dll`文件:
 
-![图片7](https://github.com/ZhengWG/Imgs_blog/raw/master/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/7.jpg)
+![图片7](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/7.jpg)
 
 
 [address_blog]: http://www.cnblogs.com/andy65007/p/3493309.html

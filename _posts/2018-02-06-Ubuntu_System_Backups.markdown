@@ -140,7 +140,7 @@ sudo cp /boot/grub/grub.cfg /media/用户名/移动硬盘对应盘符/
 
 
 [address_IT之家]: https://www.ithome.com/
-[图片1]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/1.jpg
-[图片2]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/2.png
-[图片3]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/3.jpg
-[图片4]: https://github.com/ZhengWG/Imgs_blog/raw/master/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/4.jpg
+[图片1]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/1.jpg
+[图片2]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/2.png
+[图片3]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/3.jpg
+[图片4]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Ubuntu16%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%A4%87%E4%BB%BD%E4%B8%8E%E8%BF%81%E7%A7%BB/4.jpg
