@@ -274,7 +274,9 @@ FCOS的核心思路是：不同大小的Feature map负责不同大小的物体�
     
     -   Centerness: Centerness的出发点在于找到目标对应的最靠近中心点（质量最好）的方格进行预测回归。Centerness的定义如下： ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_145250.png)
         
-        训练过程中可以采用BCE损失： ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_145504.png)
+        训练过程中可以采用BCE损失：
+        
+        ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_145504.png)
     -   Loss合并： 最终的Loss包含如下三部分： ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_145702.png)
 
 算法总结：
