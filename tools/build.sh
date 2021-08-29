@@ -54,6 +54,8 @@ function fix_format() {
   sed -i '.tmp.back' 's#Table of Contents#目录#' $local_file
   sed -i '.tmp.back' 's#<sub>#_#g' $local_file
   sed -i '.tmp.back' 's#</sub>##g' $local_file
+  sed -i '.tmp.back' 's#<sup>#^#g' $local_file
+  sed -i '.tmp.back' 's#</sup>##g' $local_file
   mv ${local_file}.tmp.back $cache_dir
 }
 

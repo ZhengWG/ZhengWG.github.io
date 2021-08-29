@@ -128,7 +128,7 @@ tags: [CV, 综述]
 
 # 经典检测经典框架<a id="sec-8"></a>
 
-  `STARTED`
+  [2D_Detection-经典检测算法框架](https://johneyzheng.top/posts/2D_Detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6%E4%BB%8B%E7%BB%8D/)
 
 # 网络加速<a id="sec-9"></a>
 
