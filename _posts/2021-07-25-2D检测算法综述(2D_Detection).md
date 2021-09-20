@@ -134,6 +134,8 @@ tags: [CV, 综述]
 
   [2D_Detection-模型加速(网络篇)](https://johneyzheng.top/posts/2D_Detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F(%E7%BD%91%E7%BB%9C%E7%AF%87)/)
 
+  [2D_Detection-模型加速(工程篇)](https://johneyzheng.top/posts/2D_Detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F(%E5%B7%A5%E7%A8%8B%E7%AF%87)/)
+
 # 常见场景检测Tricks<a id="sec-10"></a>
 
   `STARTED`
