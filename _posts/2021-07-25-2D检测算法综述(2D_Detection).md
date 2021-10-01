@@ -124,7 +124,7 @@ tags: [CV, 综述]
 
 # Loss<a id="sec-7"></a>
 
-  `STARTED`
+  [2D_Detection-Loss](https://johneyzheng.top/posts/2D_Detection-Loss/)
 
 # 经典检测经典框架<a id="sec-8"></a>
 
