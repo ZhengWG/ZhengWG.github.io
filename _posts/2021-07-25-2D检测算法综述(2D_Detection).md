@@ -1,10 +1,5 @@
----
-layout: post
-title: 2D检测算法综述(2D Detection)
-date: 2021-07-25 17:19:40.000000000 +09:00
-categories: [算法篇]
-tags: [CV, 综述]
----
+
+
 - [前言](#sec-1)
 - [公开数据集](#sec-2)
 - [经典论文](#sec-3)
@@ -19,7 +14,9 @@ tags: [CV, 综述]
 
 # 前言<a id="sec-1"></a>
 
-本文旨在总结之前自己涉及的 `2D-Detection` 相关的知识内容，按照下文组织内容，分篇章不定时更新。
+**update on 4/10/2021: 终于完成了2D_Detection系列，算是对之前自己在这个领域工作的一点回顾，之后自己会不定期更新一些深度学习模型部署的文章以及论文解读的文章** 
+
+~~本文旨在总结之前自己涉及的 `2D-Detection` 相关的知识内容，按照下文组织内容，分篇章不定时更新。~~
 
 主要参考来源：
 
@@ -40,7 +37,7 @@ tags: [CV, 综述]
     -   [Lyft](https://self-driving.lyft.com/)
     -   [Waymo](https://waymo.com/)
 
-# STARTED 经典论文<a id="sec-3"></a>
+# 经典论文<a id="sec-3"></a>
 
 说明： 更新于2021-05-02
 
@@ -120,7 +117,7 @@ tags: [CV, 综述]
 
 # 超参<a id="sec-6"></a>
 
-  `TODO`
+  [2D_Detection-超参](https://johneyzheng.top/posts/2D_Detection-%E8%B6%85%E5%8F%82/)
 
 # Loss<a id="sec-7"></a>
 
@@ -142,4 +139,9 @@ tags: [CV, 综述]
 
 # 部分论文解读Links<a id="sec-11"></a>
 
-  `STARTED`
+  [SSD论文解读](https://johneyzheng.top/posts/OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/)
+
+  [YOLO论文系列解读](https://johneyzheng.top/posts/YOLO%E8%AE%BA%E6%96%87%E7%B3%BB%E5%88%97%E8%A7%A3%E8%AF%BB/)
+
+  [NMS-Soft-NMS](https://johneyzheng.top/posts/nms_soft-nms/)
+
