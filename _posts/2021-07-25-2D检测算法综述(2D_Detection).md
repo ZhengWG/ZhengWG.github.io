@@ -1,4 +1,11 @@
-
+---
+layout: post
+title: 2D检测算法综述(2D_Detection)
+date: 2021-07-25 23:25:12.000000000 +09:00
+categories: [算法篇]
+tags: [CV, 综述]
+mathjax: true
+---
 
 - [前言](#sec-1)
 - [公开数据集](#sec-2)
