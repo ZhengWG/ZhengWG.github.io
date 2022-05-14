@@ -151,7 +151,9 @@ Decoder结构整体上和Encoder结构类似，区别在于多了一个用于和
     
     ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-11-07-Transformer%25E5%259C%25A8CV%25E9%25A2%2586%25E5%259F%259F%25E7%259A%2584%25E5%25BA%2594%25E7%2594%25A8%25E4%25B8%258E%25E9%2583%25A8%25E7%25BD%25B2/Transfomer_20211107_141147.png)
 
-# TODO Transformer类网络部署<a id="sec-4"></a>
+# Transformer类网络部署<a id="sec-4"></a>
+
+[Transformer离线部署-GPU优化策略](https://johneyzheng.top/posts/Transformer%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-GPU%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5/)
 
 # 参考资料<a id="sec-5"></a>
 
