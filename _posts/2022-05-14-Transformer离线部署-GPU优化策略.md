@@ -2,7 +2,7 @@
 layout: post
 title: Transformer离线部署-GPU优化策略
 date: 2022-05-14 17:27:50.000000000 +09:00
-categories: [算法篇]
+categories: [算法部署]
 tags: [NLP，模型部署]
 ---
 
