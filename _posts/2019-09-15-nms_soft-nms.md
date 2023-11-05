@@ -59,8 +59,8 @@ tags: [NMS, CV]
             #计算index对应的box和剩余box的iou,进行筛选
             _xx1 = np.maximum(xx1[_index], xx1[order[1:]])
             _yy1 = np.maximum(yy1[_index], yy1[order[1:]])
-            _xx2 = np.maximum(xx2[_index], xx2[order[1:]])
-            _yy2 = np.maximum(yy2[_index], yy2[order[1:]])
+            _xx2 = np.minimum(xx2[_index], xx2[order[1:]])
+            _yy2 = np.minimum(yy2[_index], yy2[order[1:]])
             _w = np.maximum(0, _xx2 - _xx1 + 1)
             _h = np.maximum(0, _yy2 - _yy1 + 1)
             _areas_inter = _w * _h
