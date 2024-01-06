@@ -3,7 +3,7 @@
 # 基于_drafts下的文章build为正式发布文章_posts
 
 set -eu
-# set -x
+set -x
 
 input_dir='_drafts'
 post_dir='_posts'
@@ -16,10 +16,13 @@ local_repo='/Users/zhengwengang/Project/projects/blog/Imgs_blog'
 
 use_math_jax='False'
 
-while getopts ":m" opt; do
+while getopts ":m" opt
+do
+  echo "opt: "${opt}
   case ${opt} in
     m )
       use_math_jax='True'
+      echo "use math, NOTE: need to set mathjax to true!!!"
       ;;
     : )
       use_math_jax='False'
@@ -29,8 +32,6 @@ while getopts ":m" opt; do
       ;;
   esac
 done
-
-echo $use_math_jax
 
 # 修改文件名
 function rename() {
@@ -61,8 +62,10 @@ function fix_format() {
 
 # fix mathjax
 function fix_mathjax_format() {
+  sed -i '.tmp.back' 's#\\(#$#g' $local_file
+  sed -i '.tmp.back' 's#\\)#$#g' $local_file
   sed -i '.tmp.back' 's#\*#\\*#g' $local_file
-  sed -i '.tmp.back' 's#\\*\\*#\*\*#g' $local_file
+  # sed -i '.tmp.back' 's#\\*\\*#\*\*#g' $local_file
   mv ${local_file}.tmp.back $cache_dir
 }
 
