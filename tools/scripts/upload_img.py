@@ -14,6 +14,7 @@ import argparse
 import logging
 from urllib.parse import quote
 from git import Repo
+from .utils.utils import read_lines
 
 
 # 图片仓
@@ -38,7 +39,7 @@ def build_logger():
 
 
 class ImageUploader():
-    def __init__(self, input_file, local_rep):
+    def __init__(self, input_file, local_rep, image_format=None):
         self.input_file = input_file
         self.matched_lines = list()
         self.added_images = list()
@@ -48,6 +49,8 @@ class ImageUploader():
         input_name = ImageUploader.url_transfer(input_name)
         self.local_dir = os.path.join(local_rep, input_name)
         self.repo = Repo(local_rep)
+        self.local_image_format = r'\(\/.*\w*gi?f?\)' if image_format is None \
+            else image_format
         os.makedirs(self.local_dir, exist_ok=True)
 
     def _add(self, local_path):
@@ -92,9 +95,9 @@ class ImageUploader():
         return out_data
 
     def process(self, remote_rep, pattern):
-        for idx, line in enumerate(ImageUploader.read_lines(self.input_file)):
-            if ImageUploader.match_pattern(line, pattern):
-                image_path = ImageUploader.split_path(line)
+        for idx, line in enumerate(read_lines(self.input_file)):
+            if re.search(pattern, line, flags=re.I):
+                image_path = self.get_image_path(line, )
                 rep_path = self._add(image_path)
                 line_data = {
                     'ori_idx': idx,
@@ -108,11 +111,9 @@ class ImageUploader():
         out_data = self._upload(remote_rep)
         return out_data
 
-    @staticmethod
-    def split_path(line):
-        local_image_format = r'\(\/.*\w*gi?f?\)'
+    def get_image_path(self, line):
         try:
-            match_line = re.search(local_image_format, line).group()
+            match_line = re.search(self.local_image_format, line).group()
         except Exception as e:
             raise ValueError("{}:{}".format(e, line))
         return match_line[1:-1]
@@ -120,18 +121,6 @@ class ImageUploader():
     @staticmethod
     def url_transfer(url):
         return quote(url, safe=";/?:@&=+$,", encoding='utf-8')
-
-    @staticmethod
-    def read_lines(input_file, striped=False):
-        for line in open(input_file, 'r'):
-            if striped:
-                yield line.strip()
-            else:
-                yield line
-
-    @staticmethod
-    def match_pattern(data, pattern, flags=re.I):
-        return re.search(pattern, data, flags=flags)
 
 
 def parse_arguments():
@@ -152,7 +141,7 @@ def main(args):
     match_lines = image_uploader.process(remote_rep=REMOTE_URL, pattern=pattern)
 
     with open(args.output, 'w') as f:
-        for idx, line in enumerate(ImageUploader.read_lines(args.input)):
+        for idx, line in enumerate(read_lines(args.input)):
             line = match_lines.get(idx, line)
             f.write("{}".format(line))
 

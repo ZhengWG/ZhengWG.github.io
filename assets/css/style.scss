@@ -5,3 +5,35 @@
 $tab-count: {{ site.tabs | size | plus: 1 }}; // plus 1 for home tab
 
 @import "jekyll-theme-chirpy";
+
+/* 默认设置所有文章图片为自适应宽度 */
+.article img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto; /* 居中对齐 */
+}
+
+/* 可选的单独样式类 */
+.img-ico {
+  width: 50px;
+  height: 50px;
+}
+
+.img-small {
+  max-width: 40%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.img-mid {
+  max-width: 75%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.img-large {
+  max-width: 100%;
+}
