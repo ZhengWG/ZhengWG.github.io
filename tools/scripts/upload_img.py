@@ -14,7 +14,7 @@ import argparse
 import logging
 from urllib.parse import quote
 from git import Repo
-from .utils.utils import read_lines
+from utils.utils import read_lines
 
 
 # 图片仓
