@@ -1,0 +1,6524 @@
+{
+  "city": "杭州",
+  "city_key": "hz",
+  "updated_at": "2026-02-18",
+  "start_year": 2018,
+  "end_year": 2026,
+  "city_history": [
+    {
+      "date": "2018-01",
+      "second_hand_price": 29198.0,
+      "new_house_price": null
+    },
+    {
+      "date": "2018-02",
+      "second_hand_price": 29425.0,
+      "new_house_price": 0.0
+    },
+    {
+      "date": "2018-03",
+      "second_hand_price": 29869.0,
+      "new_house_price": 1.0
+    },
+    {
+      "date": "2018-04",
+      "second_hand_price": 30341.0,
+      "new_house_price": 1.0
+    },
+    {
+      "date": "2018-05",
+      "second_hand_price": 30561.0,
+      "new_house_price": 0.0
+    },
+    {
+      "date": "2018-06",
+      "second_hand_price": 31164.0,
+      "new_house_price": 1.0
+    },
+    {
+      "date": "2018-07",
+      "second_hand_price": 31403.0,
+      "new_house_price": 0.0
+    },
+    {
+      "date": "2018-08",
+      "second_hand_price": 30844.0,
+      "new_house_price": 1.0
+    },
+    {
+      "date": "2018-09",
+      "second_hand_price": 30203.0,
+      "new_house_price": 2.0
+    },
+    {
+      "date": "2018-10",
+      "second_hand_price": 30720.0,
+      "new_house_price": 1.0
+    },
+    {
+      "date": "2018-11",
+      "second_hand_price": 30663.0,
+      "new_house_price": 0.0
+    },
+    {
+      "date": "2018-12",
+      "second_hand_price": 30361.0,
+      "new_house_price": 0.0
+    },
+    {
+      "date": "2019-01",
+      "second_hand_price": 30554.0,
+      "new_house_price": 27852.0
+    },
+    {
+      "date": "2019-02",
+      "second_hand_price": 31204.0,
+      "new_house_price": 28104.0
+    },
+    {
+      "date": "2019-03",
+      "second_hand_price": 30811.0,
+      "new_house_price": 28422.0
+    },
+    {
+      "date": "2019-04",
+      "second_hand_price": 30270.0,
+      "new_house_price": 29121.0
+    },
+    {
+      "date": "2019-05",
+      "second_hand_price": 30902.0,
+      "new_house_price": 29203.0
+    },
+    {
+      "date": "2019-06",
+      "second_hand_price": 30231.0,
+      "new_house_price": 28773.0
+    },
+    {
+      "date": "2019-07",
+      "second_hand_price": 30662.0,
+      "new_house_price": 29830.0
+    },
+    {
+      "date": "2019-08",
+      "second_hand_price": 30581.0,
+      "new_house_price": 29883.0
+    },
+    {
+      "date": "2019-09",
+      "second_hand_price": 30512.0,
+      "new_house_price": 30083.0
+    },
+    {
+      "date": "2019-10",
+      "second_hand_price": 30703.0,
+      "new_house_price": 30242.0
+    },
+    {
+      "date": "2019-11",
+      "second_hand_price": 29253.0,
+      "new_house_price": 28950.0
+    },
+    {
+      "date": "2019-12",
+      "second_hand_price": 28822.0,
+      "new_house_price": 28684.0
+    },
+    {
+      "date": "2020-01",
+      "second_hand_price": 30174.0,
+      "new_house_price": 28660.0
+    },
+    {
+      "date": "2020-02",
+      "second_hand_price": 29757.0,
+      "new_house_price": 28336.0
+    },
+    {
+      "date": "2020-03",
+      "second_hand_price": 28933.0,
+      "new_house_price": 28325.0
+    },
+    {
+      "date": "2020-04",
+      "second_hand_price": 29064.0,
+      "new_house_price": 29298.0
+    },
+    {
+      "date": "2020-05",
+      "second_hand_price": 28957.0,
+      "new_house_price": 29175.0
+    },
+    {
+      "date": "2020-06",
+      "second_hand_price": 31137.0,
+      "new_house_price": 28923.0
+    },
+    {
+      "date": "2020-07",
+      "second_hand_price": 29524.0,
+      "new_house_price": 28363.0
+    },
+    {
+      "date": "2020-08",
+      "second_hand_price": 30437.0,
+      "new_house_price": 28852.0
+    },
+    {
+      "date": "2020-09",
+      "second_hand_price": 31070.0,
+      "new_house_price": 29297.0
+    },
+    {
+      "date": "2020-10",
+      "second_hand_price": 30902.0,
+      "new_house_price": 29039.0
+    },
+    {
+      "date": "2020-11",
+      "second_hand_price": 33211.0,
+      "new_house_price": 28840.0
+    },
+    {
+      "date": "2020-12",
+      "second_hand_price": 33214.0,
+      "new_house_price": 29713.0
+    },
+    {
+      "date": "2021-01",
+      "second_hand_price": 32592.0,
+      "new_house_price": 29211.0
+    },
+    {
+      "date": "2021-02",
+      "second_hand_price": 34000.0,
+      "new_house_price": 30095.0
+    },
+    {
+      "date": "2021-03",
+      "second_hand_price": 35515.0,
+      "new_house_price": 29507.0
+    },
+    {
+      "date": "2021-04",
+      "second_hand_price": 36284.0,
+      "new_house_price": 30715.0
+    },
+    {
+      "date": "2021-05",
+      "second_hand_price": 35052.0,
+      "new_house_price": 0.0
+    },
+    {
+      "date": "2021-06",
+      "second_hand_price": 36533.0,
+      "new_house_price": 30185.0
+    },
+    {
+      "date": "2021-07",
+      "second_hand_price": 36376.0,
+      "new_house_price": 29991.0
+    },
+    {
+      "date": "2021-08",
+      "second_hand_price": 35868.0,
+      "new_house_price": 30635.0
+    },
+    {
+      "date": "2021-09",
+      "second_hand_price": 39244.0,
+      "new_house_price": 29974.0
+    },
+    {
+      "date": "2021-10",
+      "second_hand_price": 36381.0,
+      "new_house_price": 30528.0
+    },
+    {
+      "date": "2021-11",
+      "second_hand_price": 37450.0,
+      "new_house_price": 31428.0
+    },
+    {
+      "date": "2021-12",
+      "second_hand_price": 42417.0,
+      "new_house_price": 31402.0
+    },
+    {
+      "date": "2022-01",
+      "second_hand_price": 37782.0,
+      "new_house_price": 30900.0
+    },
+    {
+      "date": "2022-02",
+      "second_hand_price": 38560.0,
+      "new_house_price": 30007.0
+    },
+    {
+      "date": "2022-03",
+      "second_hand_price": 41963.0,
+      "new_house_price": 28396.0
+    },
+    {
+      "date": "2022-04",
+      "second_hand_price": 41408.0,
+      "new_house_price": 27722.0
+    },
+    {
+      "date": "2022-05",
+      "second_hand_price": 39513.0,
+      "new_house_price": 28041.0
+    },
+    {
+      "date": "2022-06",
+      "second_hand_price": 39262.0,
+      "new_house_price": 26923.0
+    },
+    {
+      "date": "2022-07",
+      "second_hand_price": 41598.0,
+      "new_house_price": 27159.0
+    },
+    {
+      "date": "2022-08",
+      "second_hand_price": 42649.0,
+      "new_house_price": 26893.0
+    },
+    {
+      "date": "2022-09",
+      "second_hand_price": 42661.0,
+      "new_house_price": 26832.0
+    },
+    {
+      "date": "2022-10",
+      "second_hand_price": 42278.0,
+      "new_house_price": 27015.0
+    },
+    {
+      "date": "2022-11",
+      "second_hand_price": 42463.0,
+      "new_house_price": 26786.0
+    },
+    {
+      "date": "2022-12",
+      "second_hand_price": 38639.0,
+      "new_house_price": 26726.0
+    },
+    {
+      "date": "2023-01",
+      "second_hand_price": 42134.0,
+      "new_house_price": 26726.0
+    },
+    {
+      "date": "2023-02",
+      "second_hand_price": 39321.0,
+      "new_house_price": 25393.0
+    },
+    {
+      "date": "2023-03",
+      "second_hand_price": 41675.0,
+      "new_house_price": 25489.0
+    },
+    {
+      "date": "2023-04",
+      "second_hand_price": 42993.0,
+      "new_house_price": 25207.0
+    },
+    {
+      "date": "2023-05",
+      "second_hand_price": 41186.0,
+      "new_house_price": 24281.0
+    },
+    {
+      "date": "2023-06",
+      "second_hand_price": 40838.0,
+      "new_house_price": 24201.0
+    },
+    {
+      "date": "2023-07",
+      "second_hand_price": 40338.0,
+      "new_house_price": 23653.0
+    },
+    {
+      "date": "2023-08",
+      "second_hand_price": 37073.0,
+      "new_house_price": 26094.0
+    },
+    {
+      "date": "2023-09",
+      "second_hand_price": 37976.0,
+      "new_house_price": 28274.0
+    },
+    {
+      "date": "2023-10",
+      "second_hand_price": 37000.0,
+      "new_house_price": 24860.0
+    },
+    {
+      "date": "2023-11",
+      "second_hand_price": 37201.0,
+      "new_house_price": 28983.0
+    },
+    {
+      "date": "2023-12",
+      "second_hand_price": 36188.0,
+      "new_house_price": 25992.0
+    },
+    {
+      "date": "2024-01",
+      "second_hand_price": 37699.0,
+      "new_house_price": 25654.0
+    },
+    {
+      "date": "2024-02",
+      "second_hand_price": 37444.0,
+      "new_house_price": 27000.0
+    },
+    {
+      "date": "2024-03",
+      "second_hand_price": 36549.0,
+      "new_house_price": 27354.0
+    },
+    {
+      "date": "2024-04",
+      "second_hand_price": 35505.0,
+      "new_house_price": 28868.0
+    },
+    {
+      "date": "2024-05",
+      "second_hand_price": 35416.0,
+      "new_house_price": 28689.0
+    },
+    {
+      "date": "2024-06",
+      "second_hand_price": 35196.0,
+      "new_house_price": 29211.0
+    },
+    {
+      "date": "2024-07",
+      "second_hand_price": 35411.0,
+      "new_house_price": 28756.0
+    },
+    {
+      "date": "2024-08",
+      "second_hand_price": 34150.0,
+      "new_house_price": 27775.0
+    },
+    {
+      "date": "2024-09",
+      "second_hand_price": 34757.0,
+      "new_house_price": 27788.0
+    },
+    {
+      "date": "2024-10",
+      "second_hand_price": 35255.0,
+      "new_house_price": 27675.0
+    },
+    {
+      "date": "2024-11",
+      "second_hand_price": 35419.0,
+      "new_house_price": 26724.0
+    },
+    {
+      "date": "2024-12",
+      "second_hand_price": 35435.0,
+      "new_house_price": 27193.0
+    },
+    {
+      "date": "2025-01",
+      "second_hand_price": 35201.0,
+      "new_house_price": 26763.0
+    },
+    {
+      "date": "2025-02",
+      "second_hand_price": 34925.0,
+      "new_house_price": 25390.0
+    },
+    {
+      "date": "2025-03",
+      "second_hand_price": 34878.0,
+      "new_house_price": 25043.0
+    },
+    {
+      "date": "2025-04",
+      "second_hand_price": 34825.0,
+      "new_house_price": 25107.0
+    },
+    {
+      "date": "2025-05",
+      "second_hand_price": 35024.0,
+      "new_house_price": 25431.0
+    },
+    {
+      "date": "2025-06",
+      "second_hand_price": 34511.0,
+      "new_house_price": 25814.0
+    },
+    {
+      "date": "2025-07",
+      "second_hand_price": 34782.0,
+      "new_house_price": 26003.0
+    },
+    {
+      "date": "2025-08",
+      "second_hand_price": 34967.0,
+      "new_house_price": 26231.0
+    },
+    {
+      "date": "2025-09",
+      "second_hand_price": 33913.0,
+      "new_house_price": 28123.0
+    },
+    {
+      "date": "2025-10",
+      "second_hand_price": 32792.0,
+      "new_house_price": 27755.0
+    },
+    {
+      "date": "2025-11",
+      "second_hand_price": 33358.0,
+      "new_house_price": 27957.0
+    },
+    {
+      "date": "2025-12",
+      "second_hand_price": 31908.0,
+      "new_house_price": 27483.0
+    }
+  ],
+  "district_list": [
+    {
+      "district": "西湖区",
+      "price": 42916.0,
+      "yoy": -0.18
+    },
+    {
+      "district": "滨江区",
+      "price": 40722.0,
+      "yoy": -9.36
+    },
+    {
+      "district": "上城区",
+      "price": 40420.0,
+      "yoy": -9.76
+    },
+    {
+      "district": "拱墅区",
+      "price": 36149.0,
+      "yoy": -7.29
+    },
+    {
+      "district": "市区",
+      "price": 34300.0,
+      "yoy": -14.3
+    },
+    {
+      "district": "萧山区",
+      "price": 29766.0,
+      "yoy": -15.04
+    },
+    {
+      "district": "余杭区",
+      "price": 26702.0,
+      "yoy": -0.35
+    },
+    {
+      "district": "富阳区",
+      "price": 23182.0,
+      "yoy": 4.18
+    },
+    {
+      "district": "钱塘区",
+      "price": 21825.0,
+      "yoy": null
+    },
+    {
+      "district": "临平区",
+      "price": 21008.0,
+      "yoy": null
+    },
+    {
+      "district": "建德市",
+      "price": 17400.0,
+      "yoy": 11.85
+    },
+    {
+      "district": "淳安县",
+      "price": 13135.0,
+      "yoy": -3.62
+    },
+    {
+      "district": "临安区",
+      "price": 12759.0,
+      "yoy": -8.81
+    },
+    {
+      "district": "桐庐县",
+      "price": 11201.0,
+      "yoy": -23.03
+    }
+  ],
+  "districts": {
+    "xihu": {
+      "name": "西湖区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 42663.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 43404.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 42302.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 41863.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 41782.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 42642.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 41512.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 42312.0,
+          "new_house_price": 34841.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 42662.0,
+          "new_house_price": 34203.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 42941.0,
+          "new_house_price": 35744.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 42622.0,
+          "new_house_price": 34914.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 45633.0,
+          "new_house_price": 35791.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 42922.0,
+          "new_house_price": 33944.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 43504.0,
+          "new_house_price": 34921.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 41911.0,
+          "new_house_price": 35694.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 41251.0,
+          "new_house_price": 35942.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 42204.0,
+          "new_house_price": 35511.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 40410.0,
+          "new_house_price": 37445.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 42403.0,
+          "new_house_price": 39137.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 42268.0,
+          "new_house_price": 39032.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 44281.0,
+          "new_house_price": 40760.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 43420.0,
+          "new_house_price": 42817.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 41636.0,
+          "new_house_price": 42646.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 43589.0,
+          "new_house_price": 45458.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 45099.0,
+          "new_house_price": 40798.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 46073.0,
+          "new_house_price": 41819.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 45824.0,
+          "new_house_price": 42986.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 45815.0,
+          "new_house_price": 45008.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 45052.0,
+          "new_house_price": 49303.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 44840.0,
+          "new_house_price": 47323.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 49644.0,
+          "new_house_price": 53265.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 49545.0,
+          "new_house_price": 51969.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 49173.0,
+          "new_house_price": 50638.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 52338.0,
+          "new_house_price": 51581.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 54199.0,
+          "new_house_price": 46198.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 54380.0,
+          "new_house_price": 44416.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 53057.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 52648.0,
+          "new_house_price": 44191.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 61022.0,
+          "new_house_price": 45365.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 56810.0,
+          "new_house_price": 45023.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 58970.0,
+          "new_house_price": 42731.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 59230.0,
+          "new_house_price": 45190.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 57502.0,
+          "new_house_price": 46121.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 56996.0,
+          "new_house_price": 47001.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 58547.0,
+          "new_house_price": 39970.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 58524.0,
+          "new_house_price": 37639.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 55291.0,
+          "new_house_price": 39818.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 52612.0,
+          "new_house_price": 36312.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 54999.0,
+          "new_house_price": 36293.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 54772.0,
+          "new_house_price": 36998.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 54537.0,
+          "new_house_price": 36898.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 52359.0,
+          "new_house_price": 36911.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 53153.0,
+          "new_house_price": 36987.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 52382.0,
+          "new_house_price": 36964.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 51631.0,
+          "new_house_price": 36964.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 52894.0,
+          "new_house_price": 36963.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 53305.0,
+          "new_house_price": 37071.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 52296.0,
+          "new_house_price": 37008.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 52580.0,
+          "new_house_price": 30097.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 51588.0,
+          "new_house_price": 29955.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 49297.0,
+          "new_house_price": 37013.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 48247.0,
+          "new_house_price": 34090.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 49606.0,
+          "new_house_price": 33971.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 47533.0,
+          "new_house_price": 34108.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 48599.0,
+          "new_house_price": 33638.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 46448.0,
+          "new_house_price": 30983.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 46216.0,
+          "new_house_price": 34559.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 47117.0,
+          "new_house_price": 34556.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 46635.0,
+          "new_house_price": 33155.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 45814.0,
+          "new_house_price": 33262.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 44047.0,
+          "new_house_price": 31980.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 43741.0,
+          "new_house_price": 35215.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 43409.0,
+          "new_house_price": 32075.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 42293.0,
+          "new_house_price": 31899.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 43728.0,
+          "new_house_price": 31991.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 43376.0,
+          "new_house_price": 32113.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 44130.0,
+          "new_house_price": 33436.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 42993.0,
+          "new_house_price": 42578.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 42523.0,
+          "new_house_price": 40700.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 43442.0,
+          "new_house_price": 41689.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 43432.0,
+          "new_house_price": 42073.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 42691.0,
+          "new_house_price": 42251.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 42373.0,
+          "new_house_price": 42183.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 42488.0,
+          "new_house_price": 46968.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 44291.0,
+          "new_house_price": 47396.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 42053.0,
+          "new_house_price": 47724.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 42683.0,
+          "new_house_price": 47362.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 43895.0,
+          "new_house_price": 46558.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 41937.0,
+          "new_house_price": 45686.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 42916.0,
+          "new_house_price": 47912.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "西溪路24号",
+          "price": 54796.0,
+          "mom_pct": 2.62
+        },
+        {
+          "community": "丹金桂花园",
+          "price": 42409.0,
+          "mom_pct": -1.83
+        },
+        {
+          "community": "文星桥",
+          "price": 29212.0,
+          "mom_pct": 2.41
+        },
+        {
+          "community": "合城首尔印象",
+          "price": 16600.0,
+          "mom_pct": -6.37
+        },
+        {
+          "community": "枫丹白露别墅",
+          "price": 52453.0,
+          "mom_pct": -0.03
+        },
+        {
+          "community": "爱都枫丹白露",
+          "price": 61234.0,
+          "mom_pct": 1.32
+        },
+        {
+          "community": "城河下",
+          "price": 61865.0,
+          "mom_pct": 0.73
+        },
+        {
+          "community": "北山路",
+          "price": 76278.0,
+          "mom_pct": -0.42
+        },
+        {
+          "community": "尚德社区",
+          "price": 75658.0,
+          "mom_pct": -0.69
+        },
+        {
+          "community": "绿城西溪诚园",
+          "price": 79281.0,
+          "mom_pct": 0.25
+        }
+      ]
+    },
+    "binjiang": {
+      "name": "滨江区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 35563.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 36474.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 35613.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 35451.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 36184.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 35613.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 35413.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 35610.0,
+          "new_house_price": 41592.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 35242.0,
+          "new_house_price": 41592.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 35823.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 36313.0,
+          "new_house_price": 43643.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 37213.0,
+          "new_house_price": 43643.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 36480.0,
+          "new_house_price": 43643.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 35243.0,
+          "new_house_price": 43544.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 35430.0,
+          "new_house_price": 43621.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 36252.0,
+          "new_house_price": 50454.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 36732.0,
+          "new_house_price": 50454.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 35669.0,
+          "new_house_price": 46618.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 36383.0,
+          "new_house_price": 43822.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 35629.0,
+          "new_house_price": 43779.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 38248.0,
+          "new_house_price": 46235.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 37046.0,
+          "new_house_price": 46735.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 39567.0,
+          "new_house_price": 45644.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 38062.0,
+          "new_house_price": 45192.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 38497.0,
+          "new_house_price": 46440.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 38074.0,
+          "new_house_price": 44895.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 39055.0,
+          "new_house_price": 45399.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 39217.0,
+          "new_house_price": 46794.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 39732.0,
+          "new_house_price": 46228.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 40141.0,
+          "new_house_price": 47208.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 41176.0,
+          "new_house_price": 46845.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 42359.0,
+          "new_house_price": 47168.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 43095.0,
+          "new_house_price": 45752.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 40868.0,
+          "new_house_price": 46965.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 43044.0,
+          "new_house_price": 46033.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 45170.0,
+          "new_house_price": 45483.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 49713.0,
+          "new_house_price": 47120.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 46665.0,
+          "new_house_price": 47264.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 47771.0,
+          "new_house_price": 46402.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 48783.0,
+          "new_house_price": 43090.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 48911.0,
+          "new_house_price": 43255.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 55651.0,
+          "new_house_price": 42660.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 56400.0,
+          "new_house_price": 43354.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 54494.0,
+          "new_house_price": 42260.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 55022.0,
+          "new_house_price": 41804.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 54657.0,
+          "new_house_price": 41950.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 50696.0,
+          "new_house_price": 41739.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 51557.0,
+          "new_house_price": 42073.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 53014.0,
+          "new_house_price": 42285.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 54133.0,
+          "new_house_price": 42055.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 56915.0,
+          "new_house_price": 41927.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 56604.0,
+          "new_house_price": 41839.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 52789.0,
+          "new_house_price": 42393.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 53792.0,
+          "new_house_price": 42003.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 53469.0,
+          "new_house_price": 42003.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 52487.0,
+          "new_house_price": 37854.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 55021.0,
+          "new_house_price": 37941.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 53960.0,
+          "new_house_price": 38037.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 53355.0,
+          "new_house_price": 38116.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 53094.0,
+          "new_house_price": 38150.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 47482.0,
+          "new_house_price": 40014.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 50677.0,
+          "new_house_price": 40919.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 51171.0,
+          "new_house_price": 40923.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 49917.0,
+          "new_house_price": 40971.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 50688.0,
+          "new_house_price": 41204.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 49177.0,
+          "new_house_price": 41414.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 49117.0,
+          "new_house_price": 41271.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 48151.0,
+          "new_house_price": 41535.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 46422.0,
+          "new_house_price": 40797.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 47952.0,
+          "new_house_price": 41283.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 46836.0,
+          "new_house_price": 41192.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 45476.0,
+          "new_house_price": 40820.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 46704.0,
+          "new_house_price": 42271.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 44891.0,
+          "new_house_price": 36740.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 44174.0,
+          "new_house_price": 36650.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 45555.0,
+          "new_house_price": 40600.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 44604.0,
+          "new_house_price": 40433.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 44925.0,
+          "new_house_price": 42673.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 45224.0,
+          "new_house_price": 40368.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 44517.0,
+          "new_house_price": 40535.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 44282.0,
+          "new_house_price": 40601.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 43429.0,
+          "new_house_price": 45730.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 44183.0,
+          "new_house_price": 45274.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 42190.0,
+          "new_house_price": 43170.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 41446.0,
+          "new_house_price": 42568.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 42859.0,
+          "new_house_price": 40595.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 41978.0,
+          "new_house_price": 40503.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 40297.0,
+          "new_house_price": 40488.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 40294.0,
+          "new_house_price": 40378.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 40722.0,
+          "new_house_price": 40185.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "杭州壹号院二期",
+          "price": 112820.0,
+          "mom_pct": -0.73
+        },
+        {
+          "community": "风情苑",
+          "price": 36717.0,
+          "mom_pct": -1.13
+        },
+        {
+          "community": "晓风印月公寓",
+          "price": 101058.0,
+          "mom_pct": -1.17
+        },
+        {
+          "community": "钱塘山水湾",
+          "price": 51805.0,
+          "mom_pct": -0.07
+        },
+        {
+          "community": "风雅钱塘世纪花园",
+          "price": 53232.0,
+          "mom_pct": -2.26
+        },
+        {
+          "community": "倾城之恋花园",
+          "price": 56779.0,
+          "mom_pct": 1.98
+        },
+        {
+          "community": "龙湖郦城公馆",
+          "price": 31678.0,
+          "mom_pct": 2.56
+        },
+        {
+          "community": "中赢星际",
+          "price": 44148.0,
+          "mom_pct": 2.13
+        },
+        {
+          "community": "长江",
+          "price": 31785.0,
+          "mom_pct": 1.0
+        },
+        {
+          "community": "江虹",
+          "price": 37832.0,
+          "mom_pct": 1.1
+        }
+      ]
+    },
+    "shangcheng": {
+      "name": "上城区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 45624.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 45372.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 44624.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 46743.0,
+          "new_house_price": 4.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 47173.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 46673.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 45932.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 46282.0,
+          "new_house_price": 51904.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 45780.0,
+          "new_house_price": 56963.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 46383.0,
+          "new_house_price": 56963.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 46514.0,
+          "new_house_price": 57504.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 46333.0,
+          "new_house_price": 57504.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 46201.0,
+          "new_house_price": 56604.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 45101.0,
+          "new_house_price": 53161.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 46773.0,
+          "new_house_price": 53161.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 45914.0,
+          "new_house_price": 53161.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 47683.0,
+          "new_house_price": 53161.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 47598.0,
+          "new_house_price": 63558.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 47362.0,
+          "new_house_price": 63882.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 45849.0,
+          "new_house_price": 63846.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 48298.0,
+          "new_house_price": 57610.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 48600.0,
+          "new_house_price": 57218.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 48035.0,
+          "new_house_price": 57875.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 49118.0,
+          "new_house_price": 57837.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 50077.0,
+          "new_house_price": 56243.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 48968.0,
+          "new_house_price": 56336.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 51018.0,
+          "new_house_price": 58077.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 51156.0,
+          "new_house_price": 58720.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 49356.0,
+          "new_house_price": 52761.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 52999.0,
+          "new_house_price": 52692.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 53354.0,
+          "new_house_price": 53317.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 56251.0,
+          "new_house_price": 53495.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 54891.0,
+          "new_house_price": 52818.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 59683.0,
+          "new_house_price": 53578.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 58651.0,
+          "new_house_price": 53676.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 59207.0,
+          "new_house_price": 54649.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 60430.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 59480.0,
+          "new_house_price": 52569.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 53484.0,
+          "new_house_price": 52933.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 53205.0,
+          "new_house_price": 53328.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 52529.0,
+          "new_house_price": 54176.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 60230.0,
+          "new_house_price": 53055.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 60667.0,
+          "new_house_price": 53493.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 65308.0,
+          "new_house_price": 37420.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 64152.0,
+          "new_house_price": 37415.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 63242.0,
+          "new_house_price": 37140.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 54090.0,
+          "new_house_price": 34469.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 51879.0,
+          "new_house_price": 34636.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 52471.0,
+          "new_house_price": 34610.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 54467.0,
+          "new_house_price": 34240.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 54677.0,
+          "new_house_price": 34347.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 51565.0,
+          "new_house_price": 34297.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 49613.0,
+          "new_house_price": 34281.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 55057.0,
+          "new_house_price": 32732.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 54561.0,
+          "new_house_price": 32732.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 52274.0,
+          "new_house_price": 32505.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 57837.0,
+          "new_house_price": 32467.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 59313.0,
+          "new_house_price": 33438.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 50186.0,
+          "new_house_price": 33479.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 50648.0,
+          "new_house_price": 33258.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 53136.0,
+          "new_house_price": 44609.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 51895.0,
+          "new_house_price": 56897.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 50254.0,
+          "new_house_price": 59820.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 50745.0,
+          "new_house_price": 60048.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 49045.0,
+          "new_house_price": 63057.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 48860.0,
+          "new_house_price": 60799.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 49751.0,
+          "new_house_price": 60137.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 49852.0,
+          "new_house_price": 59424.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 45882.0,
+          "new_house_price": 45722.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 43053.0,
+          "new_house_price": 45431.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 42385.0,
+          "new_house_price": 58555.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 43494.0,
+          "new_house_price": 46541.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 43282.0,
+          "new_house_price": 45545.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 42304.0,
+          "new_house_price": 46079.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 42472.0,
+          "new_house_price": 45992.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 43294.0,
+          "new_house_price": 46510.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 46165.0,
+          "new_house_price": 59777.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 44794.0,
+          "new_house_price": 58690.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 44095.0,
+          "new_house_price": 45611.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 43078.0,
+          "new_house_price": 43618.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 44617.0,
+          "new_house_price": 43385.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 44262.0,
+          "new_house_price": 39102.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 43599.0,
+          "new_house_price": 39733.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 43291.0,
+          "new_house_price": 40180.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 42935.0,
+          "new_house_price": 39627.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 46333.0,
+          "new_house_price": 45190.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 42754.0,
+          "new_house_price": 43231.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 41480.0,
+          "new_house_price": 41855.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 42130.0,
+          "new_house_price": 41358.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 40420.0,
+          "new_house_price": 41959.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "蔡官巷",
+          "price": 57493.0,
+          "mom_pct": -1.54
+        },
+        {
+          "community": "清江名潮院",
+          "price": 48211.0,
+          "mom_pct": 0.33
+        },
+        {
+          "community": "三新家园东区",
+          "price": 36333.0,
+          "mom_pct": -0.43
+        },
+        {
+          "community": "香樟雅苑",
+          "price": 23534.0,
+          "mom_pct": -0.38
+        },
+        {
+          "community": "新风悦居",
+          "price": 42172.0,
+          "mom_pct": -0.18
+        },
+        {
+          "community": "联合新苑",
+          "price": 24275.0,
+          "mom_pct": 3.5
+        },
+        {
+          "community": "金色大唐城",
+          "price": 27050.0,
+          "mom_pct": -2.07
+        },
+        {
+          "community": "团子巷小区",
+          "price": 52659.0,
+          "mom_pct": -3.28
+        },
+        {
+          "community": "绿城元福里",
+          "price": 119847.0,
+          "mom_pct": 1.96
+        },
+        {
+          "community": "三里新城董家苑",
+          "price": 29329.0,
+          "mom_pct": 1.11
+        }
+      ]
+    },
+    "gongshu": {
+      "name": "拱墅区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 34933.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 35481.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 36173.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 35924.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 35141.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 35304.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 34912.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 33923.0,
+          "new_house_price": 41723.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 35471.0,
+          "new_house_price": 41723.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 35562.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 35870.0,
+          "new_house_price": 46764.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 36411.0,
+          "new_house_price": 43901.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 35611.0,
+          "new_house_price": 41231.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 35713.0,
+          "new_house_price": 42831.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 34410.0,
+          "new_house_price": 42182.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 34612.0,
+          "new_house_price": 41953.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 34504.0,
+          "new_house_price": 41183.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 34641.0,
+          "new_house_price": 39791.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 34518.0,
+          "new_house_price": 35264.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 33881.0,
+          "new_house_price": 35214.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 34412.0,
+          "new_house_price": 35278.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 36419.0,
+          "new_house_price": 35034.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 35088.0,
+          "new_house_price": 38203.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 36452.0,
+          "new_house_price": 38730.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 38220.0,
+          "new_house_price": 37877.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 37069.0,
+          "new_house_price": 38235.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 36892.0,
+          "new_house_price": 39056.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 36742.0,
+          "new_house_price": 40470.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 38574.0,
+          "new_house_price": 41515.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 38030.0,
+          "new_house_price": 43669.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 38257.0,
+          "new_house_price": 41560.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 40649.0,
+          "new_house_price": 42705.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 41421.0,
+          "new_house_price": 40719.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 44327.0,
+          "new_house_price": 42113.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 39873.0,
+          "new_house_price": 38493.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 42541.0,
+          "new_house_price": 37874.0
+        },
+        {
+          "date": "2021-06",
+          "second_hand_price": 40376.0,
+          "new_house_price": 37724.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 43554.0,
+          "new_house_price": 38336.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 41738.0,
+          "new_house_price": 38826.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 43779.0,
+          "new_house_price": 39369.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 43091.0,
+          "new_house_price": 40243.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 45428.0,
+          "new_house_price": 38365.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 46059.0,
+          "new_house_price": 38466.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 45363.0,
+          "new_house_price": 40114.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 45415.0,
+          "new_house_price": 40375.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 45748.0,
+          "new_house_price": 41798.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 45296.0,
+          "new_house_price": 46551.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 44664.0,
+          "new_house_price": 46654.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 43749.0,
+          "new_house_price": 35968.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 44473.0,
+          "new_house_price": 35732.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 44949.0,
+          "new_house_price": 29967.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 44899.0,
+          "new_house_price": 30010.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 44813.0,
+          "new_house_price": 28276.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 44238.0,
+          "new_house_price": 28197.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 44827.0,
+          "new_house_price": 28428.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 42728.0,
+          "new_house_price": 28428.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 43766.0,
+          "new_house_price": 28373.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 44834.0,
+          "new_house_price": 28445.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 47271.0,
+          "new_house_price": 28396.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 44802.0,
+          "new_house_price": 28385.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 44168.0,
+          "new_house_price": 28504.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 42748.0,
+          "new_house_price": 27371.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 40124.0,
+          "new_house_price": 31566.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 41738.0,
+          "new_house_price": 31310.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 40979.0,
+          "new_house_price": 31520.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 40850.0,
+          "new_house_price": 31359.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 40955.0,
+          "new_house_price": 31302.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 42469.0,
+          "new_house_price": 35686.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 43221.0,
+          "new_house_price": 38925.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 40491.0,
+          "new_house_price": 36464.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 40885.0,
+          "new_house_price": 39510.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 40068.0,
+          "new_house_price": 33090.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 40464.0,
+          "new_house_price": 37926.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 39235.0,
+          "new_house_price": 36138.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 39096.0,
+          "new_house_price": 33285.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 39534.0,
+          "new_house_price": 32705.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 39341.0,
+          "new_house_price": 40487.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 40258.0,
+          "new_house_price": 31606.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 38992.0,
+          "new_house_price": 38448.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 39711.0,
+          "new_house_price": 38432.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 39410.0,
+          "new_house_price": 38854.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 39897.0,
+          "new_house_price": 38107.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 38752.0,
+          "new_house_price": 34841.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 38834.0,
+          "new_house_price": 37012.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 39207.0,
+          "new_house_price": 40294.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 38917.0,
+          "new_house_price": 33349.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 39715.0,
+          "new_house_price": 34217.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 38351.0,
+          "new_house_price": 39292.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 37034.0,
+          "new_house_price": 36150.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 35766.0,
+          "new_house_price": 40852.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 36149.0,
+          "new_house_price": 36425.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "禹洲宋都望林府",
+          "price": 41353.0,
+          "mom_pct": 1.0
+        },
+        {
+          "community": "仁新雅居",
+          "price": 35113.0,
+          "mom_pct": 0.78
+        },
+        {
+          "community": "体育场路91号",
+          "price": 8060.0,
+          "mom_pct": 0.06
+        },
+        {
+          "community": "金昌苑",
+          "price": 25739.0,
+          "mom_pct": -1.46
+        },
+        {
+          "community": "小河路338号",
+          "price": 61691.0,
+          "mom_pct": 2.12
+        },
+        {
+          "community": "凤凰街",
+          "price": 44913.0,
+          "mom_pct": 1.06
+        },
+        {
+          "community": "莫干山路558号",
+          "price": 32388.0,
+          "mom_pct": -0.66
+        },
+        {
+          "community": "开化路",
+          "price": 59351.0,
+          "mom_pct": 3.32
+        },
+        {
+          "community": "如意里",
+          "price": 88910.0,
+          "mom_pct": -0.73
+        },
+        {
+          "community": "舟山东路",
+          "price": 29655.0,
+          "mom_pct": 0.6
+        }
+      ]
+    },
+    "xiaoshan": {
+      "name": "萧山区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 25721.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 25561.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 25614.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 24981.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 25111.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 26943.0,
+          "new_house_price": 7.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 26412.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 25362.0,
+          "new_house_price": 26473.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 26112.0,
+          "new_house_price": 26804.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 26371.0,
+          "new_house_price": 27133.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 26642.0,
+          "new_house_price": 26963.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 26513.0,
+          "new_house_price": 26604.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 26233.0,
+          "new_house_price": 26811.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 25242.0,
+          "new_house_price": 27924.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 25301.0,
+          "new_house_price": 30003.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 26214.0,
+          "new_house_price": 30214.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 25331.0,
+          "new_house_price": 30324.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 23673.0,
+          "new_house_price": 27784.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 23307.0,
+          "new_house_price": 27295.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 23328.0,
+          "new_house_price": 27268.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 25826.0,
+          "new_house_price": 26998.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 25539.0,
+          "new_house_price": 26382.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 25155.0,
+          "new_house_price": 27765.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 25212.0,
+          "new_house_price": 27788.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 26141.0,
+          "new_house_price": 27379.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 24759.0,
+          "new_house_price": 27754.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 25367.0,
+          "new_house_price": 27221.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 25676.0,
+          "new_house_price": 28502.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 26824.0,
+          "new_house_price": 28332.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 27500.0,
+          "new_house_price": 28516.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 27410.0,
+          "new_house_price": 28198.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 25835.0,
+          "new_house_price": 27932.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 26706.0,
+          "new_house_price": 29156.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 29315.0,
+          "new_house_price": 30685.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 31089.0,
+          "new_house_price": 29934.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 30500.0,
+          "new_house_price": 30642.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 31824.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 30611.0,
+          "new_house_price": 29890.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 31827.0,
+          "new_house_price": 30189.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 33008.0,
+          "new_house_price": 30741.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 33553.0,
+          "new_house_price": 30433.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 36383.0,
+          "new_house_price": 30616.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 36335.0,
+          "new_house_price": 29419.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 37135.0,
+          "new_house_price": 28014.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 37514.0,
+          "new_house_price": 25229.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 38536.0,
+          "new_house_price": 24299.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 36129.0,
+          "new_house_price": 23253.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 34754.0,
+          "new_house_price": 22714.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 35570.0,
+          "new_house_price": 22558.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 35636.0,
+          "new_house_price": 24748.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 36188.0,
+          "new_house_price": 24700.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 38182.0,
+          "new_house_price": 25218.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 36529.0,
+          "new_house_price": 25637.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 37064.0,
+          "new_house_price": 25710.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 38447.0,
+          "new_house_price": 25710.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 38140.0,
+          "new_house_price": 25715.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 39213.0,
+          "new_house_price": 25743.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 38864.0,
+          "new_house_price": 25477.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 37184.0,
+          "new_house_price": 25347.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 36761.0,
+          "new_house_price": 25352.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 37153.0,
+          "new_house_price": 23319.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 33980.0,
+          "new_house_price": 21927.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 35631.0,
+          "new_house_price": 22381.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 34463.0,
+          "new_house_price": 22225.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 34405.0,
+          "new_house_price": 19314.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 35183.0,
+          "new_house_price": 13732.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 36396.0,
+          "new_house_price": 21065.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 34128.0,
+          "new_house_price": 23043.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 34962.0,
+          "new_house_price": 24788.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 34257.0,
+          "new_house_price": 27995.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 35836.0,
+          "new_house_price": 22808.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 34262.0,
+          "new_house_price": 26499.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 35167.0,
+          "new_house_price": 27543.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 32104.0,
+          "new_house_price": 23133.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 32590.0,
+          "new_house_price": 22950.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 32805.0,
+          "new_house_price": 24578.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 32682.0,
+          "new_house_price": 22267.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 35035.0,
+          "new_house_price": 21727.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 33457.0,
+          "new_house_price": 23277.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 33701.0,
+          "new_house_price": 23850.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 33298.0,
+          "new_house_price": 23957.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 33830.0,
+          "new_house_price": 24840.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 33582.0,
+          "new_house_price": 24404.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 31221.0,
+          "new_house_price": 24457.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 31306.0,
+          "new_house_price": 25168.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 32956.0,
+          "new_house_price": 24661.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 30430.0,
+          "new_house_price": 26652.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 29763.0,
+          "new_house_price": 25327.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 29420.0,
+          "new_house_price": 25263.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 29766.0,
+          "new_house_price": 24040.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "新街路",
+          "price": 9146.0,
+          "mom_pct": 1.02
+        },
+        {
+          "community": "红友桥路199号",
+          "price": 12138.0,
+          "mom_pct": 5.69
+        },
+        {
+          "community": "印虹滨府",
+          "price": 31874.0,
+          "mom_pct": 1.17
+        },
+        {
+          "community": "奥林美筑",
+          "price": 40199.0,
+          "mom_pct": -0.68
+        },
+        {
+          "community": "华景川云流名邸",
+          "price": 11992.0,
+          "mom_pct": -0.98
+        },
+        {
+          "community": "江寺路116号",
+          "price": 21828.0,
+          "mom_pct": 1.18
+        },
+        {
+          "community": "荣望轩",
+          "price": 31242.0,
+          "mom_pct": 1.47
+        },
+        {
+          "community": "人民路160号",
+          "price": 18559.0,
+          "mom_pct": 2.32
+        },
+        {
+          "community": "帝凯·公元帝景",
+          "price": 22924.0,
+          "mom_pct": 3.78
+        },
+        {
+          "community": "昱泊名府",
+          "price": 29097.0,
+          "mom_pct": 0.74
+        }
+      ]
+    },
+    "yuhang": {
+      "name": "余杭区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 22591.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 22881.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 22764.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 22651.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 22532.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 23351.0,
+          "new_house_price": 3.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 22911.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 22270.0,
+          "new_house_price": 24303.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 22371.0,
+          "new_house_price": 24494.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 22982.0,
+          "new_house_price": 24673.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 22731.0,
+          "new_house_price": 24892.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 22613.0,
+          "new_house_price": 24964.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 22863.0,
+          "new_house_price": 25301.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 21813.0,
+          "new_house_price": 26124.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 21921.0,
+          "new_house_price": 26573.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 22971.0,
+          "new_house_price": 26512.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 22371.0,
+          "new_house_price": 26934.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 21555.0,
+          "new_house_price": 25902.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 21063.0,
+          "new_house_price": 28519.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 21868.0,
+          "new_house_price": 28445.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 22933.0,
+          "new_house_price": 28240.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 22954.0,
+          "new_house_price": 28945.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 22378.0,
+          "new_house_price": 29138.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 21298.0,
+          "new_house_price": 28871.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 22587.0,
+          "new_house_price": 29511.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 21341.0,
+          "new_house_price": 28169.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 22053.0,
+          "new_house_price": 28299.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 21735.0,
+          "new_house_price": 27519.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 22636.0,
+          "new_house_price": 28042.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 23990.0,
+          "new_house_price": 28530.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 23876.0,
+          "new_house_price": 29012.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 22958.0,
+          "new_house_price": 29195.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 23737.0,
+          "new_house_price": 29222.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 26073.0,
+          "new_house_price": 29607.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 26920.0,
+          "new_house_price": 28935.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 27014.0,
+          "new_house_price": 28941.0
+        },
+        {
+          "date": "2021-06",
+          "second_hand_price": 28375.0,
+          "new_house_price": 28556.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 26815.0,
+          "new_house_price": 29178.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 26596.0,
+          "new_house_price": 28935.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 28311.0,
+          "new_house_price": 28861.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 29254.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 33351.0,
+          "new_house_price": 27766.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 31730.0,
+          "new_house_price": 27773.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 32536.0,
+          "new_house_price": 28855.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 31991.0,
+          "new_house_price": 28709.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 32550.0,
+          "new_house_price": 27227.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 32143.0,
+          "new_house_price": 25932.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 33648.0,
+          "new_house_price": 27795.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 33036.0,
+          "new_house_price": 28179.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 33799.0,
+          "new_house_price": 27926.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 36283.0,
+          "new_house_price": 27227.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 35239.0,
+          "new_house_price": 27421.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 36440.0,
+          "new_house_price": 26917.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 33555.0,
+          "new_house_price": 25475.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 35833.0,
+          "new_house_price": 25442.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 35384.0,
+          "new_house_price": 25442.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 33808.0,
+          "new_house_price": 25388.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 35876.0,
+          "new_house_price": 25413.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 34947.0,
+          "new_house_price": 25025.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 36045.0,
+          "new_house_price": 23291.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 34681.0,
+          "new_house_price": 23156.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 34301.0,
+          "new_house_price": 25792.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 29876.0,
+          "new_house_price": 24377.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 29575.0,
+          "new_house_price": 24469.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 30252.0,
+          "new_house_price": 24584.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 29984.0,
+          "new_house_price": 25040.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 28182.0,
+          "new_house_price": 25251.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 30132.0,
+          "new_house_price": 24409.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 28667.0,
+          "new_house_price": 25341.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 28663.0,
+          "new_house_price": 26888.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 28393.0,
+          "new_house_price": 26917.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 28107.0,
+          "new_house_price": 26682.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 27865.0,
+          "new_house_price": 27910.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 27329.0,
+          "new_house_price": 28413.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 27741.0,
+          "new_house_price": 26155.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 27071.0,
+          "new_house_price": 25608.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 27088.0,
+          "new_house_price": 26503.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 26862.0,
+          "new_house_price": 24749.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 26796.0,
+          "new_house_price": 23985.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 28234.0,
+          "new_house_price": 25090.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 26515.0,
+          "new_house_price": 25088.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 27841.0,
+          "new_house_price": 25244.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 27827.0,
+          "new_house_price": 26131.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 27716.0,
+          "new_house_price": 25338.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 26908.0,
+          "new_house_price": 27064.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 26572.0,
+          "new_house_price": 27000.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 26588.0,
+          "new_house_price": 27913.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 26869.0,
+          "new_house_price": 27685.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 27458.0,
+          "new_house_price": 27753.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 27126.0,
+          "new_house_price": 26818.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 26702.0,
+          "new_house_price": 26566.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "城西路59号",
+          "price": 19151.0,
+          "mom_pct": -0.08
+        },
+        {
+          "community": "大桥南路",
+          "price": 10933.0,
+          "mom_pct": -2.96
+        },
+        {
+          "community": "翡翠城三期",
+          "price": 36293.0,
+          "mom_pct": -3.91
+        },
+        {
+          "community": "中泰世纪花园",
+          "price": 17150.0,
+          "mom_pct": -1.01
+        },
+        {
+          "community": "烟雨颐和江南府",
+          "price": 39236.0,
+          "mom_pct": -0.8
+        },
+        {
+          "community": "万科.北宸之光二期",
+          "price": 37695.0,
+          "mom_pct": -1.32
+        },
+        {
+          "community": "南渠社区",
+          "price": 16902.0,
+          "mom_pct": -2.75
+        },
+        {
+          "community": "桥南小区",
+          "price": 18158.0,
+          "mom_pct": 1.11
+        },
+        {
+          "community": "镇政府宿舍楼1幢",
+          "price": 13996.0,
+          "mom_pct": 1.36
+        },
+        {
+          "community": "良渚璞台",
+          "price": 23527.0,
+          "mom_pct": -1.11
+        }
+      ]
+    },
+    "fuyang": {
+      "name": "富阳区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 20714.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 20373.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 20493.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 20714.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 20062.0,
+          "new_house_price": 3.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 20510.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 20363.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 20233.0,
+          "new_house_price": 18602.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 20062.0,
+          "new_house_price": 18611.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 20960.0,
+          "new_house_price": 20343.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 20931.0,
+          "new_house_price": 20004.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 20473.0,
+          "new_house_price": 18772.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 20012.0,
+          "new_house_price": 18734.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 19514.0,
+          "new_house_price": 20481.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 18843.0,
+          "new_house_price": 20401.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 20304.0,
+          "new_house_price": 20531.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 20941.0,
+          "new_house_price": 20721.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 19897.0,
+          "new_house_price": 20461.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 18775.0,
+          "new_house_price": 20300.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 19256.0,
+          "new_house_price": 20280.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 19122.0,
+          "new_house_price": 19088.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 19562.0,
+          "new_house_price": 20241.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 20855.0,
+          "new_house_price": 19981.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 21061.0,
+          "new_house_price": 20251.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 21786.0,
+          "new_house_price": 20767.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 20615.0,
+          "new_house_price": 20592.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 19869.0,
+          "new_house_price": 20600.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 19991.0,
+          "new_house_price": 21690.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 20247.0,
+          "new_house_price": 21701.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 22273.0,
+          "new_house_price": 22191.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 23373.0,
+          "new_house_price": 22077.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 23945.0,
+          "new_house_price": 22499.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 23932.0,
+          "new_house_price": 21661.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 23567.0,
+          "new_house_price": 21463.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 24225.0,
+          "new_house_price": 21894.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 24558.0,
+          "new_house_price": 23007.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 23764.0,
+          "new_house_price": 22430.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 22760.0,
+          "new_house_price": 22262.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 23211.0,
+          "new_house_price": 23756.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 24806.0,
+          "new_house_price": 23575.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 23541.0,
+          "new_house_price": 24066.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 23357.0,
+          "new_house_price": 23687.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 25374.0,
+          "new_house_price": 23947.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 25228.0,
+          "new_house_price": 25186.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 23490.0,
+          "new_house_price": 25359.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 24928.0,
+          "new_house_price": 25137.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 27775.0,
+          "new_house_price": 24112.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 28266.0,
+          "new_house_price": 23209.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 26959.0,
+          "new_house_price": 24402.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 27674.0,
+          "new_house_price": 24144.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 28457.0,
+          "new_house_price": 24094.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 27150.0,
+          "new_house_price": 24054.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 26573.0,
+          "new_house_price": 23689.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 25289.0,
+          "new_house_price": 22488.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 26461.0,
+          "new_house_price": 22488.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 24179.0,
+          "new_house_price": 22393.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 25737.0,
+          "new_house_price": 22404.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 25800.0,
+          "new_house_price": 22764.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 26111.0,
+          "new_house_price": 22686.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 27029.0,
+          "new_house_price": 21925.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 30413.0,
+          "new_house_price": 20481.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 25774.0,
+          "new_house_price": 20638.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 23954.0,
+          "new_house_price": 21170.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 22641.0,
+          "new_house_price": 20460.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 25171.0,
+          "new_house_price": 22051.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 23598.0,
+          "new_house_price": 21760.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 27272.0,
+          "new_house_price": 22593.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 24075.0,
+          "new_house_price": 21214.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 24274.0,
+          "new_house_price": 21419.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 25079.0,
+          "new_house_price": 21768.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 23077.0,
+          "new_house_price": 21598.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 22691.0,
+          "new_house_price": 21367.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 22244.0,
+          "new_house_price": 21837.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 23126.0,
+          "new_house_price": 21848.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 22116.0,
+          "new_house_price": 21828.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 21171.0,
+          "new_house_price": 21546.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 21778.0,
+          "new_house_price": 21540.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 22251.0,
+          "new_house_price": 21613.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 21709.0,
+          "new_house_price": 22249.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 21102.0,
+          "new_house_price": 22117.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 22215.0,
+          "new_house_price": 22289.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 22210.0,
+          "new_house_price": 22725.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 22897.0,
+          "new_house_price": 22921.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 23306.0,
+          "new_house_price": 22256.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 21486.0,
+          "new_house_price": 22415.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 20440.0,
+          "new_house_price": 21456.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 24485.0,
+          "new_house_price": 21326.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 23783.0,
+          "new_house_price": 21082.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 23838.0,
+          "new_house_price": 20784.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 23182.0,
+          "new_house_price": 19652.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "秦望府",
+          "price": 30460.0,
+          "mom_pct": 0.56
+        },
+        {
+          "community": "富春路",
+          "price": 8424.0,
+          "mom_pct": -1.19
+        },
+        {
+          "community": "后亭子社区",
+          "price": 15000.0,
+          "mom_pct": 1.81
+        },
+        {
+          "community": "新兴路44号",
+          "price": 11879.0,
+          "mom_pct": -3.12
+        },
+        {
+          "community": "巨利新村",
+          "price": 17043.0,
+          "mom_pct": 3.58
+        },
+        {
+          "community": "富宸锦苑",
+          "price": 15092.0,
+          "mom_pct": -5.74
+        },
+        {
+          "community": "鸣翠桃源来源阁",
+          "price": 16152.0,
+          "mom_pct": -3.27
+        },
+        {
+          "community": "人才公寓",
+          "price": 17474.0,
+          "mom_pct": 1.74
+        },
+        {
+          "community": "恩波花园",
+          "price": 15985.0,
+          "mom_pct": 0.4
+        },
+        {
+          "community": "龙翔•秋月苑",
+          "price": 38445.0,
+          "mom_pct": -1.79
+        }
+      ]
+    },
+    "qiantang": {
+      "name": "钱塘区",
+      "history": [
+        {
+          "date": "2023-07",
+          "second_hand_price": 22300.0,
+          "new_house_price": 25726.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 22029.0,
+          "new_house_price": 31400.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 21679.0,
+          "new_house_price": 25957.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 21798.0,
+          "new_house_price": 25900.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 21811.0,
+          "new_house_price": 26185.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 21690.0,
+          "new_house_price": 25667.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 21842.0,
+          "new_house_price": 25787.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 21972.0,
+          "new_house_price": 26020.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 21835.0,
+          "new_house_price": 26148.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 21773.0,
+          "new_house_price": 25911.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 21924.0,
+          "new_house_price": 25958.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 21871.0,
+          "new_house_price": 25701.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 21815.0,
+          "new_house_price": 25894.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 21904.0,
+          "new_house_price": 25654.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 21884.0,
+          "new_house_price": 25958.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 21719.0,
+          "new_house_price": 25955.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 21851.0,
+          "new_house_price": 25815.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 21774.0,
+          "new_house_price": 25523.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 21840.0,
+          "new_house_price": 25680.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 21747.0,
+          "new_house_price": 25521.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 21892.0,
+          "new_house_price": 26160.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 21690.0,
+          "new_house_price": 25760.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 21740.0,
+          "new_house_price": 25741.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 21818.0,
+          "new_house_price": 25469.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 21737.0,
+          "new_house_price": 25711.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 21825.0,
+          "new_house_price": 26321.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "福雷德小区",
+          "price": 20810.0,
+          "mom_pct": 2.65
+        },
+        {
+          "community": "观澜时代国际花园天筑苑",
+          "price": 30713.0,
+          "mom_pct": 2.61
+        },
+        {
+          "community": "观澜时代国际花园云邸苑",
+          "price": 25735.0,
+          "mom_pct": 4.7
+        },
+        {
+          "community": "格林格林",
+          "price": 28371.0,
+          "mom_pct": -1.28
+        },
+        {
+          "community": "金地都会钱塘东区",
+          "price": 33066.0,
+          "mom_pct": 0.37
+        },
+        {
+          "community": "香榭里",
+          "price": 41084.0,
+          "mom_pct": 0.19
+        },
+        {
+          "community": "世茂江滨花园碧景湾",
+          "price": 25746.0,
+          "mom_pct": 0.9
+        },
+        {
+          "community": "龙湖滟澜山澜轩",
+          "price": 35341.0,
+          "mom_pct": -0.53
+        },
+        {
+          "community": "东海柠檬郡",
+          "price": 27300.0,
+          "mom_pct": 0.21
+        },
+        {
+          "community": "世茂江滨花园峻景湾",
+          "price": 24821.0,
+          "mom_pct": -0.5
+        }
+      ]
+    },
+    "linping": {
+      "name": "临平区",
+      "history": [
+        {
+          "date": "2023-07",
+          "second_hand_price": 21200.0,
+          "new_house_price": 26612.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 21093.0,
+          "new_house_price": 25700.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 21048.0,
+          "new_house_price": 25854.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 21045.0,
+          "new_house_price": 25700.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 21068.0,
+          "new_house_price": 25705.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 23200.0,
+          "new_house_price": 25728.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 23186.0,
+          "new_house_price": 25414.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 23135.0,
+          "new_house_price": 25690.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 23025.0,
+          "new_house_price": 26168.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 21041.0,
+          "new_house_price": 25311.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 20977.0,
+          "new_house_price": 25225.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 21038.0,
+          "new_house_price": 25253.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 21012.0,
+          "new_house_price": 25802.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 21035.0,
+          "new_house_price": 25538.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 21073.0,
+          "new_house_price": 25673.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 20984.0,
+          "new_house_price": 25774.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 20932.0,
+          "new_house_price": 25927.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 20983.0,
+          "new_house_price": 25656.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 20920.0,
+          "new_house_price": 25784.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 20899.0,
+          "new_house_price": 25484.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 23128.0,
+          "new_house_price": 25734.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 21056.0,
+          "new_house_price": 25333.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 21109.0,
+          "new_house_price": 25792.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 20997.0,
+          "new_house_price": 25671.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 20998.0,
+          "new_house_price": 25755.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 21008.0,
+          "new_house_price": 25735.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "久境府",
+          "price": 22828.0,
+          "mom_pct": -1.25
+        },
+        {
+          "community": "臻品府",
+          "price": 37582.0,
+          "mom_pct": 0.55
+        },
+        {
+          "community": "璞云府",
+          "price": 22275.0,
+          "mom_pct": 4.16
+        },
+        {
+          "community": "伊世纪城市花园2区",
+          "price": 18518.0,
+          "mom_pct": -0.25
+        },
+        {
+          "community": "泉漳春晖小区北区",
+          "price": 14152.0,
+          "mom_pct": 1.94
+        },
+        {
+          "community": "胜稼红星嘉园一区",
+          "price": 20806.0,
+          "mom_pct": 0.18
+        },
+        {
+          "community": "北秀向阳苑北区",
+          "price": 17291.0,
+          "mom_pct": 4.35
+        },
+        {
+          "community": "诚明诚品",
+          "price": 12051.0,
+          "mom_pct": -1.65
+        },
+        {
+          "community": "东湖中路92号",
+          "price": 15629.0,
+          "mom_pct": -1.61
+        },
+        {
+          "community": "光大弄",
+          "price": 13193.0,
+          "mom_pct": 3.54
+        }
+      ]
+    },
+    "linan": {
+      "name": "临安区",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 15261.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 15442.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 15211.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 14744.0,
+          "new_house_price": 3.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 14714.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 15613.0,
+          "new_house_price": 6.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 15483.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 15782.0,
+          "new_house_price": 17294.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 15412.0,
+          "new_house_price": 17611.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 15581.0,
+          "new_house_price": 17624.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 15612.0,
+          "new_house_price": 17854.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 15553.0,
+          "new_house_price": 20014.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 15482.0,
+          "new_house_price": 18102.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 15863.0,
+          "new_house_price": 18801.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 15972.0,
+          "new_house_price": 18252.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 16122.0,
+          "new_house_price": 20044.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 15962.0,
+          "new_house_price": 20062.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 16701.0,
+          "new_house_price": 19404.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 16207.0,
+          "new_house_price": 19480.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 15944.0,
+          "new_house_price": 19439.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 15855.0,
+          "new_house_price": 19133.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 15467.0,
+          "new_house_price": 19831.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 15773.0,
+          "new_house_price": 19211.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 15229.0,
+          "new_house_price": 19890.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 15640.0,
+          "new_house_price": 20174.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 15020.0,
+          "new_house_price": 19388.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 15541.0,
+          "new_house_price": 18601.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 15170.0,
+          "new_house_price": 19376.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 15771.0,
+          "new_house_price": 19912.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 16049.0,
+          "new_house_price": 19072.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 16418.0,
+          "new_house_price": 19334.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 16285.0,
+          "new_house_price": 18807.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 16137.0,
+          "new_house_price": 19534.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 16382.0,
+          "new_house_price": 19182.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 17571.0,
+          "new_house_price": 19983.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 17199.0,
+          "new_house_price": 19415.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 18279.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 17923.0,
+          "new_house_price": 19511.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 19177.0,
+          "new_house_price": 20450.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 19244.0,
+          "new_house_price": 20303.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 19068.0,
+          "new_house_price": 20442.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 19058.0,
+          "new_house_price": 19878.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 17730.0,
+          "new_house_price": 19922.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 19295.0,
+          "new_house_price": 19880.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 18651.0,
+          "new_house_price": 20699.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 17950.0,
+          "new_house_price": 21404.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 20736.0,
+          "new_house_price": 20759.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 21511.0,
+          "new_house_price": 20128.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 20938.0,
+          "new_house_price": 20136.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 19478.0,
+          "new_house_price": 20431.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 19185.0,
+          "new_house_price": 20517.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 20342.0,
+          "new_house_price": 20466.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 19998.0,
+          "new_house_price": 21097.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 19380.0,
+          "new_house_price": 21570.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 21847.0,
+          "new_house_price": 21570.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 22885.0,
+          "new_house_price": 21580.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 21676.0,
+          "new_house_price": 21686.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 20565.0,
+          "new_house_price": 20753.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 21834.0,
+          "new_house_price": 19580.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 22322.0,
+          "new_house_price": 19714.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 22067.0,
+          "new_house_price": 19351.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 21295.0,
+          "new_house_price": 18903.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 18690.0,
+          "new_house_price": 18909.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 18329.0,
+          "new_house_price": 19060.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 18959.0,
+          "new_house_price": 19608.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 17553.0,
+          "new_house_price": 19268.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 16923.0,
+          "new_house_price": 20113.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 16650.0,
+          "new_house_price": 19789.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 17104.0,
+          "new_house_price": 20144.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 18043.0,
+          "new_house_price": 20156.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 16230.0,
+          "new_house_price": 19977.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 15616.0,
+          "new_house_price": 20235.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 14940.0,
+          "new_house_price": 19748.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 14923.0,
+          "new_house_price": 19828.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 15312.0,
+          "new_house_price": 20272.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 15282.0,
+          "new_house_price": 19984.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 14546.0,
+          "new_house_price": 20225.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 13991.0,
+          "new_house_price": 19883.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 13580.0,
+          "new_house_price": 19032.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 15357.0,
+          "new_house_price": 18013.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 15217.0,
+          "new_house_price": 17209.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 14153.0,
+          "new_house_price": 17875.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 13570.0,
+          "new_house_price": 13955.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 13093.0,
+          "new_house_price": 16205.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 13476.0,
+          "new_house_price": 16659.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 12776.0,
+          "new_house_price": 18677.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 14322.0,
+          "new_house_price": 20059.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 13152.0,
+          "new_house_price": 20138.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 13153.0,
+          "new_house_price": 19536.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 12759.0,
+          "new_house_price": 18532.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "石镜街555号",
+          "price": 9877.0,
+          "mom_pct": 0.51
+        },
+        {
+          "community": "状元府",
+          "price": 25162.0,
+          "mom_pct": 1.93
+        },
+        {
+          "community": "景杉路571号",
+          "price": 9286.0,
+          "mom_pct": -1.0
+        },
+        {
+          "community": "临水路144号",
+          "price": 17612.0,
+          "mom_pct": 1.79
+        },
+        {
+          "community": "安阁弄59号",
+          "price": 11579.0,
+          "mom_pct": 5.61
+        },
+        {
+          "community": "锁厂宿舍",
+          "price": 13368.0,
+          "mom_pct": 1.77
+        },
+        {
+          "community": "临天路一弄",
+          "price": 8296.0,
+          "mom_pct": 0.06
+        },
+        {
+          "community": "临天七弄",
+          "price": 8579.0,
+          "mom_pct": 0.5
+        },
+        {
+          "community": "临天十弄",
+          "price": 8851.0,
+          "mom_pct": -0.03
+        },
+        {
+          "community": "大华世纪雅苑",
+          "price": 9428.0,
+          "mom_pct": -1.33
+        }
+      ]
+    },
+    "jiande": {
+      "name": "建德市",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 10552.0,
+          "new_house_price": 3.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 10143.0,
+          "new_house_price": 3.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 10743.0,
+          "new_house_price": 5.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 10482.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 10253.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 11813.0,
+          "new_house_price": 15.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 11881.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 11302.0,
+          "new_house_price": 12684.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 11981.0,
+          "new_house_price": 12684.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 12113.0,
+          "new_house_price": 12684.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 12273.0,
+          "new_house_price": 12282.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 13502.0,
+          "new_house_price": 12282.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 13802.0,
+          "new_house_price": 12474.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 13371.0,
+          "new_house_price": 10973.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 14261.0,
+          "new_house_price": 10973.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 14154.0,
+          "new_house_price": 10973.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 13483.0,
+          "new_house_price": 10831.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 15220.0,
+          "new_house_price": 10202.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 13736.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 12963.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 13195.0,
+          "new_house_price": 11069.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 12928.0,
+          "new_house_price": 10822.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 13732.0,
+          "new_house_price": 9895.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 13230.0,
+          "new_house_price": 9804.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 13815.0,
+          "new_house_price": 10102.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 14126.0,
+          "new_house_price": 9841.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 15368.0,
+          "new_house_price": 9892.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 15242.0,
+          "new_house_price": 11265.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 15655.0,
+          "new_house_price": 11399.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 16471.0,
+          "new_house_price": 11477.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 15198.0,
+          "new_house_price": 11228.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 15551.0,
+          "new_house_price": 11556.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 16055.0,
+          "new_house_price": 11499.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 15050.0,
+          "new_house_price": 11683.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 15008.0,
+          "new_house_price": 11424.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 14783.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 14544.0,
+          "new_house_price": 12321.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 14162.0,
+          "new_house_price": 11409.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 21033.0,
+          "new_house_price": 11333.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 16830.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 18018.0,
+          "new_house_price": 11884.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 18688.0,
+          "new_house_price": 9871.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 18135.0,
+          "new_house_price": 10550.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 17591.0,
+          "new_house_price": 13375.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 16632.0,
+          "new_house_price": 12956.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 16576.0,
+          "new_house_price": 16242.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 15585.0,
+          "new_house_price": 16277.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 16723.0,
+          "new_house_price": 16180.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 17977.0,
+          "new_house_price": 16187.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 17328.0,
+          "new_house_price": 24587.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 17377.0,
+          "new_house_price": 24759.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 16795.0,
+          "new_house_price": 24645.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 18400.0,
+          "new_house_price": 19390.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 16527.0,
+          "new_house_price": 14154.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 17884.0,
+          "new_house_price": 14154.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 17106.0,
+          "new_house_price": 13937.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 17437.0,
+          "new_house_price": 14071.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 16797.0,
+          "new_house_price": 13942.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 18207.0,
+          "new_house_price": 13921.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 19472.0,
+          "new_house_price": 14024.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 18631.0,
+          "new_house_price": 14302.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 18404.0,
+          "new_house_price": 14380.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 18356.0,
+          "new_house_price": 13933.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 17730.0,
+          "new_house_price": 14306.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 17280.0,
+          "new_house_price": 13640.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 15900.0,
+          "new_house_price": 14130.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 14858.0,
+          "new_house_price": 19383.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 14802.0,
+          "new_house_price": 19514.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 15210.0,
+          "new_house_price": 18933.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 15641.0,
+          "new_house_price": 19288.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 16441.0,
+          "new_house_price": 19616.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 16157.0,
+          "new_house_price": 19118.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 16036.0,
+          "new_house_price": 18809.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 15484.0,
+          "new_house_price": 18881.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 15685.0,
+          "new_house_price": 16169.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 15393.0,
+          "new_house_price": 16319.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 15758.0,
+          "new_house_price": 15989.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 15556.0,
+          "new_house_price": 16090.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 16903.0,
+          "new_house_price": 15833.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 15687.0,
+          "new_house_price": 15538.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 15700.0,
+          "new_house_price": 15873.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 16300.0,
+          "new_house_price": 16265.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 16800.0,
+          "new_house_price": 15926.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 17300.0,
+          "new_house_price": 15838.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 16200.0,
+          "new_house_price": 15962.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 16300.0,
+          "new_house_price": 18435.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 17100.0,
+          "new_house_price": 18562.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 17300.0,
+          "new_house_price": 18662.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 17100.0,
+          "new_house_price": 18319.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 17400.0,
+          "new_house_price": 18365.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "香缇御峰苑",
+          "price": 11807.0,
+          "mom_pct": -0.14
+        },
+        {
+          "community": "江南雅苑",
+          "price": 7078.0,
+          "mom_pct": 0.01
+        },
+        {
+          "community": "城东雅苑",
+          "price": 21528.0,
+          "mom_pct": -0.26
+        },
+        {
+          "community": "望江豪庭",
+          "price": 16165.0,
+          "mom_pct": 1.64
+        },
+        {
+          "community": "如森之堡",
+          "price": 21578.0,
+          "mom_pct": 7.35
+        },
+        {
+          "community": "健康新村",
+          "price": 22899.0,
+          "mom_pct": -3.05
+        },
+        {
+          "community": "宏都小区",
+          "price": 15980.0,
+          "mom_pct": -3.01
+        },
+        {
+          "community": "信诚金谷小区",
+          "price": 46904.0,
+          "mom_pct": -1.37
+        },
+        {
+          "community": "华庭嘉园",
+          "price": 16602.0,
+          "mom_pct": 2.76
+        },
+        {
+          "community": "求是花园",
+          "price": 11835.0,
+          "mom_pct": 3.31
+        }
+      ]
+    },
+    "chunan": {
+      "name": "淳安县",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 13354.0,
+          "new_house_price": 13.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 15161.0,
+          "new_house_price": 13.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 15601.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 15232.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 16464.0,
+          "new_house_price": 8.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 16354.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 14501.0,
+          "new_house_price": 11.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 14622.0,
+          "new_house_price": 17644.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 14283.0,
+          "new_house_price": 17644.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 13682.0,
+          "new_house_price": 17393.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 13971.0,
+          "new_house_price": 18321.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 13723.0,
+          "new_house_price": 18871.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 14433.0,
+          "new_house_price": 17272.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 15214.0,
+          "new_house_price": 11912.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 14263.0,
+          "new_house_price": 12174.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 14601.0,
+          "new_house_price": 11541.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 14143.0,
+          "new_house_price": 11541.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 14533.0,
+          "new_house_price": 14161.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 13279.0,
+          "new_house_price": 17138.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 13663.0,
+          "new_house_price": 17109.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 12647.0,
+          "new_house_price": 17326.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 12614.0,
+          "new_house_price": 17191.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 14382.0,
+          "new_house_price": 17343.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 13544.0,
+          "new_house_price": 17328.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 13174.0,
+          "new_house_price": 16934.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 13580.0,
+          "new_house_price": 17032.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 13010.0,
+          "new_house_price": 17280.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 13810.0,
+          "new_house_price": 16654.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 13726.0,
+          "new_house_price": 14813.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 13975.0,
+          "new_house_price": 15640.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 13752.0,
+          "new_house_price": 14909.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 13560.0,
+          "new_house_price": 15705.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 14146.0,
+          "new_house_price": 15527.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 13616.0,
+          "new_house_price": 14863.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 13343.0,
+          "new_house_price": 13310.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 13027.0,
+          "new_house_price": 12922.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 13992.0,
+          "new_house_price": 12543.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 13980.0,
+          "new_house_price": 12496.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 14044.0,
+          "new_house_price": 12694.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 13781.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 13376.0,
+          "new_house_price": 13033.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 13175.0,
+          "new_house_price": 12375.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 13342.0,
+          "new_house_price": 13064.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 13853.0,
+          "new_house_price": 13219.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 12899.0,
+          "new_house_price": 13183.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 12783.0,
+          "new_house_price": 13292.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 13573.0,
+          "new_house_price": 13170.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 13494.0,
+          "new_house_price": 13210.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 14912.0,
+          "new_house_price": 13172.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 14939.0,
+          "new_house_price": 13110.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 15095.0,
+          "new_house_price": 13339.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 14687.0,
+          "new_house_price": 13213.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 13956.0,
+          "new_house_price": 13144.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 12598.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 13584.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 14433.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 13392.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 14231.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 15610.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 15705.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 15036.0,
+          "new_house_price": 14163.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 16420.0,
+          "new_house_price": 14799.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 15133.0,
+          "new_house_price": 14306.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 16570.0,
+          "new_house_price": 14591.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 17214.0,
+          "new_house_price": 14044.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 14964.0,
+          "new_house_price": 13762.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 15027.0,
+          "new_house_price": 12491.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 15104.0,
+          "new_house_price": 13399.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 14692.0,
+          "new_house_price": 12814.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 14454.0,
+          "new_house_price": 12982.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 14420.0,
+          "new_house_price": 13190.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 14212.0,
+          "new_house_price": 11049.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 14474.0,
+          "new_house_price": 10599.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 14345.0,
+          "new_house_price": 10663.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 14301.0,
+          "new_house_price": 11366.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 14232.0,
+          "new_house_price": 10994.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 14005.0,
+          "new_house_price": 11641.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 13628.0,
+          "new_house_price": 11122.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 13856.0,
+          "new_house_price": 11323.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 13803.0,
+          "new_house_price": 11169.0
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 13585.0,
+          "new_house_price": 11205.0
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 14685.0,
+          "new_house_price": 11433.0
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 14035.0,
+          "new_house_price": 10900.0
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 13785.0,
+          "new_house_price": 10986.0
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 13535.0,
+          "new_house_price": 11349.0
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 13485.0,
+          "new_house_price": 12274.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 14385.0,
+          "new_house_price": 12186.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 13935.0,
+          "new_house_price": 12032.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 13485.0,
+          "new_house_price": 11887.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 13135.0,
+          "new_house_price": 12312.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "天屿山顶别墅",
+          "price": 33857.0,
+          "mom_pct": -0.79
+        },
+        {
+          "community": "千岛湖随园别墅",
+          "price": 17250.0,
+          "mom_pct": 4.66
+        },
+        {
+          "community": "实验厂公租房",
+          "price": 29768.0,
+          "mom_pct": -1.2
+        },
+        {
+          "community": "滨江度假村",
+          "price": 17112.0,
+          "mom_pct": -4.34
+        },
+        {
+          "community": "风暴巷公租房",
+          "price": 30230.0,
+          "mom_pct": -0.05
+        },
+        {
+          "community": "天屿度假村",
+          "price": 34346.0,
+          "mom_pct": -0.77
+        },
+        {
+          "community": "浅山花园",
+          "price": 17411.0,
+          "mom_pct": -1.24
+        },
+        {
+          "community": "悦湖湾花园",
+          "price": 18541.0,
+          "mom_pct": 5.28
+        },
+        {
+          "community": "新都苑",
+          "price": 47483.0,
+          "mom_pct": -1.01
+        },
+        {
+          "community": "青城山居",
+          "price": 22276.0,
+          "mom_pct": -1.11
+        }
+      ]
+    },
+    "tonglu": {
+      "name": "桐庐县",
+      "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 13594.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 13723.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 13803.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 13643.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 12753.0,
+          "new_house_price": 6.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 13514.0,
+          "new_house_price": 5.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 13843.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 14813.0,
+          "new_house_price": 14501.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 15270.0,
+          "new_house_price": 14501.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 14862.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 14560.0,
+          "new_house_price": 17654.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 15212.0,
+          "new_house_price": 22231.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 15113.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 14930.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 14271.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 13982.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 14410.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 14570.0,
+          "new_house_price": 17393.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 13876.0,
+          "new_house_price": 20075.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 13466.0,
+          "new_house_price": 20006.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 13225.0,
+          "new_house_price": 20506.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 13778.0,
+          "new_house_price": 20254.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 13679.0,
+          "new_house_price": 20439.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 14625.0,
+          "new_house_price": 20036.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 14639.0,
+          "new_house_price": 18703.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 13838.0,
+          "new_house_price": 18972.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 13734.0,
+          "new_house_price": 18621.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 13220.0,
+          "new_house_price": 18831.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 14498.0,
+          "new_house_price": 18479.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 13952.0,
+          "new_house_price": 18612.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 13128.0,
+          "new_house_price": 18365.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 12546.0,
+          "new_house_price": 17968.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 12957.0,
+          "new_house_price": 18636.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 14863.0,
+          "new_house_price": 18568.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 13954.0,
+          "new_house_price": 19894.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 14955.0,
+          "new_house_price": 19803.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 14643.0,
+          "new_house_price": 19917.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 14552.0,
+          "new_house_price": 18665.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 14690.0,
+          "new_house_price": 19338.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 15760.0,
+          "new_house_price": 19242.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 14525.0,
+          "new_house_price": 20703.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 14939.0,
+          "new_house_price": 20980.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 14305.0,
+          "new_house_price": 21175.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 15567.0,
+          "new_house_price": 19804.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 15157.0,
+          "new_house_price": 19850.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 15022.0,
+          "new_house_price": 16803.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 15614.0,
+          "new_house_price": 16568.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 15353.0,
+          "new_house_price": 16690.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 17055.0,
+          "new_house_price": 17977.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 17508.0,
+          "new_house_price": 19125.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 16649.0,
+          "new_house_price": 19005.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 16695.0,
+          "new_house_price": 19034.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 16449.0,
+          "new_house_price": 19029.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 15630.0,
+          "new_house_price": 18909.0
+        },
+        {
+          "date": "2023-01",
+          "second_hand_price": 17254.0,
+          "new_house_price": 18909.0
+        },
+        {
+          "date": "2023-02",
+          "second_hand_price": 16617.0,
+          "new_house_price": 21078.0
+        },
+        {
+          "date": "2023-03",
+          "second_hand_price": 15505.0,
+          "new_house_price": 20917.0
+        },
+        {
+          "date": "2023-04",
+          "second_hand_price": 15565.0,
+          "new_house_price": 21103.0
+        },
+        {
+          "date": "2023-05",
+          "second_hand_price": 14681.0,
+          "new_house_price": 20983.0
+        },
+        {
+          "date": "2023-06",
+          "second_hand_price": 15589.0,
+          "new_house_price": 20861.0
+        },
+        {
+          "date": "2023-07",
+          "second_hand_price": 17131.0,
+          "new_house_price": 15190.0
+        },
+        {
+          "date": "2023-08",
+          "second_hand_price": 17717.0,
+          "new_house_price": 14954.0
+        },
+        {
+          "date": "2023-09",
+          "second_hand_price": 14988.0,
+          "new_house_price": 15028.0
+        },
+        {
+          "date": "2023-10",
+          "second_hand_price": 15012.0,
+          "new_house_price": 15494.0
+        },
+        {
+          "date": "2023-11",
+          "second_hand_price": 15280.0,
+          "new_house_price": 15082.0
+        },
+        {
+          "date": "2023-12",
+          "second_hand_price": 14956.0,
+          "new_house_price": 16524.0
+        },
+        {
+          "date": "2024-01",
+          "second_hand_price": 13984.0,
+          "new_house_price": 17978.0
+        },
+        {
+          "date": "2024-02",
+          "second_hand_price": 13595.0,
+          "new_house_price": 18205.0
+        },
+        {
+          "date": "2024-03",
+          "second_hand_price": 13188.0,
+          "new_house_price": 17625.0
+        },
+        {
+          "date": "2024-04",
+          "second_hand_price": 12544.0,
+          "new_house_price": 17792.0
+        },
+        {
+          "date": "2024-05",
+          "second_hand_price": 12280.0,
+          "new_house_price": 18340.0
+        },
+        {
+          "date": "2024-06",
+          "second_hand_price": 11604.0,
+          "new_house_price": 20795.0
+        },
+        {
+          "date": "2024-07",
+          "second_hand_price": 11542.0,
+          "new_house_price": 21024.0
+        },
+        {
+          "date": "2024-08",
+          "second_hand_price": 14627.0,
+          "new_house_price": 21097.0
+        },
+        {
+          "date": "2024-09",
+          "second_hand_price": 14804.0,
+          "new_house_price": 18592.0
+        },
+        {
+          "date": "2024-10",
+          "second_hand_price": 14478.0,
+          "new_house_price": 18816.0
+        },
+        {
+          "date": "2024-11",
+          "second_hand_price": 15265.0,
+          "new_house_price": 18930.0
+        },
+        {
+          "date": "2024-12",
+          "second_hand_price": 14552.0,
+          "new_house_price": 15055.0
+        },
+        {
+          "date": "2025-01",
+          "second_hand_price": 13983.0,
+          "new_house_price": 14995.0
+        },
+        {
+          "date": "2025-02",
+          "second_hand_price": 14444.0,
+          "new_house_price": null
+        },
+        {
+          "date": "2025-03",
+          "second_hand_price": 14300.0,
+          "new_house_price": null
+        },
+        {
+          "date": "2025-04",
+          "second_hand_price": 14300.0,
+          "new_house_price": null
+        },
+        {
+          "date": "2025-05",
+          "second_hand_price": 14400.0,
+          "new_house_price": null
+        },
+        {
+          "date": "2025-06",
+          "second_hand_price": 13700.0,
+          "new_house_price": null
+        },
+        {
+          "date": "2025-07",
+          "second_hand_price": 11000.0,
+          "new_house_price": null
+        },
+        {
+          "date": "2025-08",
+          "second_hand_price": 10855.0,
+          "new_house_price": 19805.0
+        },
+        {
+          "date": "2025-09",
+          "second_hand_price": 10401.0,
+          "new_house_price": 19522.0
+        },
+        {
+          "date": "2025-10",
+          "second_hand_price": 10512.0,
+          "new_house_price": 20210.0
+        },
+        {
+          "date": "2025-11",
+          "second_hand_price": 11177.0,
+          "new_house_price": 20335.0
+        },
+        {
+          "date": "2025-12",
+          "second_hand_price": 11201.0,
+          "new_house_price": 19871.0
+        }
+      ],
+      "communities": [
+        {
+          "community": "柯家塆小区",
+          "price": 11127.0,
+          "mom_pct": 0.03
+        },
+        {
+          "community": "君奇商住楼",
+          "price": 9302.0,
+          "mom_pct": -0.54
+        },
+        {
+          "community": "圆通路17号",
+          "price": 6485.0,
+          "mom_pct": -0.15
+        },
+        {
+          "community": "桐庐县凤川街道谷井路16号",
+          "price": 8374.0,
+          "mom_pct": 0.69
+        },
+        {
+          "community": "国贸路",
+          "price": 9339.0,
+          "mom_pct": -7.58
+        },
+        {
+          "community": "城中路",
+          "price": 12254.0,
+          "mom_pct": 1.21
+        },
+        {
+          "community": "体育场路47号",
+          "price": 12550.0,
+          "mom_pct": 10.77
+        },
+        {
+          "community": "大奇山居大奇园",
+          "price": 15197.0,
+          "mom_pct": 4.71
+        },
+        {
+          "community": "品庐东岸",
+          "price": 10868.0,
+          "mom_pct": -0.66
+        },
+        {
+          "community": "美丽春天",
+          "price": 17819.0,
+          "mom_pct": 7.06
+        }
+      ]
+    }
+  }
+}
