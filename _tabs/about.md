@@ -1,14 +1,14 @@
 ---
-title: About
+title: About Me
 icon: fas fa-info
-order: 4
+order: 9
 ---
 
 ## 个人介绍
 
 Hello !
 
-我是Johney Zheng，目前为一名算法/开发工程师。目前专注于CV算法方向以及模型部署。
+我是Johney Zheng，目前为一名算法/开发工程师。目前专注于AI Infra以及CV算法方向。
 
 如果想联系我，请优先邮件联系，感谢！
 
