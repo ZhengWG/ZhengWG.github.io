@@ -41,7 +41,14 @@ const AG = (() => {
       tags: ['real-estate', 'data-analysis', 'deepseek-ai', 'china'],
       status: 'online',
     },
-    // future agents go here
+    {
+      id: 'ai_tracker',
+      icon: '📡',
+      name: 'ai_tracker',
+      desc: 'Track arXiv papers by keywords and GitHub repo releases. Filter papers by date, refresh repos and papers on demand.',
+      tags: ['arxiv', 'github', 'papers', 'releases'],
+      status: 'online',
+    },
   ];
 
   // ====== HUB ======
@@ -61,16 +68,21 @@ const AG = (() => {
   }
 
   function openAgent(id) {
+    $('ag-hub').style.display = 'none';
+    $('ag-hp').style.display = 'none';
+    if ($('ag-ai-tracker')) $('ag-ai-tracker').style.display = 'none';
     if (id === 'house_price_analyzer') {
-      $('ag-hub').style.display = 'none';
       $('ag-hp').style.display = 'block';
       if (!hp.cityData) hp.loadCity('hz');
+    } else if (id === 'ai_tracker' && $('ag-ai-tracker')) {
+      $('ag-ai-tracker').style.display = 'block';
     }
   }
 
   function backToHub() {
     $('ag-hub').style.display = 'block';
     $('ag-hp').style.display = 'none';
+    if ($('ag-ai-tracker')) $('ag-ai-tracker').style.display = 'none';
   }
 
   // ====== SETTINGS ======
@@ -80,12 +92,10 @@ const AG = (() => {
   function loadSettings() {
     $('ag-api-key').value = localStorage.getItem('ag_api_key') || '';
     $('ag-api-model').value = localStorage.getItem('ag_api_model') || 'deepseek-chat';
-    $('ag-server-url').value = localStorage.getItem('ag_server_url') || '';
   }
   function saveSettings() {
     localStorage.setItem('ag_api_key', $('ag-api-key').value.trim());
     localStorage.setItem('ag_api_model', $('ag-api-model').value.trim() || 'deepseek-chat');
-    localStorage.setItem('ag_server_url', $('ag-server-url').value.trim());
     closeSettings();
   }
 
@@ -159,22 +169,9 @@ const AG = (() => {
       icon.style.animation = 'ag-spin .7s linear infinite';
       ok.classList.remove('show');
 
-      const serverUrl = localStorage.getItem('ag_server_url');
       const cityKey = $('ag-city-select').value || 'hz';
-
       try {
-        if (serverUrl) {
-          const resp = await fetch(`${serverUrl}/export/${cityKey}`, { method: 'POST' });
-          if (!resp.ok) throw new Error(`Server: ${resp.status}`);
-          const data = await resp.json();
-          if (data.status === 'ok' && data.data) {
-            cityData = data.data;
-          } else {
-            await loadCity(cityKey);
-          }
-        } else {
-          await loadCity(cityKey);
-        }
+        await loadCity(cityKey);
         $('ag-hp-updated').textContent = `Updated: ${cityData?.updated_at || 'now'}`;
         renderAll();
         ok.classList.add('show');
