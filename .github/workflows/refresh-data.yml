@@ -1,0 +1,40 @@
+name: 'Refresh house price data'
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # daily at 00:00 UTC = 08:00 Beijing
+  workflow_dispatch:        # manual trigger from Actions tab
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r tools/house_price/requirements.txt
+
+      - name: Export data
+        working-directory: tools/house_price
+        run: python export_data.py -o ../../assets/data/house_price -c hz
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/house_price/
+          if git diff --cached --quiet; then
+            echo "No data changes, skipping commit."
+          else
+            git commit -m "chore: refresh house price data $(date -u +%Y-%m-%d)"
+            git push
+          fi
