@@ -103,6 +103,8 @@ const AG = (() => {
   const hp = (() => {
     let cityData = null;
     let selectedDistricts = new Set();
+    let selectedSubDistricts = new Set(); // 'dk:sk' e.g. 'xihu:zhijiang'
+    let currentSubDistrictParent = null; // dk when viewing 板块 of one district
     let scoringResults = [];
 
     async function loadCity(key) {
@@ -121,8 +123,10 @@ const AG = (() => {
       }
       $('ag-hp-updated').textContent = `Updated: ${cityData.updated_at}`;
       selectedDistricts.clear();
+      selectedSubDistricts.clear();
+      currentSubDistrictParent = null;
       Object.keys(cityData.districts).slice(0, 5).forEach(d => selectedDistricts.add(d));
-      initChips(); initCommSelect(); initAIScope();
+      initChips(); initCommSelect(); initAIScope(); initSubDistrictUI();
       restorePanels();
       renderAll();
     }
@@ -144,8 +148,10 @@ const AG = (() => {
             <div class="ag-metrics" id="ag-latest-metrics"></div>
             <div class="ag-card"><div style="font-weight:700;font-size:14px;margin-bottom:10px">各区域最新均价</div><div class="ag-chart" id="ag-chart-bar"></div></div>
             <div class="ag-card"><table class="ag-table" id="ag-latest-table"><thead><tr><th>区域</th><th>均价(元/㎡)</th><th>同比</th></tr></thead><tbody></tbody></table></div>
-            <div class="ag-card"><div style="font-weight:700;font-size:14px;margin-bottom:10px">小区价格细分</div><select class="ag-select" id="ag-comm-district" onchange="AG.hp.renderCommunities()"></select><div style="margin-top:10px"><div class="ag-chart-mini" id="ag-chart-comm"></div><table class="ag-table" id="ag-comm-table" style="margin-top:10px"><thead><tr><th>小区</th><th>均价(元/㎡)</th><th>环比(%)</th></tr></thead><tbody></tbody></table></div></div>`;
+            <div class="ag-card"><div style="font-weight:700;font-size:14px;margin-bottom:10px">板块最新均价</div><select class="ag-select" id="ag-latest-sub-district-parent" onchange="AG.hp.renderSubDistrictLatest()"></select><table class="ag-table" id="ag-latest-sub-table" style="margin-top:10px"><thead><tr><th>板块</th><th>均价(元/㎡)</th><th>同比</th></tr></thead><tbody></tbody></table></div>
+            <div class="ag-card"><div style="font-weight:700;font-size:14px;margin-bottom:10px">小区价格细分</div><select class="ag-select" id="ag-comm-district" onchange="AG.hp.renderCommunities()"></select><div style="margin-top:10px"><div class="ag-chart-mini" id="ag-chart-comm"></div><table class="ag-table" id="ag-comm-table" style="margin-top:10px"><thead><tr><th>小区</th><th>均价(元/㎡)</th><th>环比(%)</th></tr></thead><tbody></tbody></table><div id="ag-comm-pager" style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap"></div></div></div>`;
           initCommSelect();
+          initSubDistrictUI();
         }
         if (t === 'timing') {
           p.innerHTML = `
@@ -223,6 +229,67 @@ const AG = (() => {
       }
     }
 
+    function initSubDistrictUI() {
+      const parentSel = $('ag-sub-district-parent');
+      const latestParentSel = $('ag-latest-sub-district-parent');
+      if (!cityData) return;
+      const districtsWithSub = Object.entries(cityData.districts)
+        .filter(([, d]) => d.sub_districts && Object.keys(d.sub_districts).length > 0)
+        .map(([dk, d]) => ({ dk, name: d.name }));
+      const emptyOpt = (sel, placeholder) => {
+        if (!sel) return;
+        sel.innerHTML = '';
+        const o = document.createElement('option'); o.value = ''; o.textContent = placeholder || '请选择区域';
+        sel.appendChild(o);
+        districtsWithSub.forEach(({ dk, name }) => {
+          const opt = document.createElement('option'); opt.value = dk; opt.textContent = name;
+          sel.appendChild(opt);
+        });
+      };
+      emptyOpt(parentSel, '请选择区域');
+      emptyOpt(latestParentSel, '请选择区域');
+      currentSubDistrictParent = null;
+      selectedSubDistricts.clear();
+      fillSubDistrictChips();
+    }
+
+    function onSubDistrictParentChange() {
+      const sel = $('ag-sub-district-parent');
+      currentSubDistrictParent = sel?.value || null;
+      selectedSubDistricts.forEach(k => {
+        if (currentSubDistrictParent && !k.startsWith(currentSubDistrictParent + ':')) return;
+        selectedSubDistricts.delete(k);
+      });
+      fillSubDistrictChips();
+      renderAll();
+    }
+
+    function fillSubDistrictChips() {
+      const bar = $('ag-sub-district-chips');
+      if (!bar || !cityData) return;
+      bar.innerHTML = '';
+      if (!currentSubDistrictParent) return;
+      const d = cityData.districts[currentSubDistrictParent];
+      if (!d?.sub_districts) return;
+      for (const [sk, info] of Object.entries(d.sub_districts)) {
+        const key = currentSubDistrictParent + ':' + sk;
+        const hasHistory = info.history && info.history.length > 0;
+        const hasPrice = info.price != null && info.price > 0;
+        const hasData = hasHistory || hasPrice;
+        const label = info.name + (hasHistory ? '' : (hasPrice ? ` (${fp(info.price)})` : ' (无数据)'));
+        const c = document.createElement('span');
+        c.className = 'ag-district-chip' + (selectedSubDistricts.has(key) ? ' active' : '') + (hasData ? '' : ' ag-chip-dim');
+        c.textContent = label;
+        c.onclick = () => {
+          if (!hasData) return;
+          if (selectedSubDistricts.has(key)) selectedSubDistricts.delete(key); else selectedSubDistricts.add(key);
+          c.classList.toggle('active');
+          renderAll();
+        };
+        bar.appendChild(c);
+      }
+    }
+
     function renderAll() {
       if (!cityData) return;
       renderTrend(); renderLatest(); renderTiming();
@@ -279,27 +346,119 @@ const AG = (() => {
         { responsive: true, displayModeBar: false });
       const tbody = $('ag-latest-table')?.querySelector('tbody');
       if (tbody) tbody.innerHTML = sorted.map(r => `<tr><td>${r.district}</td><td>${fp(r.price)}</td><td class="${(r.yoy||0)>=0?'ag-up':'ag-down'}">${r.yoy!=null?fpct(r.yoy,true):'N/A'}</td></tr>`).join('');
+      renderSubDistrictLatest();
       renderCommunities();
     }
+
+    function renderSubDistrictLatest() {
+      const dk = $('ag-latest-sub-district-parent')?.value;
+      const tbody = $('ag-latest-sub-table')?.querySelector('tbody');
+      if (!tbody || !cityData) return;
+      if (!dk) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--ag-text3)">请先选择区域</td></tr>';
+        return;
+      }
+      const d = cityData.districts[dk];
+      const subs = d?.sub_districts ? Object.entries(d.sub_districts) : [];
+      if (!subs.length) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--ag-text3)">该区暂无板块数据</td></tr>';
+        return;
+      }
+      const rows = subs.map(([, info]) => ({ name: info.name, price: info.price, yoy: info.yoy })).filter(r => r.name);
+      rows.sort((a, b) => (b.price || 0) - (a.price || 0));
+      tbody.innerHTML = rows.map(r => `<tr><td>${r.name}</td><td>${fp(r.price)}</td><td class="${(r.yoy||0)>=0?'ag-up':'ag-down'}">${r.yoy!=null?fpct(r.yoy,true):'N/A'}</td></tr>`).join('');
+    }
+
+    // 价格区间（元/㎡）：[ 标签, 下限, 上限 ]
+    const PRICE_BUCKETS = [
+      ['<2万', 0, 20000], ['2-3万', 20000, 30000], ['3-4万', 30000, 40000], ['4-5万', 40000, 50000],
+      ['5-6万', 50000, 60000], ['6-8万', 60000, 80000], ['8万+', 80000, Infinity]
+    ];
+    function getPriceBucket(price) {
+      if (price == null || price <= 0) return null;
+      const b = PRICE_BUCKETS.find(([, lo, hi]) => price >= lo && price < hi);
+      return b ? b[0] : PRICE_BUCKETS[PRICE_BUCKETS.length - 1][0];
+    }
+
+    const COMM_PAGE_SIZE = 20;
+    let commPageState = {}; // dk -> currentPage
+
+    function makePager(onPage, pagerEl, page, totalPages, total, label) {
+      if (!pagerEl) return;
+      const prev = page > 0 ? `<button class="ag-btn ag-btn-ghost ag-btn-sm" onclick="(${onPage})(${page-1})">‹</button>` : '<button class="ag-btn ag-btn-ghost ag-btn-sm" disabled>‹</button>';
+      const next = page < totalPages-1 ? `<button class="ag-btn ag-btn-ghost ag-btn-sm" onclick="(${onPage})(${page+1})">›</button>` : '<button class="ag-btn ag-btn-ghost ag-btn-sm" disabled>›</button>';
+      const jumpId = pagerEl.id + '-jump';
+      pagerEl.innerHTML = `${prev}<span style="font-size:11px;color:var(--ag-text3);padding:0 4px">${page+1}/${totalPages} 页·共${total}${label}</span>${next}<input id="${jumpId}" type="number" min="1" max="${totalPages}" placeholder="页" style="width:44px;font-size:11px;padding:2px 4px;border:1px solid var(--ag-border);border-radius:4px;background:var(--ag-bg2);color:var(--ag-text1)" onkeydown="if(event.key==='Enter'){const v=parseInt(this.value);if(v>=1&&v<=${totalPages})(${onPage})(v-1);}"><button class="ag-btn ag-btn-ghost ag-btn-sm" onclick="const v=parseInt(document.getElementById('${jumpId}').value);if(v>=1&&v<=${totalPages})(${onPage})(v-1);">跳转</button>`;
+    }
+
+    function renderCommPage(dk, page) {
+      const d = cityData?.districts[dk];
+      if (!d) return;
+      const sorted = [...(d.communities || [])].filter(c => c.price != null && c.price > 0).sort((a,b)=>(b.price||0)-(a.price||0));
+      const total = sorted.length;
+      if (!total) return;
+      commPageState[dk] = page;
+      const totalPages = Math.ceil(total / COMM_PAGE_SIZE);
+      const slice = sorted.slice(page * COMM_PAGE_SIZE, (page + 1) * COMM_PAGE_SIZE);
+      const tbody = $('ag-comm-table')?.querySelector('tbody');
+      if (tbody) tbody.innerHTML = slice.map(r => `<tr><td>${r.community}</td><td>${fp(r.price)}</td><td class="${(r.mom_pct||0)>=0?'ag-up':'ag-down'}">${r.mom_pct!=null?fpct(r.mom_pct,true):'N/A'}</td></tr>`).join('');
+      makePager(`p=>AG.hp.commPage('${dk}',p)`, $('ag-comm-pager'), page, totalPages, total, '个');
+    }
+
+    function commPage(dk, page) { renderCommPage(dk, page); }
+
+    // ── timing comm pagination ──
+    let timingCommState = {}; // dk -> { sorted, page }
+
+    function renderTimingCommPage(dk, page) {
+      const d = cityData?.districts[dk];
+      if (!d) return;
+      if (!timingCommState[dk]) {
+        timingCommState[dk] = { sorted: [...(d.communities||[])].filter(c=>c.price!=null&&c.price>0).sort((a,b)=>(b.price||0)-(a.price||0)) };
+      }
+      const sorted = timingCommState[dk].sorted;
+      const total = sorted.length;
+      if (!total) return;
+      timingCommState[dk].page = page;
+      const totalPages = Math.ceil(total / COMM_PAGE_SIZE);
+      const slice = sorted.slice(page * COMM_PAGE_SIZE, (page + 1) * COMM_PAGE_SIZE);
+      const tbody = document.querySelector(`#ag-timing-comm-${dk} tbody`);
+      if (tbody) tbody.innerHTML = slice.map(r => `<tr><td>${r.community}</td><td>${fp(r.price)}</td><td class="${(r.mom_pct||0)>=0?'ag-up':'ag-down'}">${r.mom_pct!=null?fpct(r.mom_pct,true):'N/A'}</td></tr>`).join('');
+      const hdr = document.getElementById(`ag-timing-comm-hdr-${dk}`);
+      if (hdr) hdr.textContent = `小区（共 ${total} 个）`;
+      makePager(`p=>AG.hp.timingCommPage('${dk}',p)`, document.getElementById(`ag-timing-comm-pager-${dk}`), page, totalPages, total, '个');
+    }
+
+    function timingCommPage(dk, page) { renderTimingCommPage(dk, page); }
 
     function renderCommunities() {
       const dk = $('ag-comm-district')?.value;
       if (!dk || !cityData) return;
-      const d = cityData.districts[dk], comms = d?.communities || [];
+      const d = cityData.districts[dk], comms = (d?.communities || []).filter(c => c.price != null && c.price > 0);
       const tbody = $('ag-comm-table')?.querySelector('tbody');
+      const thead = $('ag-comm-table')?.querySelector('thead tr');
+      if (thead) thead.innerHTML = '<th>小区</th><th>均价(元/㎡)</th><th>环比</th>';
       if (!comms.length) {
         if (tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--ag-text3)">暂无数据</td></tr>';
         if ($('ag-chart-comm')) Plotly.react('ag-chart-comm', [{x:[],y:[]}], bLayout({height:220}), {responsive:true,displayModeBar:false});
+        const pager = $('ag-comm-pager'); if (pager) pager.innerHTML = '';
         return;
       }
-      const sorted = [...comms].sort((a,b)=>(b.price||0)-(a.price||0));
+      // 价格区间分布图
+      const byBucket = {};
+      PRICE_BUCKETS.forEach(([label]) => { byBucket[label] = []; });
+      comms.forEach(c => { const label = getPriceBucket(c.price); if (label) byBucket[label].push(c); });
+      const labels = PRICE_BUCKETS.map(([l]) => l).filter(l => byBucket[l].length > 0);
+      const counts = labels.map(l => byBucket[l].length);
+      const avgPrices = labels.map(l => { const arr = byBucket[l]; return arr.length ? Math.round(arr.reduce((a,c)=>a+(c.price||0),0)/arr.length) : 0; });
       if ($('ag-chart-comm')) Plotly.react('ag-chart-comm', [{
-        x: sorted.map(r=>r.community), y: sorted.map(r=>r.price), type: 'bar',
-        text: sorted.map(r=>fp(r.price)), textposition: 'outside',
-        marker: { color: sorted.map(r=>(r.mom_pct||0)>=0?'#16a34a':'#dc2626') },
-      }], bLayout({ height: 280, yaxis: { title: '均价(元/㎡)', gridcolor: plotGrid() }, xaxis: { tickangle: -30, gridcolor: plotGrid() },
-        title: { text: `${d.name}热门小区均价`, font: { size: 13 } } }), { responsive: true, displayModeBar: false });
-      if (tbody) tbody.innerHTML = sorted.map(r => `<tr><td>${r.community}</td><td>${fp(r.price)}</td><td class="${(r.mom_pct||0)>=0?'ag-up':'ag-down'}">${r.mom_pct!=null?fpct(r.mom_pct,true):'N/A'}</td></tr>`).join('');
+        x: labels, y: counts, type: 'bar',
+        text: counts.map((n, i) => `${n} 个 · 均 ${fp(avgPrices[i])}`), textposition: 'outside',
+        marker: { color: '#2563eb' },
+      }], bLayout({ height: 260, yaxis: { title: '小区数', gridcolor: plotGrid() }, xaxis: { title: '均价区间', gridcolor: plotGrid() },
+        title: { text: `${d.name} 小区价格区间分布`, font: { size: 13 } } }), { responsive: true, displayModeBar: false });
+      // 分页表格（所有小区，价格降序）
+      renderCommPage(dk, 0);
     }
 
     // ── Timing ──
@@ -358,7 +517,7 @@ const AG = (() => {
 
     function renderTiming() {
       if (!cityData || !$('ag-score-grid')) return;
-      const col = $('ag-price-type').value;
+      const col = 'second_hand_price'; // 买入时机仅用二手房数据
       scoringResults = [];
       for (const [dk,d] of Object.entries(cityData.districts)) {
         if (!d.history||d.history.length<6) continue;
@@ -399,7 +558,7 @@ const AG = (() => {
         const exp = document.createElement('div');
         exp.className = 'ag-expander';
         exp.innerHTML = `
-          <div class="ag-expander-header" onclick="this.parentElement.classList.toggle('open');AG.hp.renderMini('${r.key}')">
+          <div class="ag-expander-header" onclick="this.parentElement.classList.toggle('open');AG.hp.renderMini('${r.key}');AG.hp.renderTimingCommPage('${r.key}',0)">
             <span><strong>${r.name}</strong> — <span class="ag-score-level ag-level-${cc}" style="font-size:10px;padding:1px 6px">${r.level}</span>（${r.score}分）</span>
             <span class="ag-expander-arrow">▼</span>
           </div>
@@ -413,7 +572,10 @@ const AG = (() => {
             </div>
             <div style="font-size:11px;color:var(--ag-text3);margin-bottom:10px">最高:${fp(r.details.high)} | 最低:${fp(r.details.low)} | 波动率:${r.details.vol?.toFixed(2)||'N/A'}%</div>
             <div class="ag-chart-mini" id="ag-mini-${r.key}"></div>
-            ${comms.length?`<div style="font-weight:700;font-size:12px;margin:10px 0 6px">热门小区</div><table class="ag-table"><thead><tr><th>小区</th><th>均价</th><th>环比</th></tr></thead><tbody>${comms.slice(0,8).map(c=>`<tr><td>${c.community}</td><td>${fp(c.price)}</td><td class="${(c.mom_pct||0)>=0?'ag-up':'ag-down'}">${c.mom_pct!=null?fpct(c.mom_pct,true):'N/A'}</td></tr>`).join('')}</tbody></table>`:''}
+            ${comms.length ? `
+              <div id="ag-timing-comm-hdr-${r.key}" style="font-weight:700;font-size:12px;margin:10px 0 6px">小区</div>
+              <table class="ag-table" id="ag-timing-comm-${r.key}"><thead><tr><th>小区</th><th>均价</th><th>环比</th></tr></thead><tbody></tbody></table>
+              <div id="ag-timing-comm-pager-${r.key}" style="display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap"></div>` : ''}
           </div>`;
         container.appendChild(exp);
       }
@@ -479,27 +641,50 @@ const AG = (() => {
       btn.disabled = false; btn.textContent = '生成分析报告';
     }
 
+    function histSummary(history, col, months) {
+      if (!history || !history.length) return '暂无';
+      const rows = history.slice(-months).filter(r => r[col] != null && r[col] > 0);
+      if (!rows.length) return '暂无';
+      return rows.map(r => `${r.date}:${r[col]}`).join(', ');
+    }
+
     function buildGlobalPrompt() {
-      const col = $('ag-price-type').value;
-      const pt = col==='second_hand_price'?'二手房':'新房';
-      let dt = scoringResults.map(r => `- **${r.name}**: ${r.score}分(${r.level}), ${fp(r.details.latestPrice)}元/㎡, 环比${fpct(r.details.mom,true)}, 同比${fpct(r.details.yoy,true)}, ${r.details.trend}, 百分位${r.details.percentile?.toFixed(1)}%`).join('\n');
-      let ct = '';
-      for (const r of scoringResults.slice(0,8)) {
-        const comms = cityData.districts[r.key]?.communities || [];
-        if (!comms.length) continue;
-        ct += `\n### ${r.name}\n`;
-        comms.slice(0,8).forEach(c => { ct += `  - ${c.community}: ${fp(c.price)}元/㎡ ${c.mom_pct!=null?'环比'+fpct(c.mom_pct,true):''}\n`; });
+      const col = 'second_hand_price';
+      const pt = '二手房';
+      // 城市整体近24个月走势
+      const cityHist = histSummary(cityData.city_history, col, 24);
+      // 各区域：评分指标 + 板块 + top20小区
+      let dt = '';
+      for (const r of scoringResults) {
+        const d = cityData.districts[r.key];
+        const subs = d?.sub_districts
+          ? Object.entries(d.sub_districts).filter(([,v]) => v.price != null).map(([,v]) => `${v.name}:${fp(v.price)}`).join('、')
+          : '';
+        const comms = [...(d?.communities||[])].filter(c=>c.price!=null&&c.price>0).sort((a,b)=>(b.price||0)-(a.price||0));
+        const commLine = comms.slice(0,20).map(c=>`${c.community}:${fp(c.price)}${c.mom_pct!=null?'('+fpct(c.mom_pct,true)+')':''}`).join('、');
+        dt += `\n### ${r.name}（${r.score}分·${r.level}）\n`;
+        dt += `均价:${fp(r.details.latestPrice)}元/㎡, 环比:${fpct(r.details.mom,true)}, 同比:${fpct(r.details.yoy,true)}, 百分位:${r.details.percentile?.toFixed(1)||'N/A'}%, 趋势:${r.details.trend}\n`;
+        if (subs) dt += `板块: ${subs}\n`;
+        if (commLine) dt += `小区(前20): ${commLine}\n`;
       }
-      return `请基于以下${cityData.city}${pt}数据给出买入时机分析报告。\n\n## 各区域数据\n${dt}\n\n## 小区价格\n${ct}\n\n请分析: 1.市场阶段判断 2.区域对比 3.TOP5性价比小区 4.刚需/投资建议 5.关键信号`;
+      return `请基于以下${cityData.city}${pt}全量数据给出买入时机分析报告。\n\n## 城市整体近24个月走势\n${cityHist}\n\n## 各区域详情\n${dt}\n\n请分析: 1.市场阶段判断 2.区域横向对比 3.TOP5性价比区域/板块/小区 4.刚需/改善/投资建议 5.当前关键信号与风险提示`;
     }
 
     function buildDistPrompt(dk) {
       const d = cityData.districts[dk]; if (!d) return '';
       const r = scoringResults.find(x=>x.key===dk);
-      const pt = $('ag-price-type').value==='second_hand_price'?'二手房':'新房';
-      const comms = d.communities||[];
-      let ct = comms.map(c=>`  ${c.community}: ${fp(c.price)}元/㎡ ${c.mom_pct!=null?'(环比'+fpct(c.mom_pct,true)+')':''}`).join('\n');
-      return `请基于以下${cityData.city}${d.name}${pt}数据给出深度分析。\n\n## 数据\n评分${r?.score||'N/A'}/100, 均价${fp(r?.details?.latestPrice)}元/㎡, 环比${fpct(r?.details?.mom,true)}, 同比${fpct(r?.details?.yoy,true)}, ${r?.details?.trend||'N/A'}, 百分位${r?.details?.percentile?.toFixed(1)||'N/A'}%\n\n## 小区\n${ct||'暂无'}\n\n请分析: 1.市场阶段 2.小区级推荐 3.未来走势 4.操作建议`;
+      const col = 'second_hand_price';
+      const pt = '二手房';
+      // 历史价格序列（近36个月）
+      const hist = histSummary(d.history, col, 36);
+      // 板块
+      const subs = d.sub_districts
+        ? Object.entries(d.sub_districts).filter(([,v]) => v.price != null).map(([,v]) => `${v.name}:${fp(v.price)}元/㎡${v.yoy!=null?' 同比'+fpct(v.yoy,true):''}`).join('; ')
+        : '';
+      // 全量小区（价格降序）
+      const comms = [...(d.communities||[])].filter(c=>c.price!=null&&c.price>0).sort((a,b)=>(b.price||0)-(a.price||0));
+      const ct = comms.map(c=>`${c.community}:${fp(c.price)}元/㎡${c.mom_pct!=null?' 环比'+fpct(c.mom_pct,true):''}`).join('\n');
+      return `请基于以下${cityData.city}${d.name}${pt}全量数据给出深度分析。\n\n## 基本指标\n评分:${r?.score||'N/A'}/100(${r?.level||''}), 均价:${fp(r?.details?.latestPrice)}元/㎡, 环比:${fpct(r?.details?.mom,true)}, 同比:${fpct(r?.details?.yoy,true)}, 趋势:${r?.details?.trend||'N/A'}, 百分位:${r?.details?.percentile?.toFixed(1)||'N/A'}%, 最高:${fp(r?.details?.high)}, 最低:${fp(r?.details?.low)}\n\n## 历史价格（近36个月）\n${hist}\n${subs?`\n## 板块均价\n${subs}\n`:''}\n## 全量小区（共${comms.length}个，价格降序）\n${ct||'暂无'}\n\n请分析: 1.市场阶段判断（结合历史高低点） 2.板块分化情况 3.小区级性价比推荐（含具体价格） 4.未来3-6个月走势预判 5.刚需/改善/投资的操作建议`;
     }
 
     function renderMd(t) {
@@ -512,7 +697,8 @@ const AG = (() => {
 
     return {
       get cityData() { return cityData; },
-      loadCity, refresh, switchTab, renderAll, renderCommunities, renderMini, runAI,
+      loadCity, refresh, switchTab, renderAll, renderCommunities, renderMini, renderSubDistrictLatest, runAI,
+      onSubDistrictParentChange, commPage, timingCommPage, renderTimingCommPage,
     };
   })();
 

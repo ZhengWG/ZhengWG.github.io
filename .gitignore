@@ -1,6 +1,7 @@
 # hidden files
 .*
 !.github
+!.env.example
 
 # bundler cache
 _site

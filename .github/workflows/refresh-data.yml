@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
@@ -23,11 +23,39 @@ jobs:
       - name: Install dependencies
         run: pip install -r tools/house_price/requirements.txt
 
+      - name: Record current data hash
+        id: pre
+        run: echo "hash=$(sha256sum assets/data/house_price/hz.json | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
       - name: Export data
+        id: export
         working-directory: tools/house_price
         run: python export_data.py -o ../../assets/data/house_price -c hz
 
+      - name: Validate exported data
+        id: validate
+        run: |
+          python - <<'EOF'
+          import json, sys
+          try:
+              with open("assets/data/house_price/hz.json") as f:
+                  d = json.load(f)
+              assert "districts" in d and len(d["districts"]) >= 3, "too few districts"
+              assert "city_history" in d and len(d["city_history"]) >= 12, "too few history rows"
+              print("Validation passed")
+          except Exception as e:
+              print(f"Validation FAILED: {e}", file=sys.stderr)
+              sys.exit(1)
+          EOF
+
+      - name: Restore original data on failure
+        if: failure() && steps.pre.outputs.hash != ''
+        run: |
+          git checkout -- assets/data/house_price/
+          echo "Restored original data after export/validation failure."
+
       - name: Commit and push if changed
+        if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

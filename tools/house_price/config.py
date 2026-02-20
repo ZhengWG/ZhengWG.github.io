@@ -19,6 +19,7 @@ CITIES = {
                 "jialv": "嘉绿", "jiulian": "九莲", "wenjiao": "文教",
                 "wensan": "文三", "wensanxilu": "文三西路", "wenyixilu": "文一西路",
                 "xuejun": "学军", "zhijiang": "之江", "zhuantang": "转塘",
+                "sandun": "三墩", "xixi": "西溪", "lingyin": "灵隐", "zheda": "浙大",
             }},
             "binjiang":  {"name": "滨江区",   "gotohui_id": 3327, "sub_districts": {
                 "baimahu": "白马湖", "binjiangquzhengfu": "滨江区政府",
