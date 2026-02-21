@@ -1,7 +1,7 @@
 {
   "city": "杭州",
   "city_key": "hz",
-  "updated_at": "2026-02-20",
+  "updated_at": "2026-02-21",
   "start_year": 2018,
   "end_year": 2026,
   "city_history": [
@@ -16404,6 +16404,1106 @@
         {
           "community": "章潘桥村新区",
           "price": 14116.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城桂语江南",
+          "price": 9038.0,
+          "mom_pct": null
+        },
+        {
+          "community": "宁安社区",
+          "price": 9023.0,
+          "mom_pct": null
+        },
+        {
+          "community": "奥兰多小镇云影苑",
+          "price": 17722.0,
+          "mom_pct": null
+        },
+        {
+          "community": "寒舍青年众创社",
+          "price": 13691.0,
+          "mom_pct": null
+        },
+        {
+          "community": "杭微域",
+          "price": 13607.0,
+          "mom_pct": null
+        },
+        {
+          "community": "保利·澄品",
+          "price": 30294.0,
+          "mom_pct": null
+        },
+        {
+          "community": "华德福心莲园",
+          "price": 14166.0,
+          "mom_pct": null
+        },
+        {
+          "community": "红山大道918号",
+          "price": 29807.0,
+          "mom_pct": null
+        },
+        {
+          "community": "别院潮苑",
+          "price": 51350.0,
+          "mom_pct": null
+        },
+        {
+          "community": "德信空港时代公馆",
+          "price": 29058.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙虎新村",
+          "price": 12089.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙虎村新区",
+          "price": 12124.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿都湖滨花园浅水湾苑",
+          "price": 8985.0,
+          "mom_pct": null
+        },
+        {
+          "community": "高新九路51号",
+          "price": 4887.0,
+          "mom_pct": null
+        },
+        {
+          "community": "春潮路77号",
+          "price": 51681.0,
+          "mom_pct": null
+        },
+        {
+          "community": "岩峰村安置区",
+          "price": 23843.0,
+          "mom_pct": null
+        },
+        {
+          "community": "潘水路小区",
+          "price": 8954.0,
+          "mom_pct": null
+        },
+        {
+          "community": "众安明彩城公寓",
+          "price": 10618.0,
+          "mom_pct": null
+        },
+        {
+          "community": "众安明彩城",
+          "price": 10353.0,
+          "mom_pct": null
+        },
+        {
+          "community": "德信·C公馆",
+          "price": 34157.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金帝银泰城",
+          "price": 14032.0,
+          "mom_pct": null
+        },
+        {
+          "community": "钱江大观",
+          "price": 34771.0,
+          "mom_pct": null
+        },
+        {
+          "community": "众安IOC潮悦公馆",
+          "price": 40128.0,
+          "mom_pct": null
+        },
+        {
+          "community": "朝龙汇公寓",
+          "price": 29973.0,
+          "mom_pct": null
+        },
+        {
+          "community": "德信AI",
+          "price": 30021.0,
+          "mom_pct": null
+        },
+        {
+          "community": "星耀城一期",
+          "price": 25351.0,
+          "mom_pct": null
+        },
+        {
+          "community": "星耀城二期",
+          "price": 25411.0,
+          "mom_pct": null
+        },
+        {
+          "community": "义桥街小区",
+          "price": 14349.0,
+          "mom_pct": null
+        },
+        {
+          "community": "融创望潮印公寓",
+          "price": 19713.0,
+          "mom_pct": null
+        },
+        {
+          "community": "迎宾路商贸公寓",
+          "price": 7875.0,
+          "mom_pct": null
+        },
+        {
+          "community": "杜湖名庭",
+          "price": 27641.0,
+          "mom_pct": null
+        },
+        {
+          "community": "阅杭里",
+          "price": 21911.0,
+          "mom_pct": null
+        },
+        {
+          "community": "启云府",
+          "price": 20252.0,
+          "mom_pct": null
+        },
+        {
+          "community": "展望轩",
+          "price": 41059.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金西湘景苑",
+          "price": 31855.0,
+          "mom_pct": null
+        },
+        {
+          "community": "湘湖风情苑",
+          "price": 19966.0,
+          "mom_pct": null
+        },
+        {
+          "community": "兴议家园",
+          "price": 35896.0,
+          "mom_pct": null
+        },
+        {
+          "community": "永盛家园",
+          "price": 30387.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧绍路1602号",
+          "price": 22718.0,
+          "mom_pct": null
+        },
+        {
+          "community": "杭州生态园晓轩",
+          "price": 31384.0,
+          "mom_pct": null
+        },
+        {
+          "community": "科技公寓",
+          "price": 11714.0,
+          "mom_pct": null
+        },
+        {
+          "community": "梅和名府北区",
+          "price": 8916.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路276号",
+          "price": 15593.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路4号",
+          "price": 15726.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧然东路442号",
+          "price": 29951.0,
+          "mom_pct": null
+        },
+        {
+          "community": "奥兰多小镇晨曦苑",
+          "price": 17834.0,
+          "mom_pct": null
+        },
+        {
+          "community": "奥兰多小镇跨湖苑",
+          "price": 18335.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新世纪花园",
+          "price": 7454.0,
+          "mom_pct": null
+        },
+        {
+          "community": "横弄",
+          "price": 29322.0,
+          "mom_pct": null
+        },
+        {
+          "community": "市心一号",
+          "price": 14762.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路132号",
+          "price": 8904.0,
+          "mom_pct": null
+        },
+        {
+          "community": "人民路198号",
+          "price": 9016.0,
+          "mom_pct": null
+        },
+        {
+          "community": "人民路200号",
+          "price": 8867.0,
+          "mom_pct": null
+        },
+        {
+          "community": "人民路68号",
+          "price": 8849.0,
+          "mom_pct": null
+        },
+        {
+          "community": "三碰桥",
+          "price": 15943.0,
+          "mom_pct": null
+        },
+        {
+          "community": "河西南路",
+          "price": 43467.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大名城华府",
+          "price": 14339.0,
+          "mom_pct": null
+        },
+        {
+          "community": "人民路80号",
+          "price": 9019.0,
+          "mom_pct": null
+        },
+        {
+          "community": "人民路78号",
+          "price": 9031.0,
+          "mom_pct": null
+        },
+        {
+          "community": "湘湖路3号",
+          "price": 28064.0,
+          "mom_pct": null
+        },
+        {
+          "community": "通惠南路298号",
+          "price": 16960.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金莱街",
+          "price": 14932.0,
+          "mom_pct": null
+        },
+        {
+          "community": "天域开元逸山墅",
+          "price": 7786.0,
+          "mom_pct": null
+        },
+        {
+          "community": "联丰社区",
+          "price": 11775.0,
+          "mom_pct": null
+        },
+        {
+          "community": "棉麻场社区",
+          "price": 8917.0,
+          "mom_pct": null
+        },
+        {
+          "community": "杭州台湾城",
+          "price": 4821.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南江一号",
+          "price": 9047.0,
+          "mom_pct": null
+        },
+        {
+          "community": "明华·名港",
+          "price": 8950.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金马同盛2期",
+          "price": 8938.0,
+          "mom_pct": null
+        },
+        {
+          "community": "黄山私家别墅",
+          "price": 30465.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧西路126号",
+          "price": 18702.0,
+          "mom_pct": null
+        },
+        {
+          "community": "塘北弄",
+          "price": 7901.0,
+          "mom_pct": null
+        },
+        {
+          "community": "塘头街",
+          "price": 14409.0,
+          "mom_pct": null
+        },
+        {
+          "community": "摩卡",
+          "price": 11388.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江东新地",
+          "price": 16541.0,
+          "mom_pct": null
+        },
+        {
+          "community": "徐家河社区",
+          "price": 22710.0,
+          "mom_pct": null
+        },
+        {
+          "community": "友谊安置小区2期",
+          "price": 15857.0,
+          "mom_pct": null
+        },
+        {
+          "community": "闸北新村北苑",
+          "price": 14681.0,
+          "mom_pct": null
+        },
+        {
+          "community": "世纪外滩庄园",
+          "price": 7911.0,
+          "mom_pct": null
+        },
+        {
+          "community": "景明佳园秋景苑",
+          "price": 15442.0,
+          "mom_pct": null
+        },
+        {
+          "community": "康乐苑",
+          "price": 14495.0,
+          "mom_pct": null
+        },
+        {
+          "community": "青梅雅苑",
+          "price": 7922.0,
+          "mom_pct": null
+        },
+        {
+          "community": "横一村横",
+          "price": 43843.0,
+          "mom_pct": null
+        },
+        {
+          "community": "临浦镇横一社区",
+          "price": 14979.0,
+          "mom_pct": null
+        },
+        {
+          "community": "坎山安置小区2期",
+          "price": 15382.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万达北路838号",
+          "price": 11732.0,
+          "mom_pct": null
+        },
+        {
+          "community": "越银苑",
+          "price": 11794.0,
+          "mom_pct": null
+        },
+        {
+          "community": "义蓬街道安置房2期",
+          "price": 11939.0,
+          "mom_pct": null
+        },
+        {
+          "community": "阅杭",
+          "price": 11606.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南兴东区",
+          "price": 11210.0,
+          "mom_pct": null
+        },
+        {
+          "community": "诚基百家湖小公馆",
+          "price": 17703.0,
+          "mom_pct": null
+        },
+        {
+          "community": "铂金水岸",
+          "price": 17585.0,
+          "mom_pct": null
+        },
+        {
+          "community": "宝色钛业家属楼",
+          "price": 17823.0,
+          "mom_pct": null
+        },
+        {
+          "community": "振宁路20号",
+          "price": 14122.0,
+          "mom_pct": null
+        },
+        {
+          "community": "通天都府",
+          "price": 7787.0,
+          "mom_pct": null
+        },
+        {
+          "community": "一都吴新村",
+          "price": 15069.0,
+          "mom_pct": null
+        },
+        {
+          "community": "顺风梅苑",
+          "price": 7817.0,
+          "mom_pct": null
+        },
+        {
+          "community": "众泾安置小区",
+          "price": 14728.0,
+          "mom_pct": null
+        },
+        {
+          "community": "林夕小院",
+          "price": 31946.0,
+          "mom_pct": null
+        },
+        {
+          "community": "下蒋小区",
+          "price": 7912.0,
+          "mom_pct": null
+        },
+        {
+          "community": "静雅苑",
+          "price": 15250.0,
+          "mom_pct": null
+        },
+        {
+          "community": "黎明区小区",
+          "price": 15743.0,
+          "mom_pct": null
+        },
+        {
+          "community": "恒达青年社区",
+          "price": 44207.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫金江宁社区",
+          "price": 14994.0,
+          "mom_pct": null
+        },
+        {
+          "community": "殷巷小区",
+          "price": 15219.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城水晶蓝湾",
+          "price": 14823.0,
+          "mom_pct": null
+        },
+        {
+          "community": "谷里庆缘路",
+          "price": 17458.0,
+          "mom_pct": null
+        },
+        {
+          "community": "枫情国度佳园",
+          "price": 18614.0,
+          "mom_pct": null
+        },
+        {
+          "community": "丹佛小镇",
+          "price": 17624.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东善之星",
+          "price": 17509.0,
+          "mom_pct": null
+        },
+        {
+          "community": "天景山欣荣苑",
+          "price": 7940.0,
+          "mom_pct": null
+        },
+        {
+          "community": "通淮街小区",
+          "price": 7859.0,
+          "mom_pct": null
+        },
+        {
+          "community": "苏源南园",
+          "price": 7793.0,
+          "mom_pct": null
+        },
+        {
+          "community": "水月秦淮",
+          "price": 7871.0,
+          "mom_pct": null
+        },
+        {
+          "community": "向红小区",
+          "price": 20460.0,
+          "mom_pct": null
+        },
+        {
+          "community": "青春水岸",
+          "price": 7753.0,
+          "mom_pct": null
+        },
+        {
+          "community": "银发物资",
+          "price": 15277.0,
+          "mom_pct": null
+        },
+        {
+          "community": "振宁路13号",
+          "price": 14479.0,
+          "mom_pct": null
+        },
+        {
+          "community": "锦乐苑",
+          "price": 15861.0,
+          "mom_pct": null
+        },
+        {
+          "community": "小龙湾总部基地?",
+          "price": 20253.0,
+          "mom_pct": null
+        },
+        {
+          "community": "王子公馆",
+          "price": 7792.0,
+          "mom_pct": null
+        },
+        {
+          "community": "同曦青春水岸",
+          "price": 7761.0,
+          "mom_pct": null
+        },
+        {
+          "community": "三恒临江时代",
+          "price": 14983.0,
+          "mom_pct": null
+        },
+        {
+          "community": "国投紫荆园",
+          "price": 4852.0,
+          "mom_pct": null
+        },
+        {
+          "community": "奥兰多小镇春晓苑",
+          "price": 17676.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美之园云杉苑东区",
+          "price": 45237.0,
+          "mom_pct": null
+        },
+        {
+          "community": "京明凤凰家园北区",
+          "price": 8777.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西河路城河街2号",
+          "price": 7942.0,
+          "mom_pct": null
+        },
+        {
+          "community": "国颂府排屋",
+          "price": 24571.0,
+          "mom_pct": null
+        },
+        {
+          "community": "IOC潮悦",
+          "price": 45481.0,
+          "mom_pct": null
+        },
+        {
+          "community": "融信旭辉湖悦章府",
+          "price": 14928.0,
+          "mom_pct": null
+        },
+        {
+          "community": "北塘路38号",
+          "price": 49609.0,
+          "mom_pct": null
+        },
+        {
+          "community": "如松村淡畈屋",
+          "price": 14439.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东哲·钱塘汇",
+          "price": 4946.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南丰村南丰新村西区",
+          "price": 8836.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南丰村南丰新村东区",
+          "price": 8891.0,
+          "mom_pct": null
+        },
+        {
+          "community": "临江村安置小区",
+          "price": 11419.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金融小镇",
+          "price": 8937.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广汽传祺生活区",
+          "price": 4825.0,
+          "mom_pct": null
+        },
+        {
+          "community": "义蓬街道义和社区",
+          "price": 22896.0,
+          "mom_pct": null
+        },
+        {
+          "community": "下潦社区老年过渡房",
+          "price": 8819.0,
+          "mom_pct": null
+        },
+        {
+          "community": "创客E族",
+          "price": 51207.0,
+          "mom_pct": null
+        },
+        {
+          "community": "钱潮IN",
+          "price": 7736.0,
+          "mom_pct": null
+        },
+        {
+          "community": "井岭路小区",
+          "price": 12230.0,
+          "mom_pct": null
+        },
+        {
+          "community": "为民路小区",
+          "price": 10847.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧金路小区",
+          "price": 8927.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧然西路小区",
+          "price": 8867.0,
+          "mom_pct": null
+        },
+        {
+          "community": "城桥路81号",
+          "price": 22095.0,
+          "mom_pct": null
+        },
+        {
+          "community": "体育路43号",
+          "price": 29377.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路326号",
+          "price": 8909.0,
+          "mom_pct": null
+        },
+        {
+          "community": "育才路446号",
+          "price": 23454.0,
+          "mom_pct": null
+        },
+        {
+          "community": "科熙空间",
+          "price": 14749.0,
+          "mom_pct": null
+        },
+        {
+          "community": "旺角新天地",
+          "price": 7779.0,
+          "mom_pct": null
+        },
+        {
+          "community": "观雲钱塘城",
+          "price": 96239.0,
+          "mom_pct": null
+        },
+        {
+          "community": "滨江王道公园",
+          "price": 29987.0,
+          "mom_pct": null
+        },
+        {
+          "community": "於家溇路",
+          "price": 20726.0,
+          "mom_pct": null
+        },
+        {
+          "community": "临浦金谷弄",
+          "price": 32018.0,
+          "mom_pct": null
+        },
+        {
+          "community": "和浦名庭",
+          "price": 31428.0,
+          "mom_pct": null
+        },
+        {
+          "community": "云尚澜天府",
+          "price": 28533.0,
+          "mom_pct": null
+        },
+        {
+          "community": "启越府",
+          "price": 12179.0,
+          "mom_pct": null
+        },
+        {
+          "community": "观奥骏景苑",
+          "price": 24488.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广乐公寓",
+          "price": 4889.0,
+          "mom_pct": null
+        },
+        {
+          "community": "半爿街悦府",
+          "price": 28902.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新中北家园",
+          "price": 25035.0,
+          "mom_pct": null
+        },
+        {
+          "community": "爱尚E家青年社区",
+          "price": 22636.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧山戴村镇人民路",
+          "price": 11945.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧绍路1137号",
+          "price": 24243.0,
+          "mom_pct": null
+        },
+        {
+          "community": "育才路459-2号",
+          "price": 20716.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路302号",
+          "price": 30111.0,
+          "mom_pct": null
+        },
+        {
+          "community": "滨江博语华庭",
+          "price": 29658.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路5号",
+          "price": 17258.0,
+          "mom_pct": null
+        },
+        {
+          "community": "清水湾山水苑",
+          "price": 17944.0,
+          "mom_pct": null
+        },
+        {
+          "community": "宝盛商住楼",
+          "price": 9678.0,
+          "mom_pct": null
+        },
+        {
+          "community": "风情园",
+          "price": 22775.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东恩桂花苑",
+          "price": 14955.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西河路112号",
+          "price": 19697.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧杭路",
+          "price": 20436.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧然东路456号",
+          "price": 27684.0,
+          "mom_pct": null
+        },
+        {
+          "community": "衙前村新发王商住楼",
+          "price": 7768.0,
+          "mom_pct": null
+        },
+        {
+          "community": "水晶公寓",
+          "price": 11036.0,
+          "mom_pct": null
+        },
+        {
+          "community": "祥乐公寓",
+          "price": 11187.0,
+          "mom_pct": null
+        },
+        {
+          "community": "天林苑",
+          "price": 22592.0,
+          "mom_pct": null
+        },
+        {
+          "community": "凤凰花园",
+          "price": 13622.0,
+          "mom_pct": null
+        },
+        {
+          "community": "潘水路285号院",
+          "price": 21536.0,
+          "mom_pct": null
+        },
+        {
+          "community": "钱啤",
+          "price": 19965.0,
+          "mom_pct": null
+        },
+        {
+          "community": "凤凰南墅花苑",
+          "price": 10367.0,
+          "mom_pct": null
+        },
+        {
+          "community": "泰和花园西区",
+          "price": 28877.0,
+          "mom_pct": null
+        },
+        {
+          "community": "荣盛小区",
+          "price": 5770.0,
+          "mom_pct": null
+        },
+        {
+          "community": "孙村苑",
+          "price": 22583.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东方家苑",
+          "price": 16181.0,
+          "mom_pct": null
+        },
+        {
+          "community": "百尺溇路136号",
+          "price": 20437.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路211号",
+          "price": 24994.0,
+          "mom_pct": null
+        },
+        {
+          "community": "文化路158号",
+          "price": 24684.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧绍路1003号",
+          "price": 21108.0,
+          "mom_pct": null
+        },
+        {
+          "community": "杭齿山北宿舍",
+          "price": 21163.0,
+          "mom_pct": null
+        },
+        {
+          "community": "罗峰路23号",
+          "price": 16515.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广乐安置房",
+          "price": 14240.0,
+          "mom_pct": null
+        },
+        {
+          "community": "帝凯公园帝景",
+          "price": 26584.0,
+          "mom_pct": null
+        },
+        {
+          "community": "百尺溇路121号",
+          "price": 27670.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧然南路502号",
+          "price": 23410.0,
+          "mom_pct": null
+        },
+        {
+          "community": "解放村2组",
+          "price": 7146.0,
+          "mom_pct": null
+        },
+        {
+          "community": "人民路166号",
+          "price": 8972.0,
+          "mom_pct": null
+        },
+        {
+          "community": "红山家苑",
+          "price": 18362.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧然东路409号",
+          "price": 8839.0,
+          "mom_pct": null
+        },
+        {
+          "community": "人民路181号",
+          "price": 8866.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南药弄",
+          "price": 22466.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南翔名苑",
+          "price": 9767.0,
+          "mom_pct": null
+        },
+        {
+          "community": "北干山南路",
+          "price": 23910.0,
+          "mom_pct": null
+        },
+        {
+          "community": "城桥路",
+          "price": 67807.0,
+          "mom_pct": null
+        },
+        {
+          "community": "萧绍路1456号",
+          "price": 22997.0,
+          "mom_pct": null
+        },
+        {
+          "community": "元沙东区",
+          "price": 10758.0,
+          "mom_pct": null
+        },
+        {
+          "community": "唐家弄",
+          "price": 5809.0,
+          "mom_pct": null
+        },
+        {
+          "community": "芭蕉砚社区",
+          "price": 11208.0,
+          "mom_pct": null
+        },
+        {
+          "community": "湘湖路",
+          "price": 22680.0,
+          "mom_pct": null
+        },
+        {
+          "community": "澄之华庭",
+          "price": 80704.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南闸新村",
+          "price": 13007.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南沙新苑",
+          "price": 11603.0,
+          "mom_pct": null
+        },
+        {
+          "community": "湖山春晓家园南区",
+          "price": 17474.0,
+          "mom_pct": null
+        },
+        {
+          "community": "湘湖路86号",
+          "price": 27754.0,
+          "mom_pct": null
+        },
+        {
+          "community": "湘湖路86-5号",
+          "price": 22931.0,
           "mom_pct": null
         }
       ],
