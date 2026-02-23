@@ -8,9 +8,7 @@ tags: [Agents, AI, 数据分析]
 
 ## 前言
 
-最近给博客新增了一个 [**Agents**](
-
-[https://johneyzheng.top/agents/) 页面——一个集成在博客侧边栏的交互式分析工具平台。不同于传统的静态博文，Agents 页面提供了可交互、可配置、数据实时更新的分析能力。目前已上线两个 Agent：**house_price_analyzer**（房价分析器）和 **ai_tracker**（AI 前沿追踪器）。
+最近给博客新增了一个 [**Agents**](https://johneyzheng.top/agents/) 页面——一个集成在博客侧边栏的交互式分析工具平台。不同于传统的静态博文，Agents 页面提供了可交互、可配置、数据实时更新的分析能力。目前已上线两个 Agent：**house_price_analyzer**（房价分析器）和 **ai_tracker**（AI 前沿追踪器）。
 
 本文将介绍整个 Agents 系统的设计思路、各 Agent 的功能细节以及背后的技术实现。
 
