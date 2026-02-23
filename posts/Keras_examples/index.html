@@ -1,0 +1,3121 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="Keras样例练习" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="Keras应用实例" /><meta property="og:description" content="Keras应用实例" /><link rel="canonical" href="https://www.johneyzheng.top//posts/Keras_examples/" /><meta property="og:url" content="https://www.johneyzheng.top//posts/Keras_examples/" /><meta property="og:site_name" content="Johney Zheng" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2019-02-23T21:25:24+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Keras样例练习" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"Keras应用实例","url":"https://www.johneyzheng.top//posts/Keras_examples/","headline":"Keras样例练习","dateModified":"2021-08-21T14:06:13+08:00","datePublished":"2019-02-23T21:25:24+08:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.johneyzheng.top//posts/Keras_examples/"},"@context":"https://schema.org"}</script><title>Keras样例练习 | Johney Zheng</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="Johney Zheng"><meta name="application-name" content="Johney Zheng"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css"><link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1.1.0/dist/magnific-popup.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script async src="https://cdn.jsdelivr.net/combine/npm/lozad/dist/lozad.min.js,npm/magnific-popup@1/dist/jquery.magnific-popup.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script defer src="/app.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-364499169"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-364499169'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/" alt="avatar" class="mx-auto"> <img src="/assets/img/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/">Johney Zheng</a></div><div class="site-subtitle font-italic">Johney Zheng的小站</div></div><ul class="w-100"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/agents/" class="nav-link"> <i class="fa-fw fas fa-robot ml-xl-3 mr-xl-3 unloaded"></i> <span>AGENTS</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT ME</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/ZhengWG" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['21625111','zju.edu.cn'].join('@')" aria-label="email" class="order-4" > <i class="fas fa-envelope"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Posts </a> </span> <span>Keras样例练习</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Keras样例练习</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="semi-bold"> Johney Zheng </span> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sat, Feb 23, 2019, 9:25 PM +0800" prep="on" > Feb 23, 2019 <i class="unloaded">2019-02-23T21:25:24+08:00</i> </span></div><div> <span> <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Sat, Aug 21, 2021, 2:06 PM +0800" prefix="Updated " > Aug 21, 2021 <i class="unloaded">2021-08-21T14:06:13+08:00</i> </span> </span> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="10931 words">60 min</span></div></div><div class="post-content"><h1 id="keras应用实例">Keras应用实例</h1><p>参考自 <a href="https://github.com/keras-team/keras/tree/master/examples">keras_team</a></p><p>实例包括：图像（视频），文字（序列），生成模型，Keras特色功能实现，这里先简单探讨图像和Keras模型功能部分。</p><p>软件环境： python3.5 tensorflow1.12.0 keras.2.2.4</p><p>PS: ipynb格式转markdown格式:</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>jupyter nbconvert --to markdown ****.ipynb
+</pre></table></code></div></div><h2 id="图像部分">图像部分</h2><h3 id="minist_mlp">Minist_MLP</h3><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+</pre><td class="rouge-code"><pre><span class="s">'''
+Trains a simple deep NN on the MNIST dataset.
+20 epochs
+acc: 0.9816
+Test loss: 0.11610001068654767
+Test accuracy: 0.9816
+about 6 seconds per epoch on a GeForce 940M GPU.
+'''</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">keras</span>
+<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">mnist</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Dropout</span>
+<span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="kn">import</span> <span class="n">RMSprop</span>
+
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># 将数据集分割为训练集和验证集
+</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mnist</span><span class="p">.</span><span class="n">load_data</span><span class="p">()</span>
+
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">60000</span><span class="p">,</span> <span class="mi">784</span><span class="p">)</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">784</span><span class="p">)</span>
+<span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+<span class="n">x_train</span> <span class="o">/=</span> <span class="mi">255</span>
+<span class="n">x_test</span> <span class="o">/=</span> <span class="mi">255</span>
+<span class="k">print</span><span class="p">(</span><span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'train samples'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">x_test</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'test samples'</span><span class="p">)</span>
+
+<span class="c1"># 类型标签需要转化为keras要求的binary class matrics格式
+</span><span class="n">y_train</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">784</span><span class="p">,)))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.2</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.2</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'softmax'</span><span class="p">))</span>
+
+<span class="n">model</span><span class="p">.</span><span class="n">summary</span><span class="p">()</span>
+
+<span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s">'categorical_crossentropy'</span><span class="p">,</span>
+              <span class="n">optimizer</span><span class="o">=</span><span class="n">RMSprop</span><span class="p">(),</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s">'accuracy'</span><span class="p">])</span>
+
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+                    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+                    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+                    <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Test loss:'</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Test accuracy:'</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+</pre><td class="rouge-code"><pre>Using TensorFlow backend.
+
+
+60000 train samples
+10000 test samples
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+dense_1 (Dense)              (None, 512)               401920
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 512)               0
+_________________________________________________________________
+dense_2 (Dense)              (None, 512)               262656
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 512)               0
+_________________________________________________________________
+dense_3 (Dense)              (None, 10)                5130
+=================================================================
+Total params: 669,706
+Trainable params: 669,706
+Non-trainable params: 0
+_________________________________________________________________
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/20
+60000/60000 [==============================] - 17s 289us/step - loss: 0.2419 - acc: 0.9260 - val_loss: 0.1378 - val_acc: 0.9563
+Epoch 2/20
+60000/60000 [==============================] - 6s 108us/step - loss: 0.1039 - acc: 0.9698 - val_loss: 0.0789 - val_acc: 0.9759
+Epoch 3/20
+60000/60000 [==============================] - 6s 108us/step - loss: 0.0743 - acc: 0.9776 - val_loss: 0.0839 - val_acc: 0.9754
+Epoch 4/20
+60000/60000 [==============================] - 7s 117us/step - loss: 0.0597 - acc: 0.9820 - val_loss: 0.0776 - val_acc: 0.9797
+Epoch 5/20
+60000/60000 [==============================] - 7s 110us/step - loss: 0.0494 - acc: 0.9851 - val_loss: 0.0889 - val_acc: 0.9793
+Epoch 6/20
+60000/60000 [==============================] - 7s 110us/step - loss: 0.0437 - acc: 0.9867 - val_loss: 0.0748 - val_acc: 0.9818
+Epoch 7/20
+60000/60000 [==============================] - 7s 111us/step - loss: 0.0399 - acc: 0.9882 - val_loss: 0.0847 - val_acc: 0.9804
+Epoch 8/20
+60000/60000 [==============================] - 7s 113us/step - loss: 0.0333 - acc: 0.9901 - val_loss: 0.0757 - val_acc: 0.9832
+Epoch 9/20
+60000/60000 [==============================] - 7s 112us/step - loss: 0.0312 - acc: 0.9907 - val_loss: 0.0847 - val_acc: 0.9825
+Epoch 10/20
+60000/60000 [==============================] - 7s 114us/step - loss: 0.0283 - acc: 0.9919 - val_loss: 0.0814 - val_acc: 0.9836
+Epoch 11/20
+60000/60000 [==============================] - 7s 113us/step - loss: 0.0253 - acc: 0.9927 - val_loss: 0.0938 - val_acc: 0.9815
+Epoch 12/20
+60000/60000 [==============================] - 7s 113us/step - loss: 0.0255 - acc: 0.9926 - val_loss: 0.0906 - val_acc: 0.9821
+Epoch 13/20
+60000/60000 [==============================] - 7s 112us/step - loss: 0.0211 - acc: 0.9935 - val_loss: 0.1134 - val_acc: 0.9804
+Epoch 14/20
+60000/60000 [==============================] - 7s 114us/step - loss: 0.0224 - acc: 0.9937 - val_loss: 0.0971 - val_acc: 0.9839
+Epoch 15/20
+60000/60000 [==============================] - 7s 121us/step - loss: 0.0237 - acc: 0.9938 - val_loss: 0.0961 - val_acc: 0.9819
+Epoch 16/20
+60000/60000 [==============================] - 7s 110us/step - loss: 0.0192 - acc: 0.9944 - val_loss: 0.1032 - val_acc: 0.9840
+Epoch 17/20
+60000/60000 [==============================] - 7s 120us/step - loss: 0.0202 - acc: 0.9944 - val_loss: 0.1047 - val_acc: 0.9832
+Epoch 18/20
+60000/60000 [==============================] - 7s 121us/step - loss: 0.0180 - acc: 0.9955 - val_loss: 0.1054 - val_acc: 0.9816
+Epoch 19/20
+60000/60000 [==============================] - 7s 113us/step - loss: 0.0192 - acc: 0.9951 - val_loss: 0.1253 - val_acc: 0.9819
+Epoch 20/20
+60000/60000 [==============================] - 7s 114us/step - loss: 0.0189 - acc: 0.9952 - val_loss: 0.1063 - val_acc: 0.9821
+Test loss: 0.10632506377054074
+Test accuracy: 0.9821
+</pre></table></code></div></div><h2 id="cifar10-小图片分类示例sequential式">CIFAR10 小图片分类示例（Sequential式）</h2><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+</pre><td class="rouge-code"><pre><span class="s">'''
+Trains a simple deep NN on the CIFAR10 dataset.
+20 epochs
+acc(data auged): 0.6818(train),0.7230(val)
+Test loss: 0.8004208864212036
+Test accuracy: 0.723
+about 77 seconds per epoch on a GeForce 940M GPU.
+'''</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">keras</span>
+<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">cifar10</span>
+<span class="kn">from</span> <span class="nn">keras.preprocessing.image</span> <span class="kn">import</span> <span class="n">ImageDataGenerator</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Dropout</span><span class="p">,</span> <span class="n">Activation</span><span class="p">,</span> <span class="n">Flatten</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">MaxPooling2D</span>
+
+<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">epochs</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="c1"># data_augmentation = True
+# num_predictions = 20
+</span>
+<span class="c1"># 数据载入
+</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">cifar10</span><span class="p">.</span><span class="n">load_data</span><span class="p">()</span>
+
+<span class="c1"># 多分类标签生成
+</span><span class="n">y_train</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+
+<span class="c1"># 网络结构配置
+</span><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s">'same'</span><span class="p">,</span>
+                 <span class="n">input_shape</span><span class="o">=</span><span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">padding</span><span class="o">=</span><span class="s">'same'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">MaxPooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Flatten</span><span class="p">())</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">512</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="s">'relu'</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_classes</span><span class="p">))</span>
+<span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Activation</span><span class="p">(</span><span class="s">'softmax'</span><span class="p">))</span>
+
+<span class="c1"># 训练参数设置
+# initiate RMSprop optimizer
+</span><span class="n">opt</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">optimizers</span><span class="p">.</span><span class="n">rmsprop</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+
+<span class="c1"># Let's train the model using RMSprop
+</span><span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s">'categorical_crossentropy'</span><span class="p">,</span>
+              <span class="n">optimizer</span><span class="o">=</span><span class="n">opt</span><span class="p">,</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s">'accuracy'</span><span class="p">])</span>
+
+<span class="c1"># 生成训练数据
+</span><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+<span class="n">x_train</span> <span class="o">/=</span> <span class="mi">255</span>
+<span class="n">x_test</span> <span class="o">/=</span> <span class="mi">255</span>
+
+<span class="c1"># 无数据增强进行训练
+</span><span class="k">print</span><span class="p">(</span><span class="s">'Not using data augmentation.'</span><span class="p">)</span>
+<span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+          <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+          <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+          <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+          <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+</pre><td class="rouge-code"><pre>Using TensorFlow backend.
+
+
+Not using data augmentation.
+Train on 50000 samples, validate on 10000 samples
+Epoch 1/20
+50000/50000 [==============================] - 122s 2ms/step - loss: 1.8311 - acc: 0.3345 - val_loss: 1.6657 - val_acc: 0.4035
+Epoch 2/20
+50000/50000 [==============================] - 111s 2ms/step - loss: 1.5049 - acc: 0.4567 - val_loss: 1.3474 - val_acc: 0.5146
+Epoch 3/20
+50000/50000 [==============================] - 106s 2ms/step - loss: 1.3528 - acc: 0.5153 - val_loss: 1.2531 - val_acc: 0.5597
+Epoch 4/20
+50000/50000 [==============================] - 111s 2ms/step - loss: 1.2483 - acc: 0.5585 - val_loss: 1.1387 - val_acc: 0.5976
+Epoch 5/20
+50000/50000 [==============================] - 103s 2ms/step - loss: 1.1618 - acc: 0.5917 - val_loss: 1.0871 - val_acc: 0.6129
+Epoch 6/20
+50000/50000 [==============================] - 115s 2ms/step - loss: 1.0942 - acc: 0.6180 - val_loss: 1.0086 - val_acc: 0.6451
+Epoch 7/20
+50000/50000 [==============================] - 103s 2ms/step - loss: 1.0383 - acc: 0.6376 - val_loss: 1.0126 - val_acc: 0.6431
+Epoch 8/20
+50000/50000 [==============================] - 104s 2ms/step - loss: 0.9970 - acc: 0.6500 - val_loss: 0.9596 - val_acc: 0.6581
+Epoch 9/20
+50000/50000 [==============================] - 109s 2ms/step - loss: 0.9558 - acc: 0.6686 - val_loss: 0.8889 - val_acc: 0.6854
+Epoch 10/20
+50000/50000 [==============================] - 111s 2ms/step - loss: 0.9255 - acc: 0.6781 - val_loss: 0.8605 - val_acc: 0.6976
+Epoch 11/20
+50000/50000 [==============================] - 111s 2ms/step - loss: 0.8998 - acc: 0.6863 - val_loss: 0.8711 - val_acc: 0.6937
+Epoch 12/20
+50000/50000 [==============================] - 110s 2ms/step - loss: 0.8745 - acc: 0.6970 - val_loss: 0.8339 - val_acc: 0.7066
+Epoch 13/20
+50000/50000 [==============================] - 109s 2ms/step - loss: 0.8500 - acc: 0.7048 - val_loss: 0.8314 - val_acc: 0.7133
+Epoch 14/20
+50000/50000 [==============================] - 115s 2ms/step - loss: 0.8319 - acc: 0.7119 - val_loss: 0.8137 - val_acc: 0.7161
+Epoch 15/20
+50000/50000 [==============================] - 106s 2ms/step - loss: 0.8099 - acc: 0.7187 - val_loss: 0.7881 - val_acc: 0.7241
+Epoch 16/20
+50000/50000 [==============================] - 86s 2ms/step - loss: 0.7941 - acc: 0.7254 - val_loss: 0.8105 - val_acc: 0.7192
+Epoch 17/20
+50000/50000 [==============================] - 76s 2ms/step - loss: 0.7766 - acc: 0.7324 - val_loss: 0.7911 - val_acc: 0.7241
+Epoch 18/20
+50000/50000 [==============================] - 76s 2ms/step - loss: 0.7653 - acc: 0.7361 - val_loss: 0.7359 - val_acc: 0.7421
+Epoch 19/20
+50000/50000 [==============================] - 76s 2ms/step - loss: 0.7556 - acc: 0.7377 - val_loss: 0.7487 - val_acc: 0.7437
+Epoch 20/20
+50000/50000 [==============================] - 75s 2ms/step - loss: 0.7440 - acc: 0.7440 - val_loss: 0.7302 - val_acc: 0.7474
+
+
+
+
+
+&lt;keras.callbacks.History at 0x7f8cd7b1b438&gt;
+</pre></table></code></div></div><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre><td class="rouge-code"><pre><span class="k">print</span><span class="p">(</span><span class="s">'Using real-time data augmentation.'</span><span class="p">)</span>
+<span class="c1"># 进行数据预处理和实时的数据增强:
+</span><span class="n">datagen</span> <span class="o">=</span> <span class="n">ImageDataGenerator</span><span class="p">(</span>
+    <span class="n">featurewise_center</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c1"># 是否控制输入数据集的均值为0
+</span>    <span class="n">samplewise_center</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c1"># 是否控制样本均值为0
+</span>    <span class="n">featurewise_std_normalization</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c1"># 全部输入是否除以数据集的标准偏差(std)
+</span>    <span class="n">samplewise_std_normalization</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c1"># 每个输入是否除以数据集的标准偏差
+</span>    <span class="n">zca_whitening</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>  <span class="c1"># 是否应用ZCA白化
+</span>    <span class="n">rotation_range</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># 随机旋转(度数,0-180°)
+</span>    <span class="n">width_shift_range</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># 随机水平平移(整个宽度比例)
+</span>    <span class="n">height_shift_range</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># 随机竖直平移(整个高度比例)
+</span>    <span class="n">horizontal_flip</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>  <span class="c1"># 随机水平翻转
+</span>    <span class="n">vertical_flip</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>  <span class="c1"># 随机竖直翻转
+</span>
+<span class="c1"># 生成训练增强数据
+</span><span class="n">datagen</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+
+<span class="c1"># fit训练
+# Fit the model on the batches generated by datagen.flow().
+</span><span class="n">model</span><span class="p">.</span><span class="n">fit_generator</span><span class="p">(</span><span class="n">datagen</span><span class="p">.</span><span class="n">flow</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+                                 <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">),</span>
+                    <span class="n">steps_per_epoch</span><span class="o">=</span><span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">batch_size</span><span class="p">,</span>
+                    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+                    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+</pre><td class="rouge-code"><pre>Using real-time data augmentation.
+Epoch 1/20
+1562/1562 [==============================] - 68s 44ms/step - loss: 1.8172 - acc: 0.3348 - val_loss: 1.5825 - val_acc: 0.4202
+Epoch 2/20
+1562/1562 [==============================] - 68s 43ms/step - loss: 1.5852 - acc: 0.4221 - val_loss: 1.4322 - val_acc: 0.4794
+Epoch 3/20
+1562/1562 [==============================] - 72s 46ms/step - loss: 1.4609 - acc: 0.4720 - val_loss: 1.3075 - val_acc: 0.5254
+Epoch 4/20
+1562/1562 [==============================] - 73s 47ms/step - loss: 1.3757 - acc: 0.5065 - val_loss: 1.1862 - val_acc: 0.5771
+Epoch 5/20
+1562/1562 [==============================] - 74s 47ms/step - loss: 1.3029 - acc: 0.5371 - val_loss: 1.1373 - val_acc: 0.5927
+Epoch 6/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.2501 - acc: 0.5535 - val_loss: 1.1786 - val_acc: 0.5838
+Epoch 7/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.2071 - acc: 0.5704 - val_loss: 1.0379 - val_acc: 0.6281
+Epoch 8/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.1705 - acc: 0.5858 - val_loss: 1.0924 - val_acc: 0.6180
+Epoch 9/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.1352 - acc: 0.6012 - val_loss: 1.0783 - val_acc: 0.6285
+Epoch 10/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.1033 - acc: 0.6117 - val_loss: 0.9947 - val_acc: 0.6515
+Epoch 11/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.0768 - acc: 0.6206 - val_loss: 1.0336 - val_acc: 0.6323
+Epoch 12/20
+1562/1562 [==============================] - 77s 49ms/step - loss: 1.0511 - acc: 0.6332 - val_loss: 0.9094 - val_acc: 0.6791
+Epoch 13/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.0251 - acc: 0.6381 - val_loss: 0.9096 - val_acc: 0.6755
+Epoch 14/20
+1562/1562 [==============================] - 78s 50ms/step - loss: 1.0056 - acc: 0.6471 - val_loss: 0.8570 - val_acc: 0.6995
+Epoch 15/20
+1562/1562 [==============================] - 77s 49ms/step - loss: 0.9874 - acc: 0.6542 - val_loss: 0.9028 - val_acc: 0.6851
+Epoch 16/20
+1562/1562 [==============================] - 77s 49ms/step - loss: 0.9740 - acc: 0.6592 - val_loss: 0.8249 - val_acc: 0.7121
+Epoch 17/20
+1562/1562 [==============================] - 77s 49ms/step - loss: 0.9581 - acc: 0.6642 - val_loss: 0.8329 - val_acc: 0.7088
+Epoch 18/20
+1562/1562 [==============================] - 76s 49ms/step - loss: 0.9416 - acc: 0.6722 - val_loss: 0.8716 - val_acc: 0.6998
+Epoch 19/20
+1562/1562 [==============================] - 77s 49ms/step - loss: 0.9323 - acc: 0.6758 - val_loss: 0.8601 - val_acc: 0.7030
+Epoch 20/20
+1562/1562 [==============================] - 77s 49ms/step - loss: 0.9186 - acc: 0.6818 - val_loss: 0.8004 - val_acc: 0.7230
+
+
+
+
+
+&lt;keras.callbacks.History at 0x7fbf80eefc88&gt;
+</pre></table></code></div></div><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="c1"># save_dir = os.path.join(os.getcwd(), 'saved_models')
+</span><span class="n">save_dir</span> <span class="o">=</span> <span class="s">'models/'</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s">'keras_cifar10_trained_model.h5'</span>
+
+<span class="c1"># 保存模型和权重
+</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+<span class="n">model</span><span class="p">.</span><span class="n">save</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Saved trained model at %s '</span> <span class="o">%</span> <span class="n">model_path</span><span class="p">)</span>
+
+<span class="c1"># 测试训练模型
+</span><span class="n">scores</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Test loss:'</span><span class="p">,</span> <span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Test accuracy:'</span><span class="p">,</span> <span class="n">scores</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>Saved trained model at models/keras_cifar10_trained_model.h5
+10000/10000 [==============================] - 4s 378us/step
+Test loss: 0.8004208864212036
+Test accuracy: 0.723
+</pre></table></code></div></div><h2 id="resnet训练cifar10-小图片分类">ResNet训练CIFAR10 小图片分类</h2><div class="table-wrapper"><table><thead><tr><th>Model<th>n<th>200-epoch accuracy<th>Original paper accuracy<th>sec/epoch GTX1080Ti<tbody><tr><td>ResNet20 v1<td>3<td>92.16%<td>91.25%<td>35<tr><td>Resnet32 v1<td>5<td>92.46%<td>92.49%<td>50<tr><td>Resnet44 v1<td>7<td>92.50%<td>92.83%<td>70<tr><td>Resnet56 v1<td>9<td>92.71%<td>93.03%<td>90<tr><td>Resnet110 v1<td>18<td>92.65%<td>93.39+-.16%<td>165<tr><td>Resnet164 v1<td>27<td>-<td>94.07%<td>-<tr><td>Resnet1001 v1<td>N/A<td>-<td>92.39%<td>-</table></div><div class="table-wrapper"><table><thead><tr><th>Model<th>n<th>200-epoch accuracy<th>Original paper accuracy<th>sec/epoch GTX1080Ti<tbody><tr><td>ResNet20 v2<td>2<td>-%<td>-%<td>–<tr><td>Resnet32 v2<td>N/A<td>NA%<td>NA%<td>NA<tr><td>Resnet44 v2<td>N/A<td>NA%<td>NA%<td>NA<tr><td>Resnet56 v2<td>6<td>93.01%<td>NA%<td>100<tr><td>Resnet110 v2<td>12<td>93.15%<td>93.63%<td>180<tr><td>Resnet164 v2<td>18<td>-<td>94.54%<td>-<tr><td>Resnet1001 v2<td>111<td>-<td>95.08+-.14%<td>-</table></div><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">keras</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">BatchNormalization</span><span class="p">,</span> <span class="n">Activation</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">AveragePooling2D</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Flatten</span>
+<span class="kn">from</span> <span class="nn">keras.optimizers</span> <span class="kn">import</span> <span class="n">Adam</span>
+<span class="kn">from</span> <span class="nn">keras.callbacks</span> <span class="kn">import</span> <span class="n">ModelCheckpoint</span><span class="p">,</span> <span class="n">LearningRateScheduler</span>
+<span class="kn">from</span> <span class="nn">keras.callbacks</span> <span class="kn">import</span> <span class="n">ReduceLROnPlateau</span>
+<span class="kn">from</span> <span class="nn">keras.preprocessing.image</span> <span class="kn">import</span> <span class="n">ImageDataGenerator</span>
+<span class="kn">from</span> <span class="nn">keras.regularizers</span> <span class="kn">import</span> <span class="n">l2</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">keras.datasets</span> <span class="kn">import</span> <span class="n">cifar10</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>Using TensorFlow backend.
+</pre></table></code></div></div><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+</pre><td class="rouge-code"><pre><span class="c1"># 训练参数
+</span><span class="n">batch_size</span> <span class="o">=</span> <span class="mi">16</span>  <span class="c1"># 原文中训练网络的batch_size为128, 官网为32
+</span><span class="n">epochs</span> <span class="o">=</span> <span class="mi">20</span>
+<span class="n">data_augmentation</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">num_classes</span> <span class="o">=</span> <span class="mi">10</span>
+
+<span class="c1"># 提取像素点均值以提高精度
+</span><span class="n">subtract_pixel_mean</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1"># Model version
+# Orig paper: version = 1 (ResNet v1), Improved ResNet: version = 2 (ResNet v2)
+# ResNet模型的版本
+# 原始论文版本：version = 1 (ResNet v1), 改进的ResNet: version = 2 (ResNet v2)
+</span><span class="n">version</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1"># 不同的版本网络深度不一样，与模型参数n有关
+</span><span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">6</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="k">elif</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">depth</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="mi">9</span> <span class="o">+</span> <span class="mi">2</span>
+
+<span class="c1"># 模型命名，深度，版本
+</span><span class="n">model_type</span> <span class="o">=</span> <span class="s">'ResNet%dv%d'</span> <span class="o">%</span> <span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+
+<span class="c1"># 加载CIFAR10数据
+</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">cifar10</span><span class="p">.</span><span class="n">load_data</span><span class="p">()</span>
+
+<span class="c1"># 输入图片的维度
+</span><span class="n">input_shape</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+<span class="c1"># 标准化数据
+</span><span class="n">x_train</span> <span class="o">=</span> <span class="n">x_train</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span>
+<span class="n">x_test</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span> <span class="o">/</span> <span class="mi">255</span>
+
+<span class="c1"># 进行数据的均值操作(mean)
+</span><span class="k">if</span> <span class="n">subtract_pixel_mean</span><span class="p">:</span>
+    <span class="n">x_train_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">x_train</span> <span class="o">-=</span> <span class="n">x_train_mean</span>
+    <span class="n">x_test</span> <span class="o">-=</span> <span class="n">x_train_mean</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'x_train shape:'</span><span class="p">,</span> <span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'train samples'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">x_test</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s">'test samples'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'y_train shape:'</span><span class="p">,</span> <span class="n">y_train</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="c1"># 将类型向量转化为二值类型矩阵（keras支持的格式）
+</span><span class="n">y_train</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">to_categorical</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">)</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>x_train shape: (50000, 32, 32, 3)
+50000 train samples
+10000 test samples
+y_train shape: (50000, 1)
+</pre></table></code></div></div><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+</pre><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">lr_schedule</span><span class="p">(</span><span class="n">epoch</span><span class="p">):</span>
+    <span class="s">"""
+    学习率规划:
+    学习率分别在80,120,160,180 epochs进行下降
+    在训练每个epoch后通过调用callbacks进行学习率的调整
+
+    #参数
+        epoch(int):epochs数目
+    #返回值
+        lr(float):学习率
+    """</span>
+    <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-3</span>
+    <span class="k">if</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="mi">180</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">*=</span> <span class="mf">0.5e-3</span>
+    <span class="k">elif</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="mi">160</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">*=</span> <span class="mf">1e-3</span>
+    <span class="k">elif</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="mi">120</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">*=</span> <span class="mf">1e-2</span>
+    <span class="k">elif</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="mi">80</span><span class="p">:</span>
+        <span class="n">lr</span> <span class="o">*=</span> <span class="mf">1e-1</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Learning rate: '</span><span class="p">,</span> <span class="n">lr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lr</span>
+
+
+<span class="k">def</span> <span class="nf">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span>
+                 <span class="n">num_filters</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+                 <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">strides</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                 <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">,</span>
+                 <span class="n">batch_normalization</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                 <span class="n">conv_first</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="s">"""
+    定义基本的2D 卷积-BN-激活堆栈生成器(stack builder)
+
+    #参数：
+        inputsr):从输入图片或者之前层中输入的张量(tensor)
+        num_filters(int):2维卷积，滤波器数目
+        kernel_size(int):2维卷积卷积核二维尺寸
+        activation(string):激活类型名称
+        batch_notmalization(bool):是否包含BN层
+        conv_first(bool):是否卷积层先，conv-bn-activation(True)或者bn-activation-conv(False)
+
+    #返回值:
+        x(tensor):作为下一层的输入张量(tensor)
+    """</span>
+    <span class="n">conv</span> <span class="o">=</span> <span class="n">Conv2D</span><span class="p">(</span><span class="n">num_filters</span><span class="p">,</span>
+                  <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span>
+                  <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+                  <span class="n">padding</span><span class="o">=</span><span class="s">'same'</span><span class="p">,</span>
+                  <span class="n">kernel_initializer</span><span class="o">=</span><span class="s">'he_normal'</span><span class="p">,</span>
+                  <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">l2</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">))</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">inputs</span>
+    <span class="k">if</span> <span class="n">conv_first</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">batch_normalization</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">activation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="n">activation</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">batch_normalization</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">activation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="n">activation</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">conv</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span> <span class="nf">resnet_v1</span><span class="p">(</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="s">"""
+    ResNet V1 模型构建
+
+    网络为最基本结构的堆栈组合(stacks):2x(3x3) Conv2D-BN-ReLu结构，3x3为卷积核
+    该结构中最后的relu层在short-cut连接之后.
+    整个网络分为三个stages，每个stage前面的特征图(feature map)需要降采样(downsampled),
+    通过一个步长(strides)为2的卷积层实现。
+    每个阶段(stage)的卷积核(filter)数目都会加倍。
+    相同阶段内保持相同的卷积核数目和卷积特征图大小。
+    各个阶段的特征图大小为:
+    stage 0:32x32, 16
+    stage 1:16x16, 32
+    stage 2:8x8,   64
+    模型大小如下：
+    ResNet20 0.27M
+    ResNet32 0.46M
+    ResNet44 0.66M
+    ResNet56 0.85M
+    ResNet110 1.7M
+
+    # 输入参数
+        input_shape (tensor):输入图片tensor的尺寸(shape)
+        depth(int):核心卷积层数目
+        num_classed(int):图像分类类别(CIFAR10 有10类)
+
+    # 返回值
+        model (Model):keras的模型实例
+    """</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">depth</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">6</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">'depth should be 6n+2 (eg 20, 32, 44 in [a])'</span><span class="p">)</span>
+    <span class="c1"># 开始实现模型的定义
+</span>    <span class="n">num_filters</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">num_res_blocks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">depth</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="c1"># 残差单元(residual units)堆栈(stack)的实例实现
+</span>    <span class="k">for</span> <span class="n">stack</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">res_block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_res_blocks</span><span class="p">):</span>
+            <span class="n">strides</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">stack</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">res_block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 每个stack的首层但是不是第一stack
+</span>                <span class="n">strides</span> <span class="o">=</span> <span class="mi">2</span>  <span class="c1"># downsample
+</span>            <span class="n">y</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                             <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
+                             <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                             <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
+                             <span class="n">activation</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">stack</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">res_block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 每个stack的首层但是不是第一stack
+</span>                <span class="c1"># 因为进行了特征图的降采样，所以需要在shortcut连接(shortcut connection)过程中,'
+</span>                <span class="c1"># 进行线性投影(linear projection)以匹配降采样后的维度
+</span>                <span class="c1"># 通过strides变换的卷积网络实现
+</span>                <span class="n">x</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                                 <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
+                                 <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                 <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+                                 <span class="n">activation</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                                 <span class="n">batch_normalization</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">add</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="s">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">num_filters</span> <span class="o">*=</span> <span class="mi">2</span>
+
+    <span class="c1"># 在上层添加分类器
+</span>    <span class="c1"># v1版本没有在最后的shortcut connection-Relu后添加BN层
+</span>    <span class="n">x</span> <span class="o">=</span> <span class="n">AveragePooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span> <span class="c1"># Flatten层用来将输入压平，常用于从卷积层到全连接层的过渡
+</span>    <span class="n">outputs</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span>
+                    <span class="n">activation</span><span class="o">=</span><span class="s">'softmax'</span><span class="p">,</span>
+                    <span class="n">kernel_initializer</span><span class="o">=</span><span class="s">'he_normal'</span><span class="p">)(</span><span class="n">y</span><span class="p">)</span> <span class="c1">#he正态分布初始化
+</span>
+    <span class="c1"># 实例化模型
+</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+
+
+<span class="k">def</span> <span class="nf">resnet_v2</span><span class="p">(</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="s">"""
+    ResNet V2 模型构建
+    网络最基本的堆栈组合为:(1X1)-(3x3)-(1x1)BN-RELU-Conv2D,称之为bottleneck层结构
+    每个stage(stack)第一层shortcut connection层需要接1x1 Conv2D卷积层，进行尺寸转换
+    接下来的第二层以及之后层则直连完成shortcut connection
+    每个stage的开始阶段，特征图都需要先进行降采样(downsampled),
+    通过strides=2的卷积层实现，filters数目需要翻倍。
+    每个stage内，每层都拥有相同数目的滤波器数目和特征图大小。
+    特征图大小如下：
+    conv1 : 32x32, 16
+    stage 0:32x32, 64
+    stage 1:16x16, 128
+    stage 2:8x8,   256
+
+    # 输入参数
+        input_shape(tensor):输入图片tensor的尺寸(shape)
+        depth(int):核心卷积层的数目
+        num_class(int):类别数目(CIFAR10类别为10)
+
+    # 返回值
+        model (Model):Keras模型实例
+    """</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">depth</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">%</span> <span class="mi">9</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">'depth should be 9n+2 (eg 56 or 110 in [b])'</span><span class="p">)</span>
+    <span class="c1"># 开始模型定义
+</span>    <span class="n">num_filters_in</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">num_res_blocks</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">depth</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">9</span><span class="p">)</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">)</span>
+    <span class="c1"># v2版本在分离输入tensor为两个路径(paths)之前需要先进行卷积(Conv2D with BN-ReLU)
+</span>    <span class="n">x</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span>
+                     <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters_in</span><span class="p">,</span>
+                     <span class="n">conv_first</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="c1"># 残差单元堆栈实例化
+</span>    <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">res_block</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_res_blocks</span><span class="p">):</span>
+            <span class="n">activation</span> <span class="o">=</span> <span class="s">'relu'</span>
+            <span class="n">batch_normalization</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="n">strides</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">stage</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">num_filters_out</span> <span class="o">=</span> <span class="n">num_filters_in</span> <span class="o">*</span> <span class="mi">4</span>
+                <span class="k">if</span> <span class="n">res_block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 第一个stage的第一层
+</span>                    <span class="n">activation</span> <span class="o">=</span> <span class="bp">None</span>
+                    <span class="n">batch_normalization</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">num_filters_out</span> <span class="o">=</span> <span class="n">num_filters_in</span> <span class="o">*</span> <span class="mi">2</span>
+                <span class="k">if</span> <span class="n">res_block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 第一层，但非第一 stage
+</span>                    <span class="n">strides</span> <span class="o">=</span> <span class="mi">2</span>    <span class="c1"># 需要降采样
+</span>
+            <span class="c1"># bottleneck残差单元
+</span>            <span class="n">y</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                             <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters_in</span><span class="p">,</span>
+                             <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+                             <span class="n">activation</span><span class="o">=</span><span class="n">activation</span><span class="p">,</span>
+                             <span class="n">batch_normalization</span><span class="o">=</span><span class="n">batch_normalization</span><span class="p">,</span>
+                             <span class="n">conv_first</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                             <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters_in</span><span class="p">,</span>
+                             <span class="n">conv_first</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                             <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters_out</span><span class="p">,</span>
+                             <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">conv_first</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">res_block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># 卷积操作进行shortcut connection的线性映射以匹配变化了的维度
+</span>                <span class="n">x</span> <span class="o">=</span> <span class="n">resnet_layer</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                                 <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters_out</span><span class="p">,</span>
+                                 <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                 <span class="n">strides</span><span class="o">=</span><span class="n">strides</span><span class="p">,</span>
+                                 <span class="n">activation</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                                 <span class="n">batch_normalization</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">add</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+
+        <span class="n">num_filters_in</span> <span class="o">=</span> <span class="n">num_filters_out</span>
+
+    <span class="c1"># 在上层添加分类器网络
+</span>    <span class="c1"># v2版本在池化(Pooling)前需要添加BN-ReLU层
+</span>    <span class="n">x</span> <span class="o">=</span> <span class="n">BatchNormalization</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">Activation</span><span class="p">(</span><span class="s">'relu'</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">AveragePooling2D</span><span class="p">(</span><span class="n">pool_size</span><span class="o">=</span><span class="mi">8</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span>
+                    <span class="n">activation</span><span class="o">=</span><span class="s">'softmax'</span><span class="p">,</span>
+                    <span class="n">kernel_initializer</span><span class="o">=</span><span class="s">'he_normal'</span><span class="p">)(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="c1"># 实例化模型
+</span>    <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">outputs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</pre></table></code></div></div><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+</pre><td class="rouge-code"><pre><span class="k">if</span> <span class="n">version</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">resnet_v2</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">resnet_v1</span><span class="p">(</span><span class="n">input_shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span><span class="p">)</span>
+
+<span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s">'categorical_crossentropy'</span><span class="p">,</span>
+              <span class="n">optimizer</span><span class="o">=</span><span class="n">Adam</span><span class="p">(</span><span class="n">lr</span><span class="o">=</span><span class="n">lr_schedule</span><span class="p">(</span><span class="mi">0</span><span class="p">)),</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s">'accuracy'</span><span class="p">])</span>
+<span class="n">model</span><span class="p">.</span><span class="n">summary</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="n">model_type</span><span class="p">)</span>
+
+<span class="c1"># 设置模型存储路径
+# save_dir = os.path.join(os.getcwd(), 'saved_models')
+</span><span class="n">save_dir</span> <span class="o">=</span> <span class="s">'models/'</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s">'cifar10_%s_model.{epoch:03d}.h5'</span> <span class="o">%</span> <span class="n">model_type</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">save_dir</span><span class="p">):</span>
+    <span class="n">os</span><span class="p">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">)</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+
+<span class="c1"># 设置callbacks函数进行回调保存模型和调整学习率
+</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="n">ModelCheckpoint</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">,</span>
+                             <span class="n">monitor</span><span class="o">=</span><span class="s">'val_acc'</span><span class="p">,</span>
+                             <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                             <span class="n">save_best_only</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">lr_scheduler</span> <span class="o">=</span> <span class="n">LearningRateScheduler</span><span class="p">(</span><span class="n">lr_schedule</span><span class="p">)</span>
+
+<span class="n">lr_reducer</span> <span class="o">=</span> <span class="n">ReduceLROnPlateau</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span>
+                               <span class="n">cooldown</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                               <span class="n">patience</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                               <span class="n">min_lr</span><span class="o">=</span><span class="mf">0.5e-6</span><span class="p">)</span>
+
+<span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span><span class="n">checkpoint</span><span class="p">,</span> <span class="n">lr_reducer</span><span class="p">,</span> <span class="n">lr_scheduler</span><span class="p">]</span>
+
+<span class="c1"># 模型训练,有(无)数据增强
+</span><span class="k">if</span> <span class="ow">not</span> <span class="n">data_augmentation</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Not using data augmentation.'</span><span class="p">)</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+              <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+              <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+              <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+              <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+              <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Using real-time data augmentation.'</span><span class="p">)</span>
+    <span class="c1"># 进行图片预处理与实时的数据增强：
+</span>    <span class="n">datagen</span> <span class="o">=</span> <span class="n">ImageDataGenerator</span><span class="p">(</span>
+        <span class="c1"># 控制输入数据集的均值为0
+</span>        <span class="n">featurewise_center</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="c1"># 控制单个样本均值为0
+</span>        <span class="n">samplewise_center</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="c1"># 全部输入是否除以数据集的标准偏差(std)
+</span>        <span class="n">featurewise_std_normalization</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="c1"># 每个输入是否除以数据集的标准偏差
+</span>        <span class="n">samplewise_std_normalization</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="c1"># 是否应用ZCA白化
+</span>        <span class="n">zca_whitening</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="c1"># ZCA白化的最小表示值(epsilon)
+</span>        <span class="n">zca_epsilon</span><span class="o">=</span><span class="mf">1e-06</span><span class="p">,</span>
+        <span class="c1"># 随机旋转(度数,0-180°)
+</span>        <span class="n">rotation_range</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="c1"># 随机水平平移(整个宽度比例)
+</span>        <span class="n">width_shift_range</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="c1"># 随机竖直平移(整个高度比例)
+</span>        <span class="n">height_shift_range</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="c1"># 设置随机仿射(shear)变换范围
+</span>        <span class="n">shear_range</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+        <span class="c1"># 设置随机放大缩小范围(zoom)
+</span>        <span class="n">zoom_range</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+        <span class="c1"># 设置随机通道偏移(channel shift)范围
+</span>        <span class="n">channel_shift_range</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+        <span class="c1"># 输入边界外部填充点模式设置
+</span>        <span class="n">fill_mode</span><span class="o">=</span><span class="s">'nearest'</span><span class="p">,</span>
+        <span class="c1"># 对于fill_mode="constant"的value参数设置
+</span>        <span class="n">cval</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span>
+        <span class="c1"># 是否随机翻转(水平)
+</span>        <span class="n">horizontal_flip</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="c1"># 是否随机翻转(竖直)
+</span>        <span class="n">vertical_flip</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+        <span class="c1"># 设置缩放因子(在应用其他所有变换之前都要设置)
+</span>        <span class="n">rescale</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="c1"># 设置对每个输入应用的预处理函数
+</span>        <span class="n">preprocessing_function</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="c1"># 图片数据格式，"channels_first"或者"channels_last"
+</span>        <span class="n">data_format</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="c1"># 用于验证的图片数目组成分数(0-1之间)
+</span>        <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="c1"># 生成训练增强数据
+</span>    <span class="n">datagen</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">)</span>
+
+    <span class="c1"># fit训练
+</span>    <span class="c1"># Fit the model on the batches generated by datagen.flow().
+</span>    <span class="n">model</span><span class="p">.</span><span class="n">fit_generator</span><span class="p">(</span><span class="n">datagen</span><span class="p">.</span><span class="n">flow</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">),</span>
+                        <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">),</span>
+                        <span class="n">steps_per_epoch</span><span class="o">=</span><span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">batch_size</span><span class="p">,</span> <span class="c1"># 可能是版本的问题，需要提供该参数，数据集轮数
+</span>                        <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                        <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+
+<span class="c1"># 评价训练得到的模型
+</span><span class="n">scores</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Test loss:'</span><span class="p">,</span> <span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Test accuracy:'</span><span class="p">,</span> <span class="n">scores</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+</pre><td class="rouge-code"><pre>Learning rate:  0.001
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to
+==================================================================================================
+input_5 (InputLayer)            (None, 32, 32, 3)    0
+__________________________________________________________________________________________________
+conv2d_85 (Conv2D)              (None, 32, 32, 16)   448         input_5[0][0]
+__________________________________________________________________________________________________
+batch_normalization_77 (BatchNo (None, 32, 32, 16)   64          conv2d_85[0][0]
+__________________________________________________________________________________________________
+activation_77 (Activation)      (None, 32, 32, 16)   0           batch_normalization_77[0][0]
+__________________________________________________________________________________________________
+conv2d_86 (Conv2D)              (None, 32, 32, 16)   2320        activation_77[0][0]
+__________________________________________________________________________________________________
+batch_normalization_78 (BatchNo (None, 32, 32, 16)   64          conv2d_86[0][0]
+__________________________________________________________________________________________________
+activation_78 (Activation)      (None, 32, 32, 16)   0           batch_normalization_78[0][0]
+__________________________________________________________________________________________________
+conv2d_87 (Conv2D)              (None, 32, 32, 16)   2320        activation_78[0][0]
+__________________________________________________________________________________________________
+batch_normalization_79 (BatchNo (None, 32, 32, 16)   64          conv2d_87[0][0]
+__________________________________________________________________________________________________
+add_37 (Add)                    (None, 32, 32, 16)   0           activation_77[0][0]
+                                                                 batch_normalization_79[0][0]
+__________________________________________________________________________________________________
+activation_79 (Activation)      (None, 32, 32, 16)   0           add_37[0][0]
+__________________________________________________________________________________________________
+conv2d_88 (Conv2D)              (None, 32, 32, 16)   2320        activation_79[0][0]
+__________________________________________________________________________________________________
+batch_normalization_80 (BatchNo (None, 32, 32, 16)   64          conv2d_88[0][0]
+__________________________________________________________________________________________________
+activation_80 (Activation)      (None, 32, 32, 16)   0           batch_normalization_80[0][0]
+__________________________________________________________________________________________________
+conv2d_89 (Conv2D)              (None, 32, 32, 16)   2320        activation_80[0][0]
+__________________________________________________________________________________________________
+batch_normalization_81 (BatchNo (None, 32, 32, 16)   64          conv2d_89[0][0]
+__________________________________________________________________________________________________
+add_38 (Add)                    (None, 32, 32, 16)   0           activation_79[0][0]
+                                                                 batch_normalization_81[0][0]
+__________________________________________________________________________________________________
+activation_81 (Activation)      (None, 32, 32, 16)   0           add_38[0][0]
+__________________________________________________________________________________________________
+conv2d_90 (Conv2D)              (None, 32, 32, 16)   2320        activation_81[0][0]
+__________________________________________________________________________________________________
+batch_normalization_82 (BatchNo (None, 32, 32, 16)   64          conv2d_90[0][0]
+__________________________________________________________________________________________________
+activation_82 (Activation)      (None, 32, 32, 16)   0           batch_normalization_82[0][0]
+__________________________________________________________________________________________________
+conv2d_91 (Conv2D)              (None, 32, 32, 16)   2320        activation_82[0][0]
+__________________________________________________________________________________________________
+batch_normalization_83 (BatchNo (None, 32, 32, 16)   64          conv2d_91[0][0]
+__________________________________________________________________________________________________
+add_39 (Add)                    (None, 32, 32, 16)   0           activation_81[0][0]
+                                                                 batch_normalization_83[0][0]
+__________________________________________________________________________________________________
+activation_83 (Activation)      (None, 32, 32, 16)   0           add_39[0][0]
+__________________________________________________________________________________________________
+conv2d_92 (Conv2D)              (None, 16, 16, 32)   4640        activation_83[0][0]
+__________________________________________________________________________________________________
+batch_normalization_84 (BatchNo (None, 16, 16, 32)   128         conv2d_92[0][0]
+__________________________________________________________________________________________________
+activation_84 (Activation)      (None, 16, 16, 32)   0           batch_normalization_84[0][0]
+__________________________________________________________________________________________________
+conv2d_93 (Conv2D)              (None, 16, 16, 32)   9248        activation_84[0][0]
+__________________________________________________________________________________________________
+conv2d_94 (Conv2D)              (None, 16, 16, 32)   544         activation_83[0][0]
+__________________________________________________________________________________________________
+batch_normalization_85 (BatchNo (None, 16, 16, 32)   128         conv2d_93[0][0]
+__________________________________________________________________________________________________
+add_40 (Add)                    (None, 16, 16, 32)   0           conv2d_94[0][0]
+                                                                 batch_normalization_85[0][0]
+__________________________________________________________________________________________________
+activation_85 (Activation)      (None, 16, 16, 32)   0           add_40[0][0]
+__________________________________________________________________________________________________
+conv2d_95 (Conv2D)              (None, 16, 16, 32)   9248        activation_85[0][0]
+__________________________________________________________________________________________________
+batch_normalization_86 (BatchNo (None, 16, 16, 32)   128         conv2d_95[0][0]
+__________________________________________________________________________________________________
+activation_86 (Activation)      (None, 16, 16, 32)   0           batch_normalization_86[0][0]
+__________________________________________________________________________________________________
+conv2d_96 (Conv2D)              (None, 16, 16, 32)   9248        activation_86[0][0]
+__________________________________________________________________________________________________
+batch_normalization_87 (BatchNo (None, 16, 16, 32)   128         conv2d_96[0][0]
+__________________________________________________________________________________________________
+add_41 (Add)                    (None, 16, 16, 32)   0           activation_85[0][0]
+                                                                 batch_normalization_87[0][0]
+__________________________________________________________________________________________________
+activation_87 (Activation)      (None, 16, 16, 32)   0           add_41[0][0]
+__________________________________________________________________________________________________
+conv2d_97 (Conv2D)              (None, 16, 16, 32)   9248        activation_87[0][0]
+__________________________________________________________________________________________________
+batch_normalization_88 (BatchNo (None, 16, 16, 32)   128         conv2d_97[0][0]
+__________________________________________________________________________________________________
+activation_88 (Activation)      (None, 16, 16, 32)   0           batch_normalization_88[0][0]
+__________________________________________________________________________________________________
+conv2d_98 (Conv2D)              (None, 16, 16, 32)   9248        activation_88[0][0]
+__________________________________________________________________________________________________
+batch_normalization_89 (BatchNo (None, 16, 16, 32)   128         conv2d_98[0][0]
+__________________________________________________________________________________________________
+add_42 (Add)                    (None, 16, 16, 32)   0           activation_87[0][0]
+                                                                 batch_normalization_89[0][0]
+__________________________________________________________________________________________________
+activation_89 (Activation)      (None, 16, 16, 32)   0           add_42[0][0]
+__________________________________________________________________________________________________
+conv2d_99 (Conv2D)              (None, 8, 8, 64)     18496       activation_89[0][0]
+__________________________________________________________________________________________________
+batch_normalization_90 (BatchNo (None, 8, 8, 64)     256         conv2d_99[0][0]
+__________________________________________________________________________________________________
+activation_90 (Activation)      (None, 8, 8, 64)     0           batch_normalization_90[0][0]
+__________________________________________________________________________________________________
+conv2d_100 (Conv2D)             (None, 8, 8, 64)     36928       activation_90[0][0]
+__________________________________________________________________________________________________
+conv2d_101 (Conv2D)             (None, 8, 8, 64)     2112        activation_89[0][0]
+__________________________________________________________________________________________________
+batch_normalization_91 (BatchNo (None, 8, 8, 64)     256         conv2d_100[0][0]
+__________________________________________________________________________________________________
+add_43 (Add)                    (None, 8, 8, 64)     0           conv2d_101[0][0]
+                                                                 batch_normalization_91[0][0]
+__________________________________________________________________________________________________
+activation_91 (Activation)      (None, 8, 8, 64)     0           add_43[0][0]
+__________________________________________________________________________________________________
+conv2d_102 (Conv2D)             (None, 8, 8, 64)     36928       activation_91[0][0]
+__________________________________________________________________________________________________
+batch_normalization_92 (BatchNo (None, 8, 8, 64)     256         conv2d_102[0][0]
+__________________________________________________________________________________________________
+activation_92 (Activation)      (None, 8, 8, 64)     0           batch_normalization_92[0][0]
+__________________________________________________________________________________________________
+conv2d_103 (Conv2D)             (None, 8, 8, 64)     36928       activation_92[0][0]
+__________________________________________________________________________________________________
+batch_normalization_93 (BatchNo (None, 8, 8, 64)     256         conv2d_103[0][0]
+__________________________________________________________________________________________________
+add_44 (Add)                    (None, 8, 8, 64)     0           activation_91[0][0]
+                                                                 batch_normalization_93[0][0]
+__________________________________________________________________________________________________
+activation_93 (Activation)      (None, 8, 8, 64)     0           add_44[0][0]
+__________________________________________________________________________________________________
+conv2d_104 (Conv2D)             (None, 8, 8, 64)     36928       activation_93[0][0]
+__________________________________________________________________________________________________
+batch_normalization_94 (BatchNo (None, 8, 8, 64)     256         conv2d_104[0][0]
+__________________________________________________________________________________________________
+activation_94 (Activation)      (None, 8, 8, 64)     0           batch_normalization_94[0][0]
+__________________________________________________________________________________________________
+conv2d_105 (Conv2D)             (None, 8, 8, 64)     36928       activation_94[0][0]
+__________________________________________________________________________________________________
+batch_normalization_95 (BatchNo (None, 8, 8, 64)     256         conv2d_105[0][0]
+__________________________________________________________________________________________________
+add_45 (Add)                    (None, 8, 8, 64)     0           activation_93[0][0]
+                                                                 batch_normalization_95[0][0]
+__________________________________________________________________________________________________
+activation_95 (Activation)      (None, 8, 8, 64)     0           add_45[0][0]
+__________________________________________________________________________________________________
+average_pooling2d_5 (AveragePoo (None, 1, 1, 64)     0           activation_95[0][0]
+__________________________________________________________________________________________________
+flatten_5 (Flatten)             (None, 64)           0           average_pooling2d_5[0][0]
+__________________________________________________________________________________________________
+dense_5 (Dense)                 (None, 10)           650         flatten_5[0][0]
+==================================================================================================
+Total params: 274,442
+Trainable params: 273,066
+Non-trainable params: 1,376
+__________________________________________________________________________________________________
+ResNet20v1
+Using real-time data augmentation.
+Epoch 1/20
+Learning rate:  0.001
+3125/3125 [==============================] - 312s 100ms/step - loss: 1.5947 - acc: 0.4818 - val_loss: 1.5713 - val_acc: 0.5164
+
+Epoch 00001: val_acc improved from -inf to 0.51640, saving model to models/cifar10_ResNet20v1_model.001.h5
+Epoch 2/20
+Learning rate:  0.001
+3125/3125 [==============================] - 265s 85ms/step - loss: 1.2072 - acc: 0.6370 - val_loss: 1.3945 - val_acc: 0.6066
+
+Epoch 00002: val_acc improved from 0.51640 to 0.60660, saving model to models/cifar10_ResNet20v1_model.002.h5
+Epoch 3/20
+Learning rate:  0.001
+3125/3125 [==============================] - 276s 88ms/step - loss: 1.0676 - acc: 0.6917 - val_loss: 0.9612 - val_acc: 0.7268
+
+Epoch 00003: val_acc improved from 0.60660 to 0.72680, saving model to models/cifar10_ResNet20v1_model.003.h5
+Epoch 4/20
+Learning rate:  0.001
+3125/3125 [==============================] - 261s 84ms/step - loss: 0.9786 - acc: 0.7284 - val_loss: 1.1044 - val_acc: 0.6874
+
+Epoch 00004: val_acc did not improve from 0.72680
+Epoch 5/20
+Learning rate:  0.001
+3125/3125 [==============================] - 261s 84ms/step - loss: 0.9215 - acc: 0.7491 - val_loss: 0.9581 - val_acc: 0.7372
+
+Epoch 00005: val_acc improved from 0.72680 to 0.73720, saving model to models/cifar10_ResNet20v1_model.005.h5
+Epoch 6/20
+Learning rate:  0.001
+3125/3125 [==============================] - 261s 84ms/step - loss: 0.8801 - acc: 0.7683 - val_loss: 0.8495 - val_acc: 0.7835
+
+Epoch 00006: val_acc improved from 0.73720 to 0.78350, saving model to models/cifar10_ResNet20v1_model.006.h5
+Epoch 7/20
+Learning rate:  0.001
+3125/3125 [==============================] - 260s 83ms/step - loss: 0.8514 - acc: 0.7766 - val_loss: 1.1488 - val_acc: 0.6938
+
+Epoch 00007: val_acc did not improve from 0.78350
+Epoch 8/20
+Learning rate:  0.001
+3125/3125 [==============================] - 260s 83ms/step - loss: 0.8275 - acc: 0.7875 - val_loss: 0.8583 - val_acc: 0.7840
+
+Epoch 00008: val_acc improved from 0.78350 to 0.78400, saving model to models/cifar10_ResNet20v1_model.008.h5
+Epoch 9/20
+Learning rate:  0.001
+3125/3125 [==============================] - 260s 83ms/step - loss: 0.8053 - acc: 0.7958 - val_loss: 0.9273 - val_acc: 0.7574
+
+Epoch 00009: val_acc did not improve from 0.78400
+Epoch 10/20
+Learning rate:  0.001
+3125/3125 [==============================] - 260s 83ms/step - loss: 0.7858 - acc: 0.8045 - val_loss: 0.8533 - val_acc: 0.7881
+
+Epoch 00010: val_acc improved from 0.78400 to 0.78810, saving model to models/cifar10_ResNet20v1_model.010.h5
+Epoch 11/20
+Learning rate:  0.001
+3125/3125 [==============================] - 261s 83ms/step - loss: 0.7727 - acc: 0.8092 - val_loss: 1.0937 - val_acc: 0.7302
+
+Epoch 00011: val_acc did not improve from 0.78810
+Epoch 12/20
+Learning rate:  0.001
+3125/3125 [==============================] - 260s 83ms/step - loss: 0.7609 - acc: 0.8139 - val_loss: 0.7869 - val_acc: 0.8089
+
+Epoch 00012: val_acc improved from 0.78810 to 0.80890, saving model to models/cifar10_ResNet20v1_model.012.h5
+Epoch 13/20
+Learning rate:  0.001
+3125/3125 [==============================] - 259s 83ms/step - loss: 0.7482 - acc: 0.8195 - val_loss: 0.8320 - val_acc: 0.7997
+
+Epoch 00013: val_acc did not improve from 0.80890
+Epoch 14/20
+Learning rate:  0.001
+3125/3125 [==============================] - 260s 83ms/step - loss: 0.7348 - acc: 0.8249 - val_loss: 0.7548 - val_acc: 0.8166
+
+Epoch 00014: val_acc improved from 0.80890 to 0.81660, saving model to models/cifar10_ResNet20v1_model.014.h5
+Epoch 15/20
+Learning rate:  0.001
+3125/3125 [==============================] - 260s 83ms/step - loss: 0.7285 - acc: 0.8258 - val_loss: 1.0691 - val_acc: 0.7290
+
+Epoch 00015: val_acc did not improve from 0.81660
+Epoch 16/20
+Learning rate:  0.001
+3125/3125 [==============================] - 264s 84ms/step - loss: 0.7197 - acc: 0.8296 - val_loss: 0.8380 - val_acc: 0.7988
+
+Epoch 00016: val_acc did not improve from 0.81660
+Epoch 17/20
+Learning rate:  0.001
+3125/3125 [==============================] - 263s 84ms/step - loss: 0.7089 - acc: 0.8344 - val_loss: 0.8024 - val_acc: 0.8096
+
+Epoch 00017: val_acc did not improve from 0.81660
+Epoch 18/20
+Learning rate:  0.001
+3125/3125 [==============================] - 348s 111ms/step - loss: 0.7017 - acc: 0.8357 - val_loss: 0.7371 - val_acc: 0.8262
+
+Epoch 00018: val_acc improved from 0.81660 to 0.82620, saving model to models/cifar10_ResNet20v1_model.018.h5
+Epoch 19/20
+Learning rate:  0.001
+3125/3125 [==============================] - 300s 96ms/step - loss: 0.6954 - acc: 0.8394 - val_loss: 0.7666 - val_acc: 0.8267
+
+Epoch 00019: val_acc improved from 0.82620 to 0.82670, saving model to models/cifar10_ResNet20v1_model.019.h5
+Epoch 20/20
+Learning rate:  0.001
+3125/3125 [==============================] - 276s 88ms/step - loss: 0.6929 - acc: 0.8393 - val_loss: 0.8844 - val_acc: 0.7866
+
+Epoch 00020: val_acc did not improve from 0.82670
+10000/10000 [==============================] - 13s 1ms/step
+Test loss: 0.8843909492492675
+Test accuracy: 0.7866
+</pre></table></code></div></div><h2 id="卷积层可视化">卷积层可视化</h2><p>以VGG16为例进行卷积层的可视化，详细实现原理可参考<a href="https://www.jiqizhixin.com/articles/2019-01-31-13">机器之心-卷积特征可视化</a></p><p>简而言之，卷积层可视化实际是对每层的卷积核的最大响应的图像进行生成。输入为随机噪声的灰度图，通过定义指定层的损失函数（将特征图激活后的均值作为损失函数），通过梯度上升的方式进行最大化激活值。最终反向生成能够得到相应卷积核最大激活输出的图像。</p><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+</pre><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span> <span class="k">as</span> <span class="n">pil_image</span>
+<span class="kn">from</span> <span class="nn">keras.preprocessing.image</span> <span class="kn">import</span> <span class="n">save_img</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">layers</span>
+<span class="kn">from</span> <span class="nn">keras.applications</span> <span class="kn">import</span> <span class="n">vgg16</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+
+<span class="c1"># GPU性能不够，禁用GPU，用CPU来跑
+</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">"CUDA_DEVICE_ORDER"</span><span class="p">]</span> <span class="o">=</span> <span class="s">"PCI_BUS_ID"</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">"CUDA_VISIBLE_DEVICES"</span><span class="p">]</span> <span class="o">=</span> <span class="s">""</span>
+
+<span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="s">"""
+    功能函数：标准化张量(tensor)
+
+    # 输入参数
+        x:输入张量
+    # 输出
+        输入张量的标准化输出
+    """</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">K</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">K</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">K</span><span class="p">.</span><span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span> <span class="o">+</span> <span class="n">K</span><span class="p">.</span><span class="n">epsilon</span><span class="p">())</span>
+
+
+<span class="k">def</span> <span class="nf">deprocess_image</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="s">"""
+    功能函数:将浮点数数组转化为有效的uint8类型图片
+
+    # 输入参数
+        x:代表生成图片的Numpy向量数组
+    # 输出
+        处理过的numpy数组，能够通过imshow等方式显示的图片格式
+    """</span>
+    <span class="c1"># normalize tensor: center on 0., ensure std is 0.25
+</span>    <span class="c1"># 标准化张量:数值中心保持为0，
+</span>    <span class="n">x</span> <span class="o">-=</span> <span class="n">x</span><span class="p">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">x</span> <span class="o">/=</span> <span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="n">K</span><span class="p">.</span><span class="n">epsilon</span><span class="p">())</span>
+    <span class="n">x</span> <span class="o">*=</span> <span class="mf">0.25</span>
+
+    <span class="c1"># clip to [0, 1]
+</span>    <span class="n">x</span> <span class="o">+=</span> <span class="mf">0.5</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># convert to RGB array
+</span>    <span class="n">x</span> <span class="o">*=</span> <span class="mi">255</span>
+    <span class="k">if</span> <span class="n">K</span><span class="p">.</span><span class="n">image_data_format</span><span class="p">()</span> <span class="o">==</span> <span class="s">'channels_first'</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">clip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="s">'uint8'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="k">def</span> <span class="nf">process_image</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">former</span><span class="p">):</span>
+    <span class="s">"""
+    功能函数:将有效的uint8类型图片格式转化为浮点数数组
+    为'deprocess_image'的反向操作
+
+    # 输入参数
+        x:numpy数值，能够通过imshow等进行显示
+        fromer: 之前的numpy-array数据.
+                需要确定之前的均值(mean)和variance(方差).
+
+    #返回值
+        处理过的代表图片的numpy数组
+    """</span>
+    <span class="k">if</span> <span class="n">K</span><span class="p">.</span><span class="n">image_data_format</span><span class="p">()</span> <span class="o">==</span> <span class="s">'channels_first'</span><span class="p">:</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">255</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">former</span><span class="p">.</span><span class="n">std</span><span class="p">()</span> <span class="o">+</span> <span class="n">former</span><span class="p">.</span><span class="n">mean</span><span class="p">()</span>
+
+
+<span class="c1"># 默认size为412*412，太慢了，改成52*52
+</span><span class="k">def</span> <span class="nf">visualize_layer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span>
+                    <span class="n">layer_name</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                    <span class="n">epochs</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+                    <span class="n">upscaling_steps</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                    <span class="n">upscaling_factor</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span>
+                    <span class="n">output_dim</span><span class="o">=</span><span class="p">(</span><span class="mi">52</span><span class="p">,</span><span class="mi">52</span><span class="p">),</span>
+                    <span class="n">filter_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">None</span><span class="p">)):</span>
+    <span class="s">"""
+    可视化得到模型指定层最大相关的滤波器(通过激活层的均值大小判断)
+
+    #输入参数
+        model:包含层名称的模型
+        layer_name:需要进行可视化的层名称，需要为模型的一部分
+        step:梯度上升的步长大小(step size)
+        epochs:梯度上升的迭代轮数
+        upscaling_steps:upscaling的步长数目,upscaling用于生成图的扩大
+                        初始图像大小为(80,80)，最终图像为(412,412)
+        upscaling_factor:用于缓慢更新图像大小的参数(factor)，最终大小为输出大小
+                        　如官方80-&gt;412为412=80*(1.2)**9
+        output_dim:[img_width, img_height]输出图像尺寸
+        filter_range:Tupel类型[lower,upper]
+                     确定了需要计算的卷积核(滤波器)序号范围
+                     如果upper参数为'None'，
+                     则将最后一个卷积核序号作为上限
+    """</span>
+
+    <span class="k">def</span> <span class="nf">_generate_filter_image</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span>
+                               <span class="n">layer_output</span><span class="p">,</span>
+                               <span class="n">filter_index</span><span class="p">):</span>
+        <span class="s">"""
+        生成指定卷积核的图像
+
+        # 输入参数
+            input_img:输入图像张量
+            layer_output:输出图像张量
+            filter_index:需要进行处理的滤波器序号
+                        　需保证序号有效
+
+        # 返回值
+            返回None，如无图片
+            如有图片，则返回tuple类型的图片数组(iamge array)以及最终的loss值
+        """</span>
+        <span class="n">s_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="c1"># 这里建立了一个损失函数来最大化对应层的nth卷积核的激活值
+</span>        <span class="k">if</span> <span class="n">K</span><span class="p">.</span><span class="n">image_data_format</span><span class="p">()</span> <span class="o">==</span> <span class="s">'channels_first'</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">layer_output</span><span class="p">[:,</span> <span class="n">filter_index</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">layer_output</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">filter_index</span><span class="p">])</span>
+
+        <span class="c1"># 根据loss计算对输入图片的梯度值
+</span>        <span class="n">grads</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">gradients</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">input_img</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># 正则化技巧(normalization trick):需要标准化梯度值
+</span>        <span class="n">grads</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">grads</span><span class="p">)</span>
+
+        <span class="c1"># 该函数返回得到输入图片的损失值和梯度值
+</span>        <span class="n">iterate</span> <span class="o">=</span> <span class="n">K</span><span class="p">.</span><span class="n">function</span><span class="p">([</span><span class="n">input_img</span><span class="p">],</span> <span class="p">[</span><span class="n">loss</span><span class="p">,</span> <span class="n">grads</span><span class="p">])</span>
+
+        <span class="c1"># 初始图片为随机噪声的灰度图
+</span>        <span class="n">intermediate_dim</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">upscaling_factor</span> <span class="o">**</span> <span class="n">upscaling_steps</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">output_dim</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">K</span><span class="p">.</span><span class="n">image_data_format</span><span class="p">()</span> <span class="o">==</span> <span class="s">'channels_first'</span><span class="p">:</span>
+            <span class="n">input_img_data</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">random</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">intermediate_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">intermediate_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_img_data</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">random</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">intermediate_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">intermediate_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">input_img_data</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_img_data</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">20</span> <span class="o">+</span> <span class="mi">128</span>
+
+        <span class="c1"># 这里需要逐步扩增到原先的大小(original size),
+</span>        <span class="c1"># 主要是为了防止可视化结构(visualized structure)的主导高频(domminating highj-frequency)现象
+</span>        <span class="c1"># 这种情况可能会在我们直接计算412维度图像的时候发生。
+</span>        <span class="c1"># 从低维开始更容易在每个维度有一个更好的开始点(starting point),
+</span>        <span class="c1"># 能有效防止局部最小值的出现(poor local minima)
+</span>        <span class="k">for</span> <span class="n">up</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">upscaling_steps</span><span class="p">)):</span>
+            <span class="c1"># 逐步进行梯度上升,如20 steps
+</span>            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+                <span class="n">loss_value</span><span class="p">,</span> <span class="n">grads_value</span> <span class="o">=</span> <span class="n">iterate</span><span class="p">([</span><span class="n">input_img_data</span><span class="p">])</span>
+                <span class="n">input_img_data</span> <span class="o">+=</span> <span class="n">grads_value</span> <span class="o">*</span> <span class="n">step</span><span class="err">　</span><span class="c1">#step默认为1
+</span>
+                <span class="c1"># 一些卷积核可能输出为0，需要跳过
+</span>                <span class="k">if</span> <span class="n">loss_value</span> <span class="o">&lt;=</span> <span class="n">K</span><span class="p">.</span><span class="n">epsilon</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="bp">None</span>
+
+            <span class="c1"># 计算扩增的维度
+</span>            <span class="n">intermediate_dim</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">upscaling_factor</span> <span class="o">**</span> <span class="n">up</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">output_dim</span><span class="p">)</span>
+            <span class="c1"># 得到扩增图像数据
+</span>            <span class="n">img</span> <span class="o">=</span> <span class="n">deprocess_image</span><span class="p">(</span><span class="n">input_img_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">pil_image</span><span class="p">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img</span><span class="p">).</span><span class="n">resize</span><span class="p">(</span><span class="n">intermediate_dim</span><span class="p">,</span>
+                                                           <span class="n">pil_image</span><span class="p">.</span><span class="n">BICUBIC</span><span class="p">))</span>
+            <span class="n">input_img_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">process_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">input_img_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+
+        <span class="c1"># 解码得到输入激活图像
+</span>        <span class="n">img</span> <span class="o">=</span> <span class="n">deprocess_image</span><span class="p">(</span><span class="n">input_img_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">e_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Costs of filter {:3}: {:5.0f} ( {:4.2f}s )'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">filter_index</span><span class="p">,</span>
+                                                                  <span class="n">loss_value</span><span class="p">,</span>
+                                                                  <span class="n">e_time</span> <span class="o">-</span> <span class="n">s_time</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="n">loss_value</span>
+
+    <span class="k">def</span> <span class="nf">_draw_filters</span><span class="p">(</span><span class="n">filters</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="s">"""
+        绘制得到最佳的卷积核输入图像(激活均值最大),nxn网格形式
+
+        # 输入参数
+            filters:一系列对应卷积核的生成图片以及损失值(loss)
+            n:网格维度
+              n为None的话，则使用最大的网格大小显示
+        """</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">filters</span><span class="p">))))</span>
+
+        <span class="c1"># 认为用于最大损失值的卷积核的激活图是可观的.
+</span>        <span class="c1"># 这里只保留最大的n*n个卷积核
+</span>        <span class="n">filters</span><span class="p">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="n">filters</span><span class="p">[:</span><span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">]</span>
+
+        <span class="c1"># 先建立一张足够大的黑色背景图
+</span>        <span class="c1"># 如8*8的卷积核数目,图像大小为412*412，间隔为5px
+</span>        <span class="n">MARGIN</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">output_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MARGIN</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">output_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">MARGIN</span>
+        <span class="n">stitched_filters</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s">'uint8'</span><span class="p">)</span>
+
+        <span class="c1"># 在图像上进行已保存得到的卷积核图像的填充
+</span>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+                <span class="n">img</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">filters</span><span class="p">[</span><span class="n">i</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="n">j</span><span class="p">]</span>
+                <span class="n">width_margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">output_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">MARGIN</span><span class="p">)</span> <span class="o">*</span> <span class="n">i</span>
+                <span class="n">height_margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">output_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">MARGIN</span><span class="p">)</span> <span class="o">*</span> <span class="n">j</span>
+                <span class="n">stitched_filters</span><span class="p">[</span>
+                    <span class="n">width_margin</span><span class="p">:</span> <span class="n">width_margin</span> <span class="o">+</span> <span class="n">output_dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">height_margin</span><span class="p">:</span> <span class="n">height_margin</span> <span class="o">+</span> <span class="n">output_dim</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">img</span>
+
+        <span class="c1"># save the result to disk
+</span>        <span class="c1"># 将得到的图像结果存盘
+</span>        <span class="n">save_img</span><span class="p">(</span><span class="s">'out_pics/vgg_{0:}_{1:}x{1:}.png'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">layer_name</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">stitched_filters</span><span class="p">)</span>
+
+    <span class="c1">#　正式进行图片输出
+</span>    <span class="c1"># 输入图片的占位符(placeholder)
+</span>    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">inputs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">input_img</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># 得到每个主要层(key layer)的符号输出(每个层的唯一标识名称)
+</span>    <span class="n">layer_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">layer</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span> <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">model</span><span class="p">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+
+    <span class="n">output_layer</span> <span class="o">=</span> <span class="n">layer_dict</span><span class="p">[</span><span class="n">layer_name</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_layer</span><span class="p">,</span> <span class="n">layers</span><span class="p">.</span><span class="n">Conv2D</span><span class="p">)</span>
+
+    <span class="c1"># 得到需要处理的滤波器范围
+</span>    <span class="n">filter_lower</span> <span class="o">=</span> <span class="n">filter_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">filter_upper</span> <span class="o">=</span> <span class="p">(</span><span class="n">filter_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">filter_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+                    <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_layer</span><span class="p">.</span><span class="n">get_weights</span><span class="p">()[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">filter_lower</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+           <span class="ow">and</span> <span class="n">filter_upper</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_layer</span><span class="p">.</span><span class="n">get_weights</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+           <span class="ow">and</span> <span class="n">filter_upper</span> <span class="o">&gt;</span> <span class="n">filter_lower</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Compute filters {:} to {:}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">filter_lower</span><span class="p">,</span> <span class="n">filter_upper</span><span class="p">))</span>
+
+    <span class="c1"># 迭代通过每个滤波器并得到对应的激活图
+</span>    <span class="n">processed_filters</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">filter_lower</span><span class="p">,</span> <span class="n">filter_upper</span><span class="p">):</span>
+        <span class="n">img_loss</span> <span class="o">=</span> <span class="n">_generate_filter_image</span><span class="p">(</span><span class="n">input_img</span><span class="p">,</span> <span class="n">output_layer</span><span class="p">.</span><span class="n">output</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">img_loss</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">processed_filters</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_loss</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">'{} filter processed.'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">processed_filters</span><span class="p">)))</span>
+    <span class="c1"># 最终绘制并保存最佳的滤波器图像到硬盘
+</span>    <span class="n">_draw_filters</span><span class="p">(</span><span class="n">processed_filters</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="c1"># the name of the layer we want to visualize
+</span>    <span class="c1"># (see model definition at keras/applications/vgg16.py)
+</span>    <span class="c1"># 需要定义我们需要可视化的层的名字
+</span>    <span class="c1"># 模型定义可在　keras/applications/vgg16.py中得到
+</span>    <span class="c1"># 也可以通过  "summary()"函数得到
+</span>    <span class="n">LAYER_NAME</span> <span class="o">=</span> <span class="s">'block5_conv1'</span>
+
+    <span class="c1"># 通过ImageNet权重进行VGG16网络的构建
+</span>    <span class="n">vgg</span> <span class="o">=</span> <span class="n">vgg16</span><span class="p">.</span><span class="n">VGG16</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="s">'imagenet'</span><span class="p">,</span> <span class="n">include_top</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'Model loaded.'</span><span class="p">)</span>
+    <span class="n">vgg</span><span class="p">.</span><span class="n">summary</span><span class="p">()</span>
+
+    <span class="c1">#　调用可视化函数
+</span>    <span class="n">visualize_layer</span><span class="p">(</span><span class="n">vgg</span><span class="p">,</span> <span class="n">LAYER_NAME</span><span class="p">)</span>
+</pre></table></code></div></div><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+</pre><td class="rouge-code"><pre>Using TensorFlow backend.
+
+
+Model loaded.
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+input_1 (InputLayer)         (None, None, None, 3)     0
+_________________________________________________________________
+block1_conv1 (Conv2D)        (None, None, None, 64)    1792
+_________________________________________________________________
+block1_conv2 (Conv2D)        (None, None, None, 64)    36928
+_________________________________________________________________
+block1_pool (MaxPooling2D)   (None, None, None, 64)    0
+_________________________________________________________________
+block2_conv1 (Conv2D)        (None, None, None, 128)   73856
+_________________________________________________________________
+block2_conv2 (Conv2D)        (None, None, None, 128)   147584
+_________________________________________________________________
+block2_pool (MaxPooling2D)   (None, None, None, 128)   0
+_________________________________________________________________
+block3_conv1 (Conv2D)        (None, None, None, 256)   295168
+_________________________________________________________________
+block3_conv2 (Conv2D)        (None, None, None, 256)   590080
+_________________________________________________________________
+block3_conv3 (Conv2D)        (None, None, None, 256)   590080
+_________________________________________________________________
+block3_pool (MaxPooling2D)   (None, None, None, 256)   0
+_________________________________________________________________
+block4_conv1 (Conv2D)        (None, None, None, 512)   1180160
+_________________________________________________________________
+block4_conv2 (Conv2D)        (None, None, None, 512)   2359808
+_________________________________________________________________
+block4_conv3 (Conv2D)        (None, None, None, 512)   2359808
+_________________________________________________________________
+block4_pool (MaxPooling2D)   (None, None, None, 512)   0
+_________________________________________________________________
+block5_conv1 (Conv2D)        (None, None, None, 512)   2359808
+_________________________________________________________________
+block5_conv2 (Conv2D)        (None, None, None, 512)   2359808
+_________________________________________________________________
+block5_conv3 (Conv2D)        (None, None, None, 512)   2359808
+_________________________________________________________________
+block5_pool (MaxPooling2D)   (None, None, None, 512)   0
+=================================================================
+Total params: 14,714,688
+Trainable params: 14,714,688
+Non-trainable params: 0
+_________________________________________________________________
+Compute filters 0 to 512
+Costs of filter   0:   688 ( 4.87s )
+Costs of filter   1:  1440 ( 5.90s )
+Costs of filter   3:   761 ( 4.95s )
+Costs of filter   4:  1282 ( 5.58s )
+Costs of filter   5:   454 ( 5.47s )
+Costs of filter   7:  1144 ( 6.69s )
+Costs of filter   9:   506 ( 5.25s )
+Costs of filter  14:   738 ( 5.84s )
+Costs of filter  15:   703 ( 5.28s )
+Costs of filter  16:   729 ( 5.04s )
+Costs of filter  17:  1070 ( 4.97s )
+Costs of filter  20:   616 ( 5.01s )
+Costs of filter  21:   870 ( 5.09s )
+Costs of filter  22:   869 ( 5.03s )
+Costs of filter  24:   493 ( 5.04s )
+Costs of filter  25:   765 ( 5.02s )
+Costs of filter  27:  1162 ( 5.60s )
+Costs of filter  29:   349 ( 5.23s )
+Costs of filter  30:   742 ( 5.72s )
+Costs of filter  36:   622 ( 5.38s )
+Costs of filter  39:   910 ( 5.18s )
+Costs of filter  40:   572 ( 5.27s )
+Costs of filter  42:   587 ( 5.29s )
+Costs of filter  44:  1016 ( 5.32s )
+Costs of filter  46:   830 ( 5.80s )
+Costs of filter  49:   698 ( 6.77s )
+Costs of filter  52:  1301 ( 6.34s )
+Costs of filter  53:   800 ( 5.64s )
+Costs of filter  54:  1371 ( 5.88s )
+Costs of filter  58:   507 ( 5.65s )
+Costs of filter  61:   723 ( 6.62s )
+Costs of filter  64:   974 ( 8.11s )
+Costs of filter  65:   707 ( 6.10s )
+Costs of filter  66:   521 ( 5.80s )
+Costs of filter  68:   931 ( 5.46s )
+Costs of filter  70:   774 ( 5.43s )
+Costs of filter  72:   913 ( 5.42s )
+Costs of filter  74:  1274 ( 5.43s )
+Costs of filter  75:   535 ( 5.46s )
+Costs of filter  79:   547 ( 5.52s )
+Costs of filter  82:   514 ( 5.79s )
+Costs of filter  84:   463 ( 5.57s )
+Costs of filter  85:   720 ( 5.54s )
+Costs of filter  87:   738 ( 6.31s )
+Costs of filter  88:   627 ( 6.45s )
+Costs of filter  89:   840 ( 6.18s )
+Costs of filter  90:  1148 ( 5.63s )
+Costs of filter  91:  1227 ( 5.75s )
+Costs of filter  94:   816 ( 5.67s )
+Costs of filter 103:   673 ( 5.75s )
+Costs of filter 109:   955 ( 5.83s )
+Costs of filter 110:   523 ( 5.86s )
+Costs of filter 111:   784 ( 5.84s )
+Costs of filter 112:   598 ( 5.86s )
+Costs of filter 114:   954 ( 5.89s )
+Costs of filter 116:   552 ( 6.00s )
+Costs of filter 117:  1761 ( 5.89s )
+Costs of filter 122:   744 ( 5.98s )
+Costs of filter 126:   927 ( 6.01s )
+Costs of filter 127:   887 ( 6.04s )
+Costs of filter 128:   793 ( 6.50s )
+Costs of filter 131:   447 ( 6.98s )
+Costs of filter 133:   447 ( 7.13s )
+Costs of filter 134:   700 ( 6.83s )
+Costs of filter 136:   764 ( 6.80s )
+Costs of filter 139:   595 ( 6.19s )
+Costs of filter 140:   461 ( 6.22s )
+Costs of filter 143:   810 ( 6.25s )
+Costs of filter 145:   727 ( 6.24s )
+Costs of filter 146:   849 ( 6.26s )
+Costs of filter 147:   774 ( 6.29s )
+Costs of filter 149:   338 ( 6.39s )
+Costs of filter 156:   911 ( 6.38s )
+Costs of filter 157:   976 ( 6.36s )
+Costs of filter 158:   991 ( 6.37s )
+Costs of filter 162:   792 ( 6.39s )
+Costs of filter 165:   752 ( 6.42s )
+Costs of filter 166:   838 ( 6.50s )
+Costs of filter 168:   557 ( 6.49s )
+Costs of filter 170:  1001 ( 6.51s )
+Costs of filter 171:   653 ( 6.54s )
+Costs of filter 172:  1060 ( 6.54s )
+Costs of filter 174:   692 ( 6.56s )
+Costs of filter 176:  1488 ( 6.65s )
+Costs of filter 177:   473 ( 6.66s )
+Costs of filter 179:   834 ( 6.83s )
+Costs of filter 181:   946 ( 6.60s )
+Costs of filter 182:   982 ( 6.66s )
+Costs of filter 187:   947 ( 6.68s )
+Costs of filter 194:   734 ( 6.83s )
+Costs of filter 195:   612 ( 6.84s )
+Costs of filter 196:   766 ( 6.87s )
+Costs of filter 201:   426 ( 6.93s )
+Costs of filter 203:   640 ( 6.94s )
+Costs of filter 205:  1639 ( 6.97s )
+Costs of filter 206:   356 ( 7.01s )
+Costs of filter 208:  1142 ( 6.93s )
+Costs of filter 213:   721 ( 7.06s )
+Costs of filter 218:   647 ( 7.04s )
+Costs of filter 219:   660 ( 7.17s )
+Costs of filter 220:  1653 ( 7.15s )
+Costs of filter 223:   420 ( 7.14s )
+Costs of filter 228:   725 ( 7.29s )
+Costs of filter 236:   528 ( 7.38s )
+Costs of filter 240:   813 ( 7.34s )
+Costs of filter 242:   942 ( 7.94s )
+Costs of filter 243:   914 ( 8.18s )
+Costs of filter 245:   828 ( 7.40s )
+Costs of filter 246:   362 ( 7.54s )
+Costs of filter 247:  1444 ( 7.50s )
+Costs of filter 251:   973 ( 7.50s )
+Costs of filter 253:   927 ( 7.56s )
+Costs of filter 255:   809 ( 7.54s )
+Costs of filter 257:  1059 ( 7.64s )
+Costs of filter 258:   680 ( 7.68s )
+Costs of filter 259:   519 ( 7.59s )
+Costs of filter 260:   462 ( 7.61s )
+Costs of filter 266:  1327 ( 7.67s )
+Costs of filter 268:   603 ( 7.95s )
+Costs of filter 269:   588 ( 7.84s )
+Costs of filter 270:  1116 ( 7.84s )
+Costs of filter 271:   705 ( 7.77s )
+Costs of filter 272:   598 ( 7.80s )
+Costs of filter 281:   766 ( 7.90s )
+Costs of filter 283:   546 ( 7.92s )
+Costs of filter 285:   727 ( 7.96s )
+Costs of filter 287:   533 ( 8.12s )
+Costs of filter 288:  1529 ( 8.11s )
+Costs of filter 289:   910 ( 8.14s )
+Costs of filter 292:   461 ( 8.08s )
+Costs of filter 293:   720 ( 8.20s )
+Costs of filter 295:   375 ( 8.40s )
+Costs of filter 297:   717 ( 8.27s )
+Costs of filter 300:   862 ( 8.18s )
+Costs of filter 303:   517 ( 8.17s )
+Costs of filter 306:  1385 ( 8.40s )
+Costs of filter 308:  1145 ( 8.40s )
+Costs of filter 310:   670 ( 8.34s )
+Costs of filter 311:   634 ( 8.34s )
+Costs of filter 316:   534 ( 8.40s )
+Costs of filter 319:   916 ( 8.42s )
+Costs of filter 320:   920 ( 8.48s )
+Costs of filter 322:   521 ( 8.60s )
+Costs of filter 323:   553 ( 8.57s )
+Costs of filter 327:   558 ( 8.55s )
+Costs of filter 328:  1131 ( 8.70s )
+Costs of filter 329:   607 ( 8.70s )
+Costs of filter 331:   689 ( 8.73s )
+Costs of filter 334:  1178 ( 8.64s )
+Costs of filter 335:   652 ( 8.67s )
+Costs of filter 339:   694 ( 9.14s )
+Costs of filter 341:   650 ( 8.90s )
+Costs of filter 346:   527 ( 8.83s )
+Costs of filter 347:   719 ( 9.00s )
+Costs of filter 348:   547 ( 8.91s )
+Costs of filter 350:   560 ( 8.92s )
+Costs of filter 352:   584 ( 9.07s )
+Costs of filter 353:   541 ( 9.07s )
+Costs of filter 354:   576 ( 9.12s )
+Costs of filter 355:  1128 ( 9.13s )
+Costs of filter 356:  1252 ( 9.18s )
+Costs of filter 357:   423 ( 9.29s )
+Costs of filter 359:   764 ( 9.16s )
+Costs of filter 360:   445 ( 9.10s )
+Costs of filter 365:   525 ( 9.13s )
+Costs of filter 368:   931 ( 9.18s )
+Costs of filter 369:  1029 ( 9.20s )
+Costs of filter 371:  1283 ( 9.39s )
+Costs of filter 375:   960 ( 9.44s )
+Costs of filter 378:   567 ( 9.36s )
+Costs of filter 383:   832 ( 9.42s )
+Costs of filter 387:   922 ( 9.63s )
+Costs of filter 390:   699 ( 9.76s )
+Costs of filter 391:  1119 ( 9.57s )
+Costs of filter 394:  1023 ( 9.63s )
+Costs of filter 395:   689 ( 9.81s )
+Costs of filter 397:   555 ( 9.69s )
+Costs of filter 399:   570 ( 9.68s )
+Costs of filter 405:   822 ( 9.91s )
+Costs of filter 406:   585 ( 10.06s )
+Costs of filter 407:   914 ( 10.02s )
+Costs of filter 410:  1100 ( 10.09s )
+Costs of filter 411:   443 ( 10.06s )
+Costs of filter 418:  1082 ( 10.06s )
+Costs of filter 421:   524 ( 10.33s )
+Costs of filter 422:   892 ( 10.12s )
+Costs of filter 424:   353 ( 10.17s )
+Costs of filter 427:   977 ( 10.31s )
+Costs of filter 428:  1256 ( 10.49s )
+Costs of filter 431:   970 ( 10.43s )
+Costs of filter 432:  1419 ( 10.59s )
+Costs of filter 434:   600 ( 10.65s )
+Costs of filter 435:   647 ( 10.37s )
+Costs of filter 436:  1008 ( 10.40s )
+Costs of filter 437:   516 ( 10.39s )
+Costs of filter 438:   591 ( 10.63s )
+Costs of filter 442:   746 ( 10.46s )
+Costs of filter 446:   722 ( 10.58s )
+Costs of filter 447:  1298 ( 10.90s )
+Costs of filter 449:   389 ( 10.79s )
+Costs of filter 450:   653 ( 10.84s )
+Costs of filter 452:   527 ( 10.69s )
+Costs of filter 453:   617 ( 10.90s )
+Costs of filter 458:   593 ( 11.02s )
+Costs of filter 459:   912 ( 10.83s )
+Costs of filter 461:   302 ( 10.85s )
+Costs of filter 464:   450 ( 10.97s )
+Costs of filter 465:   652 ( 11.16s )
+Costs of filter 467:   687 ( 10.99s )
+Costs of filter 468:   467 ( 11.07s )
+Costs of filter 469:   996 ( 11.08s )
+Costs of filter 471:   840 ( 11.26s )
+Costs of filter 473:   772 ( 11.33s )
+Costs of filter 474:   698 ( 11.35s )
+Costs of filter 475:   588 ( 11.12s )
+Costs of filter 476:   589 ( 11.68s )
+Costs of filter 481:   697 ( 13.18s )
+Costs of filter 482:   541 ( 15.79s )
+Costs of filter 483:   527 ( 13.27s )
+Costs of filter 485:   713 ( 12.31s )
+Costs of filter 486:  1268 ( 12.75s )
+Costs of filter 487:   748 ( 11.81s )
+Costs of filter 489:   376 ( 11.90s )
+Costs of filter 490:   662 ( 11.93s )
+Costs of filter 491:   593 ( 12.19s )
+Costs of filter 493:   606 ( 14.47s )
+Costs of filter 494:   717 ( 15.14s )
+Costs of filter 496:   594 ( 14.02s )
+Costs of filter 497:   708 ( 12.83s )
+Costs of filter 500:   745 ( 12.17s )
+Costs of filter 502:  1269 ( 12.06s )
+Costs of filter 503:   615 ( 12.31s )
+Costs of filter 505:   655 ( 12.59s )
+Costs of filter 511:   568 ( 14.09s )
+234 filter processed.
+</pre></table></code></div></div><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>
+</pre></table></code></div></div><p>最终得到结果如下: <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Keras-exercise/vgg_block5_conv1_15x15.png" alt="卷积可视化图" /></p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/tutorial/'>Tutorial</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/keras/" class="post-tag no-text-decoration" >Keras</a> <a href="/tags/tensorflow/" class="post-tag no-text-decoration" >Tensorflow</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Keras样例练习 - Johney Zheng&url=https://www.johneyzheng.top//posts/Keras_examples/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Keras样例练习 - Johney Zheng&u=https://www.johneyzheng.top//posts/Keras_examples/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Keras样例练习 - Johney Zheng&url=https://www.johneyzheng.top//posts/Keras_examples/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/Blog-Agents%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">Blog Agents功能介绍</a><li><a href="/posts/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88/">大模型推理技术栈</a><li><a href="/posts/%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E6%8A%80%E6%9C%AF%E6%A6%82%E8%A7%88/">模型部署技术概览</a><li><a href="/posts/FlashAttention%E7%B3%BB%E5%88%97%E4%BC%98%E5%8C%96/">FlashAttention系列优化</a><li><a href="/posts/Win10_Ubuntu_installation/">双系统安装(WIN10+Ubuntu16)</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/python/">Python</a> <a class="post-tag" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a> <a class="post-tag" href="/tags/cv/">CV</a> <a class="post-tag" href="/tags/llms/">LLMs</a> <a class="post-tag" href="/tags/%E7%BB%BC%E8%BF%B0/">综述</a> <a class="post-tag" href="/tags/3d/">3D</a> <a class="post-tag" href="/tags/paper-reading/">Paper_Reading</a> <a class="post-tag" href="/tags/c/">C++</a> <a class="post-tag" href="/tags/kaggle/">Kaggle</a> <a class="post-tag" href="/tags/ubuntu/">Ubuntu</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/Ubuntu16.04LTS_Cuda9.0_OpenCV3_python_tensorflow/"><div class="card-body"> <span class="timeago small" > Nov 20, 2018 <i class="unloaded">2018-11-20T19:25:24+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Ubuntu16.04LTS+Tensorflow基本环境配置</h3><div class="text-muted small"><p> 参考博客 系统：Ubuntu16 （kernel：141） 安装Cuda驱动 采用下载文件安装，在系统设置选择软件和更新，更改下载源，选择aliyun，选择附件驱动，选择使用NVIDA binary driver.......nvidia-384: 提示重启后，终端输入： sudo nvidia-settings 弹出界面： 则说明安装成功。通过nvidia-smi也可以得到...</p></div></div></a></div><div class="card"> <a href="/posts/OpenFace_CNN_model/"><div class="card-body"> <span class="timeago small" > Nov 25, 2016 <i class="unloaded">2016-11-25T19:25:24+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>OpenFace自建CNN模型</h3><div class="text-muted small"><p> Openface Home 重点可参考：杨存毅的博客 OpenFace官方网站： https://cmusatyalab.github.io/openface/ https://cmusatyalab.github.io/openface/setup/ 环境配置 Ubuntu16.04 Nvidia 940M Cuda8.0 库环境 OpenCV2.4.11与cuda8.0具...</p></div></div></a></div><div class="card"> <a href="/posts/Kaggle_Digit-Recognizer_svm/"><div class="card-body"> <span class="timeago small" > Jan 22, 2019 <i class="unloaded">2019-01-22T19:25:24+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Kaggle-Digit Recognizer-svm</h3><div class="text-muted small"><p> 参考网页 import pandas as pd import matplotlib.pyplot as plt, matplotlib.image as mpimg from sklearn.model_selection import train_test_split from sklearn import svm %matplotlib inline labeled_im...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/posts/Org_mode/" class="btn btn-outline-primary" prompt="较早文章"><p>Org-mode基本功能</p></a> <a href="/posts/Emcas_Configuration/" class="btn btn-outline-primary" prompt="较新文章"><p>emacs配置初步</p></a></div><div id="comments"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script> <script src='//unpkg.com/valine/dist/Valine.min.js'></script> <script> new Valine({ el: '#comments', app_id: 'IJm2s0GdkzhEOLwVfClrHeWs-gzGzoHsz', app_key: 'Y281bajarkkIGs8p4WmrTkNi', placeholder: '请在下面评论：', visitor: true }); </script></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/username">Johney Zheng</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/python/">Python</a> <a class="post-tag" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a> <a class="post-tag" href="/tags/cv/">CV</a> <a class="post-tag" href="/tags/llms/">LLMs</a> <a class="post-tag" href="/tags/%E7%BB%BC%E8%BF%B0/">综述</a> <a class="post-tag" href="/tags/3d/">3D</a> <a class="post-tag" href="/tags/paper-reading/">Paper_Reading</a> <a class="post-tag" href="/tags/c/">C++</a> <a class="post-tag" href="/tags/kaggle/">Kaggle</a> <a class="post-tag" href="/tags/ubuntu/">Ubuntu</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://www.johneyzheng.top/{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>
