@@ -45,7 +45,6 @@ const resource = [
 const allowedDomains = [
   {% if site.google_analytics.id != '' %}
     'www.googletagmanager.com',
-    'www.google-analytics.com',
   {% endif %}
 
   '{{ site.url | split: "//" | last }}',
