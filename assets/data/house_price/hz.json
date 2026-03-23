@@ -1,7 +1,7 @@
 {
   "city": "杭州",
   "city_key": "hz",
-  "updated_at": "2026-03-22",
+  "updated_at": "2026-03-23",
   "start_year": 2018,
   "end_year": 2026,
   "city_history": [
@@ -489,43 +489,48 @@
       "date": "2026-01",
       "second_hand_price": 32980.0,
       "new_house_price": 27735.0
+    },
+    {
+      "date": "2026-02",
+      "second_hand_price": 32238.0,
+      "new_house_price": 28024.0
     }
   ],
   "district_list": [
     {
       "district": "西湖区",
-      "price": 43167.0,
-      "yoy": 1.51
+      "price": 45156.0,
+      "yoy": 3.95
     },
     {
       "district": "滨江区",
-      "price": 41857.0,
-      "yoy": -7.45
+      "price": 41838.0,
+      "yoy": -6.02
     },
     {
       "district": "上城区",
-      "price": 39416.0,
-      "yoy": -10.61
-    },
-    {
-      "district": "市区",
-      "price": 36700.0,
-      "yoy": -6.99
+      "price": 39716.0,
+      "yoy": -7.8
     },
     {
       "district": "拱墅区",
-      "price": 36584.0,
-      "yoy": -7.87
+      "price": 36357.0,
+      "yoy": -7.75
+    },
+    {
+      "district": "市区",
+      "price": 36000.0,
+      "yoy": -6.85
     },
     {
       "district": "萧山区",
-      "price": 30868.0,
-      "yoy": -7.74
+      "price": 30434.0,
+      "yoy": -9.69
     },
     {
       "district": "余杭区",
-      "price": 27728.0,
-      "yoy": -1.79
+      "price": 26219.0,
+      "yoy": -1.12
     },
     {
       "district": "钱塘区",
@@ -534,8 +539,8 @@
     },
     {
       "district": "富阳区",
-      "price": 21634.0,
-      "yoy": -0.35
+      "price": 21049.0,
+      "yoy": -0.25
     },
     {
       "district": "临平区",
@@ -544,23 +549,23 @@
     },
     {
       "district": "建德市",
-      "price": 17700.0,
-      "yoy": 4.72
+      "price": 17500.0,
+      "yoy": 11.56
     },
     {
       "district": "临安区",
-      "price": 12898.0,
-      "yoy": -5.02
+      "price": 13048.0,
+      "yoy": -15.04
     },
     {
       "district": "桐庐县",
-      "price": 10938.0,
-      "yoy": -21.78
+      "price": 10798.0,
+      "yoy": -25.24
     },
     {
       "district": "淳安县",
-      "price": 10200.0,
-      "yoy": -26.39
+      "price": 10100.0,
+      "yoy": -26.83
     }
   ],
   "districts": {
@@ -1021,6 +1026,11 @@
           "date": "2026-01",
           "second_hand_price": 43167.0,
           "new_house_price": 48778.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 45156.0,
+          "new_house_price": 47763.0
         }
       ],
       "communities": [
@@ -4581,6 +4591,11 @@
           "date": "2026-01",
           "second_hand_price": 41857.0,
           "new_house_price": 41760.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 41838.0,
+          "new_house_price": 33016.0
         }
       ],
       "communities": [
@@ -7420,6 +7435,11 @@
           "date": "2026-01",
           "second_hand_price": 39416.0,
           "new_house_price": 42160.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 39716.0,
+          "new_house_price": 43934.0
         }
       ],
       "communities": [
@@ -10997,6 +11017,11 @@
           "date": "2026-01",
           "second_hand_price": 36584.0,
           "new_house_price": 45201.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 36357.0,
+          "new_house_price": 45883.0
         }
       ],
       "communities": [
@@ -14533,6 +14558,11 @@
           "date": "2026-01",
           "second_hand_price": 30868.0,
           "new_house_price": 25156.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 30434.0,
+          "new_house_price": 25424.0
         }
       ],
       "communities": [
@@ -18062,6 +18092,11 @@
           "date": "2026-01",
           "second_hand_price": 27728.0,
           "new_house_price": 26603.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 26219.0,
+          "new_house_price": 26148.0
         }
       ],
       "communities": [
@@ -21580,6 +21615,11 @@
           "date": "2026-01",
           "second_hand_price": 21634.0,
           "new_house_price": 19346.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 21049.0,
+          "new_house_price": 19708.0
         }
       ],
       "communities": [
@@ -28704,6 +28744,11 @@
           "date": "2026-01",
           "second_hand_price": 12898.0,
           "new_house_price": 18678.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 13048.0,
+          "new_house_price": 18458.0
         }
       ],
       "communities": [
@@ -32180,6 +32225,11 @@
           "date": "2026-01",
           "second_hand_price": 17700.0,
           "new_house_price": 17939.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 17500.0,
+          "new_house_price": 18500.0
         }
       ],
       "communities": [
@@ -33713,6 +33763,11 @@
           "date": "2026-01",
           "second_hand_price": 10200.0,
           "new_house_price": 11823.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 10100.0,
+          "new_house_price": 11812.0
         }
       ],
       "communities": [
@@ -34816,6 +34871,11 @@
           "date": "2026-01",
           "second_hand_price": 10938.0,
           "new_house_price": 19697.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 10798.0,
+          "new_house_price": 19865.0
         }
       ],
       "communities": [
