@@ -1,7 +1,7 @@
 {
   "city": "杭州",
   "city_key": "hz",
-  "updated_at": "2026-04-02",
+  "updated_at": "2026-04-03",
   "start_year": 2018,
   "end_year": 2026,
   "city_history": [
@@ -666,66 +666,6 @@
           "date": "2019-12",
           "second_hand_price": 42403.0,
           "new_house_price": 39137.0
-        },
-        {
-          "date": "2020-01",
-          "second_hand_price": 42268.0,
-          "new_house_price": 39032.0
-        },
-        {
-          "date": "2020-02",
-          "second_hand_price": 44281.0,
-          "new_house_price": 40760.0
-        },
-        {
-          "date": "2020-03",
-          "second_hand_price": 43420.0,
-          "new_house_price": 42817.0
-        },
-        {
-          "date": "2020-04",
-          "second_hand_price": 41636.0,
-          "new_house_price": 42646.0
-        },
-        {
-          "date": "2020-05",
-          "second_hand_price": 43589.0,
-          "new_house_price": 45458.0
-        },
-        {
-          "date": "2020-06",
-          "second_hand_price": 45099.0,
-          "new_house_price": 40798.0
-        },
-        {
-          "date": "2020-07",
-          "second_hand_price": 46073.0,
-          "new_house_price": 41819.0
-        },
-        {
-          "date": "2020-08",
-          "second_hand_price": 45824.0,
-          "new_house_price": 42986.0
-        },
-        {
-          "date": "2020-09",
-          "second_hand_price": 45815.0,
-          "new_house_price": 45008.0
-        },
-        {
-          "date": "2020-10",
-          "second_hand_price": 45052.0,
-          "new_house_price": 49303.0
-        },
-        {
-          "date": "2020-11",
-          "second_hand_price": 44840.0,
-          "new_house_price": 47323.0
-        },
-        {
-          "date": "2020-12",
-          "second_hand_price": 49644.0,
-          "new_house_price": 53265.0
         },
         {
           "date": "2021-01",
@@ -32282,6 +32222,1026 @@
           "community": "求是花园",
           "price": 11835.0,
           "mom_pct": 3.31
+        },
+        {
+          "community": "阳光佳园",
+          "price": 5643.0,
+          "mom_pct": -0.98
+        },
+        {
+          "community": "阳光城",
+          "price": 20731.0,
+          "mom_pct": -1.53
+        },
+        {
+          "community": "焦山新村",
+          "price": 14626.0,
+          "mom_pct": -3.42
+        },
+        {
+          "community": "新安花园",
+          "price": 17457.0,
+          "mom_pct": -4.43
+        },
+        {
+          "community": "蓝天雅苑",
+          "price": 16593.0,
+          "mom_pct": 2.57
+        },
+        {
+          "community": "御品江南",
+          "price": 6532.0,
+          "mom_pct": -0.46
+        },
+        {
+          "community": "万豪嘉园",
+          "price": 11356.0,
+          "mom_pct": -5.68
+        },
+        {
+          "community": "留星公寓",
+          "price": 16296.0,
+          "mom_pct": 4.52
+        },
+        {
+          "community": "东洲商务公寓",
+          "price": 15497.0,
+          "mom_pct": 2.81
+        },
+        {
+          "community": "半岛山庄",
+          "price": 14542.0,
+          "mom_pct": -1.5
+        },
+        {
+          "community": "锦华园",
+          "price": 14799.0,
+          "mom_pct": 1.51
+        },
+        {
+          "community": "华宇悦府",
+          "price": 7282.0,
+          "mom_pct": -0.86
+        },
+        {
+          "community": "金色阳光",
+          "price": 16123.0,
+          "mom_pct": 3.7
+        },
+        {
+          "community": "车站弄",
+          "price": 9998.0,
+          "mom_pct": null
+        },
+        {
+          "community": "防洪站安置房",
+          "price": 19663.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新唐人家",
+          "price": 10645.0,
+          "mom_pct": null
+        },
+        {
+          "community": "秀水华庭北区",
+          "price": 11402.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新安江",
+          "price": 18401.0,
+          "mom_pct": null
+        },
+        {
+          "community": "香溢河楠公寓",
+          "price": 10243.0,
+          "mom_pct": null
+        },
+        {
+          "community": "盛华园",
+          "price": 7538.0,
+          "mom_pct": null
+        },
+        {
+          "community": "寿昌雅居二期",
+          "price": 6468.0,
+          "mom_pct": null
+        },
+        {
+          "community": "乾谭阳光佳园",
+          "price": 7007.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桥南南安花苑",
+          "price": 6982.0,
+          "mom_pct": null
+        },
+        {
+          "community": "柳城路小区",
+          "price": 9069.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新都·景溪花园",
+          "price": 8001.0,
+          "mom_pct": null
+        },
+        {
+          "community": "安康碧霞小区",
+          "price": 6231.0,
+          "mom_pct": null
+        },
+        {
+          "community": "里阳农居安置小区",
+          "price": 5926.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江南丽景",
+          "price": 8447.0,
+          "mom_pct": null
+        },
+        {
+          "community": "梅城镇东湖社区",
+          "price": 8395.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金塘南苑",
+          "price": 9836.0,
+          "mom_pct": null
+        },
+        {
+          "community": "观澜府",
+          "price": 8995.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万居·近溪嘉园",
+          "price": 9808.0,
+          "mom_pct": null
+        },
+        {
+          "community": "杭州碧桂园望江台",
+          "price": 17258.0,
+          "mom_pct": null
+        },
+        {
+          "community": "普惠家园",
+          "price": 7515.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东都江景苑",
+          "price": 7355.0,
+          "mom_pct": null
+        },
+        {
+          "community": "兴溪花园",
+          "price": 9781.0,
+          "mom_pct": null
+        },
+        {
+          "community": "佳和苑",
+          "price": 8206.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫园西苑",
+          "price": 9354.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新天地商住楼",
+          "price": 10379.0,
+          "mom_pct": null
+        },
+        {
+          "community": "朱池新村",
+          "price": 6482.0,
+          "mom_pct": null
+        },
+        {
+          "community": "余杭菜市路小区",
+          "price": 9730.0,
+          "mom_pct": null
+        },
+        {
+          "community": "叶家社区",
+          "price": 10038.0,
+          "mom_pct": null
+        },
+        {
+          "community": "建德子胥路与市场路交叉口",
+          "price": 9409.0,
+          "mom_pct": null
+        },
+        {
+          "community": "花亭苑",
+          "price": 6543.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广元雅星公寓",
+          "price": 12920.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广信商务公寓",
+          "price": 9699.0,
+          "mom_pct": null
+        },
+        {
+          "community": "景华园",
+          "price": 41794.0,
+          "mom_pct": null
+        },
+        {
+          "community": "锦绣庄园",
+          "price": 6921.0,
+          "mom_pct": null
+        },
+        {
+          "community": "枫坞塘山庄",
+          "price": 11053.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大同中学家属院",
+          "price": 10022.0,
+          "mom_pct": null
+        },
+        {
+          "community": "城中花苑",
+          "price": 9795.0,
+          "mom_pct": null
+        },
+        {
+          "community": "白沙新村",
+          "price": 7164.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙大·洋安学府",
+          "price": 8996.0,
+          "mom_pct": null
+        },
+        {
+          "community": "信成金谷小区",
+          "price": 10424.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金塘小区",
+          "price": 11936.0,
+          "mom_pct": null
+        },
+        {
+          "community": "雅居锦绣西湖",
+          "price": 5840.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙源水居北区",
+          "price": 7459.0,
+          "mom_pct": null
+        },
+        {
+          "community": "水韵天城南区",
+          "price": 8214.0,
+          "mom_pct": null
+        },
+        {
+          "community": "拉里维娜",
+          "price": 15098.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广宇致中和花园小区",
+          "price": 12858.0,
+          "mom_pct": null
+        },
+        {
+          "community": "洋富潭新村",
+          "price": 10864.0,
+          "mom_pct": null
+        },
+        {
+          "community": "拉里维娜水上人间花园",
+          "price": 14094.0,
+          "mom_pct": null
+        },
+        {
+          "community": "康安新村",
+          "price": 11538.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江南苑",
+          "price": 11242.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万豪千岛百度",
+          "price": 47105.0,
+          "mom_pct": null
+        },
+        {
+          "community": "时代商寓",
+          "price": 6489.0,
+          "mom_pct": null
+        },
+        {
+          "community": "狮山雅苑",
+          "price": 7511.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新广商寓",
+          "price": 10008.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西湖山公寓",
+          "price": 6511.0,
+          "mom_pct": null
+        },
+        {
+          "community": "雅星公寓",
+          "price": 6052.0,
+          "mom_pct": null
+        },
+        {
+          "community": "汇美家园",
+          "price": 6026.0,
+          "mom_pct": null
+        },
+        {
+          "community": "景轩公寓",
+          "price": 17332.0,
+          "mom_pct": null
+        },
+        {
+          "community": "拱新公寓",
+          "price": 16765.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东山湾",
+          "price": 3373.0,
+          "mom_pct": null
+        },
+        {
+          "community": "巴萨星城",
+          "price": 15232.0,
+          "mom_pct": null
+        },
+        {
+          "community": "近溪嘉园",
+          "price": 8262.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东湖花苑",
+          "price": 3991.0,
+          "mom_pct": null
+        },
+        {
+          "community": "森工花苑",
+          "price": 3993.0,
+          "mom_pct": null
+        },
+        {
+          "community": "严州西湖金苑",
+          "price": 6498.0,
+          "mom_pct": null
+        },
+        {
+          "community": "香溢宝华公寓",
+          "price": 6427.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西湖茗园",
+          "price": 5962.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西湖御园",
+          "price": 7018.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西湖庄园",
+          "price": 6425.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江和城臻园",
+          "price": 14405.0,
+          "mom_pct": null
+        },
+        {
+          "community": "富春一品",
+          "price": 9295.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江枫花苑",
+          "price": 10954.0,
+          "mom_pct": null
+        },
+        {
+          "community": "借山景苑",
+          "price": 11976.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金鑫佳苑",
+          "price": 6999.0,
+          "mom_pct": null
+        },
+        {
+          "community": "塘湾小苑",
+          "price": 3979.0,
+          "mom_pct": null
+        },
+        {
+          "community": "田园月亮湾3号",
+          "price": 13273.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金山湾公寓西苑",
+          "price": 9862.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金山湾公寓东苑",
+          "price": 14012.0,
+          "mom_pct": null
+        },
+        {
+          "community": "荷塘嘉苑",
+          "price": 6128.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫金家园",
+          "price": 11664.0,
+          "mom_pct": null
+        },
+        {
+          "community": "尚都桔香嘉园",
+          "price": 7507.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西湖嘉园",
+          "price": 6575.0,
+          "mom_pct": null
+        },
+        {
+          "community": "彩虹公寓",
+          "price": 9429.0,
+          "mom_pct": null
+        },
+        {
+          "community": "长虹商寓",
+          "price": 9087.0,
+          "mom_pct": null
+        },
+        {
+          "community": "天创金色蓝庭",
+          "price": 12456.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大宅门公寓",
+          "price": 10206.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江和城和园",
+          "price": 20202.0,
+          "mom_pct": null
+        },
+        {
+          "community": "翡翠成堡",
+          "price": 6660.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫园东苑",
+          "price": 6114.0,
+          "mom_pct": null
+        },
+        {
+          "community": "府东社区",
+          "price": 11352.0,
+          "mom_pct": null
+        },
+        {
+          "community": "沧滩社区",
+          "price": 8919.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广信金都园",
+          "price": 9703.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广宇涌金花苑",
+          "price": 13048.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南港公寓",
+          "price": 8574.0,
+          "mom_pct": null
+        },
+        {
+          "community": "广宇新世纪花园",
+          "price": 12345.0,
+          "mom_pct": null
+        },
+        {
+          "community": "巴萨名门",
+          "price": 21129.0,
+          "mom_pct": null
+        },
+        {
+          "community": "清源新居",
+          "price": 15666.0,
+          "mom_pct": null
+        },
+        {
+          "community": "碧江花苑",
+          "price": 12730.0,
+          "mom_pct": null
+        },
+        {
+          "community": "国信新安明珠",
+          "price": 17809.0,
+          "mom_pct": null
+        },
+        {
+          "community": "华庭嘉寓小区",
+          "price": 7371.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新安南岸花苑",
+          "price": 7716.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金地家园",
+          "price": 12383.0,
+          "mom_pct": null
+        },
+        {
+          "community": "程周坞小区",
+          "price": 13972.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙源御景园",
+          "price": 15344.0,
+          "mom_pct": null
+        },
+        {
+          "community": "慎修里",
+          "price": 64906.0,
+          "mom_pct": null
+        },
+        {
+          "community": "天骄香槟郡",
+          "price": 12822.0,
+          "mom_pct": null
+        },
+        {
+          "community": "恒大御泉四季",
+          "price": 6555.0,
+          "mom_pct": null
+        },
+        {
+          "community": "拉里维娜·水上人间花园",
+          "price": 19660.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东都城市家园",
+          "price": 7355.0,
+          "mom_pct": null
+        },
+        {
+          "community": "国大阳光星辰",
+          "price": 9388.0,
+          "mom_pct": null
+        },
+        {
+          "community": "罗桐小区",
+          "price": 14050.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南塘琴园",
+          "price": 13593.0,
+          "mom_pct": null
+        },
+        {
+          "community": "秀水华庭",
+          "price": 13091.0,
+          "mom_pct": null
+        },
+        {
+          "community": "一江春水",
+          "price": 9781.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金色佳园",
+          "price": 4689.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙源水居",
+          "price": 7553.0,
+          "mom_pct": null
+        },
+        {
+          "community": "明都公寓",
+          "price": 9332.0,
+          "mom_pct": null
+        },
+        {
+          "community": "爱和苑",
+          "price": 6171.0,
+          "mom_pct": null
+        },
+        {
+          "community": "洋安家园",
+          "price": 16614.0,
+          "mom_pct": null
+        },
+        {
+          "community": "麻园小区",
+          "price": 8430.0,
+          "mom_pct": null
+        },
+        {
+          "community": "城中嘉苑",
+          "price": 9516.0,
+          "mom_pct": null
+        },
+        {
+          "community": "建煌公寓",
+          "price": 13247.0,
+          "mom_pct": null
+        },
+        {
+          "community": "近江花园",
+          "price": 8711.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙源山庄",
+          "price": 11449.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛花苑",
+          "price": 7426.0,
+          "mom_pct": null
+        },
+        {
+          "community": "香村公寓",
+          "price": 7783.0,
+          "mom_pct": null
+        },
+        {
+          "community": "百合园",
+          "price": 12982.0,
+          "mom_pct": null
+        },
+        {
+          "community": "香溢城中花苑",
+          "price": 9821.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新安财富城",
+          "price": 23402.0,
+          "mom_pct": null
+        },
+        {
+          "community": "育新小区",
+          "price": 9022.0,
+          "mom_pct": null
+        },
+        {
+          "community": "华隆公寓",
+          "price": 9861.0,
+          "mom_pct": null
+        },
+        {
+          "community": "临江花苑",
+          "price": 9087.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万宇康乐花园",
+          "price": 11986.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江南春公寓",
+          "price": 6945.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南山雅居",
+          "price": 11357.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新电小区",
+          "price": 7961.0,
+          "mom_pct": null
+        },
+        {
+          "community": "依城苑",
+          "price": 9803.0,
+          "mom_pct": null
+        },
+        {
+          "community": "香槟郡",
+          "price": 16569.0,
+          "mom_pct": null
+        },
+        {
+          "community": "龙源清溪翠谷",
+          "price": 9195.0,
+          "mom_pct": null
+        },
+        {
+          "community": "幸福康桥水岸",
+          "price": 7531.0,
+          "mom_pct": null
+        },
+        {
+          "community": "柳城雅苑",
+          "price": 9142.0,
+          "mom_pct": null
+        },
+        {
+          "community": "西山名邸",
+          "price": 7176.0,
+          "mom_pct": null
+        },
+        {
+          "community": "朝阳小苑",
+          "price": 9539.0,
+          "mom_pct": null
+        },
+        {
+          "community": "越秀名苑",
+          "price": 8133.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东湾丽景",
+          "price": 12271.0,
+          "mom_pct": null
+        },
+        {
+          "community": "玉泉雅苑",
+          "price": 5964.0,
+          "mom_pct": null
+        },
+        {
+          "community": "香溢新安家园",
+          "price": 11731.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东方巴黎城",
+          "price": 7227.0,
+          "mom_pct": null
+        },
+        {
+          "community": "水岸鑫域",
+          "price": 8201.0,
+          "mom_pct": null
+        },
+        {
+          "community": "碧桂园望江台",
+          "price": 15361.0,
+          "mom_pct": null
+        },
+        {
+          "community": "慈岩印象城",
+          "price": 14703.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万固观澜府",
+          "price": 16879.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江和城",
+          "price": 13873.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城春江明月",
+          "price": 21408.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南北公寓",
+          "price": 20255.0,
+          "mom_pct": null
+        },
+        {
+          "community": "中南漫悦湾",
+          "price": 9645.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万固·观澜府",
+          "price": 12395.0,
+          "mom_pct": null
+        },
+        {
+          "community": "郡原·一江春水",
+          "price": 12661.0,
+          "mom_pct": null
+        },
+        {
+          "community": "建德恒大林溪郡",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "南岸花苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "信诚公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新港公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "江南公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "田园·月亮湾",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新水居",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "清波公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "金谷小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "红枫花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "香溢·城东雅苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新安公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新安江时代广场",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "致中和花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "江和城和风苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "香溢龙山公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "喜洋洋万嘉广场",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "水岸鑫域花苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "甜梦山庄",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "江南花苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "东都·城市家园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "兽王·秀水华庭",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "水韵天城",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "和谐·江和城",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "雅地公馆",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "景程望江豪庭",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "慈岩印象新城",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "桔香嘉园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城·建德玉兰花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "风尚泽园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "国大·阳光星辰",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城·春江明月",
+          "price": null,
+          "mom_pct": null
         }
       ],
       "sub_districts": {}
@@ -32289,6 +33249,41 @@
     "chunan": {
       "name": "淳安县",
       "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 13354.0,
+          "new_house_price": 13.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 15161.0,
+          "new_house_price": 13.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 15601.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 15232.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 16464.0,
+          "new_house_price": 8.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 16354.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 14501.0,
+          "new_house_price": 11.0
+        },
         {
           "date": "2019-01",
           "second_hand_price": 14622.0,
@@ -32703,6 +33698,16 @@
           "date": "2025-12",
           "second_hand_price": 13135.0,
           "new_house_price": 12312.0
+        },
+        {
+          "date": "2026-01",
+          "second_hand_price": 10200.0,
+          "new_house_price": 11823.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 10100.0,
+          "new_house_price": 11812.0
         }
       ],
       "communities": [
@@ -32805,6 +33810,546 @@
           "community": "千岛湖壹号",
           "price": 39181.0,
           "mom_pct": 0.76
+        },
+        {
+          "community": "湖畔渔舍",
+          "price": 20802.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城千岛湖玫瑰园",
+          "price": 25970.0,
+          "mom_pct": null
+        },
+        {
+          "community": "淳安金色阳光",
+          "price": 13243.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖留香园",
+          "price": 15626.0,
+          "mom_pct": null
+        },
+        {
+          "community": "御景雅苑",
+          "price": 12825.0,
+          "mom_pct": null
+        },
+        {
+          "community": "朝鑫苑",
+          "price": 18063.0,
+          "mom_pct": null
+        },
+        {
+          "community": "长运小区",
+          "price": 12832.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖美都兰庭",
+          "price": 15934.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新兴花园",
+          "price": 13193.0,
+          "mom_pct": null
+        },
+        {
+          "community": "青城山居别墅",
+          "price": 13675.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖锦溪佳苑",
+          "price": 16191.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫荆花园东区",
+          "price": 26138.0,
+          "mom_pct": null
+        },
+        {
+          "community": "辉照山",
+          "price": 13585.0,
+          "mom_pct": null
+        },
+        {
+          "community": "开元度假村",
+          "price": 20647.0,
+          "mom_pct": null
+        },
+        {
+          "community": "茶苑小区",
+          "price": 17894.0,
+          "mom_pct": null
+        },
+        {
+          "community": "华庭铭苑",
+          "price": 14369.0,
+          "mom_pct": null
+        },
+        {
+          "community": "海外海秀水名苑",
+          "price": 14127.0,
+          "mom_pct": null
+        },
+        {
+          "community": "柏润国际花园",
+          "price": 9545.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖尚公馆",
+          "price": 11384.0,
+          "mom_pct": null
+        },
+        {
+          "community": "翡翠岛山水名墅",
+          "price": 14491.0,
+          "mom_pct": null
+        },
+        {
+          "community": "李家巷小区",
+          "price": 8521.0,
+          "mom_pct": null
+        },
+        {
+          "community": "创富兰庭观澜苑",
+          "price": 12230.0,
+          "mom_pct": null
+        },
+        {
+          "community": "淳安曙光新村",
+          "price": 9508.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新塘2区",
+          "price": 12566.0,
+          "mom_pct": null
+        },
+        {
+          "community": "青塘坞小区",
+          "price": 8249.0,
+          "mom_pct": null
+        },
+        {
+          "community": "望湖山庄",
+          "price": 13120.0,
+          "mom_pct": null
+        },
+        {
+          "community": "阳光水岸度假村",
+          "price": 14301.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美都千岛碧云天",
+          "price": 18593.0,
+          "mom_pct": null
+        },
+        {
+          "community": "嘉豪景月湾花苑",
+          "price": 13851.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖梦云岛",
+          "price": 16322.0,
+          "mom_pct": null
+        },
+        {
+          "community": "安阳天香华庭",
+          "price": 7389.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛碧水花园",
+          "price": 13583.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖星雨华府",
+          "price": 12568.0,
+          "mom_pct": null
+        },
+        {
+          "community": "琵琶园",
+          "price": 13471.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金鑫家园",
+          "price": 10829.0,
+          "mom_pct": null
+        },
+        {
+          "community": "淳建新村",
+          "price": 12566.0,
+          "mom_pct": null
+        },
+        {
+          "community": "初阳花园",
+          "price": 12702.0,
+          "mom_pct": null
+        },
+        {
+          "community": "知丰小区",
+          "price": 13740.0,
+          "mom_pct": null
+        },
+        {
+          "community": "墨香新苑",
+          "price": 10177.0,
+          "mom_pct": null
+        },
+        {
+          "community": "银杏山庄",
+          "price": 11479.0,
+          "mom_pct": null
+        },
+        {
+          "community": "阳光水岸度假公寓",
+          "price": 14310.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛花园",
+          "price": 12020.0,
+          "mom_pct": null
+        },
+        {
+          "community": "碧湖阁",
+          "price": 17602.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东庄新村",
+          "price": 7838.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南景苑",
+          "price": 9735.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫荆香江庭院",
+          "price": 27093.0,
+          "mom_pct": null
+        },
+        {
+          "community": "锦溪佳苑",
+          "price": 14102.0,
+          "mom_pct": null
+        },
+        {
+          "community": "时光心宇公寓",
+          "price": 10075.0,
+          "mom_pct": null
+        },
+        {
+          "community": "一家山水",
+          "price": 11205.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫荆湖滨公寓",
+          "price": 26434.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖商城",
+          "price": 16864.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖桃花园",
+          "price": 16013.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛龙庭",
+          "price": 13737.0,
+          "mom_pct": null
+        },
+        {
+          "community": "书香名地",
+          "price": 16873.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万寿园",
+          "price": 12348.0,
+          "mom_pct": null
+        },
+        {
+          "community": "星月湾",
+          "price": 16560.0,
+          "mom_pct": null
+        },
+        {
+          "community": "佳逸公寓",
+          "price": 14276.0,
+          "mom_pct": null
+        },
+        {
+          "community": "景秀花园",
+          "price": 12440.0,
+          "mom_pct": null
+        },
+        {
+          "community": "久香苑",
+          "price": 10938.0,
+          "mom_pct": null
+        },
+        {
+          "community": "丽湖馨居",
+          "price": 8421.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城养生堂千岛湖玫瑰园",
+          "price": 15138.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美都兰庭",
+          "price": 16035.0,
+          "mom_pct": null
+        },
+        {
+          "community": "明珠花园",
+          "price": 14536.0,
+          "mom_pct": null
+        },
+        {
+          "community": "翠湖春晓",
+          "price": 11626.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大千古街",
+          "price": 12820.0,
+          "mom_pct": null
+        },
+        {
+          "community": "方邦望湖国际",
+          "price": 13867.0,
+          "mom_pct": null
+        },
+        {
+          "community": "顺发随园",
+          "price": 22854.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛日月天地",
+          "price": 14546.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖清波花园",
+          "price": 16018.0,
+          "mom_pct": null
+        },
+        {
+          "community": "九龙湾",
+          "price": 15399.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖度假公寓",
+          "price": 18832.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛明月",
+          "price": 13701.0,
+          "mom_pct": null
+        },
+        {
+          "community": "碧桂园泷悦",
+          "price": 16394.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖墅",
+          "price": 23171.0,
+          "mom_pct": null
+        },
+        {
+          "community": "锦和·云水江南",
+          "price": 27198.0,
+          "mom_pct": null
+        },
+        {
+          "community": "珍珠半岛",
+          "price": 15645.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新塘小区",
+          "price": 30862.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美都·千岛碧云天",
+          "price": 40366.0,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛·碧水花园",
+          "price": 12676.0,
+          "mom_pct": null
+        },
+        {
+          "community": "哨兵汤鼎一号",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "文渊狮城",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "温馨小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "柏悦国际",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新天地文渊狮城",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "明珠公馆",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "望湖国际",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "润和半岛",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "创富兰庭",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "金基观岛庭苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "芙蓉苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "南景现代城",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城千岛明月",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "青溪家苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖东方海岸",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "枇杷园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "玉翰·明珠公馆",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "紫荆花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖·尚公馆",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖乡村",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "清雅居",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新塘二区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新塘一区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "绿园新村",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "明珠花园二区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "明珠花园四区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "南苑新村",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "海外海·秀水名苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "千岛湖柏润国际花园",
+          "price": null,
+          "mom_pct": null
         }
       ],
       "sub_districts": {}
@@ -32812,6 +34357,101 @@
     "tonglu": {
       "name": "桐庐县",
       "history": [
+        {
+          "date": "2018-06",
+          "second_hand_price": 13594.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-07",
+          "second_hand_price": 13723.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-08",
+          "second_hand_price": 13803.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2018-09",
+          "second_hand_price": 13643.0,
+          "new_house_price": 1.0
+        },
+        {
+          "date": "2018-10",
+          "second_hand_price": 12753.0,
+          "new_house_price": 6.0
+        },
+        {
+          "date": "2018-11",
+          "second_hand_price": 13514.0,
+          "new_house_price": 5.0
+        },
+        {
+          "date": "2018-12",
+          "second_hand_price": 13843.0,
+          "new_house_price": 2.0
+        },
+        {
+          "date": "2019-01",
+          "second_hand_price": 14813.0,
+          "new_house_price": 14501.0
+        },
+        {
+          "date": "2019-02",
+          "second_hand_price": 15270.0,
+          "new_house_price": 14501.0
+        },
+        {
+          "date": "2019-03",
+          "second_hand_price": 14862.0,
+          "new_house_price": 0.0
+        },
+        {
+          "date": "2019-04",
+          "second_hand_price": 14560.0,
+          "new_house_price": 17654.0
+        },
+        {
+          "date": "2019-05",
+          "second_hand_price": 15212.0,
+          "new_house_price": 22231.0
+        },
+        {
+          "date": "2019-06",
+          "second_hand_price": 15113.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-07",
+          "second_hand_price": 14930.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-08",
+          "second_hand_price": 14271.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-09",
+          "second_hand_price": 13982.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-10",
+          "second_hand_price": 14410.0,
+          "new_house_price": 18523.0
+        },
+        {
+          "date": "2019-11",
+          "second_hand_price": 14570.0,
+          "new_house_price": 17393.0
+        },
+        {
+          "date": "2019-12",
+          "second_hand_price": 13876.0,
+          "new_house_price": 20075.0
+        },
         {
           "date": "2020-01",
           "second_hand_price": 13466.0,
@@ -32871,6 +34511,121 @@
           "date": "2020-12",
           "second_hand_price": 13128.0,
           "new_house_price": 18365.0
+        },
+        {
+          "date": "2021-01",
+          "second_hand_price": 12546.0,
+          "new_house_price": 17968.0
+        },
+        {
+          "date": "2021-02",
+          "second_hand_price": 12957.0,
+          "new_house_price": 18636.0
+        },
+        {
+          "date": "2021-03",
+          "second_hand_price": 14863.0,
+          "new_house_price": 18568.0
+        },
+        {
+          "date": "2021-04",
+          "second_hand_price": 13954.0,
+          "new_house_price": 19894.0
+        },
+        {
+          "date": "2021-05",
+          "second_hand_price": 14955.0,
+          "new_house_price": 19803.0
+        },
+        {
+          "date": "2021-07",
+          "second_hand_price": 14643.0,
+          "new_house_price": 19917.0
+        },
+        {
+          "date": "2021-08",
+          "second_hand_price": 14552.0,
+          "new_house_price": 18665.0
+        },
+        {
+          "date": "2021-09",
+          "second_hand_price": 14690.0,
+          "new_house_price": 19338.0
+        },
+        {
+          "date": "2021-10",
+          "second_hand_price": 15760.0,
+          "new_house_price": 19242.0
+        },
+        {
+          "date": "2021-11",
+          "second_hand_price": 14525.0,
+          "new_house_price": 20703.0
+        },
+        {
+          "date": "2021-12",
+          "second_hand_price": 14939.0,
+          "new_house_price": 20980.0
+        },
+        {
+          "date": "2022-01",
+          "second_hand_price": 14305.0,
+          "new_house_price": 21175.0
+        },
+        {
+          "date": "2022-02",
+          "second_hand_price": 15567.0,
+          "new_house_price": 19804.0
+        },
+        {
+          "date": "2022-03",
+          "second_hand_price": 15157.0,
+          "new_house_price": 19850.0
+        },
+        {
+          "date": "2022-04",
+          "second_hand_price": 15022.0,
+          "new_house_price": 16803.0
+        },
+        {
+          "date": "2022-05",
+          "second_hand_price": 15614.0,
+          "new_house_price": 16568.0
+        },
+        {
+          "date": "2022-06",
+          "second_hand_price": 15353.0,
+          "new_house_price": 16690.0
+        },
+        {
+          "date": "2022-07",
+          "second_hand_price": 17055.0,
+          "new_house_price": 17977.0
+        },
+        {
+          "date": "2022-08",
+          "second_hand_price": 17508.0,
+          "new_house_price": 19125.0
+        },
+        {
+          "date": "2022-09",
+          "second_hand_price": 16649.0,
+          "new_house_price": 19005.0
+        },
+        {
+          "date": "2022-10",
+          "second_hand_price": 16695.0,
+          "new_house_price": 19034.0
+        },
+        {
+          "date": "2022-11",
+          "second_hand_price": 16449.0,
+          "new_house_price": 19029.0
+        },
+        {
+          "date": "2022-12",
+          "second_hand_price": 15630.0,
+          "new_house_price": 18909.0
         },
         {
           "date": "2023-01",
@@ -33000,32 +34755,32 @@
         {
           "date": "2025-02",
           "second_hand_price": 14444.0,
-          "new_house_price": 0.0
+          "new_house_price": null
         },
         {
           "date": "2025-03",
           "second_hand_price": 14300.0,
-          "new_house_price": 0.0
+          "new_house_price": null
         },
         {
           "date": "2025-04",
           "second_hand_price": 14300.0,
-          "new_house_price": 0.0
+          "new_house_price": null
         },
         {
           "date": "2025-05",
           "second_hand_price": 14400.0,
-          "new_house_price": 0.0
+          "new_house_price": null
         },
         {
           "date": "2025-06",
           "second_hand_price": 13700.0,
-          "new_house_price": 0.0
+          "new_house_price": null
         },
         {
           "date": "2025-07",
           "second_hand_price": 11000.0,
-          "new_house_price": 0.0
+          "new_house_price": null
         },
         {
           "date": "2025-08",
@@ -33051,9 +34806,1440 @@
           "date": "2025-12",
           "second_hand_price": 11201.0,
           "new_house_price": 19871.0
+        },
+        {
+          "date": "2026-01",
+          "second_hand_price": 10938.0,
+          "new_house_price": 19697.0
+        },
+        {
+          "date": "2026-02",
+          "second_hand_price": 10798.0,
+          "new_house_price": 19865.0
         }
       ],
-      "communities": [],
+      "communities": [
+        {
+          "community": "柯家塆小区",
+          "price": 11127.0,
+          "mom_pct": 0.03
+        },
+        {
+          "community": "君奇商住楼",
+          "price": 9302.0,
+          "mom_pct": -0.54
+        },
+        {
+          "community": "圆通路17号",
+          "price": 6485.0,
+          "mom_pct": -0.15
+        },
+        {
+          "community": "桐庐县凤川街道谷井路16号",
+          "price": 8374.0,
+          "mom_pct": 0.69
+        },
+        {
+          "community": "国贸路",
+          "price": 9339.0,
+          "mom_pct": -7.58
+        },
+        {
+          "community": "城中路",
+          "price": 12254.0,
+          "mom_pct": 1.21
+        },
+        {
+          "community": "体育场路47号",
+          "price": 12550.0,
+          "mom_pct": 10.77
+        },
+        {
+          "community": "大奇山居大奇园",
+          "price": 15197.0,
+          "mom_pct": 4.71
+        },
+        {
+          "community": "品庐东岸",
+          "price": 10868.0,
+          "mom_pct": -0.66
+        },
+        {
+          "community": "美丽春天",
+          "price": 17819.0,
+          "mom_pct": 7.06
+        },
+        {
+          "community": "阳光华庭西区",
+          "price": 14270.0,
+          "mom_pct": 5.55
+        },
+        {
+          "community": "金马新苑",
+          "price": 10944.0,
+          "mom_pct": -0.87
+        },
+        {
+          "community": "华光公寓",
+          "price": 8975.0,
+          "mom_pct": -0.25
+        },
+        {
+          "community": "富春峰景",
+          "price": 13653.0,
+          "mom_pct": -3.22
+        },
+        {
+          "community": "宏村墅",
+          "price": 10593.0,
+          "mom_pct": 0.96
+        },
+        {
+          "community": "滨江柴埠小区一区",
+          "price": 10926.0,
+          "mom_pct": 0.49
+        },
+        {
+          "community": "惠民小区",
+          "price": 9138.0,
+          "mom_pct": -0.52
+        },
+        {
+          "community": "浮桥埠小区",
+          "price": 8922.0,
+          "mom_pct": -0.82
+        },
+        {
+          "community": "江南壹号院",
+          "price": 24328.0,
+          "mom_pct": -0.33
+        },
+        {
+          "community": "富电花苑",
+          "price": 12256.0,
+          "mom_pct": 5.58
+        },
+        {
+          "community": "包家桥花苑",
+          "price": 10584.0,
+          "mom_pct": -5.45
+        },
+        {
+          "community": "金色富都",
+          "price": 6650.0,
+          "mom_pct": 1.92
+        },
+        {
+          "community": "富都嘉园",
+          "price": 17831.0,
+          "mom_pct": 2.48
+        },
+        {
+          "community": "阳光华庭东区",
+          "price": 13953.0,
+          "mom_pct": 6.33
+        },
+        {
+          "community": "中侨公寓",
+          "price": 13357.0,
+          "mom_pct": 6.12
+        },
+        {
+          "community": "金色华庭",
+          "price": 6550.0,
+          "mom_pct": 1.69
+        },
+        {
+          "community": "汇锦公寓",
+          "price": 5555.0,
+          "mom_pct": -2.05
+        },
+        {
+          "community": "云水公寓",
+          "price": 11243.0,
+          "mom_pct": -3.1
+        },
+        {
+          "community": "云庐新天地",
+          "price": 5888.0,
+          "mom_pct": 2.74
+        },
+        {
+          "community": "广晟祥和家园",
+          "price": 4661.0,
+          "mom_pct": 0.37
+        },
+        {
+          "community": "申基金色蓝庭",
+          "price": 12831.0,
+          "mom_pct": 3.58
+        },
+        {
+          "community": "劳动小区",
+          "price": 8161.0,
+          "mom_pct": 0.2
+        },
+        {
+          "community": "梧桐公寓南区",
+          "price": 41677.0,
+          "mom_pct": 0.77
+        },
+        {
+          "community": "梧桐望江花园",
+          "price": 11677.0,
+          "mom_pct": 4.9
+        },
+        {
+          "community": "三清绣苑",
+          "price": 9947.0,
+          "mom_pct": 0.95
+        },
+        {
+          "community": "盛泰广宇公寓",
+          "price": 10547.0,
+          "mom_pct": 2.03
+        },
+        {
+          "community": "大奇山居层林园",
+          "price": 16861.0,
+          "mom_pct": -1.89
+        },
+        {
+          "community": "金旺江山御墅",
+          "price": 10729.0,
+          "mom_pct": 5.63
+        },
+        {
+          "community": "富润家园",
+          "price": 6589.0,
+          "mom_pct": -1.16
+        },
+        {
+          "community": "飘鹰富春江花苑",
+          "price": 13475.0,
+          "mom_pct": 3.35
+        },
+        {
+          "community": "云山九里",
+          "price": 41106.0,
+          "mom_pct": -1.38
+        },
+        {
+          "community": "富春望",
+          "price": 30408.0,
+          "mom_pct": -1.83
+        },
+        {
+          "community": "华鸿中南壹号院",
+          "price": 21927.0,
+          "mom_pct": -4.59
+        },
+        {
+          "community": "天阳云栖梅林",
+          "price": 25616.0,
+          "mom_pct": -1.94
+        },
+        {
+          "community": "奥城望",
+          "price": 15554.0,
+          "mom_pct": 4.6
+        },
+        {
+          "community": "格林花园",
+          "price": 11287.0,
+          "mom_pct": 6.1
+        },
+        {
+          "community": "美凯西姆国际寓所",
+          "price": 12651.0,
+          "mom_pct": -0.88
+        },
+        {
+          "community": "桐庐桂花园",
+          "price": 12852.0,
+          "mom_pct": 5.62
+        },
+        {
+          "community": "春江山居",
+          "price": 11697.0,
+          "mom_pct": 3.44
+        },
+        {
+          "community": "桐庐祥和人家",
+          "price": 5798.0,
+          "mom_pct": -0.82
+        },
+        {
+          "community": "春江景苑",
+          "price": 12200.0,
+          "mom_pct": 4.26
+        },
+        {
+          "community": "中冠名城",
+          "price": 5219.0,
+          "mom_pct": 0.79
+        },
+        {
+          "community": "金色桃园",
+          "price": 30835.0,
+          "mom_pct": -1.12
+        },
+        {
+          "community": "春江左岸",
+          "price": 5249.0,
+          "mom_pct": -0.08
+        },
+        {
+          "community": "金鼎学府",
+          "price": 13889.0,
+          "mom_pct": 4.11
+        },
+        {
+          "community": "鑫鑫小区",
+          "price": 8033.0,
+          "mom_pct": -0.79
+        },
+        {
+          "community": "徐家埠公寓",
+          "price": 6645.0,
+          "mom_pct": -0.32
+        },
+        {
+          "community": "钓台家苑",
+          "price": 8096.0,
+          "mom_pct": 1.1
+        },
+        {
+          "community": "桐江花园西区",
+          "price": 10073.0,
+          "mom_pct": -10.3
+        },
+        {
+          "community": "桐庐国际花园",
+          "price": 12452.0,
+          "mom_pct": 2.89
+        },
+        {
+          "community": "桐庐锦绣江南",
+          "price": 7382.0,
+          "mom_pct": 0.26
+        },
+        {
+          "community": "桐庐聆江景苑",
+          "price": 13812.0,
+          "mom_pct": 0.86
+        },
+        {
+          "community": "迎春公寓",
+          "price": 9757.0,
+          "mom_pct": -7.98
+        },
+        {
+          "community": "江南新村",
+          "price": 11240.0,
+          "mom_pct": 0.68
+        },
+        {
+          "community": "美庐花园",
+          "price": 7115.0,
+          "mom_pct": 0.32
+        },
+        {
+          "community": "南苑新居",
+          "price": 41190.0,
+          "mom_pct": -0.86
+        },
+        {
+          "community": "嘉楠阳光华庭",
+          "price": 13096.0,
+          "mom_pct": 4.94
+        },
+        {
+          "community": "江南人家",
+          "price": 17964.0,
+          "mom_pct": 2.6
+        },
+        {
+          "community": "山水公寓",
+          "price": 9692.0,
+          "mom_pct": 0.63
+        },
+        {
+          "community": "瑶琳小区",
+          "price": 11727.0,
+          "mom_pct": -2.25
+        },
+        {
+          "community": "中大公寓",
+          "price": 4782.0,
+          "mom_pct": 0.99
+        },
+        {
+          "community": "上林阳光",
+          "price": 15902.0,
+          "mom_pct": 4.0
+        },
+        {
+          "community": "绿都文昌苑",
+          "price": 12194.0,
+          "mom_pct": 3.72
+        },
+        {
+          "community": "罗兰东区",
+          "price": 10855.0,
+          "mom_pct": -3.16
+        },
+        {
+          "community": "瑶琳嘉苑",
+          "price": 11823.0,
+          "mom_pct": -4.58
+        },
+        {
+          "community": "景秀嘉苑",
+          "price": 6364.0,
+          "mom_pct": -0.13
+        },
+        {
+          "community": "立山公寓",
+          "price": 12600.0,
+          "mom_pct": 5.67
+        },
+        {
+          "community": "励骏花园",
+          "price": 16991.0,
+          "mom_pct": -0.99
+        },
+        {
+          "community": "君豪御园",
+          "price": 7268.0,
+          "mom_pct": -0.33
+        },
+        {
+          "community": "蓝色春江",
+          "price": 16390.0,
+          "mom_pct": 2.22
+        },
+        {
+          "community": "滨江一号公馆",
+          "price": 20512.0,
+          "mom_pct": 5.24
+        },
+        {
+          "community": "临嘉公寓",
+          "price": 4969.0,
+          "mom_pct": -0.38
+        },
+        {
+          "community": "江南名都",
+          "price": 7807.0,
+          "mom_pct": 0.21
+        },
+        {
+          "community": "汇金江南府",
+          "price": 7834.0,
+          "mom_pct": 1.39
+        },
+        {
+          "community": "嘉威江南水乡",
+          "price": 7341.0,
+          "mom_pct": -1.61
+        },
+        {
+          "community": "水岸瑶琳",
+          "price": 8599.0,
+          "mom_pct": -0.01
+        },
+        {
+          "community": "江南名苑",
+          "price": 7618.0,
+          "mom_pct": 2.12
+        },
+        {
+          "community": "山水圣邸",
+          "price": 18076.0,
+          "mom_pct": -5.59
+        },
+        {
+          "community": "伟邦江南绿园",
+          "price": 7495.0,
+          "mom_pct": 1.96
+        },
+        {
+          "community": "云都凤凰城",
+          "price": 15739.0,
+          "mom_pct": -0.25
+        },
+        {
+          "community": "桐庐碧桂园",
+          "price": 16200.0,
+          "mom_pct": -5.01
+        },
+        {
+          "community": "宇洋花苑",
+          "price": 31544.0,
+          "mom_pct": 0.33
+        },
+        {
+          "community": "滨江花园",
+          "price": 10802.0,
+          "mom_pct": 0.73
+        },
+        {
+          "community": "迎春小区",
+          "price": 41036.0,
+          "mom_pct": -2.12
+        },
+        {
+          "community": "同方春江燕语",
+          "price": 27561.0,
+          "mom_pct": 5.01
+        },
+        {
+          "community": "康乐路302号",
+          "price": 21155.0,
+          "mom_pct": null
+        },
+        {
+          "community": "体育场路158号",
+          "price": 19844.0,
+          "mom_pct": null
+        },
+        {
+          "community": "塔坞路26号",
+          "price": 20030.0,
+          "mom_pct": null
+        },
+        {
+          "community": "春江路小区",
+          "price": 13549.0,
+          "mom_pct": null
+        },
+        {
+          "community": "旅游局宿舍",
+          "price": 15432.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桂花园(桐庐)",
+          "price": 5569.0,
+          "mom_pct": null
+        },
+        {
+          "community": "塔坞路小区",
+          "price": 20354.0,
+          "mom_pct": null
+        },
+        {
+          "community": "塔坞路24号",
+          "price": 20367.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐凯全紫郡花苑",
+          "price": 14379.0,
+          "mom_pct": null
+        },
+        {
+          "community": "茂祥弄15号",
+          "price": 11530.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐春江山居",
+          "price": 14550.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金昌白鹭金湾",
+          "price": 12516.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐君路小区",
+          "price": 7895.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐金色港湾度假村",
+          "price": 12967.0,
+          "mom_pct": null
+        },
+        {
+          "community": "洋塘路166号",
+          "price": 11056.0,
+          "mom_pct": null
+        },
+        {
+          "community": "揽景园",
+          "price": 19690.0,
+          "mom_pct": null
+        },
+        {
+          "community": "山水半岛",
+          "price": 10511.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大庄苑",
+          "price": 11105.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐恒大观澜府",
+          "price": 16670.0,
+          "mom_pct": null
+        },
+        {
+          "community": "杨梅山一弄",
+          "price": 8094.0,
+          "mom_pct": null
+        },
+        {
+          "community": "宋都如意云庐",
+          "price": 19298.0,
+          "mom_pct": null
+        },
+        {
+          "community": "子陵新村",
+          "price": 9441.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江南小区",
+          "price": 8119.0,
+          "mom_pct": null
+        },
+        {
+          "community": "迎春街20号",
+          "price": 8829.0,
+          "mom_pct": null
+        },
+        {
+          "community": "洋塘路小区",
+          "price": 8298.0,
+          "mom_pct": null
+        },
+        {
+          "community": "小岭路小区",
+          "price": 9629.0,
+          "mom_pct": null
+        },
+        {
+          "community": "对门山四弄小区",
+          "price": 10838.0,
+          "mom_pct": null
+        },
+        {
+          "community": "圆通路散盘",
+          "price": 8095.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐尚洋雅苑",
+          "price": 14340.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大联小区",
+          "price": 12058.0,
+          "mom_pct": null
+        },
+        {
+          "community": "飘鹰·富春江花苑",
+          "price": 10479.0,
+          "mom_pct": null
+        },
+        {
+          "community": "珑首·玲珑",
+          "price": 14769.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金东小区",
+          "price": 11959.0,
+          "mom_pct": null
+        },
+        {
+          "community": "碧桂园·十里春风",
+          "price": 17733.0,
+          "mom_pct": null
+        },
+        {
+          "community": "春江公寓",
+          "price": 16810.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城西子百合公寓",
+          "price": 14024.0,
+          "mom_pct": null
+        },
+        {
+          "community": "陆家塆",
+          "price": 9076.0,
+          "mom_pct": null
+        },
+        {
+          "community": "恒辉金色桃园",
+          "price": 6220.0,
+          "mom_pct": null
+        },
+        {
+          "community": "颐居养生小镇",
+          "price": 26792.0,
+          "mom_pct": null
+        },
+        {
+          "community": "妙笔文苑",
+          "price": 6738.0,
+          "mom_pct": null
+        },
+        {
+          "community": "紫阳园",
+          "price": 17209.0,
+          "mom_pct": null
+        },
+        {
+          "community": "滩头·富春景苑",
+          "price": 12575.0,
+          "mom_pct": null
+        },
+        {
+          "community": "悦城·燕庐",
+          "price": 8126.0,
+          "mom_pct": null
+        },
+        {
+          "community": "公园山路",
+          "price": 8047.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金地风华东方",
+          "price": 19261.0,
+          "mom_pct": null
+        },
+        {
+          "community": "梅苑小区",
+          "price": 11362.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新滨金色春江",
+          "price": 15548.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金竹新城",
+          "price": 12720.0,
+          "mom_pct": null
+        },
+        {
+          "community": "滨江上杭小区",
+          "price": 11754.0,
+          "mom_pct": null
+        },
+        {
+          "community": "利时凌江名庭",
+          "price": 10712.0,
+          "mom_pct": null
+        },
+        {
+          "community": "聆江景园",
+          "price": 13645.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美丽春天府",
+          "price": 17441.0,
+          "mom_pct": null
+        },
+        {
+          "community": "柯家湾小区",
+          "price": 8015.0,
+          "mom_pct": null
+        },
+        {
+          "community": "浙富桐城府",
+          "price": 23854.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐君苑",
+          "price": 13826.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金马高悦府",
+          "price": 14061.0,
+          "mom_pct": null
+        },
+        {
+          "community": "春江景苑龙祥园",
+          "price": 10361.0,
+          "mom_pct": null
+        },
+        {
+          "community": "富欧罗兰公寓",
+          "price": 11549.0,
+          "mom_pct": null
+        },
+        {
+          "community": "中迪三水花园",
+          "price": 13528.0,
+          "mom_pct": null
+        },
+        {
+          "community": "锦绣江南(桐庐)",
+          "price": 6273.0,
+          "mom_pct": null
+        },
+        {
+          "community": "下洋洲村",
+          "price": 3952.0,
+          "mom_pct": null
+        },
+        {
+          "community": "书香门第",
+          "price": 8957.0,
+          "mom_pct": null
+        },
+        {
+          "community": "城西馨苑",
+          "price": 11149.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美雅景苑",
+          "price": 10158.0,
+          "mom_pct": null
+        },
+        {
+          "community": "白云小区",
+          "price": 5913.0,
+          "mom_pct": null
+        },
+        {
+          "community": "妙笔小镇",
+          "price": 6499.0,
+          "mom_pct": null
+        },
+        {
+          "community": "山水居",
+          "price": 10047.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金水湾茗苑",
+          "price": 7406.0,
+          "mom_pct": null
+        },
+        {
+          "community": "土管安全小区",
+          "price": 7266.0,
+          "mom_pct": null
+        },
+        {
+          "community": "车把小区",
+          "price": 8390.0,
+          "mom_pct": null
+        },
+        {
+          "community": "锦华嘉苑",
+          "price": 6057.0,
+          "mom_pct": null
+        },
+        {
+          "community": "清江花苑",
+          "price": 8187.0,
+          "mom_pct": null
+        },
+        {
+          "community": "洋塘嘉苑",
+          "price": 8273.0,
+          "mom_pct": null
+        },
+        {
+          "community": "香榭公寓小区",
+          "price": 7817.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金中小区",
+          "price": 5261.0,
+          "mom_pct": null
+        },
+        {
+          "community": "和谐家园",
+          "price": 9420.0,
+          "mom_pct": null
+        },
+        {
+          "community": "德清百合公寓",
+          "price": 32014.0,
+          "mom_pct": null
+        },
+        {
+          "community": "影城嘉园",
+          "price": 14063.0,
+          "mom_pct": null
+        },
+        {
+          "community": "海陆世贸中心",
+          "price": 8793.0,
+          "mom_pct": null
+        },
+        {
+          "community": "力雅广场公寓",
+          "price": 15023.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美泉小庄",
+          "price": 19814.0,
+          "mom_pct": null
+        },
+        {
+          "community": "宋都桐江花园",
+          "price": 10205.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐中欧城",
+          "price": 14400.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐时代广场",
+          "price": 9433.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐江花园",
+          "price": 11629.0,
+          "mom_pct": null
+        },
+        {
+          "community": "永隆仙境苑",
+          "price": 5318.0,
+          "mom_pct": null
+        },
+        {
+          "community": "圆通公寓",
+          "price": 7208.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿洲云溪楼",
+          "price": 10990.0,
+          "mom_pct": null
+        },
+        {
+          "community": "尚洋雅苑",
+          "price": 14616.0,
+          "mom_pct": null
+        },
+        {
+          "community": "梅溪公寓",
+          "price": 9900.0,
+          "mom_pct": null
+        },
+        {
+          "community": "下轮公寓",
+          "price": 13649.0,
+          "mom_pct": null
+        },
+        {
+          "community": "芝溪垅小区",
+          "price": 13559.0,
+          "mom_pct": null
+        },
+        {
+          "community": "锦都名苑",
+          "price": 7061.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大洋豪庭",
+          "price": 8169.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东门首府",
+          "price": 13289.0,
+          "mom_pct": null
+        },
+        {
+          "community": "滨江九号公寓",
+          "price": 12731.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐富润家园",
+          "price": 7557.0,
+          "mom_pct": null
+        },
+        {
+          "community": "浙富亲亲园",
+          "price": 16010.0,
+          "mom_pct": null
+        },
+        {
+          "community": "美庐新城",
+          "price": 10256.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿尚·春江城堡",
+          "price": 14263.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江城墅园",
+          "price": 20797.0,
+          "mom_pct": null
+        },
+        {
+          "community": "世纪花城",
+          "price": 13186.0,
+          "mom_pct": null
+        },
+        {
+          "community": "顺发一品江山",
+          "price": 23888.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金龙花园",
+          "price": 9956.0,
+          "mom_pct": null
+        },
+        {
+          "community": "南洋新村",
+          "price": 10898.0,
+          "mom_pct": null
+        },
+        {
+          "community": "乔林新城",
+          "price": 11247.0,
+          "mom_pct": null
+        },
+        {
+          "community": "石马小区",
+          "price": 10965.0,
+          "mom_pct": null
+        },
+        {
+          "community": "红楼之星",
+          "price": 13187.0,
+          "mom_pct": null
+        },
+        {
+          "community": "中大景秀广场",
+          "price": 6538.0,
+          "mom_pct": null
+        },
+        {
+          "community": "水岸华庭",
+          "price": 8922.0,
+          "mom_pct": null
+        },
+        {
+          "community": "荇塘新村",
+          "price": 13527.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城桂花园",
+          "price": 16872.0,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城桐庐玫瑰园",
+          "price": 13823.0,
+          "mom_pct": null
+        },
+        {
+          "community": "梅苑人家",
+          "price": 7062.0,
+          "mom_pct": null
+        },
+        {
+          "community": "新天地花园",
+          "price": 14319.0,
+          "mom_pct": null
+        },
+        {
+          "community": "洋塘小区",
+          "price": 9101.0,
+          "mom_pct": null
+        },
+        {
+          "community": "莪山大院",
+          "price": 6751.0,
+          "mom_pct": null
+        },
+        {
+          "community": "中欧城",
+          "price": 13946.0,
+          "mom_pct": null
+        },
+        {
+          "community": "上林春天",
+          "price": 13286.0,
+          "mom_pct": null
+        },
+        {
+          "community": "武盛嘉苑",
+          "price": 8931.0,
+          "mom_pct": null
+        },
+        {
+          "community": "凯全紫郡花苑",
+          "price": 23160.0,
+          "mom_pct": null
+        },
+        {
+          "community": "江山御墅",
+          "price": 11302.0,
+          "mom_pct": null
+        },
+        {
+          "community": "国际金都",
+          "price": 19298.0,
+          "mom_pct": null
+        },
+        {
+          "community": "东方君兰中心",
+          "price": 9899.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金久城市花园",
+          "price": 15211.0,
+          "mom_pct": null
+        },
+        {
+          "community": "伟邦江南明月",
+          "price": 7107.0,
+          "mom_pct": null
+        },
+        {
+          "community": "大奇山郡",
+          "price": 25905.0,
+          "mom_pct": null
+        },
+        {
+          "community": "华博东门首府",
+          "price": 8937.0,
+          "mom_pct": null
+        },
+        {
+          "community": "星星港湾清风苑",
+          "price": 12697.0,
+          "mom_pct": null
+        },
+        {
+          "community": "万星悦城",
+          "price": 10255.0,
+          "mom_pct": null
+        },
+        {
+          "community": "宏鑫祥和人家",
+          "price": 6543.0,
+          "mom_pct": null
+        },
+        {
+          "community": "金色港湾",
+          "price": 16993.0,
+          "mom_pct": null
+        },
+        {
+          "community": "初阳苑",
+          "price": 56275.0,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐力雅广场",
+          "price": 7112.0,
+          "mom_pct": null
+        },
+        {
+          "community": "凯全·紫郡花苑",
+          "price": 13492.0,
+          "mom_pct": null
+        },
+        {
+          "community": "荣正·山水半岛",
+          "price": 11683.0,
+          "mom_pct": null
+        },
+        {
+          "community": "富春美庐·纯水岸",
+          "price": 8509.0,
+          "mom_pct": null
+        },
+        {
+          "community": "城中小区",
+          "price": 16094.0,
+          "mom_pct": null
+        },
+        {
+          "community": "春江·大奇山居",
+          "price": 14739.0,
+          "mom_pct": null
+        },
+        {
+          "community": "家景·星城",
+          "price": 8936.0,
+          "mom_pct": null
+        },
+        {
+          "community": "康乐区",
+          "price": 36644.0,
+          "mom_pct": null
+        },
+        {
+          "community": "碧桂园十里春风",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "高悦府",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "珑首玲珑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城桂花苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "春江公馆",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "柴埠小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "春江景苑龙腾园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新滨·金色春江",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "中房大厦",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "富安嘉苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "桐城府",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "中通家园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "美伦美郡",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "金盛江南嘉园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "新天地临嘉公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "物能春江",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "江南金座",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "励骏置地广场",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "水岸名都",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "宋都·桐江花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "桐庐金久·城市花园住宅小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "伟邦江南名都",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "梧桐·望江花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "萧宏·普罗旺斯",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "交通小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "金水湾",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "锦江公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "锦绣年华",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "荣正·财富广场",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "三清秀苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "滨江·上杭小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "滨江·中杭小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "宸宫花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "家景星城三期",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "怡景嘉苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "迎宾社区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "香樟花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "龙潭小区",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "绿城蓝色春江",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "梅苑新居",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "美凯国际寓所",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "鑫龙桂花苑",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "秀水公寓",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "九洲·格林花园",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "柯家湾",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "顺发·富春峰景",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "中顺上尚府",
+          "price": null,
+          "mom_pct": null
+        },
+        {
+          "community": "万星燕庐",
+          "price": null,
+          "mom_pct": null
+        }
+      ],
       "sub_districts": {}
     }
   }
