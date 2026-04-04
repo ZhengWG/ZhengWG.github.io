@@ -1,7 +1,7 @@
 {
   "city": "杭州",
   "city_key": "hz",
-  "updated_at": "2026-04-03",
+  "updated_at": "2026-04-04",
   "start_year": 2018,
   "end_year": 2026,
   "city_history": [
@@ -666,6 +666,66 @@
           "date": "2019-12",
           "second_hand_price": 42403.0,
           "new_house_price": 39137.0
+        },
+        {
+          "date": "2020-01",
+          "second_hand_price": 42268.0,
+          "new_house_price": 39032.0
+        },
+        {
+          "date": "2020-02",
+          "second_hand_price": 44281.0,
+          "new_house_price": 40760.0
+        },
+        {
+          "date": "2020-03",
+          "second_hand_price": 43420.0,
+          "new_house_price": 42817.0
+        },
+        {
+          "date": "2020-04",
+          "second_hand_price": 41636.0,
+          "new_house_price": 42646.0
+        },
+        {
+          "date": "2020-05",
+          "second_hand_price": 43589.0,
+          "new_house_price": 45458.0
+        },
+        {
+          "date": "2020-06",
+          "second_hand_price": 45099.0,
+          "new_house_price": 40798.0
+        },
+        {
+          "date": "2020-07",
+          "second_hand_price": 46073.0,
+          "new_house_price": 41819.0
+        },
+        {
+          "date": "2020-08",
+          "second_hand_price": 45824.0,
+          "new_house_price": 42986.0
+        },
+        {
+          "date": "2020-09",
+          "second_hand_price": 45815.0,
+          "new_house_price": 45008.0
+        },
+        {
+          "date": "2020-10",
+          "second_hand_price": 45052.0,
+          "new_house_price": 49303.0
+        },
+        {
+          "date": "2020-11",
+          "second_hand_price": 44840.0,
+          "new_house_price": 47323.0
+        },
+        {
+          "date": "2020-12",
+          "second_hand_price": 49644.0,
+          "new_house_price": 53265.0
         },
         {
           "date": "2021-01",
