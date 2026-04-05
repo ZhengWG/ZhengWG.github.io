@@ -7,9 +7,17 @@ on:
       - .gitignore
       - README.md
       - LICENSE
+  workflow_run:
+    workflows:
+      - "Refresh house price data"
+    types:
+      - completed
+    branches:
+      - master
 
 jobs:
   continuous-delivery:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
