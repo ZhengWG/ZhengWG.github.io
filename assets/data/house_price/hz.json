@@ -1,70 +1,10 @@
 {
   "city": "杭州",
   "city_key": "hz",
-  "updated_at": "2026-04-05",
+  "updated_at": "2026-04-06",
   "start_year": 2018,
   "end_year": 2026,
   "city_history": [
-    {
-      "date": "2018-01",
-      "second_hand_price": 29198.0,
-      "new_house_price": null
-    },
-    {
-      "date": "2018-02",
-      "second_hand_price": 29425.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-03",
-      "second_hand_price": 29869.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-04",
-      "second_hand_price": 30341.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-05",
-      "second_hand_price": 30561.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-06",
-      "second_hand_price": 31164.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-07",
-      "second_hand_price": 31403.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-08",
-      "second_hand_price": 30844.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-09",
-      "second_hand_price": 30203.0,
-      "new_house_price": 2.0
-    },
-    {
-      "date": "2018-10",
-      "second_hand_price": 30720.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-11",
-      "second_hand_price": 30663.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-12",
-      "second_hand_price": 30361.0,
-      "new_house_price": 0.0
-    },
     {
       "date": "2019-01",
       "second_hand_price": 30554.0,
@@ -184,66 +124,6 @@
       "date": "2020-12",
       "second_hand_price": 33214.0,
       "new_house_price": 29713.0
-    },
-    {
-      "date": "2021-01",
-      "second_hand_price": 32592.0,
-      "new_house_price": 29211.0
-    },
-    {
-      "date": "2021-02",
-      "second_hand_price": 34000.0,
-      "new_house_price": 30095.0
-    },
-    {
-      "date": "2021-03",
-      "second_hand_price": 35515.0,
-      "new_house_price": 29507.0
-    },
-    {
-      "date": "2021-04",
-      "second_hand_price": 36284.0,
-      "new_house_price": 30715.0
-    },
-    {
-      "date": "2021-05",
-      "second_hand_price": 35052.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2021-06",
-      "second_hand_price": 36533.0,
-      "new_house_price": 30185.0
-    },
-    {
-      "date": "2021-07",
-      "second_hand_price": 36376.0,
-      "new_house_price": 29991.0
-    },
-    {
-      "date": "2021-08",
-      "second_hand_price": 35868.0,
-      "new_house_price": 30635.0
-    },
-    {
-      "date": "2021-09",
-      "second_hand_price": 39244.0,
-      "new_house_price": 29974.0
-    },
-    {
-      "date": "2021-10",
-      "second_hand_price": 36381.0,
-      "new_house_price": 30528.0
-    },
-    {
-      "date": "2021-11",
-      "second_hand_price": 37450.0,
-      "new_house_price": 31428.0
-    },
-    {
-      "date": "2021-12",
-      "second_hand_price": 42417.0,
-      "new_house_price": 31402.0
     },
     {
       "date": "2022-01",
