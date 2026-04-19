@@ -1,7 +1,7 @@
 {
   "city": "杭州",
   "city_key": "hz",
-  "updated_at": "2026-04-18",
+  "updated_at": "2026-04-19",
   "start_year": 2018,
   "end_year": 2026,
   "city_history": [
@@ -494,43 +494,48 @@
       "date": "2026-02",
       "second_hand_price": 32238.0,
       "new_house_price": 28024.0
+    },
+    {
+      "date": "2026-03",
+      "second_hand_price": 33041.0,
+      "new_house_price": 27919.0
     }
   ],
   "district_list": [
     {
       "district": "西湖区",
-      "price": 45156.0,
-      "yoy": 3.95
+      "price": 45274.0,
+      "yoy": 4.24
     },
     {
       "district": "滨江区",
-      "price": 41838.0,
-      "yoy": -6.02
+      "price": 40532.0,
+      "yoy": -8.47
     },
     {
       "district": "上城区",
-      "price": 39716.0,
-      "yoy": -7.8
-    },
-    {
-      "district": "拱墅区",
-      "price": 36357.0,
-      "yoy": -7.75
+      "price": 39329.0,
+      "yoy": -11.85
     },
     {
       "district": "市区",
-      "price": 36000.0,
-      "yoy": -6.85
+      "price": 37100.0,
+      "yoy": -4.87
+    },
+    {
+      "district": "拱墅区",
+      "price": 36710.0,
+      "yoy": -7.99
     },
     {
       "district": "萧山区",
-      "price": 30434.0,
-      "yoy": -9.69
+      "price": 29717.0,
+      "yoy": -10.75
     },
     {
       "district": "余杭区",
-      "price": 26219.0,
-      "yoy": -1.12
+      "price": 26948.0,
+      "yoy": -3.21
     },
     {
       "district": "钱塘区",
@@ -538,34 +543,34 @@
       "yoy": null
     },
     {
-      "district": "富阳区",
-      "price": 21049.0,
-      "yoy": -0.25
-    },
-    {
       "district": "临平区",
       "price": 21008.0,
       "yoy": null
     },
     {
+      "district": "富阳区",
+      "price": 20050.0,
+      "yoy": -9.75
+    },
+    {
       "district": "建德市",
       "price": 17500.0,
-      "yoy": 11.56
+      "yoy": 11.46
     },
     {
       "district": "临安区",
-      "price": 13048.0,
-      "yoy": -15.04
+      "price": 12882.0,
+      "yoy": -15.34
     },
     {
       "district": "桐庐县",
-      "price": 10798.0,
-      "yoy": -25.24
+      "price": 10276.0,
+      "yoy": -28.14
     },
     {
       "district": "淳安县",
-      "price": 10100.0,
-      "yoy": -26.83
+      "price": 10200.0,
+      "yoy": -24.92
     }
   ],
   "districts": {
