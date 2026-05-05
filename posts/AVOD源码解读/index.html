@@ -1,0 +1,2389 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="generator" content="Jekyll v4.2.0" /><meta property="og:title" content="AVOD源码解读" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="AVOD代码框架 代码细节 预生成数据 调用链 核心部分 模型训练 调用链 核心部分" /><meta property="og:description" content="AVOD代码框架 代码细节 预生成数据 调用链 核心部分 模型训练 调用链 核心部分" /><link rel="canonical" href="https://www.johneyzheng.top//posts/AVOD%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" /><meta property="og:url" content="https://www.johneyzheng.top//posts/AVOD%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" /><meta property="og:site_name" content="Johney Zheng" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2020-01-24T15:35:23+08:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="AVOD源码解读" /><meta name="google-site-verification" content="google_meta_tag_verification" /> <script type="application/ld+json"> {"description":"AVOD代码框架 代码细节 预生成数据 调用链 核心部分 模型训练 调用链 核心部分","url":"https://www.johneyzheng.top//posts/AVOD%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/","headline":"AVOD源码解读","dateModified":"2021-07-18T20:01:07+08:00","datePublished":"2020-01-24T15:35:23+08:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.johneyzheng.top//posts/AVOD%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/"},"@context":"https://schema.org"}</script><title>AVOD源码解读 | Johney Zheng</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="Johney Zheng"><meta name="application-name" content="Johney Zheng"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><link rel="preconnect" href="https://cdn.jsdelivr.net"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css"><link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1.1.0/dist/magnific-popup.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script async src="https://cdn.jsdelivr.net/combine/npm/lozad/dist/lozad.min.js,npm/magnific-popup@1/dist/jquery.magnific-popup.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script defer src="/app.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-364499169"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-364499169'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/" alt="avatar" class="mx-auto"> <img src="/assets/img/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/">Johney Zheng</a></div><div class="site-subtitle font-italic">Johney Zheng的小站</div></div><ul class="w-100"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a><li class="nav-item"> <a href="/agents/" class="nav-link"> <i class="fa-fw fas fa-robot ml-xl-3 mr-xl-3 unloaded"></i> <span>AGENTS</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT ME</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/ZhengWG" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['21625111','zju.edu.cn'].join('@')" aria-label="email" class="order-4" > <i class="fas fa-envelope"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Posts </a> </span> <span>AVOD源码解读</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>AVOD源码解读</h1><div class="post-meta text-muted d-flex flex-column"><div> <span class="semi-bold"> Johney Zheng </span> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Fri, Jan 24, 2020, 3:35 PM +0800" prep="on" > Jan 24, 2020 <i class="unloaded">2020-01-24T15:35:23+08:00</i> </span></div><div> <span> <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Sun, Jul 18, 2021, 8:01 PM +0800" prefix="Updated " > Jul 18, 2021 <i class="unloaded">2021-07-18T20:01:07+08:00</i> </span> </span> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="5736 words">31 min</span></div></div><div class="post-content"><ul><li><a href="#sec-1">AVOD代码框架</a><li><a href="#sec-2">代码细节</a><ul><li><a href="#sec-2-1">预生成数据</a><ul><li><a href="#sec-2-1-1">调用链</a><li><a href="#sec-2-1-2">核心部分</a></ul><li><a href="#sec-2-2">模型训练</a><ul><li><a href="#sec-2-2-1">调用链</a><li><a href="#sec-2-2-2">核心部分</a></ul></ul></ul><h1 id="avod代码框架">AVOD代码框架<a id="sec-1"></a></h1><p>主要分为以下几个部分:</p><ul><li>预生成数据<li>Train<li>Evaluate+Infer</ul><h1 id="代码细节">代码细节<a id="sec-2"></a></h1><h2 id="预生成数据">预生成数据<a id="sec-2-1"></a></h2><p>用于生成rpn网络的输入数据：包含类聚类的anchor大小信息以及具体每个sample的anchor的生成的anchor信息</p><h3 id="调用链">调用链<a id="sec-2-1-1"></a></h3><p>base_dir = <code class="language-plaintext highlighter-rouge">avod/</code></p><p>config = <code class="language-plaintext highlighter-rouge">avod/avod/configs/mb_preprocessing/rpn_cars(cyclists,pedestrians,people).config</code></p><p>主要的相关模块调用：</p><p><code class="language-plaintext highlighter-rouge">scripts/preprocessing/gen_min_batches.py</code> -&gt; <code class="language-plaintext highlighter-rouge">avod/builders/dataset_builder.py(build_kitti_dataset)</code> -&gt; <code class="language-plaintext highlighter-rouge">avod/datasets/kitti/kitti_dataset.py(KittiDataset)</code> -&gt; <code class="language-plaintext highlighter-rouge">avod/datasets/kitti/kitti_utils.py(KittiUtils)</code> -&gt; <code class="language-plaintext highlighter-rouge">avod/core/mini_batch_utils.py(MiniBatchUtils.preprocess_rpn_mini_batches)</code> -&gt; <code class="language-plaintext highlighter-rouge">avod/core/mini_batch_preprocessor.py(MiniBatchPreprocessor.preprocess</code> -&gt; <code class="language-plaintext highlighter-rouge">avod/core/anchor_generator/grid_anchor_3d_generator.py(GridAnchor3dGenerator.generate)</code></p><h3 id="核心部分">核心部分<a id="sec-2-1-2"></a></h3><ol><li><p>数据前处理:mini_batch Anchor生成</p><p>Avod数据前处理gen_minbacth包括两个部分：生成不同类的size的cluster结果；利用聚类结果生成不同类的Anchor信息，作为RPN的输入数据</p><p>Anchor信息具体为：[max_gt_2d_iou, max_gt_3d_iou, (6 x offsets), class_index]，anchor对应的gt_iou(2d和3d)，anchor偏移值，对应类的index</p><p>具体步骤为:</p><ul><li>先生成anchor_stride（默认为0.5）的3d anchor<li>生成voxel 2d图，进行empty-anchor的过滤<li>anchors与gt进行iou的计算，确定与生成的anchor iou最高的类，更新offsets与class_index</ul><p>核心代码如下：</p><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+</pre><td class="rouge-code"><pre><span class="c1"># mini_batch_preprocessor.py:49
+</span><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="s">"""Preprocesses anchor info and saves info to files
+
+        Args:
+            indices (int array): sample indices to process.
+                If None, processes all samples
+        """</span>
+        <span class="c1"># Get anchor stride for class，默认为0.5
+</span>        <span class="n">anchor_strides</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_anchor_strides</span>
+
+        <span class="n">dataset</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_dataset</span>
+        <span class="n">dataset_utils</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_dataset</span><span class="p">.</span><span class="n">kitti_utils</span>
+        <span class="n">classes_name</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="n">classes_name</span>
+
+        <span class="c1"># Make folder if it doesn't exist yet
+</span>        <span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">mini_batch_utils</span><span class="p">.</span><span class="n">get_file_path</span><span class="p">(</span><span class="n">classes_name</span><span class="p">,</span>
+                                                         <span class="n">anchor_strides</span><span class="p">,</span>
+                                                         <span class="n">sample_name</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+        <span class="n">os</span><span class="p">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c1"># Get clusters for class
+</span>        <span class="c1"># 生成的cluster size用于anchor size的生成
+</span>        <span class="n">all_clusters_sizes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="n">get_cluster_info</span><span class="p">()</span>
+
+        <span class="c1"># 初始化3d_anchor_generator
+</span>        <span class="n">anchor_generator</span> <span class="o">=</span> <span class="n">grid_anchor_3d_generator</span><span class="p">.</span><span class="n">GridAnchor3dGenerator</span><span class="p">()</span>
+
+        <span class="c1"># Load indices of data_split
+</span>        <span class="n">all_samples</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">.</span><span class="n">sample_list</span>
+
+        <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_samples</span><span class="p">))</span>
+        <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+        <span class="c1"># For each image in the dataset, save info on the anchors
+</span>        <span class="k">for</span> <span class="n">sample_idx</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+            <span class="c1"># Get image name for given cluster
+</span>            <span class="n">sample_name</span> <span class="o">=</span> <span class="n">all_samples</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">].</span><span class="n">name</span>
+            <span class="n">img_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_name</span><span class="p">)</span>
+
+            <span class="c1"># Check for existing files and skip to the next
+</span>            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_check_for_existing</span><span class="p">(</span><span class="n">classes_name</span><span class="p">,</span> <span class="n">anchor_strides</span><span class="p">,</span>
+                                        <span class="n">sample_name</span><span class="p">):</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">"{} / {}: Sample already preprocessed"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+                    <span class="n">sample_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="n">sample_name</span><span class="p">))</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Get ground truth and filter based on difficulty
+</span>            <span class="n">ground_truth_list</span> <span class="o">=</span> <span class="n">obj_utils</span><span class="p">.</span><span class="n">read_labels</span><span class="p">(</span><span class="n">dataset</span><span class="p">.</span><span class="n">label_dir</span><span class="p">,</span>
+                                                      <span class="n">img_idx</span><span class="p">)</span>
+
+            <span class="c1"># Filter objects to dataset classes
+</span>            <span class="n">filtered_gt_list</span> <span class="o">=</span> <span class="n">dataset_utils</span><span class="p">.</span><span class="n">filter_labels</span><span class="p">(</span><span class="n">ground_truth_list</span><span class="p">)</span>
+            <span class="n">filtered_gt_list</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">filtered_gt_list</span><span class="p">)</span>
+
+            <span class="c1"># Filtering by class has no valid ground truth, skip this image
+</span>            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_gt_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">"{} / {} No {}s for sample {} "</span>
+                      <span class="s">"(Ground Truth Filter)"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+                          <span class="n">sample_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span>
+                          <span class="n">classes_name</span><span class="p">,</span> <span class="n">sample_name</span><span class="p">))</span>
+
+                <span class="c1"># Output an empty file and move on to the next image.
+</span>                <span class="bp">self</span><span class="p">.</span><span class="n">_save_to_file</span><span class="p">(</span><span class="n">classes_name</span><span class="p">,</span> <span class="n">anchor_strides</span><span class="p">,</span> <span class="n">sample_name</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Get ground plane
+</span>            <span class="n">ground_plane</span> <span class="o">=</span> <span class="n">obj_utils</span><span class="p">.</span><span class="n">get_road_plane</span><span class="p">(</span><span class="n">img_idx</span><span class="p">,</span>
+                                                    <span class="n">dataset</span><span class="p">.</span><span class="n">planes_dir</span><span class="p">)</span>
+
+            <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="n">dataset</span><span class="p">.</span><span class="n">get_rgb_image_path</span><span class="p">(</span><span class="n">sample_name</span><span class="p">))</span>
+            <span class="n">image_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">image</span><span class="p">.</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">image</span><span class="p">.</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+            <span class="c1"># Generate sliced 2D voxel grid for filtering
+</span>            <span class="c1"># 生成2d voxel grid，这里只保留了image视角内bev图信息
+</span>            <span class="n">vx_grid_2d</span> <span class="o">=</span> <span class="n">dataset_utils</span><span class="p">.</span><span class="n">create_sliced_voxel_grid_2d</span><span class="p">(</span>
+                <span class="n">sample_name</span><span class="p">,</span>
+                <span class="n">source</span><span class="o">=</span><span class="n">dataset</span><span class="p">.</span><span class="n">bev_source</span><span class="p">,</span>
+                <span class="n">image_shape</span><span class="o">=</span><span class="n">image_shape</span><span class="p">)</span>
+
+            <span class="c1"># List for merging all anchors
+</span>            <span class="n">all_anchor_boxes_3d</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="c1"># Create anchors for each class
+</span>            <span class="k">for</span> <span class="n">class_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">.</span><span class="n">classes</span><span class="p">)):</span>
+                <span class="c1"># Generate anchors for all classes
+</span>                <span class="c1"># 根据不同class的anchor大小以及stride和plane生成3d anchor
+</span>                <span class="n">grid_anchor_boxes_3d</span> <span class="o">=</span> <span class="n">anchor_generator</span><span class="p">.</span><span class="n">generate</span><span class="p">(</span>
+                    <span class="n">area_3d</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_area_extents</span><span class="p">,</span>
+                    <span class="n">anchor_3d_sizes</span><span class="o">=</span><span class="n">all_clusters_sizes</span><span class="p">[</span><span class="n">class_idx</span><span class="p">],</span>
+                    <span class="n">anchor_stride</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_anchor_strides</span><span class="p">[</span><span class="n">class_idx</span><span class="p">],</span>
+                    <span class="n">ground_plane</span><span class="o">=</span><span class="n">ground_plane</span><span class="p">)</span>
+
+                <span class="n">all_anchor_boxes_3d</span><span class="p">.</span><span class="n">extend</span><span class="p">(</span><span class="n">grid_anchor_boxes_3d</span><span class="p">)</span>
+
+            <span class="c1"># Filter empty anchors
+</span>            <span class="n">all_anchor_boxes_3d</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">all_anchor_boxes_3d</span><span class="p">)</span>
+            <span class="n">anchors</span> <span class="o">=</span> <span class="n">box_3d_encoder</span><span class="p">.</span><span class="n">box_3d_to_anchor</span><span class="p">(</span><span class="n">all_anchor_boxes_3d</span><span class="p">)</span>
+            <span class="n">empty_anchor_filter</span> <span class="o">=</span> <span class="n">anchor_filter</span><span class="p">.</span><span class="n">get_empty_anchor_filter_2d</span><span class="p">(</span>
+                <span class="n">anchors</span><span class="p">,</span> <span class="n">vx_grid_2d</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">_density_threshold</span><span class="p">)</span>
+
+            <span class="c1"># Calculate anchor info
+</span>            <span class="c1"># 这里更新了所有anchor和gt的iou信息，以找到anchor匹配的目标target
+</span>            <span class="n">anchors_info</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_calculate_anchors_info</span><span class="p">(</span>
+                <span class="n">all_anchor_boxes_3d</span><span class="p">,</span> <span class="n">empty_anchor_filter</span><span class="p">,</span> <span class="n">filtered_gt_list</span><span class="p">)</span>
+
+            <span class="n">anchor_ious</span> <span class="o">=</span> <span class="n">anchors_info</span><span class="p">[:,</span> <span class="bp">self</span><span class="p">.</span><span class="n">mini_batch_utils</span><span class="p">.</span><span class="n">col_ious</span><span class="p">]</span>
+
+            <span class="n">valid_iou_indices</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">anchor_ious</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">print</span><span class="p">(</span><span class="s">"{} / {}:"</span>
+                  <span class="s">"{:&gt;6} anchors, "</span>
+                  <span class="s">"{:&gt;6} iou &gt; 0.0, "</span>
+                  <span class="s">"for {:&gt;3} {}(s) for sample {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+                      <span class="n">sample_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span>
+                      <span class="nb">len</span><span class="p">(</span><span class="n">anchors_info</span><span class="p">),</span>
+                      <span class="nb">len</span><span class="p">(</span><span class="n">valid_iou_indices</span><span class="p">),</span>
+                      <span class="nb">len</span><span class="p">(</span><span class="n">filtered_gt_list</span><span class="p">),</span> <span class="n">classes_name</span><span class="p">,</span> <span class="n">sample_name</span>
+                  <span class="p">))</span>
+
+            <span class="c1"># Save anchors info
+</span>            <span class="bp">self</span><span class="p">.</span><span class="n">_save_to_file</span><span class="p">(</span><span class="n">classes_name</span><span class="p">,</span> <span class="n">anchor_strides</span><span class="p">,</span>
+                               <span class="n">sample_name</span><span class="p">,</span> <span class="n">anchors_info</span><span class="p">)</span>
+
+</pre></table></code></div></div><p>其中3D Anchor生成的步骤：</p><ul><li>确定Anchor生成范围（area_extents）<li>根据stride生成anchor的center点分布<li>生成size和rotation分布-&gt;生成anchor matrix</ul><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+</pre><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">tile_anchors_3d</span><span class="p">(</span><span class="n">area_extents</span><span class="p">,</span>
+                    <span class="n">anchor_3d_sizes</span><span class="p">,</span>
+                    <span class="n">anchor_stride</span><span class="p">,</span>
+                    <span class="n">ground_plane</span><span class="p">):</span>
+    <span class="s">"""
+    Tiles anchors over the area extents by using meshgrids to
+    generate combinations of (x, y, z), (l, w, h) and ry.
+
+    Args:
+        area_extents: [[min_x, max_x], [min_y, max_y], [min_z, max_z]]
+        anchor_3d_sizes: list of 3d anchor sizes N x (l, w, h)
+        anchor_stride: stride lengths (x_stride, z_stride)
+        ground_plane: coefficients of the ground plane e.g. [0, -1, 0, 0]
+
+    Returns:
+        boxes: list of 3D anchors in box_3d format N x [x, y, z, l, w, h, ry]
+    """</span>
+    <span class="c1"># Convert sizes to ndarray
+</span>    <span class="c1"># 由于kitti坐标系的原因：x，z轴定义的为地平面坐标系，而y轴对应高度
+</span>    <span class="n">anchor_3d_sizes</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">anchor_3d_sizes</span><span class="p">)</span>
+
+    <span class="n">anchor_stride_x</span> <span class="o">=</span> <span class="n">anchor_stride</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">anchor_stride_z</span> <span class="o">=</span> <span class="n">anchor_stride</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">anchor_rotations</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">])</span>
+
+    <span class="n">x_start</span> <span class="o">=</span> <span class="n">area_extents</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">anchor_stride</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">x_end</span> <span class="o">=</span> <span class="n">area_extents</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x_centers</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="n">x_start</span><span class="p">,</span> <span class="n">x_end</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">anchor_stride_x</span><span class="p">),</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="n">z_start</span> <span class="o">=</span> <span class="n">area_extents</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">anchor_stride</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">z_end</span> <span class="o">=</span> <span class="n">area_extents</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">z_centers</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="n">z_start</span><span class="p">,</span> <span class="n">z_end</span><span class="p">,</span> <span class="n">step</span><span class="o">=-</span><span class="n">anchor_stride_z</span><span class="p">),</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Use ranges for substitution
+</span>    <span class="n">size_indices</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">anchor_3d_sizes</span><span class="p">))</span>
+    <span class="n">rotation_indices</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">anchor_rotations</span><span class="p">))</span>
+
+    <span class="c1"># Generate matrix for substitution
+</span>    <span class="c1"># e.g. for two sizes and two rotations
+</span>    <span class="c1"># [[x0, z0, 0, 0], [x0, z0, 0, 1], [x0, z0, 1, 0], [x0, z0, 1, 1],
+</span>    <span class="c1">#  [x1, z0, 0, 0], [x1, z0, 0, 1], [x1, z0, 1, 0], [x1, z0, 1, 1], ...]
+</span>    <span class="n">before_sub</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">stack</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_centers</span><span class="p">,</span>
+                                      <span class="n">z_centers</span><span class="p">,</span>
+                                      <span class="n">size_indices</span><span class="p">,</span>
+                                      <span class="n">rotation_indices</span><span class="p">),</span>
+                          <span class="n">axis</span><span class="o">=</span><span class="mi">4</span><span class="p">).</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="c1"># Place anchors on the ground plane
+</span>    <span class="c1"># 利用之前的meshgrid生成anchor的center点
+</span>    <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">ground_plane</span>
+    <span class="n">all_x</span> <span class="o">=</span> <span class="n">before_sub</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">all_z</span> <span class="o">=</span> <span class="n">before_sub</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">all_y</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">all_x</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">all_z</span> <span class="o">+</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">b</span>
+
+    <span class="c1"># Create empty matrix to return
+</span>    <span class="n">num_anchors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">before_sub</span><span class="p">)</span>
+    <span class="n">all_anchor_boxes_3d</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_anchors</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+
+    <span class="c1"># Fill in x, y, z
+</span>    <span class="n">all_anchor_boxes_3d</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">stack</span><span class="p">((</span><span class="n">all_x</span><span class="p">,</span> <span class="n">all_y</span><span class="p">,</span> <span class="n">all_z</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Fill in shapes
+</span>    <span class="n">sizes</span> <span class="o">=</span> <span class="n">anchor_3d_sizes</span><span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">before_sub</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">np</span><span class="p">.</span><span class="n">int32</span><span class="p">)]</span>
+    <span class="n">all_anchor_boxes_3d</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">sizes</span>
+
+    <span class="c1"># Fill in rotations
+</span>    <span class="n">rotations</span> <span class="o">=</span> <span class="n">anchor_rotations</span><span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">before_sub</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">np</span><span class="p">.</span><span class="n">int32</span><span class="p">)]</span>
+    <span class="n">all_anchor_boxes_3d</span><span class="p">[:,</span> <span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="n">rotations</span>
+
+    <span class="k">return</span> <span class="n">all_anchor_boxes_3d</span>
+
+</pre></table></code></div></div></ol><h2 id="模型训练">模型训练<a id="sec-2-2"></a></h2><p>avod模型的整体结构包括backbone+RPN+avod网络三个部分，详情参照<a href="https://johneyzheng.top/posts/AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/">AVOD论文解读</a></p><p>backbone采用的是VGG+FPN的结构，但是添加了bev feature的设计(lidar三维数据转化为二维的bev特征)，后与image feature进行融合，RPN网络用于生成region proposal，avod用于最后物体的分类和检测框的回归</p><h3 id="调用链-1">调用链<a id="sec-2-2-1"></a></h3><p>base_dir = <code class="language-plaintext highlighter-rouge">avod/</code> 主要的相关模块调用： config = <code class="language-plaintext highlighter-rouge">avod/config/pyramid_cars_with_aug_example.config</code> <code class="language-plaintext highlighter-rouge">scripts/run_training.py</code> -&gt; <code class="language-plaintext highlighter-rouge">avod/avod/core/trainer.py</code> (这里会完成model，input_data，loss，op等模块的构建)-&gt; <code class="language-plaintext highlighter-rouge">avod/avod/core/models/avod_model.py-&gt;avod/avod/core/models/rpn_model.py</code></p><h3 id="核心部分-1">核心部分<a id="sec-2-2-2"></a></h3><ol><li><p>数据前处理</p><p>训练的数据前处理与前文的预生成数据的区别是这里是对输入的原始数据进行处理，主要分为以下几个部分：</p><ol><li><p>三维点云数据的读取和过滤:</p><p>三维点云数据读入后需要进行去除在image视角外的点云数据包括两个部分：<code class="language-plaintext highlighter-rouge">ground_plane_filter+image_filter</code> ，前者主要用于生成bev图特征（对应不同高度生成不同体素空间，进行点的特征编码，参照bev的生成），后者主要是将对应cam view外的点进行过滤。</p><li><p>BEV图的生成</p><p>BEV图生成原理是在过滤后的点云数据上，根据height_lo和height_hi的高度范围（相对于ground_plane）生成num_slices个y轴维度的切片(slices)每个切片上按照voxel_size生成一系列单元（voxel），以其中点云的最高点高度作为feature，最终生成 <code class="language-plaintext highlighter-rouge">(bev_width/voxel_size)*(bev_height/voxel_size)*(num_slices+1)</code> 维特征，+1为记录的density信息，代码如下</p><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+</pre><td class="rouge-code"><pre><span class="c1">#avod/acod/datasets/kitti/kitti_utils.py:109
+</span>      <span class="k">def</span> <span class="nf">generate_bev</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                       <span class="n">source</span><span class="p">,</span>
+                       <span class="n">point_cloud</span><span class="p">,</span>
+                       <span class="n">ground_plane</span><span class="p">,</span>
+                       <span class="n">area_extents</span><span class="p">,</span>
+                       <span class="n">voxel_size</span><span class="p">):</span>
+          <span class="s">"""Generates the BEV maps dictionary. One height map is created for
+          each slice of the point cloud. One density map is created for
+          the whole point cloud.
+
+          Args:
+              source: point cloud source
+              point_cloud: point cloud (3, N)
+              ground_plane: ground plane coefficients
+              area_extents: 3D area extents
+                  [[min_x, max_x], [min_y, max_y], [min_z, max_z]]
+              voxel_size: voxel size in m
+
+          Returns:
+              BEV maps dictionary
+                  height_maps: list of height maps
+                  density_map: density map
+          """</span>
+          <span class="c1">#得到点云数据
+</span>          <span class="n">all_points</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">point_cloud</span><span class="p">)</span>
+
+          <span class="n">height_maps</span> <span class="o">=</span> <span class="p">[]</span>
+
+          <span class="k">for</span> <span class="n">slice_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_slices</span><span class="p">):</span>
+              <span class="n">height_lo</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">height_lo</span> <span class="o">+</span> <span class="n">slice_idx</span> <span class="o">*</span> <span class="bp">self</span><span class="p">.</span><span class="n">height_per_division</span>
+              <span class="n">height_hi</span> <span class="o">=</span> <span class="n">height_lo</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">height_per_division</span>
+              <span class="c1">#slice_filter相对ground_plane根据高度进行每个slice点云的过滤
+</span>              <span class="n">slice_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">kitti_utils</span><span class="p">.</span><span class="n">create_slice_filter</span><span class="p">(</span>
+                  <span class="n">point_cloud</span><span class="p">,</span>
+                  <span class="n">area_extents</span><span class="p">,</span>
+                  <span class="n">ground_plane</span><span class="p">,</span>
+                  <span class="n">height_lo</span><span class="p">,</span>
+                  <span class="n">height_hi</span><span class="p">)</span>
+
+              <span class="c1"># Apply slice filter
+</span>              <span class="n">slice_points</span> <span class="o">=</span> <span class="n">all_points</span><span class="p">[</span><span class="n">slice_filter</span><span class="p">]</span>
+
+              <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slice_points</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+
+                  <span class="c1"># Create Voxel Grid 2D
+</span>                  <span class="n">voxel_grid_2d</span> <span class="o">=</span> <span class="n">VoxelGrid2D</span><span class="p">()</span>
+                  <span class="n">voxel_grid_2d</span><span class="p">.</span><span class="n">voxelize_2d</span><span class="p">(</span>
+                      <span class="n">slice_points</span><span class="p">,</span> <span class="n">voxel_size</span><span class="p">,</span>
+                      <span class="n">extents</span><span class="o">=</span><span class="n">area_extents</span><span class="p">,</span>
+                      <span class="n">ground_plane</span><span class="o">=</span><span class="n">ground_plane</span><span class="p">,</span>
+                      <span class="n">create_leaf_layout</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+                  <span class="c1"># Remove y values (all 0)
+</span>                  <span class="n">voxel_indices</span> <span class="o">=</span> <span class="n">voxel_grid_2d</span><span class="p">.</span><span class="n">voxel_indices</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span>
+
+              <span class="c1"># Create empty BEV images
+</span>              <span class="n">height_map</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">voxel_grid_2d</span><span class="p">.</span><span class="n">num_divisions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                     <span class="n">voxel_grid_2d</span><span class="p">.</span><span class="n">num_divisions</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+
+              <span class="c1"># Only update pixels where voxels have max height values,
+</span>              <span class="c1"># and normalize by height of slices
+</span>              <span class="c1"># 生成含有最大高度信息的height_map
+</span>              <span class="n">voxel_grid_2d</span><span class="p">.</span><span class="n">heights</span> <span class="o">=</span> <span class="n">voxel_grid_2d</span><span class="p">.</span><span class="n">heights</span> <span class="o">-</span> <span class="n">height_lo</span>
+              <span class="n">height_map</span><span class="p">[</span><span class="n">voxel_indices</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">voxel_indices</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> \
+                  <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">voxel_grid_2d</span><span class="p">.</span><span class="n">heights</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="p">.</span><span class="n">height_per_division</span>
+
+              <span class="n">height_maps</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">height_map</span><span class="p">)</span>
+
+          <span class="c1"># Rotate height maps 90 degrees
+</span>          <span class="c1"># (transpose and flip) is faster than np.rot90
+</span>          <span class="c1"># 应该是坐标系定义的问题（image和bev）
+</span>          <span class="n">height_maps_out</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">flip</span><span class="p">(</span><span class="n">height_maps</span><span class="p">[</span><span class="n">map_idx</span><span class="p">].</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                             <span class="k">for</span> <span class="n">map_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">height_maps</span><span class="p">))]</span>
+
+          <span class="c1">#得到density的filter，在全量高度上得到
+</span>          <span class="n">density_slice_filter</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">kitti_utils</span><span class="p">.</span><span class="n">create_slice_filter</span><span class="p">(</span>
+              <span class="n">point_cloud</span><span class="p">,</span>
+              <span class="n">area_extents</span><span class="p">,</span>
+              <span class="n">ground_plane</span><span class="p">,</span>
+              <span class="bp">self</span><span class="p">.</span><span class="n">height_lo</span><span class="p">,</span>
+              <span class="bp">self</span><span class="p">.</span><span class="n">height_hi</span><span class="p">)</span>
+
+          <span class="n">density_points</span> <span class="o">=</span> <span class="n">all_points</span><span class="p">[</span><span class="n">density_slice_filter</span><span class="p">]</span>
+
+          <span class="c1"># Create Voxel Grid 2D
+</span>          <span class="n">density_voxel_grid_2d</span> <span class="o">=</span> <span class="n">VoxelGrid2D</span><span class="p">()</span>
+          <span class="n">density_voxel_grid_2d</span><span class="p">.</span><span class="n">voxelize_2d</span><span class="p">(</span>
+              <span class="n">density_points</span><span class="p">,</span>
+              <span class="n">voxel_size</span><span class="p">,</span>
+              <span class="n">extents</span><span class="o">=</span><span class="n">area_extents</span><span class="p">,</span>
+              <span class="n">ground_plane</span><span class="o">=</span><span class="n">ground_plane</span><span class="p">,</span>
+              <span class="n">create_leaf_layout</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+          <span class="c1"># Generate density map
+</span>          <span class="n">density_voxel_indices_2d</span> <span class="o">=</span> \
+              <span class="n">density_voxel_grid_2d</span><span class="p">.</span><span class="n">voxel_indices</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span>
+
+          <span class="n">density_map</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_create_density_map</span><span class="p">(</span>
+              <span class="n">num_divisions</span><span class="o">=</span><span class="n">density_voxel_grid_2d</span><span class="p">.</span><span class="n">num_divisions</span><span class="p">,</span>
+              <span class="n">voxel_indices_2d</span><span class="o">=</span><span class="n">density_voxel_indices_2d</span><span class="p">,</span>
+              <span class="n">num_pts_per_voxel</span><span class="o">=</span><span class="n">density_voxel_grid_2d</span><span class="p">.</span><span class="n">num_pts_in_voxel</span><span class="p">,</span>
+              <span class="n">norm_value</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">NORM_VALUES</span><span class="p">[</span><span class="n">source</span><span class="p">])</span>
+
+          <span class="n">bev_maps</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+          <span class="n">bev_maps</span><span class="p">[</span><span class="s">'height_maps'</span><span class="p">]</span> <span class="o">=</span> <span class="n">height_maps_out</span>
+          <span class="n">bev_maps</span><span class="p">[</span><span class="s">'density_map'</span><span class="p">]</span> <span class="o">=</span> <span class="n">density_map</span>
+
+          <span class="k">return</span> <span class="n">bev_maps</span>
+</pre></table></code></div></div><li><p>数据增强(data augumentation)</p><p>这部分主要是在读入数据的过程中会进行数据的增强操作，默认car的增强操作包括:flipping+pca_jitter。</p></ol><li><p>Backbone</p><p>backbone(feature extactor)包括两个部分：bev和image，整体结构类似，具体实现参考下文代码，其结构可以概述为 <code class="language-plaintext highlighter-rouge">conv1\*2-&gt;pool1-&gt;conv2\*2-&gt;pool2-&gt;conv3\*2-&gt;pool3-&gt;conv4-&gt;(upconv3+concat3+fusion3)-&gt;(upconv2+concat2+fusion2)-&gt;(upconv1+concat1+fusion1)</code></p><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+</pre><td class="rouge-code"><pre><span class="c1">#avod/core/feature_extractors/bev_vgg_pyramid.py:30
+</span><span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+              <span class="n">inputs</span><span class="p">,</span>
+              <span class="n">input_pixel_size</span><span class="p">,</span>
+              <span class="n">is_training</span><span class="p">,</span>
+              <span class="n">scope</span><span class="o">=</span><span class="s">'bev_vgg_pyr'</span><span class="p">):</span>
+        <span class="s">""" Modified VGG for BEV feature extraction with pyramid features
+
+        Args:
+            inputs: a tensor of size [batch_size, height, width, channels].
+            input_pixel_size: size of the input (H x W)
+            is_training: True for training, False for validation/testing.
+            scope: Optional scope for the variables.
+
+        Returns:
+            The last op containing the log predictions and end_points dict.
+        """</span>
+        <span class="n">vgg_config</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">config</span>
+
+        <span class="k">with</span> <span class="n">slim</span><span class="p">.</span><span class="n">arg_scope</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">vgg_arg_scope</span><span class="p">(</span>
+                <span class="n">weight_decay</span><span class="o">=</span><span class="n">vgg_config</span><span class="p">.</span><span class="n">l2_weight_decay</span><span class="p">)):</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="n">scope</span><span class="p">,</span> <span class="s">'bev_vgg_pyr'</span><span class="p">,</span> <span class="p">[</span><span class="n">inputs</span><span class="p">])</span> <span class="k">as</span> <span class="n">sc</span><span class="p">:</span>
+                <span class="n">end_points_collection</span> <span class="o">=</span> <span class="n">sc</span><span class="p">.</span><span class="n">name</span> <span class="o">+</span> <span class="s">'_end_points'</span>
+
+                <span class="c1"># Collect outputs for conv2d, fully_connected and max_pool2d.
+</span>                <span class="k">with</span> <span class="n">slim</span><span class="p">.</span><span class="n">arg_scope</span><span class="p">([</span><span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">,</span> <span class="n">slim</span><span class="p">.</span><span class="n">max_pool2d</span><span class="p">],</span>
+                                    <span class="n">outputs_collections</span><span class="o">=</span><span class="n">end_points_collection</span><span class="p">):</span>
+
+                    <span class="c1"># Pad 700 to 704 to allow even divisions for max pooling
+</span>                    <span class="n">padded</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">pad</span><span class="p">(</span><span class="n">inputs</span><span class="p">,</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
+
+                    <span class="c1"># Encoder
+</span>                    <span class="n">conv1</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">padded</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv1</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                        <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                                        <span class="n">scope</span><span class="o">=</span><span class="s">'conv1'</span><span class="p">)</span>
+                    <span class="n">pool1</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">conv1</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s">'pool1'</span><span class="p">)</span>
+
+                    <span class="n">conv2</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pool1</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv2</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                        <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                                        <span class="n">scope</span><span class="o">=</span><span class="s">'conv2'</span><span class="p">)</span>
+                    <span class="n">pool2</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">conv2</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s">'pool2'</span><span class="p">)</span>
+
+                    <span class="n">conv3</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pool2</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv3</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                        <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                                        <span class="n">scope</span><span class="o">=</span><span class="s">'conv3'</span><span class="p">)</span>
+                    <span class="n">pool3</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">max_pool2d</span><span class="p">(</span><span class="n">conv3</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">scope</span><span class="o">=</span><span class="s">'pool3'</span><span class="p">)</span>
+
+                    <span class="n">conv4</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pool3</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv4</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                        <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">,</span>
+                                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv4</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                                        <span class="n">scope</span><span class="o">=</span><span class="s">'conv4'</span><span class="p">)</span>
+
+                    <span class="c1"># Decoder (upsample and fuse features)
+</span>                    <span class="n">upconv3</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d_transpose</span><span class="p">(</span>
+                        <span class="n">conv4</span><span class="p">,</span>
+                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv3</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                        <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                        <span class="n">scope</span><span class="o">=</span><span class="s">'upconv3'</span><span class="p">)</span>
+
+                    <span class="n">concat3</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">concat</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">conv3</span><span class="p">,</span> <span class="n">upconv3</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">'concat3'</span><span class="p">)</span>
+                    <span class="n">pyramid_fusion3</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span>
+                        <span class="n">concat3</span><span class="p">,</span>
+                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                        <span class="n">scope</span><span class="o">=</span><span class="s">'pyramid_fusion3'</span><span class="p">)</span>
+
+                    <span class="n">upconv2</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d_transpose</span><span class="p">(</span>
+                        <span class="n">pyramid_fusion3</span><span class="p">,</span>
+                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv2</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                        <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                        <span class="n">scope</span><span class="o">=</span><span class="s">'upconv2'</span><span class="p">)</span>
+
+                    <span class="n">concat2</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">concat</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">conv2</span><span class="p">,</span> <span class="n">upconv2</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">'concat2'</span><span class="p">)</span>
+                    <span class="n">pyramid_fusion_2</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span>
+                        <span class="n">concat2</span><span class="p">,</span>
+                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                        <span class="n">scope</span><span class="o">=</span><span class="s">'pyramid_fusion2'</span><span class="p">)</span>
+
+                    <span class="n">upconv1</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d_transpose</span><span class="p">(</span>
+                        <span class="n">pyramid_fusion_2</span><span class="p">,</span>
+                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                        <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                        <span class="n">scope</span><span class="o">=</span><span class="s">'upconv1'</span><span class="p">)</span>
+
+                    <span class="n">concat1</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">concat</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">conv1</span><span class="p">,</span> <span class="n">upconv1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">'concat1'</span><span class="p">)</span>
+                    <span class="n">pyramid_fusion1</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span>
+                        <span class="n">concat1</span><span class="p">,</span>
+                        <span class="n">vgg_config</span><span class="p">.</span><span class="n">vgg_conv1</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                        <span class="n">normalizer_fn</span><span class="o">=</span><span class="n">slim</span><span class="p">.</span><span class="n">batch_norm</span><span class="p">,</span>
+                        <span class="n">normalizer_params</span><span class="o">=</span><span class="p">{</span>
+                            <span class="s">'is_training'</span><span class="p">:</span> <span class="n">is_training</span><span class="p">},</span>
+                        <span class="n">scope</span><span class="o">=</span><span class="s">'pyramid_fusion1'</span><span class="p">)</span>
+
+                    <span class="c1"># Slice off padded area
+</span>                    <span class="n">sliced</span> <span class="o">=</span> <span class="n">pyramid_fusion1</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">:]</span>
+
+                <span class="n">feature_maps_out</span> <span class="o">=</span> <span class="n">sliced</span>
+
+                <span class="c1"># Convert end_points_collection into a end_point dict.
+</span>                <span class="n">end_points</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">convert_collection_to_dict</span><span class="p">(</span>
+                    <span class="n">end_points_collection</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">feature_maps_out</span><span class="p">,</span> <span class="n">end_points</span>
+
+</pre></table></code></div></div><li><p>RPN Model</p><p>Backbone(feature extraction)出来的feature会分别经过一个1*1的卷积(bottle_neck)生成proposal网络的input_feature。默认配置设置了path_drop：image和bev两个path会有一定的几率没有输入，类似于drop_out（具体参考 <code class="language-plaintext highlighter-rouge">avod/avod/core/models/rpn.py:create_path_drop_masks</code> ）。</p><p>之后会将得到的3d anchor映射到bev图和image图上，前者直接投影到ground_plane上，后者通过lidar坐标和image坐标的映射关系得到（取最大的2d框）。之后根据config中的roi_crop_size将得到的proposal feature进行crop_and_resize到相同尺寸。</p><p>之后会做特征的fusion（默认采用mean fusion）,fusioned feature会通过两个分支：3层卷积（论文中为fc，实际代码中为convd）组成的objectness和offsets的预测,这样就形成了first stage的proposal，之后proposal一方面会通过top-k的nms（注意这里的nms是所有类共同做的nms结果）作为second stage的输入，另一方面通过gen_mini_batch生成mini-batch（默认为512个samples，正负例各一半）计算objectness和regression loss(smooth l1),值得注意的是这里的是生成mini-batch的方式采用的是random shuffile的方式，即先shuffle一半的正例（256），如果不足的话用负例补充，没有考虑类比不平衡的问题，所以会造成小样本类别物体收敛慢甚至不收敛的问题。其build 网络部分代码如下：</p><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+</pre><td class="rouge-code"><pre><span class="c1">#rpn_model.py:280, deteled some code for summary
+</span><span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># Setup input placeholders
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">_set_up_input_pls</span><span class="p">()</span>
+
+        <span class="c1"># Setup feature extractors
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">_set_up_feature_extractors</span><span class="p">()</span>
+
+        <span class="n">bev_proposal_input</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">bev_bottleneck</span>
+        <span class="n">img_proposal_input</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">img_bottleneck</span>
+
+        <span class="n">fusion_mean_div_factor</span> <span class="o">=</span> <span class="mf">2.0</span>
+
+        <span class="c1"># If both img and bev probabilites are set to 1.0, don't do
+</span>        <span class="c1"># path drop.
+</span>        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_path_drop_probabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_path_drop_probabilities</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'rpn_path_drop'</span><span class="p">):</span>
+
+                <span class="n">random_values</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">random_uniform</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                                                  <span class="n">minval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                                                  <span class="n">maxval</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+                <span class="n">img_mask</span><span class="p">,</span> <span class="n">bev_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">create_path_drop_masks</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="p">.</span><span class="n">_path_drop_probabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="p">.</span><span class="n">_path_drop_probabilities</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">random_values</span><span class="p">)</span>
+
+                <span class="n">img_proposal_input</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">img_proposal_input</span><span class="p">,</span>
+                                                 <span class="n">img_mask</span><span class="p">)</span>
+
+                <span class="n">bev_proposal_input</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">bev_proposal_input</span><span class="p">,</span>
+                                                 <span class="n">bev_mask</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="p">.</span><span class="n">img_path_drop_mask</span> <span class="o">=</span> <span class="n">img_mask</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">bev_path_drop_mask</span> <span class="o">=</span> <span class="n">bev_mask</span>
+
+                <span class="c1"># Overwrite the division factor
+</span>                <span class="n">fusion_mean_div_factor</span> <span class="o">=</span> <span class="n">img_mask</span> <span class="o">+</span> <span class="n">bev_mask</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'proposal_roi_pooling'</span><span class="p">):</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'box_indices'</span><span class="p">):</span>
+                <span class="k">def</span> <span class="nf">get_box_indices</span><span class="p">(</span><span class="n">boxes</span><span class="p">):</span>
+                    <span class="n">proposals_shape</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">.</span><span class="n">get_shape</span><span class="p">().</span><span class="n">as_list</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">dim</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">proposals_shape</span><span class="p">):</span>
+                        <span class="n">proposals_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+                    <span class="n">ones_mat</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">ones</span><span class="p">(</span><span class="n">proposals_shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">int32</span><span class="p">)</span>
+                    <span class="n">multiplier</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">expand_dims</span><span class="p">(</span>
+                        <span class="n">tf</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">proposals_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">tf</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ones_mat</span> <span class="o">*</span> <span class="n">multiplier</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="n">bev_boxes_norm_batches</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">expand_dims</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="p">.</span><span class="n">_bev_anchors_norm_pl</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="c1"># These should be all 0's since there is only 1 image
+</span>                <span class="n">tf_box_indices</span> <span class="o">=</span> <span class="n">get_box_indices</span><span class="p">(</span><span class="n">bev_boxes_norm_batches</span><span class="p">)</span>
+
+            <span class="c1"># Do ROI Pooling on BEV
+</span>            <span class="n">bev_proposal_rois</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">crop_and_resize</span><span class="p">(</span>
+                <span class="n">bev_proposal_input</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_bev_anchors_norm_pl</span><span class="p">,</span>
+                <span class="n">tf_box_indices</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_proposal_roi_crop_size</span><span class="p">)</span>
+            <span class="c1"># Do ROI Pooling on image
+</span>            <span class="n">img_proposal_rois</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">crop_and_resize</span><span class="p">(</span>
+                <span class="n">img_proposal_input</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_img_anchors_norm_pl</span><span class="p">,</span>
+                <span class="n">tf_box_indices</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_proposal_roi_crop_size</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'proposal_roi_fusion'</span><span class="p">):</span>
+            <span class="n">rpn_fusion_out</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_fusion_method</span> <span class="o">==</span> <span class="s">'mean'</span><span class="p">:</span>
+                <span class="n">tf_features_sum</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">bev_proposal_rois</span><span class="p">,</span> <span class="n">img_proposal_rois</span><span class="p">)</span>
+                <span class="n">rpn_fusion_out</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">divide</span><span class="p">(</span><span class="n">tf_features_sum</span><span class="p">,</span>
+                                           <span class="n">fusion_mean_div_factor</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_fusion_method</span> <span class="o">==</span> <span class="s">'concat'</span><span class="p">:</span>
+                <span class="n">rpn_fusion_out</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">bev_proposal_rois</span><span class="p">,</span> <span class="n">img_proposal_rois</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">'Invalid fusion method'</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">_fusion_method</span><span class="p">)</span>
+
+        <span class="c1"># TODO: move this section into an separate AnchorPredictor class
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'anchor_predictor'</span><span class="p">,</span> <span class="s">'ap'</span><span class="p">,</span> <span class="p">[</span><span class="n">rpn_fusion_out</span><span class="p">]):</span>
+            <span class="n">tensor_in</span> <span class="o">=</span> <span class="n">rpn_fusion_out</span>
+
+            <span class="c1"># Parse rpn layers config
+</span>            <span class="n">layers_config</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_config</span><span class="p">.</span><span class="n">layers_config</span><span class="p">.</span><span class="n">rpn_config</span>
+            <span class="n">l2_weight_decay</span> <span class="o">=</span> <span class="n">layers_config</span><span class="p">.</span><span class="n">l2_weight_decay</span>
+
+            <span class="k">if</span> <span class="n">l2_weight_decay</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">weights_regularizer</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">l2_regularizer</span><span class="p">(</span><span class="n">l2_weight_decay</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">weights_regularizer</span> <span class="o">=</span> <span class="bp">None</span>
+
+            <span class="k">with</span> <span class="n">slim</span><span class="p">.</span><span class="n">arg_scope</span><span class="p">([</span><span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">],</span>
+                                <span class="n">weights_regularizer</span><span class="o">=</span><span class="n">weights_regularizer</span><span class="p">):</span>
+                <span class="c1"># Use conv2d instead of fully_connected layers.
+</span>                <span class="n">cls_fc6</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">tensor_in</span><span class="p">,</span>
+                                      <span class="n">layers_config</span><span class="p">.</span><span class="n">cls_fc6</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="p">.</span><span class="n">_proposal_roi_crop_size</span><span class="p">,</span>
+                                      <span class="n">padding</span><span class="o">=</span><span class="s">'VALID'</span><span class="p">,</span>
+                                      <span class="n">scope</span><span class="o">=</span><span class="s">'cls_fc6'</span><span class="p">)</span>
+
+                <span class="n">cls_fc6_drop</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">cls_fc6</span><span class="p">,</span>
+                                            <span class="n">layers_config</span><span class="p">.</span><span class="n">keep_prob</span><span class="p">,</span>
+                                            <span class="n">is_training</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_is_training</span><span class="p">,</span>
+                                            <span class="n">scope</span><span class="o">=</span><span class="s">'cls_fc6_drop'</span><span class="p">)</span>
+
+                <span class="n">cls_fc7</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">cls_fc6_drop</span><span class="p">,</span>
+                                      <span class="n">layers_config</span><span class="p">.</span><span class="n">cls_fc7</span><span class="p">,</span>
+                                      <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                      <span class="n">scope</span><span class="o">=</span><span class="s">'cls_fc7'</span><span class="p">)</span>
+
+                <span class="n">cls_fc7_drop</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">cls_fc7</span><span class="p">,</span>
+                                            <span class="n">layers_config</span><span class="p">.</span><span class="n">keep_prob</span><span class="p">,</span>
+                                            <span class="n">is_training</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_is_training</span><span class="p">,</span>
+                                            <span class="n">scope</span><span class="o">=</span><span class="s">'cls_fc7_drop'</span><span class="p">)</span>
+
+                <span class="n">cls_fc8</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">cls_fc7_drop</span><span class="p">,</span>
+                                      <span class="mi">2</span><span class="p">,</span>
+                                      <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                      <span class="n">activation_fn</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                                      <span class="n">scope</span><span class="o">=</span><span class="s">'cls_fc8'</span><span class="p">)</span>
+
+                <span class="n">objectness</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">squeeze</span><span class="p">(</span>
+                    <span class="n">cls_fc8</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s">'cls_fc8/squeezed'</span><span class="p">)</span>
+
+                <span class="c1"># Use conv2d instead of fully_connected layers.
+</span>                <span class="n">reg_fc6</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">tensor_in</span><span class="p">,</span>
+                                      <span class="n">layers_config</span><span class="p">.</span><span class="n">reg_fc6</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="p">.</span><span class="n">_proposal_roi_crop_size</span><span class="p">,</span>
+                                      <span class="n">padding</span><span class="o">=</span><span class="s">'VALID'</span><span class="p">,</span>
+                                      <span class="n">scope</span><span class="o">=</span><span class="s">'reg_fc6'</span><span class="p">)</span>
+
+                <span class="n">reg_fc6_drop</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">reg_fc6</span><span class="p">,</span>
+                                            <span class="n">layers_config</span><span class="p">.</span><span class="n">keep_prob</span><span class="p">,</span>
+                                            <span class="n">is_training</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_is_training</span><span class="p">,</span>
+                                            <span class="n">scope</span><span class="o">=</span><span class="s">'reg_fc6_drop'</span><span class="p">)</span>
+
+                <span class="n">reg_fc7</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">reg_fc6_drop</span><span class="p">,</span>
+                                      <span class="n">layers_config</span><span class="p">.</span><span class="n">reg_fc7</span><span class="p">,</span>
+                                      <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                      <span class="n">scope</span><span class="o">=</span><span class="s">'reg_fc7'</span><span class="p">)</span>
+
+                <span class="n">reg_fc7_drop</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">reg_fc7</span><span class="p">,</span>
+                                            <span class="n">layers_config</span><span class="p">.</span><span class="n">keep_prob</span><span class="p">,</span>
+                                            <span class="n">is_training</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_is_training</span><span class="p">,</span>
+                                            <span class="n">scope</span><span class="o">=</span><span class="s">'reg_fc7_drop'</span><span class="p">)</span>
+
+                <span class="n">reg_fc8</span> <span class="o">=</span> <span class="n">slim</span><span class="p">.</span><span class="n">conv2d</span><span class="p">(</span><span class="n">reg_fc7_drop</span><span class="p">,</span>
+                                      <span class="mi">6</span><span class="p">,</span>
+                                      <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                                      <span class="n">activation_fn</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                                      <span class="n">scope</span><span class="o">=</span><span class="s">'reg_fc8'</span><span class="p">)</span>
+
+                <span class="n">offsets</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">squeeze</span><span class="p">(</span>
+                    <span class="n">reg_fc8</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s">'reg_fc8/squeezed'</span><span class="p">)</span>
+
+        <span class="c1"># Return the proposals
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'proposals'</span><span class="p">):</span>
+            <span class="n">anchors</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PL_ANCHORS</span><span class="p">]</span>
+
+            <span class="c1"># Decode anchor regression offsets
+</span>            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'decoding'</span><span class="p">):</span>
+                <span class="n">regressed_anchors</span> <span class="o">=</span> <span class="n">anchor_encoder</span><span class="p">.</span><span class="n">offset_to_anchor</span><span class="p">(</span>
+                        <span class="n">anchors</span><span class="p">,</span> <span class="n">offsets</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'bev_projection'</span><span class="p">):</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">bev_proposal_boxes_norm</span> <span class="o">=</span> <span class="n">anchor_projector</span><span class="p">.</span><span class="n">project_to_bev</span><span class="p">(</span>
+                    <span class="n">regressed_anchors</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">_bev_extents</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'softmax'</span><span class="p">):</span>
+                <span class="n">objectness_softmax</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">objectness</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'nms'</span><span class="p">):</span>
+                <span class="n">objectness_scores</span> <span class="o">=</span> <span class="n">objectness_softmax</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+                <span class="c1"># Do NMS on regressed anchors
+</span>                <span class="n">top_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">non_max_suppression</span><span class="p">(</span>
+                    <span class="n">bev_proposal_boxes_norm</span><span class="p">,</span> <span class="n">objectness_scores</span><span class="p">,</span>
+                    <span class="n">max_output_size</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_nms_size</span><span class="p">,</span>
+                    <span class="n">iou_threshold</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_nms_iou_thresh</span><span class="p">)</span>
+
+                <span class="n">top_anchors</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">regressed_anchors</span><span class="p">,</span> <span class="n">top_indices</span><span class="p">)</span>
+                <span class="n">top_objectness_softmax</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">objectness_scores</span><span class="p">,</span>
+                                                   <span class="n">top_indices</span><span class="p">)</span>
+                <span class="c1"># top_offsets = tf.gather(offsets, top_indices)
+</span>                <span class="c1"># top_objectness = tf.gather(objectness, top_indices)
+</span>
+        <span class="c1"># Get mini batch
+</span>        <span class="n">all_ious_gt</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PL_ANCHOR_IOUS</span><span class="p">]</span>
+        <span class="n">all_offsets_gt</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PL_ANCHOR_OFFSETS</span><span class="p">]</span>
+        <span class="n">all_classes_gt</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PL_ANCHOR_CLASSES</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'mini_batch'</span><span class="p">):</span>
+            <span class="n">mini_batch_utils</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dataset</span><span class="p">.</span><span class="n">kitti_utils</span><span class="p">.</span><span class="n">mini_batch_utils</span>
+            <span class="n">mini_batch_mask</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> \
+                <span class="n">mini_batch_utils</span><span class="p">.</span><span class="n">sample_rpn_mini_batch</span><span class="p">(</span><span class="n">all_ious_gt</span><span class="p">)</span>
+
+
+        <span class="c1"># Ground Truth Tensors
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'one_hot_classes'</span><span class="p">):</span>
+
+            <span class="c1"># Anchor classification ground truth
+</span>            <span class="c1"># Object / Not Object
+</span>            <span class="n">min_pos_iou</span> <span class="o">=</span> \
+                <span class="bp">self</span><span class="p">.</span><span class="n">dataset</span><span class="p">.</span><span class="n">kitti_utils</span><span class="p">.</span><span class="n">mini_batch_utils</span><span class="p">.</span><span class="n">rpn_pos_iou_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">objectness_classes_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span>
+                <span class="n">tf</span><span class="p">.</span><span class="n">greater_equal</span><span class="p">(</span><span class="n">all_ious_gt</span><span class="p">,</span> <span class="n">min_pos_iou</span><span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">objectness_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">one_hot</span><span class="p">(</span>
+                <span class="n">objectness_classes_gt</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">on_value</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="p">.</span><span class="n">_config</span><span class="p">.</span><span class="n">label_smoothing_epsilon</span><span class="p">,</span>
+                <span class="n">off_value</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_config</span><span class="p">.</span><span class="n">label_smoothing_epsilon</span><span class="p">)</span>
+
+        <span class="c1"># Mask predictions for mini batch
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'prediction_mini_batch'</span><span class="p">):</span>
+            <span class="n">objectness_masked</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">objectness</span><span class="p">,</span> <span class="n">mini_batch_mask</span><span class="p">)</span>
+            <span class="n">offsets_masked</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">offsets</span><span class="p">,</span> <span class="n">mini_batch_mask</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'ground_truth_mini_batch'</span><span class="p">):</span>
+            <span class="n">objectness_gt_masked</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span>
+                <span class="n">objectness_gt</span><span class="p">,</span> <span class="n">mini_batch_mask</span><span class="p">)</span>
+            <span class="n">offsets_gt_masked</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">all_offsets_gt</span><span class="p">,</span>
+                                                <span class="n">mini_batch_mask</span><span class="p">)</span>
+
+        <span class="c1"># Specify the tensors to evaluate
+</span>        <span class="n">predictions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+
+        <span class="c1"># Temporary predictions for debugging
+</span>        <span class="c1"># predictions['anchor_ious'] = anchor_ious
+</span>        <span class="c1"># predictions['anchor_offsets'] = all_offsets_gt
+</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_train_val_test</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'val'</span><span class="p">]:</span>
+            <span class="c1"># All anchors
+</span>            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_ANCHORS</span><span class="p">]</span> <span class="o">=</span> <span class="n">anchors</span>
+
+            <span class="c1"># Mini-batch masks
+</span>            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_MASK</span><span class="p">]</span> <span class="o">=</span> <span class="n">mini_batch_mask</span>
+            <span class="c1"># Mini-batch predictions
+</span>            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_OBJECTNESS</span><span class="p">]</span> <span class="o">=</span> <span class="n">objectness_masked</span>
+            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_OFFSETS</span><span class="p">]</span> <span class="o">=</span> <span class="n">offsets_masked</span>
+
+            <span class="c1"># Mini batch ground truth
+</span>            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_OFFSETS_GT</span><span class="p">]</span> <span class="o">=</span> <span class="n">offsets_gt_masked</span>
+            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_OBJECTNESS_GT</span><span class="p">]</span> <span class="o">=</span> <span class="n">objectness_gt_masked</span>
+
+            <span class="c1"># Proposals after nms
+</span>            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_INDICES</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_indices</span>
+            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_ANCHORS</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_anchors</span>
+            <span class="n">predictions</span><span class="p">[</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_OBJECTNESS_SOFTMAX</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_objectness_softmax</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># self._train_val_test == 'test'
+</span>            <span class="n">predictions</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_ANCHORS</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_anchors</span>
+            <span class="n">predictions</span><span class="p">[</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_OBJECTNESS_SOFTMAX</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_objectness_softmax</span>
+
+        <span class="k">return</span> <span class="n">predictions</span>
+</pre></table></code></div></div><li><p>AVOD Model</p><p>AVOD网络部分会得到first stage得到的top-k anchor proposals,得到对应bev和img的anchor projection，进行相同的crop_and_resize操作，之后再进行 <code class="language-plaintext highlighter-rouge">fusion+n*(fc+fc_drop)</code> 进行cls，offsets以及angle vector的预测（fusion默认采用early-fusion:即先进行fusion再进入之后网络层）。生成prediction之后，会解码gt投影到bev图上,然后采用同样的策略生成mini-batch和top-anchor(bev上进行的nms),并且生成对应的objecness，offset，angle的loss。mini-batch的loss作为train过程中进行模型训练，后者生成最终的预测，但是loss好像并没有使用。其中，offset的loss需要转化到3d box上去计算（论文提出的 <code class="language-plaintext highlighter-rouge">box_4c</code> 计算方式）。相关代码如下:</p><div class="language-python highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468
+469
+470
+471
+</pre><td class="rouge-code"><pre><span class="c1">#avod_model.py:123 deleted code for summary
+</span><span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rpn_model</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_rpn_model</span>
+
+        <span class="c1"># Share the same prediction dict as RPN
+</span>        <span class="n">prediction_dict</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">build</span><span class="p">()</span>
+
+        <span class="n">top_anchors</span> <span class="o">=</span> <span class="n">prediction_dict</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PRED_TOP_ANCHORS</span><span class="p">]</span>
+        <span class="n">ground_plane</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PL_GROUND_PLANE</span><span class="p">]</span>
+
+        <span class="n">class_labels</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PL_LABEL_CLASSES</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_projection'</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_config</span><span class="p">.</span><span class="n">expand_proposals_xz</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+
+                <span class="n">expand_length</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_config</span><span class="p">.</span><span class="n">expand_proposals_xz</span>
+
+                <span class="c1"># Expand anchors along x and z
+</span>                <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'expand_xz'</span><span class="p">):</span>
+                    <span class="n">expanded_dim_x</span> <span class="o">=</span> <span class="n">top_anchors</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="n">expand_length</span>
+                    <span class="n">expanded_dim_z</span> <span class="o">=</span> <span class="n">top_anchors</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">+</span> <span class="n">expand_length</span>
+
+                    <span class="n">expanded_anchors</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">stack</span><span class="p">([</span>
+                        <span class="n">top_anchors</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
+                        <span class="n">top_anchors</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="n">top_anchors</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
+                        <span class="n">expanded_dim_x</span><span class="p">,</span>
+                        <span class="n">top_anchors</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">],</span>
+                        <span class="n">expanded_dim_z</span>
+                    <span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">avod_projection_in</span> <span class="o">=</span> <span class="n">expanded_anchors</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">avod_projection_in</span> <span class="o">=</span> <span class="n">top_anchors</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'bev'</span><span class="p">):</span>
+                <span class="c1"># Project top anchors into bev and image spaces
+</span>                <span class="n">bev_proposal_boxes</span><span class="p">,</span> <span class="n">bev_proposal_boxes_norm</span> <span class="o">=</span> \
+                    <span class="n">anchor_projector</span><span class="p">.</span><span class="n">project_to_bev</span><span class="p">(</span>
+                        <span class="n">avod_projection_in</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="p">.</span><span class="n">dataset</span><span class="p">.</span><span class="n">kitti_utils</span><span class="p">.</span><span class="n">bev_extents</span><span class="p">)</span>
+
+                <span class="c1"># Reorder projected boxes into [y1, x1, y2, x2]
+</span>                <span class="n">bev_proposal_boxes_tf_order</span> <span class="o">=</span> \
+                    <span class="n">anchor_projector</span><span class="p">.</span><span class="n">reorder_projected_boxes</span><span class="p">(</span>
+                        <span class="n">bev_proposal_boxes</span><span class="p">)</span>
+                <span class="n">bev_proposal_boxes_norm_tf_order</span> <span class="o">=</span> \
+                    <span class="n">anchor_projector</span><span class="p">.</span><span class="n">reorder_projected_boxes</span><span class="p">(</span>
+                        <span class="n">bev_proposal_boxes_norm</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'img'</span><span class="p">):</span>
+                <span class="n">image_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">cast</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span>
+                    <span class="n">rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PL_IMG_INPUT</span><span class="p">])[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="n">tf</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="n">img_proposal_boxes</span><span class="p">,</span> <span class="n">img_proposal_boxes_norm</span> <span class="o">=</span> \
+                    <span class="n">anchor_projector</span><span class="p">.</span><span class="n">tf_project_to_image_space</span><span class="p">(</span>
+                        <span class="n">avod_projection_in</span><span class="p">,</span>
+                        <span class="n">rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PL_CALIB_P2</span><span class="p">],</span>
+                        <span class="n">image_shape</span><span class="p">)</span>
+                <span class="c1"># Only reorder the normalized img
+</span>                <span class="n">img_proposal_boxes_norm_tf_order</span> <span class="o">=</span> \
+                    <span class="n">anchor_projector</span><span class="p">.</span><span class="n">reorder_projected_boxes</span><span class="p">(</span>
+                        <span class="n">img_proposal_boxes_norm</span><span class="p">)</span>
+
+        <span class="n">bev_feature_maps</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">bev_feature_maps</span>
+        <span class="n">img_feature_maps</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">img_feature_maps</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_path_drop_probabilities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_path_drop_probabilities</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">):</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_path_drop'</span><span class="p">):</span>
+
+                <span class="n">img_mask</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">img_path_drop_mask</span>
+                <span class="n">bev_mask</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">bev_path_drop_mask</span>
+
+                <span class="n">img_feature_maps</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">img_feature_maps</span><span class="p">,</span>
+                                               <span class="n">img_mask</span><span class="p">)</span>
+
+                <span class="n">bev_feature_maps</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">bev_feature_maps</span><span class="p">,</span>
+                                               <span class="n">bev_mask</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bev_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">img_mask</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">constant</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+
+        <span class="c1"># ROI Pooling
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_roi_pooling'</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">get_box_indices</span><span class="p">(</span><span class="n">boxes</span><span class="p">):</span>
+                <span class="n">proposals_shape</span> <span class="o">=</span> <span class="n">boxes</span><span class="p">.</span><span class="n">get_shape</span><span class="p">().</span><span class="n">as_list</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">dim</span> <span class="ow">is</span> <span class="bp">None</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">proposals_shape</span><span class="p">):</span>
+                    <span class="n">proposals_shape</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">shape</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span>
+                <span class="n">ones_mat</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">ones</span><span class="p">(</span><span class="n">proposals_shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">int32</span><span class="p">)</span>
+                <span class="n">multiplier</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">expand_dims</span><span class="p">(</span>
+                    <span class="n">tf</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">proposals_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">tf</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ones_mat</span> <span class="o">*</span> <span class="n">multiplier</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="n">bev_boxes_norm_batches</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">expand_dims</span><span class="p">(</span>
+                <span class="n">bev_proposal_boxes_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># These should be all 0's since there is only 1 image
+</span>            <span class="n">tf_box_indices</span> <span class="o">=</span> <span class="n">get_box_indices</span><span class="p">(</span><span class="n">bev_boxes_norm_batches</span><span class="p">)</span>
+
+            <span class="c1"># Do ROI Pooling on BEV
+</span>            <span class="n">bev_rois</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">crop_and_resize</span><span class="p">(</span>
+                <span class="n">bev_feature_maps</span><span class="p">,</span>
+                <span class="n">bev_proposal_boxes_norm_tf_order</span><span class="p">,</span>
+                <span class="n">tf_box_indices</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_proposal_roi_crop_size</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s">'bev_rois'</span><span class="p">)</span>
+            <span class="c1"># Do ROI Pooling on image
+</span>            <span class="n">img_rois</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">crop_and_resize</span><span class="p">(</span>
+                <span class="n">img_feature_maps</span><span class="p">,</span>
+                <span class="n">img_proposal_boxes_norm_tf_order</span><span class="p">,</span>
+                <span class="n">tf_box_indices</span><span class="p">,</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">_proposal_roi_crop_size</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s">'img_rois'</span><span class="p">)</span>
+
+        <span class="c1"># Fully connected layers (Box Predictor)
+</span>        <span class="n">avod_layers_config</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">model_config</span><span class="p">.</span><span class="n">layers_config</span><span class="p">.</span><span class="n">avod_config</span>
+
+        <span class="n">fc_output_layers</span> <span class="o">=</span> \
+            <span class="n">avod_fc_layers_builder</span><span class="p">.</span><span class="n">build</span><span class="p">(</span>
+                <span class="n">layers_config</span><span class="o">=</span><span class="n">avod_layers_config</span><span class="p">,</span>
+                <span class="n">input_rois</span><span class="o">=</span><span class="p">[</span><span class="n">bev_rois</span><span class="p">,</span> <span class="n">img_rois</span><span class="p">],</span>
+                <span class="n">input_weights</span><span class="o">=</span><span class="p">[</span><span class="n">bev_mask</span><span class="p">,</span> <span class="n">img_mask</span><span class="p">],</span>
+                <span class="n">num_final_classes</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_num_final_classes</span><span class="p">,</span>
+                <span class="n">box_rep</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span><span class="p">,</span>
+                <span class="n">top_anchors</span><span class="o">=</span><span class="n">top_anchors</span><span class="p">,</span>
+                <span class="n">ground_plane</span><span class="o">=</span><span class="n">ground_plane</span><span class="p">,</span>
+                <span class="n">is_training</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_is_training</span><span class="p">)</span>
+
+        <span class="n">all_cls_logits</span> <span class="o">=</span> \
+            <span class="n">fc_output_layers</span><span class="p">[</span><span class="n">avod_fc_layers_builder</span><span class="p">.</span><span class="n">KEY_CLS_LOGITS</span><span class="p">]</span>
+        <span class="n">all_offsets</span> <span class="o">=</span> <span class="n">fc_output_layers</span><span class="p">[</span><span class="n">avod_fc_layers_builder</span><span class="p">.</span><span class="n">KEY_OFFSETS</span><span class="p">]</span>
+
+        <span class="c1"># This may be None
+</span>        <span class="n">all_angle_vectors</span> <span class="o">=</span> \
+            <span class="n">fc_output_layers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">avod_fc_layers_builder</span><span class="p">.</span><span class="n">KEY_ANGLE_VECTORS</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'softmax'</span><span class="p">):</span>
+            <span class="n">all_cls_softmax</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">softmax</span><span class="p">(</span>
+                <span class="n">all_cls_logits</span><span class="p">)</span>
+
+        <span class="c1">######################################################
+</span>        <span class="c1"># Subsample mini_batch for the loss function
+</span>        <span class="c1">######################################################
+</span>        <span class="c1"># Get the ground truth tensors
+</span>        <span class="n">anchors_gt</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PL_LABEL_ANCHORS</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_3d'</span><span class="p">,</span> <span class="s">'box_4ca'</span><span class="p">]:</span>
+            <span class="n">boxes_3d_gt</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PL_LABEL_BOXES_3D</span><span class="p">]</span>
+            <span class="n">orientations_gt</span> <span class="o">=</span> <span class="n">boxes_3d_gt</span><span class="p">[:,</span> <span class="mi">6</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_8c'</span><span class="p">,</span> <span class="s">'box_8co'</span><span class="p">,</span> <span class="s">'box_4c'</span><span class="p">]:</span>
+            <span class="n">boxes_3d_gt</span> <span class="o">=</span> <span class="n">rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span><span class="n">RpnModel</span><span class="p">.</span><span class="n">PL_LABEL_BOXES_3D</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nb">NotImplementedError</span><span class="p">(</span><span class="s">'Ground truth tensors not implemented'</span><span class="p">)</span>
+
+        <span class="c1"># Project anchor_gts to 2D bev
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_gt_projection'</span><span class="p">):</span>
+            <span class="n">bev_anchor_boxes_gt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">anchor_projector</span><span class="p">.</span><span class="n">project_to_bev</span><span class="p">(</span>
+                <span class="n">anchors_gt</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">dataset</span><span class="p">.</span><span class="n">kitti_utils</span><span class="p">.</span><span class="n">bev_extents</span><span class="p">)</span>
+
+            <span class="n">bev_anchor_boxes_gt_tf_order</span> <span class="o">=</span> \
+                <span class="n">anchor_projector</span><span class="p">.</span><span class="n">reorder_projected_boxes</span><span class="p">(</span><span class="n">bev_anchor_boxes_gt</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_box_list'</span><span class="p">):</span>
+            <span class="c1"># Convert to box_list format
+</span>            <span class="n">anchor_box_list_gt</span> <span class="o">=</span> <span class="n">box_list</span><span class="p">.</span><span class="n">BoxList</span><span class="p">(</span><span class="n">bev_anchor_boxes_gt_tf_order</span><span class="p">)</span>
+            <span class="n">anchor_box_list</span> <span class="o">=</span> <span class="n">box_list</span><span class="p">.</span><span class="n">BoxList</span><span class="p">(</span><span class="n">bev_proposal_boxes_tf_order</span><span class="p">)</span>
+        <span class="c1">#得到minibatch的mask，label index和对应的匹配到的gt index
+</span>        <span class="n">mb_mask</span><span class="p">,</span> <span class="n">mb_class_label_indices</span><span class="p">,</span> <span class="n">mb_gt_indices</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="p">.</span><span class="n">sample_mini_batch</span><span class="p">(</span>
+                <span class="n">anchor_box_list_gt</span><span class="o">=</span><span class="n">anchor_box_list_gt</span><span class="p">,</span>
+                <span class="n">anchor_box_list</span><span class="o">=</span><span class="n">anchor_box_list</span><span class="p">,</span>
+                <span class="n">class_labels</span><span class="o">=</span><span class="n">class_labels</span><span class="p">)</span>
+
+        <span class="c1"># Create classification one_hot vector
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_one_hot_classes'</span><span class="p">):</span>
+            <span class="n">mb_classification_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">one_hot</span><span class="p">(</span>
+                <span class="n">mb_class_label_indices</span><span class="p">,</span>
+                <span class="n">depth</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_num_final_classes</span><span class="p">,</span>
+                <span class="n">on_value</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="bp">self</span><span class="p">.</span><span class="n">_config</span><span class="p">.</span><span class="n">label_smoothing_epsilon</span><span class="p">,</span>
+                <span class="n">off_value</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_config</span><span class="p">.</span><span class="n">label_smoothing_epsilon</span> <span class="o">/</span>
+                           <span class="bp">self</span><span class="p">.</span><span class="n">dataset</span><span class="p">.</span><span class="n">num_classes</span><span class="p">))</span>
+
+        <span class="c1"># TODO: Don't create a mini batch in test mode
+</span>        <span class="c1"># Mask predictions
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_apply_mb_mask'</span><span class="p">):</span>
+            <span class="c1"># Classification
+</span>            <span class="n">mb_classifications_logits</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span>
+                <span class="n">all_cls_logits</span><span class="p">,</span> <span class="n">mb_mask</span><span class="p">)</span>
+            <span class="n">mb_classifications_softmax</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span>
+                <span class="n">all_cls_softmax</span><span class="p">,</span> <span class="n">mb_mask</span><span class="p">)</span>
+
+            <span class="c1"># Offsets
+</span>            <span class="n">mb_offsets</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">all_offsets</span><span class="p">,</span> <span class="n">mb_mask</span><span class="p">)</span>
+
+            <span class="c1"># Angle Vectors
+</span>            <span class="k">if</span> <span class="n">all_angle_vectors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">mb_angle_vectors</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">all_angle_vectors</span><span class="p">,</span> <span class="n">mb_mask</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">mb_angle_vectors</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1"># Encode anchor offsets
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_encode_mb_anchors'</span><span class="p">):</span>
+            <span class="n">mb_anchors</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">top_anchors</span><span class="p">,</span> <span class="n">mb_mask</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_3d'</span><span class="p">:</span>
+                <span class="c1"># Gather corresponding ground truth anchors for each mb sample
+</span>                <span class="n">mb_anchors_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">anchors_gt</span><span class="p">,</span> <span class="n">mb_gt_indices</span><span class="p">)</span>
+                <span class="n">mb_offsets_gt</span> <span class="o">=</span> <span class="n">anchor_encoder</span><span class="p">.</span><span class="n">tf_anchor_to_offset</span><span class="p">(</span>
+                    <span class="n">mb_anchors</span><span class="p">,</span> <span class="n">mb_anchors_gt</span><span class="p">)</span>
+
+                <span class="c1"># Gather corresponding ground truth orientation for each
+</span>                <span class="c1"># mb sample
+</span>                <span class="n">mb_orientations_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">orientations_gt</span><span class="p">,</span>
+                                               <span class="n">mb_gt_indices</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_8c'</span><span class="p">,</span> <span class="s">'box_8co'</span><span class="p">]:</span>
+
+                <span class="c1"># Get boxes_3d ground truth mini-batch and convert to box_8c
+</span>                <span class="n">mb_boxes_3d_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">boxes_3d_gt</span><span class="p">,</span> <span class="n">mb_gt_indices</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_8c'</span><span class="p">:</span>
+                    <span class="n">mb_boxes_8c_gt</span> <span class="o">=</span> \
+                        <span class="n">box_8c_encoder</span><span class="p">.</span><span class="n">tf_box_3d_to_box_8c</span><span class="p">(</span><span class="n">mb_boxes_3d_gt</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_8co'</span><span class="p">:</span>
+                    <span class="n">mb_boxes_8c_gt</span> <span class="o">=</span> \
+                        <span class="n">box_8c_encoder</span><span class="p">.</span><span class="n">tf_box_3d_to_box_8co</span><span class="p">(</span><span class="n">mb_boxes_3d_gt</span><span class="p">)</span>
+
+                <span class="c1"># Convert proposals: anchors -&gt; box_3d -&gt; box8c
+</span>                <span class="n">proposal_boxes_3d</span> <span class="o">=</span> \
+                    <span class="n">box_3d_encoder</span><span class="p">.</span><span class="n">anchors_to_box_3d</span><span class="p">(</span><span class="n">top_anchors</span><span class="p">,</span> <span class="n">fix_lw</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">proposal_boxes_8c</span> <span class="o">=</span> \
+                    <span class="n">box_8c_encoder</span><span class="p">.</span><span class="n">tf_box_3d_to_box_8c</span><span class="p">(</span><span class="n">proposal_boxes_3d</span><span class="p">)</span>
+
+                <span class="c1"># Get mini batch offsets
+</span>                <span class="n">mb_boxes_8c</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">proposal_boxes_8c</span><span class="p">,</span> <span class="n">mb_mask</span><span class="p">)</span>
+                <span class="n">mb_offsets_gt</span> <span class="o">=</span> <span class="n">box_8c_encoder</span><span class="p">.</span><span class="n">tf_box_8c_to_offsets</span><span class="p">(</span>
+                    <span class="n">mb_boxes_8c</span><span class="p">,</span> <span class="n">mb_boxes_8c_gt</span><span class="p">)</span>
+
+                <span class="c1"># Flatten the offsets to a (N x 24) vector
+</span>                <span class="n">mb_offsets_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">mb_offsets_gt</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">24</span><span class="p">])</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_4c'</span><span class="p">,</span> <span class="s">'box_4ca'</span><span class="p">]:</span>
+
+                <span class="c1"># Get ground plane for box_4c conversion
+</span>                <span class="n">ground_plane</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">_rpn_model</span><span class="p">.</span><span class="n">placeholders</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="p">.</span><span class="n">_rpn_model</span><span class="p">.</span><span class="n">PL_GROUND_PLANE</span><span class="p">]</span>
+
+                <span class="c1"># Convert gt boxes_3d -&gt; box_4c
+</span>                <span class="n">mb_boxes_3d_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">boxes_3d_gt</span><span class="p">,</span> <span class="n">mb_gt_indices</span><span class="p">)</span>
+                <span class="n">mb_boxes_4c_gt</span> <span class="o">=</span> <span class="n">box_4c_encoder</span><span class="p">.</span><span class="n">tf_box_3d_to_box_4c</span><span class="p">(</span>
+                    <span class="n">mb_boxes_3d_gt</span><span class="p">,</span> <span class="n">ground_plane</span><span class="p">)</span>
+
+                <span class="c1"># Convert proposals: anchors -&gt; box_3d -&gt; box_4c
+</span>                <span class="n">proposal_boxes_3d</span> <span class="o">=</span> \
+                    <span class="n">box_3d_encoder</span><span class="p">.</span><span class="n">anchors_to_box_3d</span><span class="p">(</span><span class="n">top_anchors</span><span class="p">,</span> <span class="n">fix_lw</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="n">proposal_boxes_4c</span> <span class="o">=</span> \
+                    <span class="n">box_4c_encoder</span><span class="p">.</span><span class="n">tf_box_3d_to_box_4c</span><span class="p">(</span><span class="n">proposal_boxes_3d</span><span class="p">,</span>
+                                                       <span class="n">ground_plane</span><span class="p">)</span>
+
+                <span class="c1"># Get mini batch
+</span>                <span class="n">mb_boxes_4c</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">boolean_mask</span><span class="p">(</span><span class="n">proposal_boxes_4c</span><span class="p">,</span> <span class="n">mb_mask</span><span class="p">)</span>
+                <span class="n">mb_offsets_gt</span> <span class="o">=</span> <span class="n">box_4c_encoder</span><span class="p">.</span><span class="n">tf_box_4c_to_offsets</span><span class="p">(</span>
+                    <span class="n">mb_boxes_4c</span><span class="p">,</span> <span class="n">mb_boxes_4c_gt</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_4ca'</span><span class="p">:</span>
+                    <span class="c1"># Gather corresponding ground truth orientation for each
+</span>                    <span class="c1"># mb sample
+</span>                    <span class="n">mb_orientations_gt</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">orientations_gt</span><span class="p">,</span>
+                                                   <span class="n">mb_gt_indices</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">NotImplementedError</span><span class="p">(</span>
+                    <span class="s">'Anchor encoding not implemented for'</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span><span class="p">)</span>
+
+        <span class="c1">######################################################
+</span>        <span class="c1"># Final Predictions
+</span>        <span class="c1">######################################################
+</span>        <span class="c1"># Get orientations from angle vectors
+</span>        <span class="k">if</span> <span class="n">all_angle_vectors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_orientation'</span><span class="p">):</span>
+                <span class="n">all_orientations</span> <span class="o">=</span> \
+                    <span class="n">orientation_encoder</span><span class="p">.</span><span class="n">tf_angle_vector_to_orientation</span><span class="p">(</span>
+                        <span class="n">all_angle_vectors</span><span class="p">)</span>
+
+        <span class="c1"># Apply offsets to regress proposals
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_regression'</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_3d'</span><span class="p">:</span>
+                <span class="n">prediction_anchors</span> <span class="o">=</span> \
+                    <span class="n">anchor_encoder</span><span class="p">.</span><span class="n">offset_to_anchor</span><span class="p">(</span><span class="n">top_anchors</span><span class="p">,</span>
+                                                    <span class="n">all_offsets</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_8c'</span><span class="p">,</span> <span class="s">'box_8co'</span><span class="p">]:</span>
+                <span class="c1"># Reshape the 24-dim regressed offsets to (N x 3 x 8)
+</span>                <span class="n">reshaped_offsets</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">all_offsets</span><span class="p">,</span>
+                                              <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+                <span class="c1"># Given the offsets, get the boxes_8c
+</span>                <span class="n">prediction_boxes_8c</span> <span class="o">=</span> \
+                    <span class="n">box_8c_encoder</span><span class="p">.</span><span class="n">tf_offsets_to_box_8c</span><span class="p">(</span><span class="n">proposal_boxes_8c</span><span class="p">,</span>
+                                                        <span class="n">reshaped_offsets</span><span class="p">)</span>
+                <span class="c1"># Convert corners back to box3D
+</span>                <span class="n">prediction_boxes_3d</span> <span class="o">=</span> \
+                    <span class="n">box_8c_encoder</span><span class="p">.</span><span class="n">box_8c_to_box_3d</span><span class="p">(</span><span class="n">prediction_boxes_8c</span><span class="p">)</span>
+
+                <span class="c1"># Convert the box_3d to anchor format for nms
+</span>                <span class="n">prediction_anchors</span> <span class="o">=</span> \
+                    <span class="n">box_3d_encoder</span><span class="p">.</span><span class="n">tf_box_3d_to_anchor</span><span class="p">(</span><span class="n">prediction_boxes_3d</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_4c'</span><span class="p">,</span> <span class="s">'box_4ca'</span><span class="p">]:</span>
+                <span class="c1"># Convert predictions box_4c -&gt; box_3d
+</span>                <span class="n">prediction_boxes_4c</span> <span class="o">=</span> \
+                    <span class="n">box_4c_encoder</span><span class="p">.</span><span class="n">tf_offsets_to_box_4c</span><span class="p">(</span><span class="n">proposal_boxes_4c</span><span class="p">,</span>
+                                                        <span class="n">all_offsets</span><span class="p">)</span>
+
+                <span class="n">prediction_boxes_3d</span> <span class="o">=</span> \
+                    <span class="n">box_4c_encoder</span><span class="p">.</span><span class="n">tf_box_4c_to_box_3d</span><span class="p">(</span><span class="n">prediction_boxes_4c</span><span class="p">,</span>
+                                                       <span class="n">ground_plane</span><span class="p">)</span>
+
+                <span class="c1"># Convert to anchor format for nms
+</span>                <span class="n">prediction_anchors</span> <span class="o">=</span> \
+                    <span class="n">box_3d_encoder</span><span class="p">.</span><span class="n">tf_box_3d_to_anchor</span><span class="p">(</span><span class="n">prediction_boxes_3d</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">NotImplementedError</span><span class="p">(</span><span class="s">'Regression not implemented for'</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span><span class="p">)</span>
+
+        <span class="c1"># Apply Non-oriented NMS in BEV
+</span>        <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'avod_nms'</span><span class="p">):</span>
+            <span class="n">bev_extents</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dataset</span><span class="p">.</span><span class="n">kitti_utils</span><span class="p">.</span><span class="n">bev_extents</span>
+
+            <span class="k">with</span> <span class="n">tf</span><span class="p">.</span><span class="n">variable_scope</span><span class="p">(</span><span class="s">'bev_projection'</span><span class="p">):</span>
+                <span class="c1"># Project predictions into BEV
+</span>                <span class="n">avod_bev_boxes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">anchor_projector</span><span class="p">.</span><span class="n">project_to_bev</span><span class="p">(</span>
+                    <span class="n">prediction_anchors</span><span class="p">,</span> <span class="n">bev_extents</span><span class="p">)</span>
+                <span class="n">avod_bev_boxes_tf_order</span> <span class="o">=</span> \
+                    <span class="n">anchor_projector</span><span class="p">.</span><span class="n">reorder_projected_boxes</span><span class="p">(</span>
+                        <span class="n">avod_bev_boxes</span><span class="p">)</span>
+
+            <span class="c1"># Get top score from second column onward
+</span>            <span class="n">all_top_scores</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">reduce_max</span><span class="p">(</span><span class="n">all_cls_logits</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># Apply NMS in BEV
+</span>            <span class="n">nms_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">image</span><span class="p">.</span><span class="n">non_max_suppression</span><span class="p">(</span>
+                <span class="n">avod_bev_boxes_tf_order</span><span class="p">,</span>
+                <span class="n">all_top_scores</span><span class="p">,</span>
+                <span class="n">max_output_size</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_nms_size</span><span class="p">,</span>
+                <span class="n">iou_threshold</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">_nms_iou_threshold</span><span class="p">)</span>
+
+            <span class="c1"># Gather predictions from NMS indices
+</span>            <span class="n">top_classification_logits</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">all_cls_logits</span><span class="p">,</span>
+                                                  <span class="n">nms_indices</span><span class="p">)</span>
+            <span class="n">top_classification_softmax</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">all_cls_softmax</span><span class="p">,</span>
+                                                   <span class="n">nms_indices</span><span class="p">)</span>
+            <span class="n">top_prediction_anchors</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span><span class="n">prediction_anchors</span><span class="p">,</span>
+                                               <span class="n">nms_indices</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_3d'</span><span class="p">:</span>
+                <span class="n">top_orientations</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">all_orientations</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_8c'</span><span class="p">,</span> <span class="s">'box_8co'</span><span class="p">]:</span>
+                <span class="n">top_prediction_boxes_3d</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">prediction_boxes_3d</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+                <span class="n">top_prediction_boxes_8c</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">prediction_boxes_8c</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_4c'</span><span class="p">:</span>
+                <span class="n">top_prediction_boxes_3d</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">prediction_boxes_3d</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+                <span class="n">top_prediction_boxes_4c</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">prediction_boxes_4c</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_4ca'</span><span class="p">:</span>
+                <span class="n">top_prediction_boxes_3d</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">prediction_boxes_3d</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+                <span class="n">top_prediction_boxes_4c</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">prediction_boxes_4c</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+                <span class="n">top_orientations</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">gather</span><span class="p">(</span>
+                    <span class="n">all_orientations</span><span class="p">,</span> <span class="n">nms_indices</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="nb">NotImplementedError</span><span class="p">(</span><span class="s">'NMS gather not implemented for'</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_train_val_test</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'val'</span><span class="p">]:</span>
+            <span class="c1"># Additional entries are added to the shared prediction_dict
+</span>            <span class="c1"># Mini batch predictions
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_CLASSIFICATION_LOGITS</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">mb_classifications_logits</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_CLASSIFICATION_SOFTMAX</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">mb_classifications_softmax</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_OFFSETS</span><span class="p">]</span> <span class="o">=</span> <span class="n">mb_offsets</span>
+
+            <span class="c1"># Mini batch ground truth
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_CLASSIFICATIONS_GT</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">mb_classification_gt</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_OFFSETS_GT</span><span class="p">]</span> <span class="o">=</span> <span class="n">mb_offsets_gt</span>
+
+            <span class="c1"># Top NMS predictions
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_CLASSIFICATION_LOGITS</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_classification_logits</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_CLASSIFICATION_SOFTMAX</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_classification_softmax</span>
+
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_PREDICTION_ANCHORS</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_prediction_anchors</span>
+
+            <span class="c1"># Mini batch predictions (for debugging)
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_MASK</span><span class="p">]</span> <span class="o">=</span> <span class="n">mb_mask</span>
+            <span class="c1"># prediction_dict[self.PRED_MB_POS_MASK] = mb_pos_mask
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_CLASS_INDICES_GT</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">mb_class_label_indices</span>
+
+            <span class="c1"># All predictions (for debugging)
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_ALL_CLASSIFICATIONS</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">all_cls_logits</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_ALL_OFFSETS</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_offsets</span>
+
+            <span class="c1"># Path drop masks (for debugging)
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="s">'bev_mask'</span><span class="p">]</span> <span class="o">=</span> <span class="n">bev_mask</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="s">'img_mask'</span><span class="p">]</span> <span class="o">=</span> <span class="n">img_mask</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># self._train_val_test == 'test'
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_CLASSIFICATION_SOFTMAX</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_classification_softmax</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_PREDICTION_ANCHORS</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_prediction_anchors</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_3d'</span><span class="p">:</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_ANCHORS_GT</span><span class="p">]</span> <span class="o">=</span> <span class="n">mb_anchors_gt</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_ORIENTATIONS_GT</span><span class="p">]</span> <span class="o">=</span> <span class="n">mb_orientations_gt</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_ANGLE_VECTORS</span><span class="p">]</span> <span class="o">=</span> <span class="n">mb_angle_vectors</span>
+
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_ORIENTATIONS</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_orientations</span>
+
+            <span class="c1"># For debugging
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_ALL_ANGLE_VECTORS</span><span class="p">]</span> <span class="o">=</span> <span class="n">all_angle_vectors</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'box_8c'</span><span class="p">,</span> <span class="s">'box_8co'</span><span class="p">]:</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_PREDICTION_BOXES_3D</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_prediction_boxes_3d</span>
+
+            <span class="c1"># Store the corners before converting for visualization purposes
+</span>            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_BOXES_8C</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_prediction_boxes_8c</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_4c'</span><span class="p">:</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_PREDICTION_BOXES_3D</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_prediction_boxes_3d</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_BOXES_4C</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_prediction_boxes_4c</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span> <span class="o">==</span> <span class="s">'box_4ca'</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">_train_val_test</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'val'</span><span class="p">]:</span>
+                <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_ORIENTATIONS_GT</span><span class="p">]</span> <span class="o">=</span> \
+                    <span class="n">mb_orientations_gt</span>
+                <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_MB_ANGLE_VECTORS</span><span class="p">]</span> <span class="o">=</span> <span class="n">mb_angle_vectors</span>
+
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_PREDICTION_BOXES_3D</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="n">top_prediction_boxes_3d</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_BOXES_4C</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_prediction_boxes_4c</span>
+            <span class="n">prediction_dict</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">PRED_TOP_ORIENTATIONS</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_orientations</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="nb">NotImplementedError</span><span class="p">(</span><span class="s">'Prediction dict not implemented for'</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="p">.</span><span class="n">_box_rep</span><span class="p">)</span>
+
+        <span class="c1"># prediction_dict[self.PRED_MAX_IOUS] = max_ious
+</span>        <span class="c1"># prediction_dict[self.PRED_ALL_IOUS] = all_ious
+</span>
+        <span class="k">return</span> <span class="n">prediction_dict</span>
+
+</pre></table></code></div></div></ol></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E7%AE%97%E6%B3%95%E7%AF%87/'>算法篇</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/cv/" class="post-tag no-text-decoration" >CV</a> <a href="/tags/3d/" class="post-tag no-text-decoration" >3D</a> <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" class="post-tag no-text-decoration" >源码解读</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=AVOD源码解读 - Johney Zheng&url=https://www.johneyzheng.top//posts/AVOD%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=AVOD源码解读 - Johney Zheng&u=https://www.johneyzheng.top//posts/AVOD%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=AVOD源码解读 - Johney Zheng&url=https://www.johneyzheng.top//posts/AVOD%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/Blog-Agents%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D/">Blog Agents功能介绍</a><li><a href="/posts/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88/">大模型推理技术栈</a><li><a href="/posts/%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E6%8A%80%E6%9C%AF%E6%A6%82%E8%A7%88/">模型部署技术概览</a><li><a href="/posts/FlashAttention%E7%B3%BB%E5%88%97%E4%BC%98%E5%8C%96/">FlashAttention系列优化</a><li><a href="/posts/Win10_Ubuntu_installation/">双系统安装(WIN10+Ubuntu16)</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/python/">Python</a> <a class="post-tag" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a> <a class="post-tag" href="/tags/cv/">CV</a> <a class="post-tag" href="/tags/llms/">LLMs</a> <a class="post-tag" href="/tags/%E7%BB%BC%E8%BF%B0/">综述</a> <a class="post-tag" href="/tags/3d/">3D</a> <a class="post-tag" href="/tags/paper-reading/">Paper_Reading</a> <a class="post-tag" href="/tags/c/">C++</a> <a class="post-tag" href="/tags/kaggle/">Kaggle</a> <a class="post-tag" href="/tags/ubuntu/">Ubuntu</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/"><div class="card-body"> <span class="timeago small" > Oct 12, 2019 <i class="unloaded">2019-10-12T23:56:20+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>AVOD论文解读</h3><div class="text-muted small"><p> 目录 前言 论文基本信息 动机和思路 算法基本流程 具体实验分析 个人总结 前言 AVOD作为基于Camera信息和Lidar信息融合的3D detection算法，是目前为数不多的开源的SOTA算法之一，相关资料如下： KITTI榜单 AVOD论文 AVOD源码 AVOD源码解读 论文基本信息 一作信息： Jason Ku 多伦多大学...</p></div></div></a></div><div class="card"> <a href="/posts/Cont-Fuse%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/"><div class="card-body"> <span class="timeago small" > Jan 3, 2020 <i class="unloaded">2020-01-03T23:56:20+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Cont-Fuse论文解读</h3><div class="text-muted small"><p> 目录 论文背景以及基本思想 算法基本流程 算法细节 Deep Continuous Fusion for Multi-Sensor 3D Object Detection 论文背景以及基本思想 出发点：作者认为Lidar数据与Image数据融合的难点在于怎么将稀疏连续的三维点云信息与语义丰富但是离散的图像数据融合，提出了基于连续卷积的point-wise Fusi...</p></div></div></a></div><div class="card"> <a href="/posts/F-ConvNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/"><div class="card-body"> <span class="timeago small" > Jan 9, 2020 <i class="unloaded">2020-01-09T23:56:20+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>F-ConvNet论文解读</h3><div class="text-muted small"><p> 目录 论文背景以及基本思想 算法基本流程 算法细节 Frustum ConvNet: Sliding Frustums to Aggregate Local Point-Wise Features for Amodal 3D Object Detection 论文背景以及基本思想 论文出发点:本文基于F-PointNet的思想，认为F-PointNet非端到端，最...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/posts/F-PointNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/" class="btn btn-outline-primary" prompt="较早文章"><p>F-PointNet论文解读</p></a> <a href="/posts/OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/" class="btn btn-outline-primary" prompt="较新文章"><p>OneStage经典-SSD论文精读</p></a></div><div id="comments"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script> <script src='//unpkg.com/valine/dist/Valine.min.js'></script> <script> new Valine({ el: '#comments', app_id: 'IJm2s0GdkzhEOLwVfClrHeWs-gzGzoHsz', app_key: 'Y281bajarkkIGs8p4WmrTkNi', placeholder: '请在下面评论：', visitor: true }); </script></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/username">Johney Zheng</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/python/">Python</a> <a class="post-tag" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a> <a class="post-tag" href="/tags/cv/">CV</a> <a class="post-tag" href="/tags/llms/">LLMs</a> <a class="post-tag" href="/tags/%E7%BB%BC%E8%BF%B0/">综述</a> <a class="post-tag" href="/tags/3d/">3D</a> <a class="post-tag" href="/tags/paper-reading/">Paper_Reading</a> <a class="post-tag" href="/tags/c/">C++</a> <a class="post-tag" href="/tags/kaggle/">Kaggle</a> <a class="post-tag" href="/tags/ubuntu/">Ubuntu</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://www.johneyzheng.top/{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>
