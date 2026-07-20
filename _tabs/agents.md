@@ -135,6 +135,22 @@ html[data-mode="dark"] .ag-status-online { background: #14532d40; color: #86efac
   border-radius: var(--ag-radius); padding: 14px;
   margin-bottom: 14px; box-shadow: var(--ag-shadow);
 }
+.ag-hero {
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px;
+  margin-bottom: 14px; padding: 20px;
+  color: #fff; border-radius: 12px;
+  background: linear-gradient(135deg, #172554 0%, #1d4ed8 58%, #0891b2 100%);
+  box-shadow: 0 12px 32px rgba(30,64,175,.22);
+}
+.ag-hero h2 { margin: 0 0 6px; font-size: 21px; color: #fff; }
+.ag-hero p { margin: 0; color: rgba(255,255,255,.76); font-size: 12px; }
+.ag-source-list { display: flex; flex-wrap: wrap; gap: 7px; align-content: center; justify-content: flex-end; }
+.ag-source-pill { padding: 5px 9px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; background: rgba(255,255,255,.1); font-size: 10px; }
+.ag-source-pill strong { color: #fff; }
+.ag-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.ag-search { min-width: 180px; flex: 1; padding: 6px 10px; border: 1px solid var(--ag-border); border-radius: 6px; background: var(--ag-card2); color: var(--ag-text); font-size: 12px; outline: none; }
+.ag-search:focus { border-color: var(--ag-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ag-accent) 14%, transparent); }
+.ag-data-note { color: var(--ag-text3); font-size: 10px; }
 
 .ag-metrics {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -228,6 +244,14 @@ html[data-mode="dark"] .ag-level-red    { background: #7f1d1d40; color: #fca5a5;
 
 .ag-chart { width: 100%; min-height: 350px; }
 .ag-chart-mini { width: 100%; min-height: 220px; }
+@media (max-width: 680px) {
+  .ag-hero { grid-template-columns: 1fr; padding: 16px; }
+  .ag-source-list { justify-content: flex-start; }
+  .ag-tabs { overflow-x: auto; white-space: nowrap; }
+  .ag-tab { padding: 8px 12px; }
+  .ag-card { overflow-x: auto; }
+  .ag-chart { min-width: 520px; }
+}
 
 .ag-settings-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,.5);
@@ -460,6 +484,18 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
   <!-- ====== Sub-agent: house_price_analyzer ====== -->
   <div id="ag-hp" style="display:none">
 
+    <section class="ag-hero">
+      <div>
+        <h2>城市房价决策台</h2>
+        <p>趋势、区域、板块与小区四级分析。数据仅供研究，不构成投资建议。</p>
+      </div>
+      <div class="ag-source-list" id="ag-source-list">
+        <span class="ag-source-pill"><strong>聚汇</strong> 主数据源</span>
+        <span class="ag-source-pill"><strong>贝壳</strong> 可选补充</span>
+        <span class="ag-source-pill"><strong>本地数据</strong> 可插拔</span>
+      </div>
+    </section>
+
     <!-- Sub header -->
     <div class="ag-sub-header">
       <div class="ag-sub-left">
@@ -515,7 +551,14 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
       </div>
       <div class="ag-card">
         <div style="font-weight:700;font-size:14px;margin-bottom:10px">小区价格细分</div>
-        <select class="ag-select" id="ag-comm-district" onchange="AG.hp.renderCommunities()"></select>
+        <div class="ag-toolbar">
+          <select class="ag-select" id="ag-comm-district" onchange="AG.hp.renderCommunities()"></select>
+          <input class="ag-search" id="ag-comm-search" type="search" placeholder="搜索小区名称…" oninput="AG.hp.renderCommunities()">
+          <select class="ag-select" id="ag-comm-sort" onchange="AG.hp.renderCommunities()">
+            <option value="desc">价格从高到低</option><option value="asc">价格从低到高</option><option value="mom">环比变化</option>
+          </select>
+        </div>
+        <div class="ag-data-note" id="ag-comm-summary"></div>
         <div style="margin-top:10px">
           <div class="ag-chart-mini" id="ag-chart-comm"></div>
           <table class="ag-table" id="ag-comm-table" style="margin-top:10px"><thead><tr><th>小区</th><th>均价(元/㎡)</th><th>环比(%)</th></tr></thead><tbody></tbody></table>

@@ -1,0 +1,14 @@
+{
+  "districts": {
+    "district_key": {
+      "communities": [
+        {
+          "community": "示例小区",
+          "price": 35000,
+          "mom_pct": -0.5,
+          "source": "licensed_dataset"
+        }
+      ]
+    }
+  }
+}

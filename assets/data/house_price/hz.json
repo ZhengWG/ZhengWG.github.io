@@ -4,6 +4,15 @@
   "updated_at": "2026-07-20",
   "start_year": 2018,
   "end_year": 2026,
+  "meta": {
+    "schema_version": 2,
+    "sources": [
+      { "name": "聚汇", "role": "城市/区域历史与小区", "status": "active" },
+      { "name": "小区聚合", "role": "板块均价估算", "status": "active" },
+      { "name": "贝壳开放平台", "role": "板块补充", "status": "optional" },
+      { "name": "本地 JSON", "role": "第三方数据补充", "status": "optional" }
+    ]
+  },
   "city_history": [
     {
       "date": "2018-01",

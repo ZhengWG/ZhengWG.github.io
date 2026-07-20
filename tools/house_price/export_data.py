@@ -23,6 +23,7 @@ except ImportError:
 
 from config import CITIES, HISTORY_START_YEAR, CURRENT_YEAR
 from scrapers.gotohui import GoToHuiScraper
+from scrapers.local_json import LocalJsonSource
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 _KEYWORDS_CACHE = None
@@ -132,6 +133,15 @@ def export_city(scraper, city_key, start_year, end_year):
         "city_history": [],
         "district_list": [],
         "districts": {},
+        "meta": {
+            "schema_version": 2,
+            "sources": [
+                {"name": "聚汇", "role": "城市/区域历史与小区", "status": "active"},
+                {"name": "小区聚合", "role": "板块均价估算", "status": "active"},
+                {"name": "贝壳开放平台", "role": "板块补充", "status": "active" if os.getenv("BEIKE_APPKEY") else "optional"},
+                {"name": "本地 JSON", "role": "第三方数据补充", "status": "active" if LocalJsonSource.exists(city_key) else "optional"},
+            ],
+        },
     }
 
     print(f"  获取城市历史数据...")
@@ -185,6 +195,14 @@ def export_city(scraper, city_key, start_year, end_year):
                 for _, row in comm_df.iterrows()
                 if row.get("price") is not None
             ]
+
+        # 可插拔补充源：data/providers/{city}.json。按小区名去重，补充源覆盖主源同名记录。
+        local_rows = LocalJsonSource.get_communities(city_key, dk)
+        if local_rows:
+            merged = {item["community"]: item for item in district_data["communities"]}
+            for item in local_rows:
+                merged[item["community"]] = {**merged.get(item["community"], {}), **item}
+            district_data["communities"] = list(merged.values())
 
         # 板块级细分：仅用 config 的板块名 + 小区聚合均价（聚汇区级页无真实板块表，不解析）
         config_subs = dinfo.get("sub_districts") or {}

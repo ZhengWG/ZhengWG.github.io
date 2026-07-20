@@ -8,6 +8,12 @@
 
 结论：若需要板块级细分数据，必须**接入其他数据源**或**用现有小区数据聚合**。
 
+## 已支持的可插拔补充源
+
+导出器会自动读取 `data/providers/{city_key}.json`，并按“小区名”与聚汇结果合并；同名记录由补充源覆盖。可复制 `docs/provider.example.json` 到该目录并改名为城市 key（如 `hz.json`），将已获授权的开放数据、API 导出或人工校验数据接入，无需修改 Python 代码。
+
+每条记录可包含 `community`、`price`、`mom_pct` 和 `source`。前端 JSON 同时输出 `meta.sources`，用于展示当前启用的数据源与角色。
+
 ---
 
 ## 当前板块数据来源：小区聚合（已生效）

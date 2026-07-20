@@ -3,6 +3,8 @@ layout: default
 # The posts' layout
 ---
 
+<div class="reading-progress" aria-hidden="true"><span id="reading-progress-bar"></span></div>
+
 <div class="row">
 
   <div id="post-wrapper" class="col-12 col-lg-11 col-xl-8">
@@ -110,6 +112,23 @@ layout: default
   {% include panel.html toc=enable_toc %}
 
 </div> <!-- .row -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var bar = document.getElementById('reading-progress-bar');
+  var article = document.querySelector('.post-content');
+  if (!bar || !article) return;
+  function updateReadingProgress() {
+    var start = article.getBoundingClientRect().top + window.scrollY;
+    var end = start + article.offsetHeight - window.innerHeight;
+    var progress = end <= start ? 1 : (window.scrollY - start) / (end - start);
+    bar.style.transform = 'scaleX(' + Math.max(0, Math.min(1, progress)) + ')';
+  }
+  updateReadingProgress();
+  window.addEventListener('scroll', updateReadingProgress, { passive: true });
+  window.addEventListener('resize', updateReadingProgress);
+});
+</script>
 
 <div class="row">
   <div class="col-12 col-lg-11 col-xl-8">

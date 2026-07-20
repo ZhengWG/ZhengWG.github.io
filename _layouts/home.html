@@ -45,6 +45,9 @@ layout: page
 {% for post in posts %}
 
   <div class="post-preview">
+    <div class="post-preview-kicker">
+      {% if post.categories.size > 0 %}{{ post.categories | first }}{% else %}ARTICLE{% endif %}
+    </div>
     <h1>
       <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
     </h1>
@@ -75,6 +78,8 @@ layout: page
         <span>{{ site.data.label.pin_prompt | default: 'Pinned' }}</span>
       </div>
       {% endif %}
+
+      <span class="post-preview-arrow" aria-hidden="true">Read article&nbsp; →</span>
 
     </div> <!-- .post-meta -->
 
