@@ -1,70 +1,10 @@
 {
   "city": "杭州",
   "city_key": "hz",
-  "updated_at": "2026-07-30",
+  "updated_at": "2026-07-31",
   "start_year": 2018,
   "end_year": 2026,
   "city_history": [
-    {
-      "date": "2018-01",
-      "second_hand_price": 29198.0,
-      "new_house_price": null
-    },
-    {
-      "date": "2018-02",
-      "second_hand_price": 29425.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-03",
-      "second_hand_price": 29869.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-04",
-      "second_hand_price": 30341.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-05",
-      "second_hand_price": 30561.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-06",
-      "second_hand_price": 31164.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-07",
-      "second_hand_price": 31403.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-08",
-      "second_hand_price": 30844.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-09",
-      "second_hand_price": 30203.0,
-      "new_house_price": 2.0
-    },
-    {
-      "date": "2018-10",
-      "second_hand_price": 30720.0,
-      "new_house_price": 1.0
-    },
-    {
-      "date": "2018-11",
-      "second_hand_price": 30663.0,
-      "new_house_price": 0.0
-    },
-    {
-      "date": "2018-12",
-      "second_hand_price": 30361.0,
-      "new_house_price": 0.0
-    },
     {
       "date": "2019-01",
       "second_hand_price": 30554.0,
