@@ -893,6 +893,32 @@ $sidebar-display: "sidebar-display";
   .fa-times-circle { /* button 'clean up' */
     visibility: hidden;
   }
+
+  #search-kbd-hint { /* ⌘K affordance */
+    display: none; /* shown once the sidebar layout kicks in, see below */
+    align-items: center;
+    gap: 1px;
+    border: 0;
+    background: none;
+    padding: 0 0 0 0.35rem;
+    cursor: pointer;
+    opacity: 0.72;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    kbd {
+      font-family: inherit;
+      font-size: 0.62rem;
+      line-height: 1.5;
+      color: var(--text-muted-color);
+      border: 1px solid var(--main-border-color);
+      border-radius: 3px;
+      padding: 0 3px;
+      background: var(--button-bg);
+    }
+  }
 }
 
 #search-cancel { /* 'Cancel' link */
@@ -1261,6 +1287,11 @@ $sidebar-display: "sidebar-display";
   /* Solved jumping scrollbar */
   html {
     overflow-y: scroll;
+  }
+
+  /* Only advertise ⌘K where there is a keyboard to press it with. */
+  #search-wrapper #search-kbd-hint {
+    display: inline-flex;
   }
 
   #main-wrapper {

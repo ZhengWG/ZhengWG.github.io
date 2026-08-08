@@ -31,9 +31,9 @@
   var LIB = 'https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js';
   var started = false;
 
-  // The library only binds its own keyup handler once the index has loaded, so
-  // anything typed while it was still downloading never gets searched. Replay
-  // it once the handler is in place.
+  /* The library only binds its own keyup handler once the index has loaded, so */
+  /* anything typed while it was still downloading never gets searched. Replay */
+  /* it once the handler is in place. */
   function replayPendingQuery() {
     if (input.value !== '') {
       input.dispatchEvent(new Event('keyup', { bubbles: true }));
@@ -55,9 +55,9 @@
         json: '{{ '/assets/js/data/search.json' | relative_url }}',
         searchResultTemplate: '{{ result_elem | strip_newlines }}',
         noResultsText: '{{ not_found }}',
-        // Default is 10, which silently hides matches on a blog this size.
+        /* Default is 10, which silently hides matches on a blog this size. */
         limit: 30,
-        // Called just before the keyup handler is attached, hence the defer.
+        /* Called just before the keyup handler is attached, hence the defer. */
         success: function () {
           setTimeout(replayPendingQuery, 0);
         },

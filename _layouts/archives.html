@@ -3,6 +3,16 @@ layout: page
 # The Archives of posts.
 ---
 
+{% comment %}
+  120 posts across 11 years used to render as one flat scroll with no way in.
+  This jump bar is the index for that list.
+{% endcomment %}
+{% assign years = site.posts | group_by_exp: "p", "p.date | date: '%Y'" %}
+<nav id="archive-years" aria-label="按年份跳转">
+  {% for y in years %}
+    <a href="#y{{ y.name }}">{{ y.name }}<span>{{ y.items.size }}</span></a>
+  {% endfor %}
+</nav>
 
 <div id="archives" class="pl-xl-2">
 {% for post in site.posts %}
@@ -11,7 +21,7 @@ layout: page
   {% if forloop.first %}
     {% assign last_day = "" %}
     {% assign last_month = "" %}
-  <span class="lead">{{this_year}}</span>
+  <span class="lead" id="y{{ this_year }}">{{this_year}}</span>
   <ul class="list-unstyled">
   {% endif %}
     <li>
@@ -27,7 +37,7 @@ layout: page
   </ul>
   {% elsif this_year != pre_year %}
   </ul>
-  <span class="lead">{{pre_year}}</span>
+  <span class="lead" id="y{{ pre_year }}">{{pre_year}}</span>
   <ul class="list-unstyled">
     {% assign last_day = "" %}
     {% assign last_month = "" %}

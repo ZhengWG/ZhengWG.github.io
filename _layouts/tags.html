@@ -3,19 +3,96 @@ layout: page
 # All the Tags of posts.
 ---
 
-<div id="tags" class="d-flex flex-wrap ml-xl-2 mr-xl-2">
+{% comment %}
+  Flat alphabetical order put a tag used once beside one used 41 times, so the
+  page read as noise. Grouping by weight makes the main threads findable first
+  and pushes the long tail into its own bucket without hiding it.
 
-  {% assign tags = "" | split: "" %}
-  {% for t in site.tags %}
-    {% assign tags = tags | push: t[0] %}
-  {% endfor %}
+  `site.tags` is a hash, so it cannot be sorted by count directly. Each entry is
+  encoded as "<count+1000>::<name>" -- the offset keeps every count four digits
+  wide, which makes a plain lexical sort order them numerically.
+{% endcomment %}
 
-  {% assign sorted_tags = tags | sort_natural %}
+{% assign major = "" | split: "" %}
+{% assign minor = "" | split: "" %}
+{% assign once = "" | split: "" %}
 
-  {% for t in sorted_tags %}
-    <div>
-      <a class="tag" href="{{ site.baseurl }}/tags/{{ t | slugify | url_encode }}/">{{ t }}<span class="text-muted">{{ site.tags[t].size }}</span></a>
+{% for t in site.tags %}
+  {% assign n = t[1] | size %}
+  {% assign key = n | plus: 1000 | append: "::" | append: t[0] %}
+  {% if n >= 8 %}
+    {% assign major = major | push: key %}
+  {% elsif n > 1 %}
+    {% assign minor = minor | push: key %}
+  {% else %}
+    {% assign once = once | push: t[0] %}
+  {% endif %}
+{% endfor %}
+
+{% assign major = major | sort | reverse %}
+{% assign minor = minor | sort | reverse %}
+{% assign once = once | sort_natural %}
+
+<div id="tag-groups">
+
+  {% if major.size > 0 %}
+  <section class="tag-group">
+    <h2>主要主题<span class="tag-group-count">{{ major.size }}</span></h2>
+    <div class="tag-cloud tag-cloud-lg">
+      {% for key in major %}
+        {% assign parts = key | split: "::" %}
+        {% assign name = parts | last %}
+        <a class="tag" href="{{ '/tags/' | append: name | slugify | url_encode | append: '/' | relative_url }}">
+          {{ name }}<span class="text-muted">{{ site.tags[name] | size }}</span>
+        </a>
+      {% endfor %}
     </div>
-  {% endfor %}
+  </section>
+  {% endif %}
+
+  {% if minor.size > 0 %}
+  <section class="tag-group">
+    <h2>其他<span class="tag-group-count">{{ minor.size }}</span></h2>
+    <div class="tag-cloud">
+      {% for key in minor %}
+        {% assign parts = key | split: "::" %}
+        {% assign name = parts | last %}
+        <a class="tag" href="{{ '/tags/' | append: name | slugify | url_encode | append: '/' | relative_url }}">
+          {{ name }}<span class="text-muted">{{ site.tags[name] | size }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if once.size > 0 %}
+  <section class="tag-group">
+    <h2>
+      仅一篇<span class="tag-group-count">{{ once.size }}</span>
+      <button type="button" class="tag-toggle" data-tag-toggle aria-expanded="false">展开</button>
+    </h2>
+    <div class="tag-cloud tag-cloud-sm" data-tag-tail hidden>
+      {% for name in once %}
+        <a class="tag" href="{{ '/tags/' | append: name | slugify | url_encode | append: '/' | relative_url }}">
+          {{ name }}
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
 
 </div>
+
+<script>
+(function () {
+  var btn = document.querySelector('[data-tag-toggle]');
+  var tail = document.querySelector('[data-tag-tail]');
+  if (!btn || !tail) return;
+  btn.addEventListener('click', function () {
+    var open = tail.hidden;
+    tail.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = open ? '收起' : '展开';
+  });
+})();
+</script>
