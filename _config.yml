@@ -57,9 +57,9 @@ google_analytics:
   # of a GA4 *Property ID* (管理 → 媒体资源设置 → 媒体资源ID), which is a
   # different identifier. gtag.js accepts any string without complaining and
   # silently sends hits nowhere, which is why this failed quietly.
-  # Leave the value absent (not '') to disable: Liquid treats an empty string as
-  # truthy, so `id: ''` would still emit a gtag script with an empty id.
-  id:                                # GA4 Measurement ID, e.g. G-XXXXXXXXXX
+  # To disable, leave the value absent -- not ''. Liquid treats an empty string
+  # as truthy, so `id: ''` still emits a gtag script with an empty id.
+  id: 'G-M5XCEMPBT7'                 # GA4 Measurement ID
 
 
 # Prefer color scheme setting.
