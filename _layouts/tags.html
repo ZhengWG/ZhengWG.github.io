@@ -42,7 +42,8 @@ layout: page
       {% for key in major %}
         {% assign parts = key | split: "::" %}
         {% assign name = parts | last %}
-        <a class="tag" href="{{ '/tags/' | append: name | slugify | url_encode | append: '/' | relative_url }}">
+        {% assign slug = name | slugify | url_encode %}
+        <a class="tag" href="{{ '/tags/' | append: slug | append: '/' | relative_url }}">
           {{ name }}<span class="text-muted">{{ site.tags[name] | size }}</span>
         </a>
       {% endfor %}
@@ -57,7 +58,8 @@ layout: page
       {% for key in minor %}
         {% assign parts = key | split: "::" %}
         {% assign name = parts | last %}
-        <a class="tag" href="{{ '/tags/' | append: name | slugify | url_encode | append: '/' | relative_url }}">
+        {% assign slug = name | slugify | url_encode %}
+        <a class="tag" href="{{ '/tags/' | append: slug | append: '/' | relative_url }}">
           {{ name }}<span class="text-muted">{{ site.tags[name] | size }}</span>
         </a>
       {% endfor %}
@@ -73,7 +75,8 @@ layout: page
     </h2>
     <div class="tag-cloud tag-cloud-sm" data-tag-tail hidden>
       {% for name in once %}
-        <a class="tag" href="{{ '/tags/' | append: name | slugify | url_encode | append: '/' | relative_url }}">
+        {% assign slug = name | slugify | url_encode %}
+        <a class="tag" href="{{ '/tags/' | append: slug | append: '/' | relative_url }}">
           {{ name }}
         </a>
       {% endfor %}
