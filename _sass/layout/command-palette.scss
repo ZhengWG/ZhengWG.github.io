@@ -1,0 +1,218 @@
+/*
+  ⌘K command palette.
+
+  Colours come from variables defined in both light-typography and
+  dark-typography so the palette follows the theme toggle.
+*/
+
+.cmdk {
+  position: fixed;
+  inset: 0;
+  z-index: 1080; // above the topbar (1000) and the sidebar
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  &[hidden] {
+    display: none;
+  }
+
+  .cmdk-backdrop {
+    position: absolute;
+    inset: 0;
+    background: var(--mask-bg);
+    opacity: 0.55;
+  }
+
+  .cmdk-panel {
+    position: relative;
+    /* unquote() keeps libsass from parsing CSS min() as the Sass min() function. */
+    width: unquote("min(640px, calc(100vw - 2rem))");
+    margin-top: 12vh;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--main-wrapper-bg);
+    border: 1px solid var(--main-border-color);
+    border-radius: 12px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    animation: cmdk-in 0.12s ease-out;
+  }
+
+  .cmdk-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* ── Input row ── */
+  .cmdk-inputwrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--main-border-color);
+  }
+
+  .cmdk-icon {
+    color: var(--search-icon-color);
+    font-size: 0.9rem;
+  }
+
+  #cmdk-input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 1rem;
+    color: var(--text-color);
+
+    &::placeholder {
+      color: var(--text-muted-color);
+    }
+  }
+
+  .cmdk-esc {
+    font-size: 0.66rem;
+    color: var(--text-muted-color);
+    border: 1px solid var(--main-border-color);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+
+  /* ── Results ── */
+  .cmdk-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .cmdk-item {
+    border-radius: 8px;
+
+    > a {
+      display: block;
+      padding: 0.55rem 0.7rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    &.active {
+      background: var(--categories-hover-bg);
+    }
+
+    /* The row itself is the affordance; keep the link from re-styling it. */
+    a:hover {
+      text-decoration: none;
+    }
+  }
+
+  .cmdk-title {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-color);
+    line-height: 1.5;
+  }
+
+  .cmdk-meta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.2rem;
+  }
+
+  .cmdk-kind {
+    font-size: 0.66rem;
+    color: var(--text-muted-color);
+    background: var(--tag-bg);
+    border: 1px solid var(--tag-border);
+    border-radius: 999px;
+    padding: 0 7px;
+    line-height: 1.5;
+  }
+
+  .cmdk-ctx {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 0.25rem;
+    font-size: 0.76rem;
+    line-height: 1.6;
+    color: var(--text-muted-color);
+  }
+
+  mark {
+    background: var(--search-tag-bg);
+    color: var(--text-color);
+    padding: 0 1px;
+    border-radius: 2px;
+  }
+
+  .cmdk-empty {
+    padding: 1.6rem 0.8rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted-color);
+  }
+
+  /* ── Footer hints ── */
+  .cmdk-foot {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--main-border-color);
+    font-size: 0.7rem;
+    color: var(--text-muted-color);
+
+    .cmdk-count {
+      margin-left: auto;
+    }
+
+    kbd {
+      font-family: inherit;
+      font-size: 0.9em;
+      border: 1px solid var(--main-border-color);
+      border-radius: 3px;
+      padding: 0 4px;
+      margin-right: 2px;
+    }
+  }
+}
+
+@keyframes cmdk-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmdk .cmdk-panel {
+    animation: none;
+  }
+}
+
+/* On phones the palette should own the screen rather than float in it. */
+@media all and (max-width: 576px) {
+  .cmdk .cmdk-panel {
+    margin-top: 0;
+    width: 100vw;
+    max-height: 100vh;
+    height: 100%;
+    border-radius: 0;
+    border: none;
+  }
+}

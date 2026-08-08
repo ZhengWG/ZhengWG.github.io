@@ -1,0 +1,231 @@
+<!--
+  ⌘K / Ctrl+K command palette.
+
+  Reuses the same search index as the topbar search box, and loads it the same
+  way: nothing is fetched until the reader actually opens the palette.
+
+  Matching is plain substring, deliberately. This blog is mostly Chinese, and
+  segmentation-based engines (Pagefind and friends) cannot match across word
+  boundaries in CJK -- searching "段简" would fail to find "一段简单". Substring
+  matching is what a Chinese reader expects, so the naive approach is the
+  correct one here, not a fallback.
+-->
+
+<div id="cmdk" class="cmdk" hidden>
+  <div class="cmdk-backdrop" data-cmdk-close></div>
+  <div class="cmdk-panel" role="dialog" aria-modal="true" aria-labelledby="cmdk-label">
+    <label id="cmdk-label" class="cmdk-visually-hidden" for="cmdk-input">搜索站内文章</label>
+    <div class="cmdk-inputwrap">
+      <i class="fas fa-search cmdk-icon" aria-hidden="true"></i>
+      <input id="cmdk-input" type="text" autocomplete="off" spellcheck="false"
+        placeholder="搜索文章、分类、标签…"
+        role="combobox" aria-expanded="true" aria-controls="cmdk-list" aria-autocomplete="list">
+      <kbd class="cmdk-esc">ESC</kbd>
+    </div>
+    <ul id="cmdk-list" class="cmdk-list" role="listbox" aria-label="搜索结果"></ul>
+    <div class="cmdk-foot">
+      <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+      <span><kbd>↵</kbd> 打开</span>
+      <span><kbd>esc</kbd> 关闭</span>
+      <span class="cmdk-count" id="cmdk-count"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var root = document.getElementById('cmdk');
+  var input = document.getElementById('cmdk-input');
+  var list = document.getElementById('cmdk-list');
+  var count = document.getElementById('cmdk-count');
+  if (!root || !input || !list) return;
+
+  var INDEX_URL = '{{ "/assets/js/data/search.json" | relative_url }}';
+  var LIMIT = 12;
+  var docs = null;
+  var loading = false;
+  var items = [];
+  var active = 0;
+  var lastFocus = null;
+
+  /* Static destinations, so the palette navigates as well as searches. */
+  var PAGES = [
+    {% for tab in site.tabs %}
+    { title: {{ tab.title | jsonify }}, url: {{ tab.url | relative_url | jsonify }}, kind: '页面' },
+    {% endfor %}
+    { title: 'Home', url: {{ '/' | relative_url | jsonify }}, kind: '页面' }
+  ];
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /* Highlights the matched run without letting index text become markup. */
+  function mark(text, q) {
+    var t = String(text == null ? '' : text);
+    if (!q) return esc(t);
+    var i = t.toLowerCase().indexOf(q.toLowerCase());
+    if (i < 0) return esc(t);
+    return esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length));
+  }
+
+  /* A short window of the body around the hit, so the reader sees why it matched. */
+  function context(body, q) {
+    if (!body || !q) return '';
+    var i = body.toLowerCase().indexOf(q.toLowerCase());
+    if (i < 0) return '';
+    var start = Math.max(0, i - 30);
+    var frag = (start > 0 ? '…' : '') + body.slice(start, i + q.length + 70);
+    return mark(frag, q);
+  }
+
+  function load() {
+    if (docs || loading) return;
+    loading = true;
+    fetch(INDEX_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (d) { docs = d; loading = false; render(input.value); })
+      .catch(function () {
+        loading = false;
+        list.innerHTML = '<li class="cmdk-empty">索引加载失败</li>';
+      });
+  }
+
+  function score(doc, q) {
+    var t = (doc.title || '').toLowerCase();
+    var i = t.indexOf(q);
+    if (i === 0) return 0;          /* title prefix */
+    if (i > 0) return 1;            /* title contains */
+    if ((doc.tags || '').toLowerCase().indexOf(q) >= 0) return 2;
+    if ((doc.categories || '').toLowerCase().indexOf(q) >= 0) return 3;
+    if ((doc.content || '').toLowerCase().indexOf(q) >= 0) return 4;
+    return -1;                      /* no match */
+  }
+
+  function search(q) {
+    var out = PAGES.filter(function (p) {
+      return p.title.toLowerCase().indexOf(q) >= 0;
+    }).map(function (p) { return { doc: p, rank: -1 }; });
+
+    (docs || []).forEach(function (d) {
+      var r = score(d, q);
+      if (r >= 0) out.push({ doc: d, rank: r });
+    });
+
+    out.sort(function (a, b) { return a.rank - b.rank; });
+    return out.slice(0, LIMIT).map(function (x) { return x.doc; });
+  }
+
+  function render(raw) {
+    var q = (raw || '').trim().toLowerCase();
+    if (!q) {
+      items = PAGES.slice();
+      list.innerHTML = items.map(function (p, i) {
+        return row(p, i, '');
+      }).join('');
+      count.textContent = '输入以搜索';
+      active = 0;
+      paint();
+      return;
+    }
+    if (!docs) {
+      load();
+      list.innerHTML = '<li class="cmdk-empty">正在加载索引…</li>';
+      count.textContent = '';
+      return;
+    }
+    items = search(q);
+    if (!items.length) {
+      list.innerHTML = '<li class="cmdk-empty">没有找到「' + esc(raw) + '」</li>';
+      count.textContent = '0 条';
+      return;
+    }
+    list.innerHTML = items.map(function (d, i) { return row(d, i, q); }).join('');
+    count.textContent = items.length + (items.length === LIMIT ? '+ 条' : ' 条');
+    active = 0;
+    paint();
+  }
+
+  function row(d, i, q) {
+    var meta = d.kind
+      ? '<span class="cmdk-kind">' + esc(d.kind) + '</span>'
+      : [d.categories, d.tags].filter(Boolean).map(function (s) {
+          return '<span class="cmdk-kind">' + esc(s) + '</span>';
+        }).join('');
+    var ctx = d.kind ? '' : context(d.content || d.snippet, q);
+    return '<li class="cmdk-item" role="option" id="cmdk-opt-' + i + '" data-i="' + i + '" aria-selected="false">'
+      + '<a href="' + esc(d.url) + '" tabindex="-1">'
+      + '<span class="cmdk-title">' + mark(d.title, q) + '</span>'
+      + (meta ? '<span class="cmdk-meta">' + meta + '</span>' : '')
+      + (ctx ? '<span class="cmdk-ctx">' + ctx + '</span>' : '')
+      + '</a></li>';
+  }
+
+  function paint() {
+    var els = list.querySelectorAll('.cmdk-item');
+    els.forEach(function (el, i) {
+      var on = i === active;
+      el.classList.toggle('active', on);
+      el.setAttribute('aria-selected', on ? 'true' : 'false');
+      if (on) {
+        input.setAttribute('aria-activedescendant', el.id);
+        el.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  }
+
+  function open() {
+    if (!root.hidden) return;
+    lastFocus = document.activeElement;
+    root.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    input.value = '';
+    render('');
+    load();
+    input.focus();
+  }
+
+  function close() {
+    if (root.hidden) return;
+    root.hidden = true;
+    document.documentElement.style.overflow = '';
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function go() {
+    var el = list.querySelector('.cmdk-item.active a');
+    if (el) window.location.href = el.getAttribute('href');
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+      e.preventDefault();
+      root.hidden ? open() : close();
+      return;
+    }
+    if (root.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); if (items.length) { active = (active + 1) % items.length; paint(); } }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); if (items.length) { active = (active - 1 + items.length) % items.length; paint(); } }
+    else if (e.key === 'Enter') { e.preventDefault(); go(); }
+  });
+
+  input.addEventListener('input', function () { render(input.value); });
+
+  list.addEventListener('mousemove', function (e) {
+    var li = e.target.closest('.cmdk-item');
+    if (li) { active = +li.dataset.i; paint(); }
+  });
+
+  root.querySelectorAll('[data-cmdk-close]').forEach(function (el) {
+    el.addEventListener('click', close);
+  });
+
+  /* Let anything opt in as a trigger (the topbar button below does). */
+  document.querySelectorAll('[data-cmdk-open]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); open(); });
+  });
+})();
+</script>

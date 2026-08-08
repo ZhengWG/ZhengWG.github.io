@@ -141,3 +141,44 @@
     }
   }
 }
+
+/* ── Year jump bar ── */
+#archive-years {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.6rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--main-border-color);
+
+  a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 3px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--tag-border);
+    background: var(--tag-bg);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted-color);
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      text-decoration: none;
+      color: var(--link-color);
+      border-color: var(--link-color);
+    }
+
+    span {
+      font-size: 0.68rem;
+      font-weight: 400;
+      opacity: 0.7;
+    }
+  }
+}
+
+/* Anchor targets sit under the sticky topbar without the jump clipping them. */
+#archives .lead[id] {
+  scroll-margin-top: 4.5rem;
+}

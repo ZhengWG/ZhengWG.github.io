@@ -62,6 +62,11 @@
       <input class="form-control" id="search-input" type="search"
         aria-label="search" autocomplete="off" placeholder="{{ site.data.label.search_hint | default: 'Search' }}...">
       <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i>
+      <!-- Advertises the palette; a shortcut nobody can see goes unused. -->
+      <button type="button" id="search-kbd-hint" data-cmdk-open
+        aria-label="Open command palette" title="⌘K">
+        <kbd>⌘</kbd><kbd>K</kbd>
+      </button>
     </span>
     <span id="search-cancel" >Cancel</span>
   </div>

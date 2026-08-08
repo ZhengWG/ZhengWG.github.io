@@ -1,0 +1,76 @@
+<!--
+  Adds a language label and a copy button to every code block.
+
+  109 of 120 posts carry code, and until now the only way to take a snippet was
+  to select it by hand. Rouge renders line numbers into a separate <td>, so the
+  copy has to read `.rouge-code` specifically -- reading the whole block would
+  paste the gutter along with it.
+
+  NOTE: `layout: compress` strips newlines from inline scripts, so every comment
+  in here must be a block comment. A `//` comment would silently swallow the
+  rest of the file.
+-->
+<script>
+(function () {
+  var blocks = document.querySelectorAll('.post-content .highlighter-rouge');
+  if (!blocks.length) return;
+
+  var canCopy = !!(navigator.clipboard && navigator.clipboard.writeText);
+
+  function codeText(block) {
+    /* With line numbers Rouge splits gutter and code into two cells; without
+       them the code sits directly in the <pre>. Prefer the code cell. */
+    var cell = block.querySelector('.rouge-code');
+    var src = cell || block.querySelector('pre');
+    return src ? src.innerText.replace(/\n$/, '') : '';
+  }
+
+  function label(block) {
+    var m = /language-([\w+-]+)/.exec(block.className);
+    if (!m) return '';
+    var name = m[1];
+    if (name === 'plaintext' || name === 'nohighlight') return '';
+    var pretty = { js: 'JavaScript', ts: 'TypeScript', py: 'Python', sh: 'Shell',
+                   cpp: 'C++', md: 'Markdown', yml: 'YAML' };
+    return pretty[name] || name;
+  }
+
+  blocks.forEach(function (block) {
+    if (block.dataset.toolbar) return;
+    block.dataset.toolbar = '1';
+
+    var bar = document.createElement('div');
+    bar.className = 'code-toolbar';
+
+    var lang = document.createElement('span');
+    lang.className = 'code-lang';
+    lang.textContent = label(block);
+    bar.appendChild(lang);
+
+    if (canCopy) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.setAttribute('aria-label', '复制代码');
+      btn.innerHTML = '<i class="far fa-clipboard" aria-hidden="true"></i><span>复制</span>';
+
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(codeText(block)).then(function () {
+          btn.classList.add('done');
+          btn.querySelector('span').textContent = '已复制';
+          setTimeout(function () {
+            btn.classList.remove('done');
+            btn.querySelector('span').textContent = '复制';
+          }, 1600);
+        }).catch(function () {
+          btn.querySelector('span').textContent = '复制失败';
+        });
+      });
+
+      bar.appendChild(btn);
+    }
+
+    block.insertBefore(bar, block.firstChild);
+  });
+})();
+</script>

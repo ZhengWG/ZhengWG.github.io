@@ -16,46 +16,43 @@ jobs:
           fetch-depth: 1
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: tools/house_price/requirements.txt
 
       - name: Install dependencies
         run: pip install -r tools/house_price/requirements.txt
 
-      - name: Record current data hash
-        id: pre
-        run: echo "hash=$(sha256sum assets/data/house_price/hz.json | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      - name: Snapshot current data
+        run: cp assets/data/house_price/hz.json "$RUNNER_TEMP/hz.prev.json"
 
       - name: Export data
-        id: export
         working-directory: tools/house_price
         run: python export_data.py -o ../../assets/data/house_price -c hz
 
+      # Fails on a broken export (absolute floors) *and* on a partial scrape
+      # (any metric shrinking >10% vs. the committed data). Also reports whether
+      # anything but `updated_at` actually changed.
       - name: Validate exported data
         id: validate
         run: |
-          python - <<'EOF'
-          import json, sys
-          try:
-              with open("assets/data/house_price/hz.json") as f:
-                  d = json.load(f)
-              assert "districts" in d and len(d["districts"]) >= 3, "too few districts"
-              assert "city_history" in d and len(d["city_history"]) >= 12, "too few history rows"
-              print("Validation passed")
-          except Exception as e:
-              print(f"Validation FAILED: {e}", file=sys.stderr)
-              sys.exit(1)
-          EOF
+          python tools/house_price/validate_export.py \
+            --new assets/data/house_price/hz.json \
+            --prev "$RUNNER_TEMP/hz.prev.json"
 
       - name: Restore original data on failure
-        if: failure() && steps.pre.outputs.hash != ''
+        if: failure()
         run: |
           git checkout -- assets/data/house_price/
           echo "Restored original data after export/validation failure."
 
+      # Most days the scrape produces byte-identical data and only the
+      # `updated_at` stamp moves. Committing that would trigger a full site
+      # rebuild + gh-pages force-push for no content change, so skip it.
       - name: Commit and push if changed
-        if: success()
+        if: success() && steps.validate.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -66,3 +63,10 @@ jobs:
             git commit -m "chore: refresh house price data $(date -u +%Y-%m-%d)"
             git push
           fi
+
+      - name: Report no-op
+        if: success() && steps.validate.outputs.changed != 'true'
+        run: |
+          echo "Only \`updated_at\` moved - nothing to publish, skipping commit and deploy." \
+            >> $GITHUB_STEP_SUMMARY
+          git checkout -- assets/data/house_price/

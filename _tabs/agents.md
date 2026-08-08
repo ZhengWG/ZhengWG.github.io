@@ -487,7 +487,7 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
     <section class="ag-hero">
       <div>
         <h2>城市房价决策台</h2>
-        <p>趋势、区域、板块与小区四级分析。数据仅供研究，不构成投资建议。</p>
+        <p>城市与区域两级价格分析。所有指标均由单一价格序列派生，不含成交量、租金等维度，仅供研究，不构成投资建议。</p>
       </div>
       <div class="ag-source-list" id="ag-source-list">
         <span class="ag-source-pill"><strong>聚汇</strong> 主数据源</span>
@@ -523,7 +523,7 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
     <div class="ag-tabs">
       <button class="ag-tab active" data-tab="trend" onclick="AG.hp.switchTab('trend')">📈 价格走势</button>
       <button class="ag-tab" data-tab="latest" onclick="AG.hp.switchTab('latest')">🏘️ 最新房价</button>
-      <button class="ag-tab" data-tab="timing" onclick="AG.hp.switchTab('timing')">🎯 买入时机</button>
+      <button class="ag-tab" data-tab="timing" onclick="AG.hp.switchTab('timing')">🩺 区域体检</button>
     </div>
 
     <!-- Panel: 价格走势 -->
@@ -566,20 +566,27 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
       </div>
     </div>
 
-    <!-- Panel: 买入时机 -->
+    <!-- Panel: 区域体检 -->
     <div class="ag-panel" id="ag-panel-timing">
+      <div class="ag-card" id="ag-verdict"></div>
       <div class="ag-card">
-        <div style="font-weight:700;font-size:14px;margin-bottom:4px">买入时机评估</div>
-        <div style="font-size:11px;color:var(--ag-text3);margin-bottom:12px">评分 0-100，综合价格位置、趋势、动量、同比、波动率五个维度</div>
-        <div class="ag-score-grid" id="ag-score-grid"></div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">全市概况</div>
+        <div style="font-size:11px;color:var(--ag-text3);margin-bottom:12px">先看城市整体处在周期的什么位置，再看区域分化</div>
+        <div class="ag-metrics" id="ag-city-health"></div>
       </div>
       <div class="ag-card">
-        <div style="font-weight:700;font-size:14px;margin-bottom:10px">指标对比雷达图</div>
-        <div class="ag-chart" id="ag-chart-radar"></div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">区域定位图</div>
+        <div style="font-size:11px;color:var(--ag-text3);margin-bottom:10px">横轴＝相对全市的贵贱（自身历史分位），纵轴＝距自身峰值的回撤。左下＝相对全市便宜且跌得多；右上＝相对全市贵且接近前高。</div>
+        <div class="ag-chart" id="ag-chart-position"></div>
       </div>
       <div class="ag-card">
-        <table class="ag-table" id="ag-score-table"><thead><tr><th>区域</th><th>综合</th><th>建议</th><th>价格位置</th><th>趋势</th><th>动量</th><th>同比</th><th>波动率</th></tr></thead><tbody></tbody></table>
+        <div style="font-weight:700;font-size:14px;margin-bottom:4px">区域体检表</div>
+        <div style="font-size:11px;color:var(--ag-text3);margin-bottom:10px">按回撤幅度排序，非推荐排序。每个指标各自独立，不做加权合成。</div>
+        <div style="overflow-x:auto">
+          <table class="ag-table" id="ag-health-table"><thead><tr><th>区域</th><th>市场状态</th><th>最新均价</th><th>距峰值</th><th>企稳</th><th>近6月</th><th>同比</th><th>相对全市</th><th>数据可信度</th></tr></thead><tbody></tbody></table>
+        </div>
       </div>
+      <div class="ag-card" id="ag-limitations"></div>
       <div id="ag-timing-details"></div>
 
       <!-- AI -->

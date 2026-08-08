@@ -176,3 +176,79 @@ div[class^='language-']::before {
     right: 3.5rem;
   }
 }
+
+/* ── Code block toolbar (language label + copy) ── */
+.post-content .highlighter-rouge {
+  position: relative;
+
+  .code-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.3rem 0.75rem;
+    border-bottom: 1px solid var(--main-border-color);
+    background: var(--highlight-bg-color);
+    border-radius: 6px 6px 0 0;
+    /* Sits above the scrolling code so a wide snippet cannot slide under it. */
+    position: relative;
+    z-index: 1;
+  }
+
+  .code-lang {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--highlight-lineno-color);
+  }
+
+  .code-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: none;
+    padding: 1px 8px;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--highlight-lineno-color);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      color: var(--link-color);
+      border-color: var(--main-border-color);
+    }
+
+    &.done {
+      color: var(--link-color);
+      opacity: 1;
+    }
+
+    i {
+      font-size: 0.78rem;
+    }
+  }
+
+  /* Reveal on hover, but keep it permanently visible for keyboard and touch,
+     where there is no hover to trigger it. */
+  &:hover .code-copy,
+  .code-copy:focus-visible {
+    opacity: 1;
+  }
+
+  .highlight {
+    margin-top: 0;
+    border-radius: 0 0 6px 6px;
+  }
+}
+
+@media (hover: none) {
+  .post-content .highlighter-rouge .code-copy {
+    opacity: 1;
+  }
+}

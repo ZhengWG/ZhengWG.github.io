@@ -16,7 +16,8 @@
             {{ site.avatar | relative_url }}
           {%- endif -%}
         {% endcapture %}
-        <img src="{{ avatar_url }}" alt="avatar" onerror="this.style.display='none'">
+        <img src="{{ avatar_url }}" alt="avatar" width="320" height="320"
+          onerror="this.style.display='none'">
       </a>
     </div>
 

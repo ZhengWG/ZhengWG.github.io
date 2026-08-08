@@ -1,11 +1,16 @@
 <!--
   Jekyll Simple Search loader
   See: <https://github.com/christian-fei/Simple-Jekyll-Search>
+
+  Both the library and the search index are fetched on the first interaction
+  with the search box rather than on page load. The index carries post bodies
+  (so search matches article text, not just titles), which makes it too big to
+  download on every page view for the minority of visitors who search.
 -->
 
 {% capture result_elem %}
 <div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0">
-  <a href="{{ site.url }}{url}">{title}</a>
+  <a href="{url}">{title}</a>
   <div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1">
     {categories}
     {tags}
@@ -16,31 +21,65 @@
 
 {% capture not_found %}<p class="mt-5">Oops! No result founds.</p>{% endcapture %}
 
-<script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script>
-
 <script>
-SimpleJekyllSearch({
-  searchInput: document.getElementById('search-input'),
-  resultsContainer: document.getElementById('search-results'),
-  json: '{{ '/assets/js/data/search.json' | relative_url }}',
-  searchResultTemplate: '{{ result_elem | strip_newlines }}',
-  noResultsText: '{{ not_found }}',
-  templateMiddleware: function(prop, value, template) {
-    if (prop === 'categories') {
-      if (value === '') {
-        return `${value}`;
-      } else {
-        return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`;
-      }
-    }
+(function () {
+  var input = document.getElementById('search-input');
+  if (!input) {
+    return;
+  }
 
-    if (prop === 'tags') {
-      if (value === '') {
-        return `${value}`;
-      } else {
-        return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`;
-      }
+  var LIB = 'https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js';
+  var started = false;
+
+  /* The library only binds its own keyup handler once the index has loaded, so */
+  /* anything typed while it was still downloading never gets searched. Replay */
+  /* it once the handler is in place. */
+  function replayPendingQuery() {
+    if (input.value !== '') {
+      input.dispatchEvent(new Event('keyup', { bubbles: true }));
     }
   }
-});
+
+  function start() {
+    if (started) {
+      return;
+    }
+    started = true;
+
+    var script = document.createElement('script');
+    script.src = LIB;
+    script.onload = function () {
+      SimpleJekyllSearch({
+        searchInput: input,
+        resultsContainer: document.getElementById('search-results'),
+        json: '{{ '/assets/js/data/search.json' | relative_url }}',
+        searchResultTemplate: '{{ result_elem | strip_newlines }}',
+        noResultsText: '{{ not_found }}',
+        /* Default is 10, which silently hides matches on a blog this size. */
+        limit: 30,
+        /* Called just before the keyup handler is attached, hence the defer. */
+        success: function () {
+          setTimeout(replayPendingQuery, 0);
+        },
+        templateMiddleware: function (prop, value) {
+          if (prop === 'categories') {
+            return value === ''
+              ? value
+              : '<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>' + value + '</div>';
+          }
+
+          if (prop === 'tags') {
+            return value === ''
+              ? value
+              : '<div><i class="fa fa-tag fa-fw"></i>' + value + '</div>';
+          }
+        }
+      });
+    };
+    document.head.appendChild(script);
+  }
+
+  input.addEventListener('focus', start, { once: true });
+  input.addEventListener('keyup', start, { once: true });
+})();
 </script>

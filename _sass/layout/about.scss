@@ -1,0 +1,136 @@
+/*
+  Style for the About page (bilingual).
+
+  Every colour here comes from a variable defined in *both* light-typography and
+  dark-typography, so the page follows the theme toggle without a second palette.
+*/
+
+.about {
+  /* ── Language switch ── */
+  .about-switch {
+    display: inline-flex;
+    gap: 0;
+    margin-bottom: 1.75rem;
+    border: 1px solid var(--main-border-color);
+    border-radius: 999px;
+    padding: 3px;
+    background: var(--button-bg);
+  }
+
+  .about-lang {
+    appearance: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text-muted-color);
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      color: var(--text-color);
+    }
+
+    &.active {
+      background: var(--btn-active-bg);
+      color: var(--btn-text-color);
+    }
+
+    /* Keyboard users need to see focus; the switch is a real control. */
+    &:focus-visible {
+      outline: 2px solid var(--link-color);
+      outline-offset: 2px;
+    }
+  }
+
+  .about-pane[hidden] {
+    display: none;
+  }
+
+  /* ── Lead paragraph ── */
+  .about-lead {
+    font-size: 1.15rem;
+    line-height: 1.85;
+    color: var(--text-color);
+    margin-bottom: 1.1rem;
+
+    strong {
+      color: var(--heading-color);
+    }
+  }
+
+  h2 {
+    margin-top: 2.4rem;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+  }
+
+  /* ── Focus-area cards ── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.9rem;
+    margin: 1.1rem 0 0.5rem;
+  }
+
+  .about-card {
+    border: 1px solid var(--card-border-color);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    background: var(--button-bg);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+      border-color: var(--link-color);
+      transform: translateY(-2px);
+    }
+
+    h3 {
+      margin: 0 0 0.4rem;
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--heading-color);
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.86rem;
+      line-height: 1.7;
+      color: var(--text-muted-color);
+    }
+  }
+
+  /* ── Keyboard-shortcut tip ── */
+  .about-tip {
+    font-size: 0.86rem;
+    color: var(--text-muted-color);
+    border-left: 3px solid var(--main-border-color);
+    padding-left: 0.85rem;
+  }
+
+  kbd {
+    display: inline-block;
+    min-width: 1.5em;
+    padding: 1px 6px;
+    margin: 0 1px;
+    font-family: inherit;
+    font-size: 0.8em;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--text-color);
+    background: var(--button-bg);
+    border: 1px solid var(--main-border-color);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* Reduced-motion users get the colour change without the lift. */
+@media (prefers-reduced-motion: reduce) {
+  .about .about-card:hover {
+    transform: none;
+  }
+}

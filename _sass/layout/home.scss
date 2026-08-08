@@ -158,3 +158,205 @@
     padding-right: 0;
   }
 }
+
+/* ── Homepage hero (page 1 only) ── */
+#home-hero {
+  padding: 2.6rem 0 1.6rem;
+  border-bottom: 1px solid var(--main-border-color);
+
+  .hero-eyebrow {
+    margin: 0 0 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted-color);
+  }
+
+  .hero-title {
+    margin: 0 0 0.7rem;
+    font-size: 2.1rem;
+    line-height: 1.25;
+    font-weight: 800;
+    color: var(--heading-color);
+  }
+
+  .hero-dot {
+    color: var(--link-color);
+  }
+
+  .hero-desc {
+    margin: 0 0 1.1rem;
+    max-width: 34rem;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-muted-color);
+  }
+
+  .hero-desc-en {
+    display: block;
+    font-size: 0.85rem;
+    opacity: 0.75;
+  }
+
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.3rem;
+  }
+
+  .hero-tag {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    padding: 2px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--tag-border);
+    background: var(--tag-bg);
+    color: var(--text-muted-color);
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      text-decoration: none;
+      color: var(--link-color);
+      border-color: var(--link-color);
+    }
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.9rem;
+  }
+
+  /* Puts the palette in front of readers who never guess at shortcuts. */
+  .hero-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.42rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--main-border-color);
+    background: var(--button-bg);
+    color: var(--text-muted-color);
+    font-size: 0.83rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      border-color: var(--link-color);
+      color: var(--text-color);
+    }
+
+    kbd {
+      font-family: inherit;
+      font-size: 0.68rem;
+      border: 1px solid var(--main-border-color);
+      border-radius: 3px;
+      padding: 0 4px;
+      margin-left: -2px;
+    }
+  }
+
+  .hero-link {
+    font-size: 0.83rem;
+    color: var(--text-muted-color);
+
+    &:hover {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+  }
+}
+
+/* ── Featured shelf ── */
+#home-featured {
+  padding: 1.7rem 0 0.4rem;
+  border-bottom: 1px solid var(--main-border-color);
+
+  .shelf-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--heading-color);
+  }
+
+  .shelf-sub {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted-color);
+  }
+
+  .shelf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .shelf-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--card-border-color);
+    border-radius: 9px;
+    background: var(--button-bg);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+      text-decoration: none;
+      border-color: var(--link-color);
+      transform: translateY(-2px);
+    }
+  }
+
+  .shelf-kicker {
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--link-color);
+  }
+
+  .shelf-name {
+    font-size: 0.93rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--text-color);
+  }
+
+  .shelf-note {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--text-muted-color);
+  }
+
+  .shelf-date {
+    margin-top: 0.15rem;
+    font-size: 0.7rem;
+    color: var(--text-muted-color);
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #home-featured .shelf-card:hover {
+    transform: none;
+  }
+}
+
+@media all and (max-width: 576px) {
+  #home-hero {
+    padding-top: 1.6rem;
+
+    .hero-title {
+      font-size: 1.65rem;
+    }
+  }
+}
