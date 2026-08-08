@@ -138,10 +138,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     {% include post-nav.html %}
 
-    {% if site.disqus.comments and page.comments %}
-      {% include disqus.html %}
-    {% endif %}
-
     {% if site.valine_comment.enable and page.comments %}
       {% include valine.html %}
     {% endif %}

@@ -1,217 +1,100 @@
-# Chirpy
+# johneyzheng.top
 
-Language: English | [简体中文](https://github.com/cotes2020/jekyll-theme-chirpy/blob/master/docs/README.zh-CN.md)
+Source for [johneyzheng.top](https://johneyzheng.top) — Johney Zheng 的个人博客。
 
-[![Gem Version](https://img.shields.io/gem/v/jekyll-theme-chirpy?color=brightgreen)](https://rubygems.org/gems/jekyll-theme-chirpy)
-[![Build Status](https://github.com/cotes2020/jekyll-theme-chirpy/workflows/build/badge.svg?branch=master&event=push)](https://github.com/cotes2020/jekyll-theme-chirpy/actions?query=branch%3Amaster+event%3Apush)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8220b926db514f13afc3f02b7f884f4b)](https://app.codacy.com/manual/cotes2020/jekyll-theme-chirpy?utm_source=github.com&utm_medium=referral&utm_content=cotes2020/jekyll-theme-chirpy&utm_campaign=Badge_Grade_Dashboard)
-[![GitHub license](https://img.shields.io/github/license/cotes2020/jekyll-theme-chirpy.svg)](https://github.com/cotes2020/jekyll-theme-chirpy/blob/master/LICENSE)
-[![996.icu](https://img.shields.io/badge/link-996.icu-%23FF4D5B.svg)](https://996.icu)
+基于 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) v4.0.2 主题，在其之上增加了一个
+交互式数据分析页面（`/agents/`）和配套的 Python 数据管线。
 
-A minimal, sidebar, responsive web design Jekyll theme that focuses on text presentation. Designed to help you record and share your knowledge easily. [Live Demo »](https://chirpy.cotes.info)
+## 结构
 
-[![Devices Mockup](https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/commons/devices-mockup.png)](https://chirpy.cotes.info)
+```
+_posts/                    文章（Markdown）
+_tabs/                     侧边栏页面：about / archives / categories / tags / agents
+_layouts/  _includes/  _sass/    Chirpy 主题模板与样式
+_javascript/               主题 JS 源码 → gulp → assets/js/dist/*.min.js
+_plugins/                  posts-lastmod-hook.rb（用 git 历史生成 lastmod）
 
-## Features
+assets/js/agents.js        /agents/ 页面：house_price_analyzer
+assets/js/aiinfra.js       /agents/ 页面：ai_tracker
+assets/data/house_price/   数据产物（由 CI 每日刷新）
 
-- Pinned Posts
-- Configurable theme mode
-- Double-level Categories
-- Last modified date for posts
-- Table of Contents
-- Automatically recommend related posts
-- Syntax highlighting
-- Mathematical expressions
-- Mermaid diagram & flowchart
-- Search
-- Atom Feeds
-- Disqus Comments
-- Google Analytics
-- GA Pageviews reporting (Advanced)
-- SEO and Performance Optimization
-
-## Prerequisites
-
-Follow the [Jekyll Docs](https://jekyllrb.com/docs/installation/) to complete the installation of `Ruby`, `RubyGems`, `Jekyll` and `Bundler`.
-
-## Installation
-
-There are two ways to get the theme:
-
-- **Install from RubyGems** - Easy to update, isolate irrelevant project files so you can focus on writing.
-- **Fork on GitHub** - Convenient for custom development, but difficult to update, only suitable for web developers.
-
-### Installing the Theme Gem
-
-Add this line to your Jekyll site's `Gemfile`:
-
-```ruby
-gem "jekyll-theme-chirpy"
+tools/house_price/         房价数据抓取 → JSON 导出
+tools/scripts/             图片压缩 / 上传辅助脚本
+tools/build.sh             _drafts → _posts 的发布脚本（含图床链接替换）
+tools/test.sh              html-proofer 检查
+tools/deploy.sh            推送 _site 到 gh-pages（仅在 CI 中运行）
 ```
 
-And add this line to your Jekyll site's `_config.yml`:
+## 本地开发
 
-```yaml
-theme: jekyll-theme-chirpy
+macOS 自带的 Ruby 2.6 跑不了 Jekyll 4，需要单独装一个（3.1 与 `Gemfile.lock`
+里锁定的 gem 版本兼容性最好），并加入 PATH：
+
+```bash
+brew install ruby@3.1
+export PATH="/opt/homebrew/opt/ruby@3.1/bin:$PATH"   # 建议写进 ~/.zshrc
 ```
 
-And then execute:
-
-```console
-$ bundle
+```bash
+bundle config set --local path vendor/bundle
+bundle install
+bash tools/run.sh          # jekyll serve, http://localhost:4000
+bash tools/test.sh --build # 构建 + html-proofer
 ```
 
-Finally, copy the required files from the theme's gem (for detailed files, see [starter project][starter]) to your Jekyll site.
+主题 JS 改动后需要重新构建产物：
 
-> **Hint**: To locate the installed theme’s gem, execute:
->
-> ```console
-> $ bundle info --path jekyll-theme-chirpy
-> ```
-
-Or you can [**use the starter template**][use-starter] to create a Jekyll site to save time copying files from the theme's gem. We have prepared everything for you there!
-
-### Fork on GitHub
-
-[Fork **Chirpy**](https://github.com/cotes2020/jekyll-theme-chirpy/fork) on GitHub and then clone your fork to local. (Please note that the default branch code is in development.  If you want the blog to be stable, please switch to the [latest tag](https://github.com/cotes2020/jekyll-theme-chirpy/tags) and start writing.)
-
-Install gem dependencies by:
-
-```console
-$ bundle
+```bash
+npm install
+npx gulp build             # _javascript/ → assets/js/dist/
 ```
 
-And then execute:
+> `assets/js/agents.js` 和 `aiinfra.js` 目前**不经过** gulp，直接以源码形式引用。
 
-```console
-$ bash tools/init.sh
+## 数据管线
+
+`tools/house_price/` 抓取城市房价（当前仅杭州 `hz`），导出为
+`assets/data/house_price/<city>.json`，供 `/agents/` 页面在浏览器端读取。
+
+```bash
+cd tools/house_price
+pip install -r requirements.txt
+python export_data.py -o ../../assets/data/house_price -c hz
+python validate_export.py --new ../../assets/data/house_price/hz.json \
+                          --prev <上一版 json>
 ```
 
-> **Note**: If you don't plan to deploy your site on GitHub Pages, append parameter option `--no-gh` at the end of the above command.
+数据源与字段说明见 `tools/house_price/docs/`。
 
-What it does is:
+### 校验
 
-1. Remove some files or directories from your repository:
-    - `.travis.yml`
-    - files under `_posts`
-    - folder `docs`
+`validate_export.py` 有两道闸：
 
-2. If you use the `--no-gh` option, the directory `.github` will be deleted. Otherwise, setup the GitHub Action workflow by removing the extension `.hook` of `.github/workflows/pages-deploy.yml.hook`, and then remove the other files and directories in the folder `.github`.
+1. **绝对下限** — 区县数、城市历史行数、小区数不能为空或过少，拦截完全失败的抓取。
+2. **相对回归** — 任一指标相比已提交的版本下跌超过 10% 即判失败，拦截**部分**抓取失败。
+   第二道闸是因为 2026-08-02 曾发生小区数从 5951 掉到 4112（-31%）却仍被发布的事故。
 
-3. Automatically create a commit to save the changes.
+## CI
 
-## Usage
+| Workflow | 触发 | 作用 |
+|---|---|---|
+| `refresh-data.yml` | 每日 00:00 UTC / 手动 | 抓数 → 校验 → **仅在内容真正变化时**提交 |
+| `pages-deploy.yml` | push to master / 上游 workflow 成功 | Jekyll 构建 → html-proofer → 部署 gh-pages |
 
-### Configuration
+`refresh-data.yml` 会忽略 `updated_at` 字段做比对：多数情况下抓取结果与前一天完全一致，
+此时跳过提交，避免触发一次无意义的全站重建与 `gh-pages` 强推。
 
-Update the variables of `_config.yml` as needed. Some of them are typical options:
+## 发布一篇文章
 
-- `url`
-- `avatar`
-- `timezone`
-- `lang`
+在 `_drafts/` 下写作，然后：
 
-### Running Local Server
-
-You may want to preview the site contents before publishing, so just run it by:
-
-```console
-$ bundle exec jekyll s
+```bash
+bash tools/build.sh        # 转换并移动到 _posts/，替换图片为图床链接
+bash tools/build.sh -m     # 含公式的文章（需在 front matter 设置 mathjax: true）
 ```
 
-Or run the site on Docker with the following command:
-
-```terminal
-$ docker run -it --rm \
-    --volume="$PWD:/srv/jekyll" \
-    -p 4000:4000 jekyll/jekyll \
-    jekyll serve
-```
-
-Open a browser and visit to _<http://localhost:4000>_.
-
-### Deployment
-
-Before the deployment begins, checkout the file `_config.yml` and make sure the `url` is configured correctly. Furthermore, if you prefer the [**project site**](https://help.github.com/en/github/working-with-github-pages/about-github-pages#types-of-github-pages-sites) and don't use a custom domain, or you want to visit your website with a base URL on a web server other than **GitHub Pages**, remember to change the `baseurl` to your project name that starting with a slash, e.g, `/project-name`.
-
-Now you can choose ONE of the following methods to deploy your Jekyll site.
-
-#### Deploy on GitHub Pages
-
-For security reasons, GitHub Pages build runs on `safe` mode, which restricts us from using plugins to generate additional page files. Therefore, we can use **GitHub Actions** to build the site, store the built site files on a new branch, and use that branch as the source of the GH Pages service.
-
-Quickly check the files needed for GitHub Actions build:
-
-- Ensure your Jekyll site has the file `.github/workflows/pages-deploy.yml`. Otherwise, create a new one and fill in the contents of the [workflow file][workflow], and the value of the `on.push.branches` should be the same as your repo's default branch name.
-- Ensure your Jekyll site has file `tools/test.sh` and `tools/deploy.sh`. Otherwise, copy them from this repo to your Jekyll site.
-
-And then rename your repository to `<GH-USERNAME>.github.io` on GitHub.
-
-Now publish your Jekyll site by:
-
-1. Push any commit to remote to trigger the GitHub Actions workflow. Once the build is complete and successful, a new remote branch named `gh-pages` will appear to store the built site files.
-
-2. Browse to your repo's landing page on GitHub and select the branch `gh-pages` as the [publishing source](https://docs.github.com/en/github/working-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site) through _Settings_ → _Options_ → _GitHub Pages_:
-
-    ![gh-pages-sources](https://cdn.jsdelivr.net/gh/cotes2020/chirpy-images/posts/20190809/gh-pages-sources.png)
-
-3. Visit your website at the address indicated by GitHub.
-
-#### Deploy on Other Platforms
-
-On platforms other than GitHub, we cannot enjoy the convenience of **GitHub Actions**. Therefore, we should build the site locally (or on some other 3rd-party CI platform) and then put the site files on the server.
-
-Go to the root of the source project, build your site by:
-
-```console
-$ JEKYLL_ENV=production bundle exec jekyll b
-```
-
-Or build the site with Docker by:
-
-```terminal
-$ docker run -it --rm \
-    --env JEKYLL_ENV=production \
-    --volume="$PWD:/srv/jekyll" \
-    jekyll/jekyll \
-    jekyll build
-```
-
-Unless you specified the output path, the generated site files will be placed in folder `_site` of the project's root directory. Now you should upload those files to your web server.
-
-## Documentation
-
-For more details and a better reading experience, please check out the [tutorials on the demo site](https://chirpy.cotes.info/categories/tutorial/). In the meanwhile, a copy of the tutorial is also available on the [Wiki](https://github.com/cotes2020/jekyll-theme-chirpy/wiki).
-
-## Contributing
-
-The old saying, "Two heads are better than one." Consequently, welcome to report bugs, improve code quality or submit a new feature. For more information, see [contributing guidelines](.github/CONTRIBUTING.md).
-
-## Credits
-
-This theme is mainly built with [Jekyll](https://jekyllrb.com/) ecosystem, [Bootstrap](https://getbootstrap.com/), [Font Awesome](https://fontawesome.com/) and some other wonderful tools (their copyright information can be found in the relevant files). The avatar and favicon design comes from [Clipart Max](https://www.clipartmax.com/middle/m2i8b1m2K9Z5m2K9_ant-clipart-childrens-ant-cute/).
-
-:tada: Thanks to all the volunteers who contributed to this project, their GitHub IDs are on [this list](https://github.com/cotes2020/jekyll-theme-chirpy/graphs/contributors). Also, I won't forget those guys who submitted the issues or unmerged PR because they reported bugs, shared ideas, or inspired me to write more readable documentation.
-
-Last but not least, thank [JetBrains][jb] for providing the open source license.
-
-## Sponsoring
-
-If you like this theme or find it helpful, please consider sponsoring me, because it will encourage and help me better maintain the project, I will be very grateful!
-
-[![Buy Me a Coffee](https://img.shields.io/badge/-Buy%20Me%20a%20Coffee-ff813f?logo=buy-me-a-coffee&logoColor=white)](https://www.buymeacoffee.com/coteschung)
-[![Wechat Pay](https://img.shields.io/badge/-Tip%20Me%20on%20WeChat-brightgreen?logo=wechat&logoColor=white)][cn-donation]
-[![Alipay](https://img.shields.io/badge/-Tip%20Me%20on%20Alipay-blue?logo=alipay&logoColor=white)][cn-donation]
+Front matter 中 `mathjax: true` 会加载 MathJax 3，行内公式分隔符为 `$...$`。
 
 ## License
 
-This work is published under [MIT](https://github.com/cotes2020/jekyll-theme-chirpy/blob/master/LICENSE) License.
-
-[starter]: https://github.com/cotes2020/chirpy-starter
-[use-starter]: https://github.com/cotes2020/chirpy-starter/generate
-[workflow]: https://github.com/cotes2020/jekyll-theme-chirpy/blob/master/.github/workflows/pages-deploy.yml.hook
-
-<!-- ReadMe links -->
-
-[jb]: https://www.jetbrains.com/?from=jekyll-theme-chirpy
-[cn-donation]: https://cotes.gitee.io/alipay-wechat-donation/
+[MIT](LICENSE)（主题部分版权归 [Cotes Chung](https://github.com/cotes2020) 所有）。

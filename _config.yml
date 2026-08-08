@@ -21,8 +21,10 @@ tagline: Johney Zheng的小站   # it will display as the sub-title
 
 description: 不要习惯了黑暗就为黑暗辩护；不要为了自己的苟且而得意，做一个勇敢而热情的人                        # used by seo meta and the atom feed
 
-# fill in the protocol & hostname for your site, e.g., 'https://username.github.io'
-url: 'https://www.johneyzheng.top/'
+# Must match the CNAME file (apex domain, no `www`), otherwise jekyll-seo-tag
+# emits canonical URLs, the sitemap and the feed for a host the site is not
+# served on, and the PWA's same-origin cache allowlist misses.
+url: 'https://johneyzheng.top'
 
 github:
   username: ZhengWG             # change to your github username
@@ -37,17 +39,27 @@ social:
   email: 21625111@zju.edu.cn             # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    # - https://twitter.com/username      # change to your twitter homepage
-    - https://github.com/username       # change to your github homepage
+    - https://github.com/ZhengWG
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
     # - https://www.linkedin.com/in/username
 
-google_site_verification: google_meta_tag_verification # change to your verification string
+# Leave empty unless you actually have a Search Console token; the previous
+# value was the literal placeholder and emitted a bogus verification meta tag.
+google_site_verification:
 # --------------------------
 
 google_analytics:
-  id: 'G-364499169'                  # GA4 Measurement ID
+  # This must be the GA4 *Measurement ID*: `G-` followed by 10 alphanumeric
+  # characters, found under 管理 → 数据流 → 网站 → 衡量ID.
+  #
+  # The previous value, 'G-364499169', was `G-` plus 9 digits. That is the shape
+  # of a GA4 *Property ID* (管理 → 媒体资源设置 → 媒体资源ID), which is a
+  # different identifier. gtag.js accepts any string without complaining and
+  # silently sends hits nowhere, which is why this failed quietly.
+  # Leave the value absent (not '') to disable: Liquid treats an empty string as
+  # truthy, so `id: ''` would still emit a gtag script with an empty id.
+  id:                                # GA4 Measurement ID, e.g. G-XXXXXXXXXX
 
 
 # Prefer color scheme setting.
@@ -76,10 +88,8 @@ avatar: /assets/img/avatar.jpg
 # boolean type, the global switch for ToC in posts.
 toc: true
 
-disqus:
-  comments: false  # boolean type, the global switch for posts comments.
-  shortname: 'johneyzheng-1' # Fill with your Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
-
+# Comments are handled by Valine below. The Disqus integration that shipped
+# with the theme was disabled and unused, and has been removed.
 valine_comment:
   enable: true
   # app_id

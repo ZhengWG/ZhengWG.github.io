@@ -3,7 +3,7 @@ layout: post
 title: Goolge-TPU论文解读
 date: 2022-07-17 17:30:50.000000000 +09:00
 categories: [算法部署]
-tags: [芯片，TPU]
+tags: [芯片, TPU]
 ---
 
 - [文章背景](#sec-1)

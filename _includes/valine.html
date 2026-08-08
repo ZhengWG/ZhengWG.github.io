@@ -1,7 +1,19 @@
 {% if site.valine_comment.enable %}
 <div id="comments"></div>
-<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
-<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<!--
+  Both scripts are version-pinned on purpose. This used to load Valine from an
+  unversioned `latest` URL, which let a third party ship arbitrary JS into every
+  post without warning.
+
+  The LeanCloud SDK used to come from `//cdn1.lncld.net/...`, a host that no
+  longer resolves (NXDOMAIN). That request failed on every page; Valine then
+  lazily self-loaded the SDK from jsDelivr, so comments still worked but paid
+  for a dead request plus an extra serialized round-trip. Loading it directly
+  from jsDelivr removes both. Valine 1.5.x expects the v3 SDK on `window.AV`,
+  so the major version here must stay at 3.
+-->
+<script src="https://cdn.jsdelivr.net/npm/leancloud-storage@3.0.4/dist/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.5.3/dist/Valine.min.js"></script>
 <script>
   new Valine({
     el: '#comments',

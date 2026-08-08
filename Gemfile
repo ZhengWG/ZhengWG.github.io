@@ -4,6 +4,9 @@ source "https://rubygems.org"
 
 gemspec
 
+# webrick 不再是 Ruby 3.0+ 的标准库，`jekyll serve` 需要它
+gem "webrick", "~> 1.8"
+
 group :test do
   gem "html-proofer", "~> 3.18"
 end

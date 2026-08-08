@@ -280,8 +280,10 @@ def main():
         data = clean_nan(data)
         out_path = os.path.join(args.output, f"{ck}.json")
         with open(out_path, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        print(f"  ✓ Exported: {out_path}")
+            # Compact separators: the file is a web asset, not a file humans read.
+            # Saves ~45% of the payload vs. indent=2.
+            json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+        print(f"  ✓ Exported: {out_path} ({os.path.getsize(out_path) / 1024:.0f} KB)")
 
     print("Done!")
 
