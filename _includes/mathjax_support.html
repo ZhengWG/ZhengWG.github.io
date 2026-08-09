@@ -1,20 +1,43 @@
 <!--
   MathJax 3, loaded for posts with `mathjax: true` in the front matter.
 
-  Delimiters intentionally mirror the previous MathJax 2 config so the ~30
-  existing posts render identically.
+  Delimiters cover both the original MathJax 2 dollar-sign style used in ~30
+  posts and the `\[...\]` / `\(...\)` forms that kramdown may emit for display
+  and inline math.
 -->
 <script>
   window.MathJax = {
     tex: {
-      inlineMath: [['$', '$']],
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
       displayMath: [['$$', '$$'], ['\\[', '\\]']],
       processEscapes: true
     },
     options: {
-      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+      /* Ignore the code-toolbar chrome and other UI chrome we inject later. */
+      ignoreHtmlClass: 'code-toolbar|code-copy|code-lang'
+    },
+    chtml: {
+      /* Keep wide matrices from blowing out the article column. */
+      displayAlign: 'center',
+      scale: 1.05
     }
   };
 </script>
 <script id="MathJax-script" async
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  /* Display math: give formulas room and allow horizontal scroll on overflow. */
+  .post-content mjx-container[display="true"] {
+    display: block;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-width: 100%;
+    padding: 0.35rem 0;
+    margin: 1rem 0;
+  }
+  .post-content mjx-container:not([display="true"]) {
+    /* Keep inline math from colliding with surrounding CJK text. */
+    margin: 0 0.15em;
+  }
+</style>

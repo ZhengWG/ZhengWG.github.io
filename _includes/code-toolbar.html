@@ -1,10 +1,14 @@
 <!--
-  Adds a language label and a copy button to every code block.
+  Adds a language label and a copy button to every fenced code block.
 
   109 of 120 posts carry code, and until now the only way to take a snippet was
   to select it by hand. Rouge renders line numbers into a separate <td>, so the
   copy has to read `.rouge-code` specifically -- reading the whole block would
   paste the gutter along with it.
+
+  IMPORTANT: only match block-level `div.highlighter-rouge`. Inline snippets are
+  also emitted as `code.language-*.highlighter-rouge`, and selecting those turns
+  every `backtick` term into a full-width gray box with a copy button.
 
   NOTE: `layout: compress` strips newlines from inline scripts, so every comment
   in here must be a block comment. A `//` comment would silently swallow the
@@ -12,7 +16,7 @@
 -->
 <script>
 (function () {
-  var blocks = document.querySelectorAll('.post-content .highlighter-rouge');
+  var blocks = document.querySelectorAll('.post-content div.highlighter-rouge');
   if (!blocks.length) return;
 
   var canCopy = !!(navigator.clipboard && navigator.clipboard.writeText);
@@ -21,7 +25,7 @@
     /* With line numbers Rouge splits gutter and code into two cells; without
        them the code sits directly in the <pre>. Prefer the code cell. */
     var cell = block.querySelector('.rouge-code');
-    var src = cell || block.querySelector('pre');
+    var src = cell || block.querySelector('pre') || block.querySelector('code');
     return src ? src.innerText.replace(/\n$/, '') : '';
   }
 
@@ -29,9 +33,10 @@
     var m = /language-([\w+-]+)/.exec(block.className);
     if (!m) return '';
     var name = m[1];
-    if (name === 'plaintext' || name === 'nohighlight') return '';
+    if (name === 'plaintext' || name === 'nohighlight' || name === 'text') return '';
     var pretty = { js: 'JavaScript', ts: 'TypeScript', py: 'Python', sh: 'Shell',
-                   cpp: 'C++', md: 'Markdown', yml: 'YAML' };
+                   bash: 'Shell', zsh: 'Shell', cpp: 'C++', cxx: 'C++',
+                   md: 'Markdown', yml: 'YAML', yaml: 'YAML' };
     return pretty[name] || name;
   }
 
