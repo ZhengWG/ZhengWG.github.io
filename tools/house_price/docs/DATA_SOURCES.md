@@ -10,9 +10,36 @@
 
 ## 已支持的可插拔补充源
 
-导出器会自动读取 `data/providers/{city_key}.json`，并按“小区名”与聚汇结果合并；同名记录由补充源覆盖。可复制 `docs/provider.example.json` 到该目录并改名为城市 key（如 `hz.json`），将已获授权的开放数据、API 导出或人工校验数据接入，无需修改 Python 代码。
+导出器会读取本地 JSON，并与聚汇结果按日期/名称合并；补充源里的非空字段覆盖主源。
 
-每条记录可包含 `community`、`price`、`mom_pct` 和 `source`。前端 JSON 同时输出 `meta.sources`，用于展示当前启用的数据源与角色。
+| 路径 | 是否提交 | 用途 |
+| --- | --- | --- |
+| `tools/house_price/providers/{city_key}.json` | 可以提交 | CI 每日刷新也会带上 |
+| `tools/house_price/data/providers/{city_key}.json` | 已 gitignore | 本机覆盖，适合未公开数字 |
+
+复制 `docs/provider.example.json` 改名为 `hz.json`。现在除小区外，还可以补：
+
+- `city_history`：全市月度二手/新房均价（按 `YYYY-MM` 合并）
+- `district_list`：各区最新均价 / 涨跌
+- `districts.{key}.history`：该区月度历史
+- `districts.{key}.communities`：小区均价（同名覆盖）
+- `source_name` / `source_role` / `notes`：前端数据源标签与备注
+
+---
+
+## 公众号 / 小程序（小鸡选房等）——不要自动抓
+
+小鸡选房（微信小程序 + 公众号，官网 [xaoji.com](https://www.xaoji.com/)）对杭州网签、摇号、小区测评很有参考价值，但**没有公开结构化 API**。文章在微信里，成交明细在小程序里。
+
+不适合作为 GitHub Actions 的自动数据源，原因：
+
+1. 微信公众号 / 小程序接口需登录态，反爬与条款都不允许未授权采集。
+2. 月报常常是配图、表格截图或叙述文字，没有稳定 HTML 表。
+3. URL 和字段会随运营改版，CI 会像聚汇这次一样静默空表。
+
+正确用法：每月从他们的公开月报里**手工摘**城市/区域均价，写入 `providers/hz.json`。导出时会叠到聚汇主序列上，Agents 页的数据源标签会显示你写的 `source_name`。
+
+同类账号（克而瑞杭州、中指杭州、本地中介月报）也走这条「人工摘录 → JSON」路径，不要写微信爬虫。
 
 ---
 

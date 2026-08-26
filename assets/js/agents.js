@@ -261,6 +261,9 @@ const AG = (() => {
         { name: '小区聚合', role: '板块估算', status: 'active' }
       ];
       el.innerHTML = sources.map(s => `<span class="ag-source-pill"><strong>${s.name}</strong> ${s.role || ''}${s.status === 'active' ? ' · 已接入' : ' · 待配置'}</span>`).join('');
+      if (cityData.meta?.notes) {
+        el.insertAdjacentHTML('beforeend', `<span class="ag-source-pill">${cityData.meta.notes}</span>`);
+      }
     }
 
     function restorePanels() {

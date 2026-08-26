@@ -23,7 +23,7 @@ except ImportError:
 
 from config import CITIES, HISTORY_START_YEAR, CURRENT_YEAR
 from scrapers.gotohui import GoToHuiScraper
-from scrapers.local_json import LocalJsonSource
+from scrapers.local_json import LocalJsonSource, merge_history_rows, merge_named_rows
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 _KEYWORDS_CACHE = None
@@ -143,6 +143,12 @@ def export_city(scraper, city_key, start_year, end_year):
             ],
         },
     }
+    local_meta = LocalJsonSource.source_meta(city_key)
+    if local_meta:
+        result["meta"]["sources"][-1] = local_meta
+    local_notes = LocalJsonSource.notes(city_key)
+    if local_notes:
+        result["meta"]["notes"] = local_notes
 
     print(f"  获取城市历史数据...")
     city_df = scraper.get_city_history(city_key, start_year, end_year)
@@ -155,6 +161,9 @@ def export_city(scraper, city_key, start_year, end_year):
             }
             for _, row in city_df.iterrows()
         ]
+    result["city_history"] = merge_history_rows(
+        result["city_history"], LocalJsonSource.get_city_history(city_key)
+    )
 
     print(f"  获取区域列表...")
     dist_list = scraper.get_district_list(city_key)
@@ -167,6 +176,9 @@ def export_city(scraper, city_key, start_year, end_year):
             }
             for _, row in dist_list.iterrows()
         ]
+    result["district_list"] = merge_named_rows(
+        result["district_list"], LocalJsonSource.get_district_list(city_key), "district"
+    )
 
     for dk, dinfo in city["districts"].items():
         dname = dinfo["name"]
@@ -183,6 +195,9 @@ def export_city(scraper, city_key, start_year, end_year):
                 }
                 for _, row in df.iterrows()
             ]
+        district_data["history"] = merge_history_rows(
+            district_data["history"], LocalJsonSource.get_district_history(city_key, dk)
+        )
 
         comm_df = scraper.get_community_prices(city_key, dk)
         if not comm_df.empty:
@@ -196,7 +211,7 @@ def export_city(scraper, city_key, start_year, end_year):
                 if row.get("price") is not None
             ]
 
-        # 可插拔补充源：data/providers/{city}.json。按小区名去重，补充源覆盖主源同名记录。
+        # 可插拔补充源：providers/{city}.json 或 data/providers/{city}.json。同名小区由补充源覆盖。
         local_rows = LocalJsonSource.get_communities(city_key, dk)
         if local_rows:
             merged = {item["community"]: item for item in district_data["communities"]}

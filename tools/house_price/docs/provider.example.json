@@ -1,12 +1,36 @@
 {
+  "source_name": "小鸡选房（人工摘录）",
+  "source_role": "网签/成交月报补录",
+  "notes": "数字摘自公众号月报，仅作对照，不替代聚汇主序列。",
+  "city_history": [
+    {
+      "date": "2026-07",
+      "second_hand_price": 30202,
+      "new_house_price": 27448
+    }
+  ],
+  "district_list": [
+    {
+      "district": "西湖区",
+      "price": 41945,
+      "yoy": -0.7
+    }
+  ],
   "districts": {
-    "district_key": {
+    "xihu": {
+      "history": [
+        {
+          "date": "2026-07",
+          "second_hand_price": 42224,
+          "new_house_price": 39409
+        }
+      ],
       "communities": [
         {
           "community": "示例小区",
           "price": 35000,
           "mom_pct": -0.5,
-          "source": "licensed_dataset"
+          "source": "xiaoji_manual"
         }
       ]
     }
