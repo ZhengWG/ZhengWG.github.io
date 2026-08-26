@@ -124,9 +124,11 @@ class GoToHuiScraper(BaseScraper):
                 url = f"{BASE_URL}/house-{gid}/{page}.html"
             html = self.fetch(url)
             if html is None:
+                print(f"[WARN] 小区列表页请求失败: {url}")
                 break
             rows = self._parse_house_community_table(html)
             if not rows:
+                print(f"[WARN] 小区列表页解析为空: {url}")
                 break
             all_rows.extend(rows)
             if len(rows) < 20:
@@ -307,50 +309,46 @@ class GoToHuiScraper(BaseScraper):
                 break
         return pd.DataFrame(rows)
 
-    def _parse_house_community_table(self, html: str) -> list:
-        """解析 house-{id} 页的表格：选择|区域|小区|单价|环比。"""
+    def _parse_community_rows(self, html: str) -> list:
+        """Parse community tables by header name.
+
+        Current house-{id} layout: 区域 | 小区 | 单价 | 环比 | 数据月份
+        Older layout: 选择 | 区域 | 小区 | 单价 | 环比
+        Sidebar fjdata layout: 小区 | 单价 | 环比
+        """
         soup = BeautifulSoup(html, "lxml")
         for table in soup.find_all("table"):
-            header = table.get_text()
-            if "小区" in header and "单价" in header and "环比" in header:
-                rows = []
-                for tr in table.find_all("tr")[1:]:
-                    tds = tr.find_all("td")
-                    if len(tds) < 4:
-                        continue
-                    # 表格列可能是：选择、区域、小区、单价、环比
-                    name_cell = tds[2] if len(tds) >= 5 else tds[0]
-                    price_cell = tds[3] if len(tds) >= 5 else tds[1]
-                    mom_cell = tds[4] if len(tds) >= 5 else tds[2]
-                    name = name_cell.get_text(strip=True)
-                    if not name:
-                        continue
-                    price = self._parse_price(price_cell.get_text(strip=True))
-                    mom = self._parse_yoy(mom_cell.get_text(strip=True))
-                    rows.append({"community": name, "price": price, "mom_pct": mom})
+            headers = self._table_headers(table)
+            header_text = "".join(headers)
+            if "小区" not in header_text:
+                continue
+            name_idx = self._find_header(headers, ("小区",))
+            price_idx = self._find_header(headers, ("单价", "均价"))
+            if name_idx is None or price_idx is None:
+                continue
+            mom_idx = self._find_header(headers, ("环比",))
+            rows = []
+            for tr in table.find_all("tr"):
+                tds = tr.find_all("td")
+                if len(tds) <= max(name_idx, price_idx):
+                    continue
+                name = tds[name_idx].get_text(strip=True)
+                if not name or name in {"小区", "选择"}:
+                    continue
+                price = self._parse_price(tds[price_idx].get_text(strip=True))
+                mom = None
+                if mom_idx is not None and len(tds) > mom_idx:
+                    mom = self._parse_yoy(tds[mom_idx].get_text(strip=True))
+                rows.append({"community": name, "price": price, "mom_pct": mom})
+            if rows:
                 return rows
         return []
 
+    def _parse_house_community_table(self, html: str) -> list:
+        return self._parse_community_rows(html)
+
     def _parse_community_list(self, html: str) -> pd.DataFrame:
-        soup = BeautifulSoup(html, "lxml")
-        rows = []
-        for table in soup.find_all("table"):
-            header = table.get_text()
-            if "小区" in header and "单价" in header and "环比" in header:
-                for tr in table.find_all("tr")[1:]:
-                    tds = tr.find_all("td")
-                    if len(tds) < 3:
-                        continue
-                    name = tds[0].get_text(strip=True)
-                    price = self._parse_price(tds[1].get_text(strip=True))
-                    mom_text = tds[2].get_text(strip=True)
-                    mom = self._parse_yoy(mom_text)
-                    rows.append({
-                        "community": name,
-                        "price": price,
-                        "mom_pct": mom,
-                    })
-                break
+        rows = self._parse_community_rows(html)
         return pd.DataFrame(rows)
 
     @staticmethod
