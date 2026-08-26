@@ -227,6 +227,49 @@ class TestGoToHuiParse(unittest.TestCase):
         self.assertIn(pd.Timestamp(2026, 1, 1), dates)
         self.assertIn(pd.Timestamp(2026, 7, 1), dates)
 
+    def test_new_house_community_table(self):
+        html = """
+        <table class="data-table">
+          <thead>
+            <tr><th>区域</th><th>小区</th><th>单价(元/㎡)</th><th>环比</th><th>数据月份</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>西湖区</td><td>西溪路24号</td><td>54796</td><td>+2.62%</td><td>2024年12月</td></tr>
+            <tr><td>西湖区</td><td>丹金桂花园</td><td>42409</td><td>-1.83%</td><td>2024年12月</td></tr>
+          </tbody>
+        </table>
+        """
+        rows = self.scraper._parse_house_community_table(html)
+        self.assertEqual([r["community"] for r in rows], ["西溪路24号", "丹金桂花园"])
+        self.assertEqual(rows[0]["price"], 54796.0)
+        self.assertEqual(rows[0]["mom_pct"], 2.62)
+        self.assertEqual(rows[1]["mom_pct"], -1.83)
+
+    def test_old_house_community_table(self):
+        html = """
+        <table>
+          <tr><th>选择</th><th>区域</th><th>小区</th><th>单价(元/㎡)</th><th>环比</th></tr>
+          <tr><td></td><td>西湖区</td><td>西溪路24号</td><td>54796.00</td><td>+2.62%</td></tr>
+        </table>
+        """
+        rows = self.scraper._parse_house_community_table(html)
+        self.assertEqual(rows[0]["community"], "西溪路24号")
+        self.assertEqual(rows[0]["price"], 54796.0)
+        self.assertEqual(rows[0]["mom_pct"], 2.62)
+
+    def test_sidebar_community_table(self):
+        html = """
+        <table>
+          <tr><th>小区</th><th>单价(元/㎡)</th><th>环比</th></tr>
+          <tr><td>石镜街555号</td><td>9877.00</td><td class="red">+0.51%</td></tr>
+        </table>
+        """
+        df = self.scraper._parse_community_list(html)
+        self.assertEqual(df.iloc[0]["community"], "石镜街555号")
+        self.assertEqual(df.iloc[0]["price"], 9877.0)
+        self.assertEqual(df.iloc[0]["mom_pct"], 0.51)
+
 
 if __name__ == "__main__":
     unittest.main()
+

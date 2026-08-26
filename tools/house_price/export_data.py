@@ -120,7 +120,35 @@ def aggregate_sub_district_prices(city_key, district_key, communities):
     return result
 
 
-def export_city(scraper, city_key, start_year, end_year):
+def _load_prev_export(path):
+    if not path or not os.path.isfile(path):
+        return None
+    try:
+        with open(path, "r", encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError) as exc:
+        print(f"[WARN] 无法读取上次导出 ({path}): {exc}")
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _carry_forward_communities(district_data, prev_data, district_key):
+    """If this scrape got no communities, keep the last published list.
+
+    House listing pages are the flaky part of gotohui (history can succeed
+    while /house-{id} returns an empty table). Dropping 5000+ rows then fails
+    validation and blocks publishing the history we did get.
+    """
+    if district_data.get("communities"):
+        return
+    prev_comms = (((prev_data or {}).get("districts") or {}).get(district_key) or {}).get("communities") or []
+    if not prev_comms:
+        return
+    print(f"    小区列表为空，沿用上次 {len(prev_comms)} 条")
+    district_data["communities"] = prev_comms
+
+
+def export_city(scraper, city_key, start_year, end_year, prev_data=None):
     city = CITIES[city_key]
     print(f"[{city['name']}] 开始导出...")
 
@@ -219,6 +247,8 @@ def export_city(scraper, city_key, start_year, end_year):
                 merged[item["community"]] = {**merged.get(item["community"], {}), **item}
             district_data["communities"] = list(merged.values())
 
+        _carry_forward_communities(district_data, prev_data, dk)
+
         # 板块级细分：仅用 config 的板块名 + 小区聚合均价（聚汇区级页无真实板块表，不解析）
         config_subs = dinfo.get("sub_districts") or {}
         name_to_key = {v if isinstance(v, str) else v.get("name", ""): k for k, v in config_subs.items()}
@@ -282,16 +312,21 @@ def main():
                         help="City keys to export (default: hz)")
     parser.add_argument("--start-year", type=int, default=HISTORY_START_YEAR)
     parser.add_argument("--end-year", type=int, default=CURRENT_YEAR)
+    parser.add_argument(
+        "--prev",
+        help="Previous city JSON; empty community lists are filled from this file",
+    )
     args = parser.parse_args()
 
     os.makedirs(args.output, exist_ok=True)
     scraper = GoToHuiScraper()
+    prev_data = _load_prev_export(args.prev)
 
     for ck in args.cities:
         if ck not in CITIES:
             print(f"Unknown city: {ck}, skipping")
             continue
-        data = export_city(scraper, ck, args.start_year, args.end_year)
+        data = export_city(scraper, ck, args.start_year, args.end_year, prev_data=prev_data)
         data = clean_nan(data)
         out_path = os.path.join(args.output, f"{ck}.json")
         with open(out_path, "w", encoding="utf-8") as f:
