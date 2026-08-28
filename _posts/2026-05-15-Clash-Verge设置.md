@@ -12,8 +12,9 @@ tags: [VPN]
 
 ## 相关依赖
 
-- 机场订阅：从你使用的机场后台获取 Clash 格式订阅链接
-- Clash Verge Rev 下载：https://github.com/clash-verge-rev/clash-verge-rev/releases
+- 静态 IP：https://dashboard.1024proxy.com/getporxy/langStatic?pageType=apModel
+- 机场 IP：https://justmysocks3.net/members/clientarea.php
+- Clash Verge 安装：https://github.com/clash-verge-rev/clash-verge-rev/releases
 
 ## 架构概览
 
