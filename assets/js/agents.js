@@ -220,9 +220,9 @@ const AG = (() => {
       });
       try {
         const url = `${DATA_BASE}/${key}.json`;
-        // The payload is ~460KB and refreshed at most once a day, so let the
-        // HTTP cache do its job -- a revalidation beats a full re-download.
-        const resp = await fetch(url);
+        // Revalidate every load. The PWA used to cache-first this file, so a
+        // successful CI refresh still showed last week's prices until cache died.
+        const resp = await fetch(url, { cache: 'no-cache' });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         cityData = normalize(await resp.json());
       } catch (e) {
@@ -314,6 +314,7 @@ const AG = (() => {
 
       const cityKey = $('ag-city-select').value || 'hz';
       try {
+        cityData = null;
         await loadCity(cityKey);
         renderDataStamp();
         renderAll();

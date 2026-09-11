@@ -57,6 +57,7 @@ const allowedDomains = [
 /* Requests that include the following path will be banned */
 const denyUrls = [
   {% if site.google_analytics.pv.cache_path %}
-    '{{ site.google_analytics.pv.cache_path | absolute_url }}'
+    '{{ site.google_analytics.pv.cache_path | absolute_url }}',
   {% endif %}
+  '{{ "/assets/data/" | absolute_url }}'
 ];
