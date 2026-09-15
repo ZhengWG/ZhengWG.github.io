@@ -21,7 +21,7 @@ function verifyDomain(url) {
 
 function isExcluded(url) {
   for (const item of denyUrls) {
-    if (url === item) {
+    if (url === item || (item && url.startsWith(item))) {
       return true;
     }
   }
@@ -38,6 +38,13 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('fetch', event => {
+  /* Daily-refreshed JSON must not be served from the PWA cache, otherwise
+     Agents keeps showing last week's house prices after a successful scrape. */
+  if (event.request.method === 'GET' && isExcluded(event.request.url)) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
