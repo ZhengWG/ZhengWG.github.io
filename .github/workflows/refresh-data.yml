@@ -35,9 +35,8 @@ jobs:
         working-directory: tools/house_price
         run: python export_data.py -o ../../assets/data/house_price -c hz --prev "$RUNNER_TEMP/hz.prev.json" --fang-pages 5
 
-      # Fails on a broken export (absolute floors) *and* on a partial scrape
-      # (any metric shrinking >10% vs. the committed data). Also reports whether
-      # anything but `updated_at` actually changed.
+      # Every prior historical month/value must survive; changed values need
+      # an audit entry. Count floors/regression also guard the other datasets.
       - name: Validate exported data
         id: validate
         run: |

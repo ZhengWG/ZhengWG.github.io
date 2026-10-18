@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -23,10 +24,12 @@ except ImportError:
 
 from config import CITIES, HISTORY_START_YEAR, CURRENT_YEAR
 from scrapers.gotohui import GoToHuiScraper
-from scrapers.local_json import LocalJsonSource, merge_history_rows, merge_named_rows
+from scrapers.local_json import LocalJsonSource, merge_named_rows
+from history import reconcile_history, history_integrity_errors
 from quality import reconcile_communities, quality_summary, combine_status
 from scrapers.fang import FangScraper
 from scrapers.nbs import NBSScraper
+from scrapers.market_reports import MarketReportScraper, merge_reports
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 MAPPINGS_DIR = os.path.join(os.path.dirname(__file__), "mappings")
@@ -137,9 +140,10 @@ def _load_prev_export(path):
         with open(path, "r", encoding="utf-8") as handle:
             data = json.load(handle)
     except (OSError, ValueError) as exc:
-        print(f"[WARN] 无法读取上次导出 ({path}): {exc}")
-        return None
-    return data if isinstance(data, dict) else None
+        raise ValueError(f"无法读取上次导出，停止以保护历史 ({path}): {exc}") from exc
+    if not isinstance(data, dict):
+        raise ValueError(f"上次导出不是 JSON 对象: {path}")
+    return data
 
 
 def _carry_forward_communities(district_data, prev_data, district_key):
@@ -160,8 +164,10 @@ def _carry_forward_communities(district_data, prev_data, district_key):
     )
 
 
-def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=None, nbs=None):
+def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=None, nbs=None, reports=None):
     city = CITIES[city_key]
+    if prev_data and prev_data.get("city_key") != city_key:
+        raise ValueError("Previous export belongs to another city")
     print(f"[{city['name']}] 开始导出...")
 
     result = {
@@ -174,7 +180,7 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=No
         "district_list": [],
         "districts": {},
         "meta": {
-            "schema_version": 3,
+            "schema_version": 4,
             "sources": [
                 {"name": "聚汇", "role": "城市/区域历史与小区", "status": "active"},
                 {"name": "小区聚合", "role": "板块样本估算", "status": "unavailable"},
@@ -201,9 +207,9 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=No
             }
             for _, row in city_df.iterrows()
         ]
-    result["city_history"] = merge_history_rows(
-        result["city_history"], LocalJsonSource.get_city_history(city_key)
-    )
+    result.update(reconcile_history(prev_data, {
+        "gotohui": clean_nan(result["city_history"]), "local_json": LocalJsonSource.get_city_history(city_key),
+    }, field="city_history"))
 
     print(f"  获取区域列表...")
     dist_list = scraper.get_district_list(city_key)
@@ -225,6 +231,7 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=No
         dname = dinfo["name"]
         print(f"  获取 {dname} 数据...")
         district_data = {"name": dname, "history": [], "communities": [], "sub_districts": {}}
+        previous = ((prev_data or {}).get("districts") or {}).get(dk, {})
 
         df = scraper.get_district_history(city_key, dk, start_year, end_year)
         if not df.empty:
@@ -236,9 +243,9 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=No
                 }
                 for _, row in df.iterrows()
             ]
-        district_data["history"] = merge_history_rows(
-            district_data["history"], LocalJsonSource.get_district_history(city_key, dk)
-        )
+        district_data.update(reconcile_history(previous, {
+            "gotohui": clean_nan(district_data["history"]), "local_json": LocalJsonSource.get_district_history(city_key, dk),
+        }))
 
         comm_df = scraper.get_community_prices(city_key, dk)
         if not comm_df.empty:
@@ -252,7 +259,6 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=No
 
         # 可插拔补充源：按来源/ID合并；旧快照不覆盖新观测或本轮实时抓取。
         local_rows = LocalJsonSource.get_communities(city_key, dk)
-        previous = ((prev_data or {}).get("districts") or {}).get(dk, {})
         district_data["communities"], gotohui_status = reconcile_communities(
             clean_nan(district_data["communities"]), previous,
             scraper.community_status.get(dinfo["gotohui_id"], {}), local_rows,
@@ -327,6 +333,16 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=No
     result["price_indices"] = sorted(indices.values(), key=lambda r: r["date"])
     result["meta"]["sources"].append({"name": "国家统计局", "role": "70城住宅价格指数（非均价）",
                                        "status": "active" if latest_index else "degraded" if indices else "unavailable"})
+    previous_reports = (prev_data or {}).get("market_reports", [])
+    fresh_reports = reports.get_reports(city_key, city['name'], previous_reports) if reports else []
+    result['market_reports'] = merge_reports(previous_reports, fresh_reports)
+    result['market_report_status'] = reports.status if reports else {}
+    if reports:
+        for source, name in [('creprice', '禧泰公开月报'), ('cih', '中指公开月报')]:
+            status = reports.status.get(source, {}).get('status', 'unavailable')
+            if status == 'unavailable' and any(r['source'] == source for r in previous_reports):
+                status = 'degraded'
+            result['meta']['sources'].append({'name': name, 'role': '月度市场报告（独立口径）', 'status': status})
     return result
 
 
@@ -354,27 +370,38 @@ def main():
     parser.add_argument("--fang-pages", type=int, default=5, help="Fang sample pages per district, 0 to disable (default: 5)")
     parser.add_argument(
         "--prev",
-        help="Previous city JSON; empty community lists are filled from this file",
+        help="Previous city JSON; defaults to the existing output file to preserve history",
     )
     args = parser.parse_args()
 
     os.makedirs(args.output, exist_ok=True)
     scraper = GoToHuiScraper()
-    prev_data = _load_prev_export(args.prev)
+    if args.prev and not os.path.isfile(args.prev):
+        parser.error("--prev 文件不存在；停止以保护历史")
 
     for ck in args.cities:
         if ck not in CITIES:
             print(f"Unknown city: {ck}, skipping")
             continue
+        out_path = os.path.join(args.output, f"{ck}.json")
+        prev_data = _load_prev_export(args.prev or out_path)
         data = export_city(scraper, ck, args.start_year, args.end_year, prev_data=prev_data,
                            fang=FangScraper(max_pages=max(0, min(args.fang_pages, 100))) if args.fang_pages else None,
-                           nbs=NBSScraper())
+                           nbs=NBSScraper(), reports=MarketReportScraper())
         data = clean_nan(data)
-        out_path = os.path.join(args.output, f"{ck}.json")
-        with open(out_path, "w", encoding="utf-8") as f:
-            # Compact separators: the file is a web asset, not a file humans read.
-            # Saves ~45% of the payload vs. indent=2.
-            json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
+        errors = history_integrity_errors(data, prev_data) if prev_data else []
+        if errors:
+            raise ValueError("历史完整性检查失败，原文件未改动: " + "; ".join(errors))
+        temp_path = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=args.output,
+                                             prefix=f".{ck}-", suffix=".json", delete=False) as f:
+                temp_path = f.name
+                json.dump(data, f, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+            os.replace(temp_path, out_path)
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.unlink(temp_path)
         print(f"  ✓ Exported: {out_path} ({os.path.getsize(out_path) / 1024:.0f} KB)")
 
     print("Done!")

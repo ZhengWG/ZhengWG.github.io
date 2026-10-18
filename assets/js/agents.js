@@ -257,6 +257,10 @@ const AG = (() => {
         + (cov.lagMonths ? ` · 滞后约 ${cov.lagMonths} 个月` : '') + '</span>';
       const quality = cityData.meta?.quality;
       if (quality?.status === 'degraded') el.innerHTML += `<div class="ag-data-note">采集不完整 · 本次获取 ${quality.fresh_communities} 条报价 · 沿用 ${quality.carried_communities} 条旧报价</div>`;
+      const history = [cityData, ...Object.values(cityData.districts)].map(d => d.history_status || {});
+      const carried = history.reduce((n, h) => n + (h.carried_fields || 0), 0);
+      const revised = history.reduce((n, h) => n + (h.revision_count || 0), 0);
+      if (carried || revised) el.innerHTML += `<div class="ag-data-note">月度历史 · 保留 ${carried} 个本次未取得的价格字段 · ${revised} 个修订已记录旧值</div>`;
     }
 
     function renderSourceStatus() {
@@ -450,6 +454,32 @@ const AG = (() => {
       renderTrend(); renderLatest(); renderTiming();
       chat?.update();
       renderPriceIndex();
+      renderMarketReports();
+    }
+
+    function renderMarketReports() {
+      const el = $('ag-market-reports'); if (!el) return;
+      const latest = new Map();
+      for (const report of cityData.market_reports || []) {
+        if (!latest.has(report.source) || latest.get(report.source).date < report.date) latest.set(report.source, report);
+      }
+      el.hidden = !latest.size; if (!latest.size) return;
+      const money = n => Number.isFinite(n) ? n.toLocaleString('zh-CN', { maximumFractionDigits: 2 }) : '—';
+      el.innerHTML = '<strong>独立来源月报</strong><p class="ag-data-note">各报告使用自身统计口径，不随上方新房/二手房选项切换。公开排名仅覆盖部分区县。</p>' +
+        [...latest.values()].map(r => {
+          const m = r.city_metrics || {}, lines = [];
+          if (m.sale_price != null) lines.push(`住宅均价 ${money(m.sale_price)} 元/㎡`);
+          if (m.rent_price != null) lines.push(`住宅租金 ${money(m.rent_price)} 元/月/㎡`);
+          if (m.transactions != null) lines.push(`二手住宅成交 ${money(m.transactions)} 套`);
+          if (m.sale_mom_pct != null) lines.push(`${r.source === 'cih' ? '二手住宅挂牌价' : '住宅均价'}环比 ${fpct(m.sale_mom_pct, true)}`);
+          const sourceStatus = cityData.market_report_status?.[r.source];
+          const warning = sourceStatus?.status === 'unavailable' ? ' · 本次未取得报告，沿用历史' : sourceStatus?.latest_discovery === false ? ' · 最新期发现未成功，展示已知报告' : '';
+          const link = /^https:\/\/(www\.creprice\.cn|www\.cih-index\.com|m\.cih-index\.com)\//.test(r.source_url || '')
+            ? `<a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">原始报告</a>` : '';
+          const rows = Object.entries(r.districts || {});
+          const table = rows.length ? `<details style="margin-top:8px"><summary>查看 ${rows.length} 个区县公开数据</summary><div style="overflow-x:auto"><table class="ag-table"><thead><tr><th>区县</th><th>住宅均价（元/㎡）</th><th>环比</th><th>租金（元/月/㎡）</th><th>环比</th></tr></thead><tbody>${rows.map(([name, d]) => `<tr><td>${esc(name)}</td><td>${money(d.sale_price)}</td><td>${fpct(d.sale_mom_pct, true)}</td><td>${money(d.rent_price)}</td><td>${fpct(d.rent_mom_pct, true)}</td></tr>`).join('')}</tbody></table></div></details>` : '';
+          return `<div style="margin-top:14px"><strong>${esc(r.source_name)} · ${esc(r.date)}</strong><div style="margin-top:6px">${lines.join(' · ')}</div><p class="ag-data-note">${esc(r.note)}<br>获取日期 ${esc(r.fetched_at || '未记录')}${esc(warning)} · ${link}</p>${table}</div>`;
+        }).join('');
     }
 
     function renderPriceIndex() {

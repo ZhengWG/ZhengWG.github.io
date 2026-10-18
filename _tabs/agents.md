@@ -603,6 +603,7 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
     </div>
 
     <section class="ag-card" id="ag-price-index" hidden></section>
+    <section class="ag-card" id="ag-market-reports" aria-label="独立来源月报" hidden></section>
     <section class="ag-card ag-house-chat" id="ag-house-chat" aria-label="房价对话助手"></section>
   </div><!-- #ag-hp -->
 

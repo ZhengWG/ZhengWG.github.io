@@ -23,6 +23,7 @@ import argparse
 import json
 import os
 import sys
+from history import history_integrity_errors
 
 # Absolute floors: below these the export is broken, regardless of history.
 MIN_DISTRICTS = 3
@@ -122,16 +123,27 @@ def main():
     errors = check_floors(new_m)
 
     changed = True
-    if args.prev and os.path.exists(args.prev):
+    if args.prev:
         try:
             prev_data = load(args.prev)
         except Exception as e:  # noqa: BLE001
-            print(f"Warning: cannot read previous export ({e}), skipping regression check")
+            print(f"Validation FAILED: cannot read previous export ({e}); history comparison is required", file=sys.stderr)
+            return 1
         else:
             prev_m = metrics(prev_data)
             print(f"Previous:   {prev_m}")
             errors += check_regression(new_m, prev_m, args.max_drop)
+            errors += history_integrity_errors(new_data, prev_data)
             changed = content_changed(new_data, prev_data)
+            blocks = [new_data, *new_data.get("districts", {}).values()]
+            revised = sum(b.get("history_status", {}).get("revision_count", 0) for b in blocks)
+            carried = sum(b.get("history_status", {}).get("carried_fields", 0) for b in blocks)
+            if revised or carried:
+                message = f"月度历史：保留 {carried} 个本次缺失的历史价格字段，记录 {revised} 个发布值修订。"
+                print(f"::warning::{message}")
+                if os.environ.get("GITHUB_STEP_SUMMARY"):
+                    with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                        summary.write("\n" + message + "\n")
     else:
         print("No previous export to compare against, regression check skipped")
 

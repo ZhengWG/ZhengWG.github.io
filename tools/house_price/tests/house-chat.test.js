@@ -51,6 +51,21 @@ test('community search keeps different sources, dates and missing fields distinc
   assert.equal(result.rows[0].observed_month, null);
   assert.equal(result.rows[0].listing_count, 8);
 });
+test('monthly reports preserve provider definitions, dates, city scope and district gaps', () => {
+  const reportData = { ...data, market_reports: [
+    { source: 'creprice', date: '2026-09', price_kind: 'residential_report_average', city_metrics: { sale_price: 34529, rent_price: 55.16 },
+      districts: { '西湖区': { rent_price: 54.93 }, '滨江区': { sale_price: 40100 } }, revisions: [{ privateAudit: true }] },
+    { source: 'cih', date: '2026-09', price_kind: 'second_hand_listing_report', city_metrics: { transactions: 5077 }, districts: {} },
+  ] };
+  const result = executeTool('get_market_reports', { source: 'creprice', month: '2026-09', district_keys: ['xihu'] }, reportData, { priceType: 'new_house_price' });
+  assert.equal(result.reports[0].price_kind, 'residential_report_average');
+  assert.equal(result.reports[0].city_metrics.rent_price, 55.16);
+  assert.deepEqual(result.reports[0].districts, { '西湖区': { rent_price: 54.93 } });
+  assert.equal(result.reports[0].revisions, undefined);
+  assert.equal(executeTool('get_market_reports', { month: '2025-01' }, reportData).reports.length, 0);
+  assert.throws(() => executeTool('get_market_reports', { month: '2026-13' }, reportData));
+  assert.throws(() => executeTool('get_market_reports', { limit: 1000 }, reportData));
+});
 test('SSE decoder handles UTF-8 split bytes, CRLF and fragmented tool arguments', async () => {
   const result = await readStream(stream([
     { choices: [{ delta: { content: '杭州', tool_calls: [{ index: 0, id: 'call_1', function: { name: 'get_price_history', arguments: '{"district_' } }] } }] },
