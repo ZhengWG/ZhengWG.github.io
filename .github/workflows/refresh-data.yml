@@ -25,12 +25,15 @@ jobs:
       - name: Install dependencies
         run: pip install -r tools/house_price/requirements.txt
 
+      - name: Test data parsers and freshness rules
+        run: python -m unittest discover -s tools/house_price/tests -v
+
       - name: Snapshot current data
         run: cp assets/data/house_price/hz.json "$RUNNER_TEMP/hz.prev.json"
 
       - name: Export data
         working-directory: tools/house_price
-        run: python export_data.py -o ../../assets/data/house_price -c hz --prev "$RUNNER_TEMP/hz.prev.json"
+        run: python export_data.py -o ../../assets/data/house_price -c hz --prev "$RUNNER_TEMP/hz.prev.json" --fang-pages 5
 
       # Fails on a broken export (absolute floors) *and* on a partial scrape
       # (any metric shrinking >10% vs. the committed data). Also reports whether
@@ -67,6 +70,6 @@ jobs:
       - name: Report no-op
         if: success() && steps.validate.outputs.changed != 'true'
         run: |
-          echo "Only \`updated_at\` moved - nothing to publish, skipping commit and deploy." \
+          echo "数据内容与采集状态未变化；仅检查时间变化，跳过数据提交。请同时查看上方采集降级警告。" \
             >> $GITHUB_STEP_SUMMARY
           git checkout -- assets/data/house_price/

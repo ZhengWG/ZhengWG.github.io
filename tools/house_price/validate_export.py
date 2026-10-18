@@ -74,8 +74,13 @@ def check_regression(new, prev, max_drop):
 
 def content_changed(new_data, prev_data):
     """Compare payloads ignoring `updated_at`, which changes every single run."""
-    a = {k: v for k, v in new_data.items() if k != "updated_at"}
-    b = {k: v for k, v in prev_data.items() if k != "updated_at"}
+    def meaningful(value):
+        if isinstance(value, dict):
+            return {k: meaningful(v) for k, v in value.items() if k not in {"updated_at", "last_attempt_at"}}
+        if isinstance(value, list):
+            return [meaningful(v) for v in value]
+        return value
+    a, b = meaningful(new_data), meaningful(prev_data)
     return a != b
 
 
@@ -99,6 +104,20 @@ def main():
 
     new_m = metrics(new_data)
     print(f"New export: {new_m}")
+    quality = new_data.get("meta", {}).get("quality", {})
+    if quality.get("status") == "degraded":
+        message = (f"采集降级: 获取 {quality.get('fresh_communities', 0)} 条新报价，"
+                   f"沿用 {quality.get('carried_communities', 0)} 条旧报价；"
+                   "数量校验通过不代表数据新鲜或完整。")
+        print(f"::warning::{message}")
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary_path:
+            with open(summary_path, "a", encoding="utf-8") as summary:
+                summary.write("\n### 房价数据采集状态\n\n" + message + "\n\n")
+                summary.write("|区域|来源|状态|本次获取|沿用|原因|\n|---|---|---|---:|---:|---|\n")
+                for district in new_data.get("districts", {}).values():
+                    for source, status in district.get("community_sources", {}).items():
+                        summary.write(f"|{district['name']}|{source}|{status['status']}|{status['fetched_count']}|{status['carried_count']}|{status.get('reason', '')}|\n")
 
     errors = check_floors(new_m)
 

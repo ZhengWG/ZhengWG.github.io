@@ -27,6 +27,14 @@ jobs:
         with:
           fetch-depth: 0  # for posts's lastmod
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Test house price conversation
+        run: node --test tools/house_price/tests/*.test.js
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:

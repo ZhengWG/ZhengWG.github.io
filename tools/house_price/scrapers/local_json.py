@@ -9,6 +9,7 @@
 
 import json
 import os
+import math
 
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +51,7 @@ class LocalJsonSource:
         return {
             "name": data.get("source_name") or "本地 JSON",
             "role": data.get("source_role") or "第三方数据补充",
-            "status": "active",
+            "status": data.get("source_status") or "active",
         }
 
     @classmethod
@@ -89,12 +90,19 @@ class LocalJsonSource:
             price = _positive_number(row.get("price"))
             if not name or price is None:
                 continue
-            clean.append({
+            item = {
                 "community": name,
                 "price": price,
                 "mom_pct": row.get("mom_pct"),
                 "source": row.get("source") or "local_json",
-            })
+                "observed_month": row.get("observed_month"),
+                "source_url": row.get("source_url"),
+                "price_kind": row.get("price_kind") or "unspecified",
+            }
+            for field in ("source_id", "fetched_at", "sub_district", "sub_district_key", "address", "built_year", "listing_count", "property_type"):
+                if field in row:
+                    item[field] = row[field]
+            clean.append(item)
         return clean
 
 
@@ -138,7 +146,7 @@ def merge_named_rows(base, overlay, name_key):
 
 
 def _positive_number(value):
-    if isinstance(value, (int, float)) and value > 0:
+    if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value > 0:
         return value
     return None
 

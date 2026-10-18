@@ -24,18 +24,22 @@ except ImportError:
 from config import CITIES, HISTORY_START_YEAR, CURRENT_YEAR
 from scrapers.gotohui import GoToHuiScraper
 from scrapers.local_json import LocalJsonSource, merge_history_rows, merge_named_rows
+from quality import reconcile_communities, quality_summary, combine_status
+from scrapers.fang import FangScraper
+from scrapers.nbs import NBSScraper
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+MAPPINGS_DIR = os.path.join(os.path.dirname(__file__), "mappings")
 _KEYWORDS_CACHE = None
 _OVERRIDE_CACHE = None
 
 
 def _load_community_to_sub_district():
-    """可选：小区名 -> 板块名 精确映射（data/community_to_sub_district.json），用于定位板块。"""
+    """可选：mappings/community_to_sub_district.json 中的小区名 -> 板块名精确映射。"""
     global _OVERRIDE_CACHE
     if _OVERRIDE_CACHE is not None:
         return _OVERRIDE_CACHE
-    path = os.path.join(DATA_DIR, "community_to_sub_district.json")
+    path = os.path.join(MAPPINGS_DIR, "community_to_sub_district.json")
     if not os.path.isfile(path):
         _OVERRIDE_CACHE = {}
         return _OVERRIDE_CACHE
@@ -52,7 +56,7 @@ def _load_sub_district_keywords():
     global _KEYWORDS_CACHE
     if _KEYWORDS_CACHE is not None:
         return _KEYWORDS_CACHE
-    path = os.path.join(DATA_DIR, "sub_district_keywords.json")
+    path = os.path.join(MAPPINGS_DIR, "sub_district_keywords.json")
     if not os.path.isfile(path):
         _KEYWORDS_CACHE = {}
         return _KEYWORDS_CACHE
@@ -77,21 +81,25 @@ def aggregate_sub_district_prices(city_key, district_key, communities):
     by_district = by_city.get(district_key) or {}
     if not communities:
         return []
-    if not by_district and not override_dist:
+    if not by_district and not override_dist and not any(c.get("sub_district") for c in communities):
         return []
 
     buckets = {}
-    for c in communities:
+    # Once an explicit board is available, use that source alone. Never mix
+    # differently dated/provider-defined reference prices in one estimate.
+    mapped = [c for c in communities if c.get("source") == "fang" and c.get("sub_district")]
+    candidates = mapped or [c for c in communities if c.get("source", "gotohui") == "gotohui"]
+    for c in candidates:
         name = (c.get("community") or "").strip()
         if not name:
             continue
         price = c.get("price")
         if price is None or price <= 0:
             continue
-        mom = c.get("mom_pct")
-
         sub_name = None
-        if name in override_dist:
+        if c.get("sub_district"):
+            sub_name = c["sub_district"]
+        elif name in override_dist:
             sub_name = override_dist[name]
         elif by_district:
             best_len = 0
@@ -105,18 +113,20 @@ def aggregate_sub_district_prices(city_key, district_key, communities):
         if sub_name is None:
             continue
         if sub_name not in buckets:
-            buckets[sub_name] = {"prices": [], "yoys": []}
+            buckets[sub_name] = {"prices": [], "stale": False,
+                                 "source": c.get("source", "gotohui"), "key": c.get("sub_district_key")}
         buckets[sub_name]["prices"].append(price)
-        if mom is not None:
-            buckets[sub_name]["yoys"].append(mom)
+        buckets[sub_name]["stale"] |= c.get("stale", False) or not c.get("observed_month")
 
     result = []
     for sub_name, b in buckets.items():
         if not b["prices"]:
             continue
         avg_price = round(sum(b["prices"]) / len(b["prices"]), 0)
-        avg_yoy = round(sum(b["yoys"]) / len(b["yoys"]), 2) if b["yoys"] else None
-        result.append({"sub_district_name": sub_name, "price": avg_price, "yoy": avg_yoy})
+        # Different source months cannot be averaged into a market MoM rate.
+        result.append({"sub_district_name": sub_name, "price": avg_price, "mom_pct": None,
+                       "sample_count": len(b["prices"]), "estimated": True, "stale": b["stale"],
+                       "source": b["source"], "key": b["key"]})
     return result
 
 
@@ -144,11 +154,13 @@ def _carry_forward_communities(district_data, prev_data, district_key):
     prev_comms = (((prev_data or {}).get("districts") or {}).get(district_key) or {}).get("communities") or []
     if not prev_comms:
         return
-    print(f"    小区列表为空，沿用上次 {len(prev_comms)} 条")
-    district_data["communities"] = prev_comms
+    previous = prev_data["districts"][district_key]
+    district_data["communities"], district_data["community_status"] = reconcile_communities(
+        [], previous, {"complete": False, "reason": "empty_scrape"},
+    )
 
 
-def export_city(scraper, city_key, start_year, end_year, prev_data=None):
+def export_city(scraper, city_key, start_year, end_year, prev_data=None, fang=None, nbs=None):
     city = CITIES[city_key]
     print(f"[{city['name']}] 开始导出...")
 
@@ -162,11 +174,11 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None):
         "district_list": [],
         "districts": {},
         "meta": {
-            "schema_version": 2,
+            "schema_version": 3,
             "sources": [
                 {"name": "聚汇", "role": "城市/区域历史与小区", "status": "active"},
-                {"name": "小区聚合", "role": "板块均价估算", "status": "active"},
-                {"name": "贝壳开放平台", "role": "板块补充", "status": "active" if os.getenv("BEIKE_APPKEY") else "optional"},
+                {"name": "小区聚合", "role": "板块样本估算", "status": "unavailable"},
+                {"name": "贝壳开放平台", "role": "适配器未实现", "status": "unavailable"},
                 {"name": "本地 JSON", "role": "第三方数据补充", "status": "active" if LocalJsonSource.exists(city_key) else "optional"},
             ],
         },
@@ -201,6 +213,7 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None):
                 "district": row["district"],
                 "price": row.get("price"),
                 "yoy": row.get("yoy"),
+                "mom_pct": row.get("mom_pct"),
             }
             for _, row in dist_list.iterrows()
         ]
@@ -231,23 +244,28 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None):
         if not comm_df.empty:
             district_data["communities"] = [
                 {
-                    "community": row["community"],
-                    "price": row.get("price"),
-                    "mom_pct": row.get("mom_pct"),
+                    **row.to_dict(),
                 }
                 for _, row in comm_df.iterrows()
                 if row.get("price") is not None
             ]
 
-        # 可插拔补充源：providers/{city}.json 或 data/providers/{city}.json。同名小区由补充源覆盖。
+        # 可插拔补充源：按来源/ID合并；旧快照不覆盖新观测或本轮实时抓取。
         local_rows = LocalJsonSource.get_communities(city_key, dk)
-        if local_rows:
-            merged = {item["community"]: item for item in district_data["communities"]}
-            for item in local_rows:
-                merged[item["community"]] = {**merged.get(item["community"], {}), **item}
-            district_data["communities"] = list(merged.values())
-
-        _carry_forward_communities(district_data, prev_data, dk)
+        previous = ((prev_data or {}).get("districts") or {}).get(dk, {})
+        district_data["communities"], gotohui_status = reconcile_communities(
+            clean_nan(district_data["communities"]), previous,
+            scraper.community_status.get(dinfo["gotohui_id"], {}), local_rows,
+        )
+        district_data["community_sources"] = {"gotohui": gotohui_status}
+        if fang:
+            fang_rows, fang_report = fang.get_communities(city_key, dname)
+            district_data["communities"], fang_status = reconcile_communities(
+                fang_rows, {**previous, "communities": district_data["communities"]}, fang_report, source="fang",
+            )
+            district_data["community_sources"]["fang"] = fang_status
+        district_data["community_status"] = combine_status(district_data["community_sources"])
+        print(f"    小区状态: {district_data['community_status']}")
 
         # 板块级细分：仅用 config 的板块名 + 小区聚合均价（聚汇区级页无真实板块表，不解析）
         config_subs = dinfo.get("sub_districts") or {}
@@ -260,34 +278,55 @@ def export_city(scraper, city_key, start_year, end_year, prev_data=None):
         agg_list = aggregate_sub_district_prices(city_key, dk, district_data["communities"])
         for item in agg_list:
             name = item.get("sub_district_name")
-            if not name or name not in name_to_key:
+            if not name:
                 continue
-            sk = name_to_key[name]
+            sk = name_to_key.get(name) or item.get("key")
+            if not sk:
+                continue
+            if sk not in district_data["sub_districts"]:
+                district_data["sub_districts"][sk] = {"name": name, "history": [], "yoy": None}
             if sk in district_data["sub_districts"]:
                 if item.get("price") is not None:
                     district_data["sub_districts"][sk]["price"] = item["price"]
-                if item.get("yoy") is not None:
-                    district_data["sub_districts"][sk]["yoy"] = item["yoy"]
-
-        # 可选：用贝壳等数据源覆盖/补充板块均价
-        try:
-            from scrapers import beike
-            beike_list = beike.get_sub_district_prices(city_key, dk)
-            for item in beike_list:
-                name = item.get("sub_district_name")
-                if not name or name not in name_to_key:
-                    continue
-                sk = name_to_key[name]
-                if sk in district_data["sub_districts"]:
-                    if item.get("price") is not None:
-                        district_data["sub_districts"][sk]["price"] = item["price"]
-                    if item.get("yoy") is not None:
-                        district_data["sub_districts"][sk]["yoy"] = item["yoy"]
-        except Exception as e:
-            pass  # 贝壳未实现或请求失败时忽略
+                district_data["sub_districts"][sk].update({k: item[k] for k in ("mom_pct", "sample_count", "estimated", "stale", "source")})
 
         result["districts"][dk] = district_data
 
+    # The overview ranking can fail independently of the monthly history.
+    # Reconstruct like-for-like changes from explicit calendar months instead
+    # of publishing an empty ranking or reviving the old ambiguous yoy column.
+    if not result["district_list"]:
+        for district in result["districts"].values():
+            prices = {r["date"]: r["second_hand_price"] for r in district["history"]
+                      if r.get("second_hand_price") is not None and r["second_hand_price"] >= 1000}
+            if not prices:
+                continue
+            latest_month = max(prices)
+            year, month = map(int, latest_month.split("-"))
+            previous_month = f"{year - (month == 1)}-{12 if month == 1 else month - 1:02d}"
+            def change(key):
+                return round((prices[latest_month] / prices[key] - 1) * 100, 2) if key in prices else None
+            result["district_list"].append({"district": district["name"], "price": prices[latest_month],
+                "observed_month": latest_month, "yoy": change(f"{year - 1}-{month:02d}"),
+                "mom_pct": change(previous_month), "source": "gotohui_history"})
+    result["meta"]["quality"] = quality_summary(result)
+    result["meta"]["sources"][0]["status"] = "active" if all(
+        d["community_sources"]["gotohui"]["status"] == "fresh" for d in result["districts"].values()
+    ) else "degraded"
+    if any(s.get("price") for d in result["districts"].values() for s in d["sub_districts"].values()):
+        result["meta"]["sources"][1]["status"] = "estimated"
+    if fang:
+        count = sum(d["community_sources"]["fang"]["fetched_count"] for d in result["districts"].values())
+        result["meta"]["sources"].append({"name": "房天下", "role": "小区参考挂牌价/板块/在售数（分页抽样）",
+                                           "status": "sampled" if count else "unavailable", "fetched_count": count})
+    previous_indices = (prev_data or {}).get("price_indices", [])
+    latest_index = nbs.get_latest(city["name"]) if nbs else None
+    indices = {r["date"]: r for r in previous_indices}
+    if latest_index:
+        indices[latest_index["date"]] = latest_index
+    result["price_indices"] = sorted(indices.values(), key=lambda r: r["date"])
+    result["meta"]["sources"].append({"name": "国家统计局", "role": "70城住宅价格指数（非均价）",
+                                       "status": "active" if latest_index else "degraded" if indices else "unavailable"})
     return result
 
 
@@ -312,6 +351,7 @@ def main():
                         help="City keys to export (default: hz)")
     parser.add_argument("--start-year", type=int, default=HISTORY_START_YEAR)
     parser.add_argument("--end-year", type=int, default=CURRENT_YEAR)
+    parser.add_argument("--fang-pages", type=int, default=5, help="Fang sample pages per district, 0 to disable (default: 5)")
     parser.add_argument(
         "--prev",
         help="Previous city JSON; empty community lists are filled from this file",
@@ -326,7 +366,9 @@ def main():
         if ck not in CITIES:
             print(f"Unknown city: {ck}, skipping")
             continue
-        data = export_city(scraper, ck, args.start_year, args.end_year, prev_data=prev_data)
+        data = export_city(scraper, ck, args.start_year, args.end_year, prev_data=prev_data,
+                           fang=FangScraper(max_pages=max(0, min(args.fang_pages, 100))) if args.fang_pages else None,
+                           nbs=NBSScraper())
         data = clean_nan(data)
         out_path = os.path.join(args.output, f"{ck}.json")
         with open(out_path, "w", encoding="utf-8") as f:

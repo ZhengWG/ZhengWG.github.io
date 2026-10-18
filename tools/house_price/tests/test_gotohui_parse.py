@@ -157,7 +157,8 @@ class TestGoToHuiParse(unittest.TestCase):
         df = self.scraper._parse_district_list(NEW_RANKING)
         self.assertEqual(list(df["district"]), ["西湖区", "滨江区"])
         self.assertEqual(df.iloc[0]["price"], 41945.0)
-        self.assertEqual(df.iloc[0]["yoy"], -0.7)
+        self.assertIsNone(df.iloc[0]["yoy"])
+        self.assertEqual(df.iloc[0]["mom_pct"], -0.7)
         self.assertEqual(df.iloc[0]["gotohui_id"], 3321)
         self.assertEqual(df.iloc[1]["gotohui_id"], 3327)
 
@@ -188,6 +189,25 @@ class TestGoToHuiParse(unittest.TestCase):
         self.assertTrue(self.scraper._parse_overview_monthly("<html></html>").empty)
         self.assertTrue(self.scraper._parse_yearly_page("<html></html>", 2026).empty)
         self.assertTrue(self.scraper._parse_district_list("<html></html>").empty)
+
+    def test_repeated_page_is_not_reported_as_complete(self):
+        rows = [{"community": f"小区{i}", "price": 30000} for i in range(20)]
+        with patch.object(self.scraper, "fetch", return_value="page"), \
+                patch.object(self.scraper, "_parse_house_community_table", return_value=rows), \
+                patch("time.sleep"):
+            result = self.scraper._get_community_prices_from_house(3321, max_pages=3)
+        self.assertEqual(len(result), 20)
+        self.assertFalse(self.scraper.community_status[3321]['complete'])
+        self.assertEqual(self.scraper.community_status[3321]['reason'], 'repeated_page')
+
+    def test_page_cap_is_explicit(self):
+        rows = [{"community": f"小区{i}", "price": 30000} for i in range(20)]
+        with patch.object(self.scraper, "fetch", return_value="page"), \
+                patch.object(self.scraper, "_parse_house_community_table", return_value=rows), \
+                patch("time.sleep"):
+            self.scraper._get_community_prices_from_house(3321, max_pages=1)
+        self.assertEqual(self.scraper.community_status[3321]['reason'], 'page_limit')
+        self.assertFalse(self.scraper.community_status[3321]['complete'])
 
     def test_parse_year_month_variants(self):
         parse = self.scraper._parse_year_month
@@ -243,6 +263,7 @@ class TestGoToHuiParse(unittest.TestCase):
         self.assertEqual([r["community"] for r in rows], ["西溪路24号", "丹金桂花园"])
         self.assertEqual(rows[0]["price"], 54796.0)
         self.assertEqual(rows[0]["mom_pct"], 2.62)
+        self.assertEqual(rows[0]["observed_month"], "2024-12")
         self.assertEqual(rows[1]["mom_pct"], -1.83)
 
     def test_old_house_community_table(self):

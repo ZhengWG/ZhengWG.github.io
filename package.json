@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test tools/house_price/tests/*.test.js",
+    "test:house-data": "python3 -m unittest discover -s tools/house_price/tests -v"
   },
   "repository": {
     "type": "git",

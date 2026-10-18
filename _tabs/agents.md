@@ -293,6 +293,18 @@ html[data-mode="dark"] .ag-level-red    { background: #7f1d1d40; color: #fca5a5;
   .ag-tab { padding: 6px 12px; font-size: 12px; }
   .ag-agent-grid { grid-template-columns: 1fr; }
 }
+.ag-house-chat { margin-top: 20px; }
+.ag-chat-heading, .ag-chat-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.ag-chat-actions { margin-top:10px; flex-wrap:wrap; }
+.ag-chat-heading p { margin:5px 0 12px; }
+.ag-chat-messages { max-height:520px; overflow-y:auto; margin:14px 0; overflow-wrap:anywhere; }
+.ag-chat-message { padding:12px 14px; margin:10px 0; border:1px solid var(--ag-border); border-radius:10px; font-size:13px; line-height:1.8; }
+.ag-chat-user { background:var(--ag-card2); margin-left:10%; }
+.ag-chat-assistant { margin-right:5%; }
+.ag-chat-error { border-color:var(--ag-red); }
+.ag-house-chat textarea { width:100%; resize:vertical; min-height:84px; box-sizing:border-box; }
+.ag-house-chat [hidden] { display:none !important; }
+@media (max-width:600px) { .ag-chat-user { margin-left:3%; } .ag-chat-assistant { margin-right:0; } }
 </style>
 
 <style>
@@ -487,7 +499,7 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
     <section class="ag-hero">
       <div>
         <h2>城市房价决策台</h2>
-        <p>城市与区域两级价格分析。所有指标均由单一价格序列派生，不含成交量、租金等维度，仅供研究，不构成投资建议。</p>
+        <p>城市与区域历史走势、小区多源报价与对话查询。报价标注来源及采集状态，部分数据为抽样或沿用旧值。</p>
       </div>
       <div class="ag-source-list" id="ag-source-list">
         <span class="ag-source-pill"><strong>聚汇</strong> 主数据源</span>
@@ -550,7 +562,7 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
         <table class="ag-table" id="ag-latest-table"><thead><tr><th>区域</th><th>均价(元/㎡)</th><th>同比</th></tr></thead><tbody></tbody></table>
       </div>
       <div class="ag-card">
-        <div style="font-weight:700;font-size:14px;margin-bottom:10px">小区价格细分</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:10px">小区二手房报价（分来源）</div>
         <div class="ag-toolbar">
           <select class="ag-select" id="ag-comm-district" onchange="AG.hp.renderCommunities()"></select>
           <input class="ag-search" id="ag-comm-search" type="search" placeholder="搜索小区名称…" oninput="AG.hp.renderCommunities()">
@@ -588,19 +600,10 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
       </div>
       <div class="ag-card" id="ag-limitations"></div>
       <div id="ag-timing-details"></div>
-
-      <!-- AI -->
-      <div class="ag-card" style="margin-top:14px">
-        <div style="font-weight:700;font-size:14px;margin-bottom:4px">🤖 AI 深度分析</div>
-        <div style="font-size:11px;color:var(--ag-text3);margin-bottom:10px">基于量化数据 + 小区价格，调用 DeepSeek 生成分析报告</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
-          <select class="ag-select" id="ag-ai-scope"><option value="all">全局分析</option></select>
-          <button class="ag-btn ag-btn-primary" id="ag-ai-btn" onclick="AG.hp.runAI()">生成分析报告</button>
-        </div>
-        <div class="ag-ai-output" id="ag-ai-output" style="display:none"></div>
-      </div>
     </div>
 
+    <section class="ag-card" id="ag-price-index" hidden></section>
+    <section class="ag-card ag-house-chat" id="ag-house-chat" aria-label="房价对话助手"></section>
   </div><!-- #ag-hp -->
 
   <!-- ====== Sub-agent: ai_tracker ====== -->
@@ -743,7 +746,8 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
           <label class="ag-form-label">API Key</label>
           <input class="ag-input" id="ag-api-key" type="password" placeholder="sk-..." style="margin-bottom:8px">
           <label class="ag-form-label">Model</label>
-          <input class="ag-input" id="ag-api-model" value="deepseek-chat" style="margin-bottom:8px">
+          <input class="ag-input" id="ag-api-model" value="deepseek-flash" style="margin-bottom:8px">
+          <div class="ag-settings-note">默认使用 deepseek-flash 快速回答；旧版 chat / reasoner 配置自动迁移。</div>
           <button class="ag-btn ag-btn-primary" onclick="AG.saveSettings()">Save</button>
           <div class="ag-settings-note">API Key is stored only in your browser's localStorage.</div>
         </div>
@@ -754,5 +758,6 @@ html[data-mode="dark"] .ai-del-btn:hover { background: #450a0a; }
 </div>
 
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script src="{{ '/assets/js/house-chat.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/agents.js' | relative_url }}"></script>
 <script src="{{ '/assets/js/aiinfra.js' | relative_url }}"></script>

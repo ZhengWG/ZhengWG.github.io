@@ -13,6 +13,7 @@
 
 import re
 from typing import Optional
+from urllib.parse import urljoin
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -28,12 +29,12 @@ _SECOND_HAND_HEADERS = ("二手房均价", "二手房")
 _NEW_HOUSE_HEADERS = ("新房均价", "新房")
 _REGION_NAME_HEADERS = ("区域", "板块")
 _REGION_PRICE_HEADERS = ("单价", "均价")
-_REGION_CHANGE_HEADERS = ("同比", "环比")
 
 
 class GoToHuiScraper(BaseScraper):
     def __init__(self):
         super().__init__(cache_subdir="gotohui")
+        self.community_status = {}
 
     def get_city_monthly(self, city_key: str) -> pd.DataFrame:
         city = CITIES[city_key]
@@ -111,12 +112,17 @@ class GoToHuiScraper(BaseScraper):
         html = self.fetch(url)
         if html is None:
             return pd.DataFrame()
-        return self._parse_community_list(html)
+        df = self._parse_community_list(html)
+        if not df.empty:
+            self.community_status[gid] = {"complete": False, "reason": "sidebar_only"}
+        return df
 
-    def _get_community_prices_from_house(self, gid: int, max_pages: int = 30) -> pd.DataFrame:
+    def _get_community_prices_from_house(self, gid: int, max_pages: int = 100) -> pd.DataFrame:
         """从 house-{gid}、house-{gid}/2.html ... 分页拉取小区列表（每页约 20 条）。"""
         import time as _time
         all_rows = []
+        seen = set()
+        self.community_status[gid] = {"complete": False, "reason": "page_limit"}
         for page in range(1, max_pages + 1):
             if page == 1:
                 url = f"{BASE_URL}/house-{gid}"
@@ -124,14 +130,22 @@ class GoToHuiScraper(BaseScraper):
                 url = f"{BASE_URL}/house-{gid}/{page}.html"
             html = self.fetch(url)
             if html is None:
+                self.community_status[gid]["reason"] = "request_failed"
                 print(f"[WARN] 小区列表页请求失败: {url}")
                 break
             rows = self._parse_house_community_table(html)
             if not rows:
+                self.community_status[gid]["reason"] = "empty_page"
                 print(f"[WARN] 小区列表页解析为空: {url}")
                 break
-            all_rows.extend(rows)
+            new_rows = [r for r in rows if r["community"] not in seen]
+            if not new_rows:
+                self.community_status[gid]["reason"] = "repeated_page"
+                break
+            all_rows.extend(new_rows)
+            seen.update(r["community"] for r in new_rows)
             if len(rows) < 20:
+                self.community_status[gid] = {"complete": True, "reason": "last_page"}
                 break
             _time.sleep(0.5)
         if not all_rows:
@@ -279,7 +293,8 @@ class GoToHuiScraper(BaseScraper):
                 continue
             name_idx = self._find_header(headers, _REGION_NAME_HEADERS)
             price_idx = self._find_header(headers, _REGION_PRICE_HEADERS)
-            change_idx = self._find_header(headers, _REGION_CHANGE_HEADERS)
+            yoy_idx = self._find_header(headers, ("同比",))
+            mom_idx = self._find_header(headers, ("环比",))
             if name_idx is None or price_idx is None:
                 continue
             for tr in table.find_all("tr"):
@@ -290,9 +305,8 @@ class GoToHuiScraper(BaseScraper):
                 if not name or name in {"市区", "区域", "板块"}:
                     continue
                 price = self._parse_price(tds[price_idx].get_text(strip=True))
-                yoy = None
-                if change_idx is not None and len(tds) > change_idx:
-                    yoy = self._parse_yoy(tds[change_idx].get_text(strip=True))
+                yoy = self._parse_yoy(tds[yoy_idx].get_text(strip=True)) if yoy_idx is not None and len(tds) > yoy_idx else None
+                mom = self._parse_yoy(tds[mom_idx].get_text(strip=True)) if mom_idx is not None and len(tds) > mom_idx else None
                 link = tds[name_idx].find("a")
                 gotohui_id = None
                 if link and link.get("href"):
@@ -303,6 +317,7 @@ class GoToHuiScraper(BaseScraper):
                     name_key: name,
                     "price": price,
                     "yoy": yoy,
+                    "mom_pct": mom,
                     "gotohui_id": gotohui_id,
                 })
             if rows:
@@ -327,6 +342,7 @@ class GoToHuiScraper(BaseScraper):
             if name_idx is None or price_idx is None:
                 continue
             mom_idx = self._find_header(headers, ("环比",))
+            date_idx = self._find_header(headers, ("数据月份", "时间", "日期"))
             rows = []
             for tr in table.find_all("tr"):
                 tds = tr.find_all("td")
@@ -339,7 +355,11 @@ class GoToHuiScraper(BaseScraper):
                 mom = None
                 if mom_idx is not None and len(tds) > mom_idx:
                     mom = self._parse_yoy(tds[mom_idx].get_text(strip=True))
-                rows.append({"community": name, "price": price, "mom_pct": mom})
+                observed = self._parse_year_month(tds[date_idx].get_text(strip=True)) if date_idx is not None and len(tds) > date_idx else None
+                link = tds[name_idx].find("a", href=True)
+                rows.append({"community": name, "price": price, "mom_pct": mom,
+                             "observed_month": observed.strftime("%Y-%m") if observed is not None else None,
+                             "source": "gotohui", "source_url": urljoin(BASE_URL, link["href"]) if link else None})
             if rows:
                 return rows
         return []
