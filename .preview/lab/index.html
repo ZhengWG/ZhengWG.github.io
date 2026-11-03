@@ -6,7 +6,10 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Johney Zheng — AI Systems & Engineering Lab · UI Preview</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/css/lab-tools.css">
 <script src="i18n.js" defer></script>
+<script src="assets/js/house-chat.js" defer></script>
+<script src="assets/js/lab-tools.js" defer></script>
 <script src="preview.js" defer></script>
 </head>
 <body>
@@ -159,7 +162,7 @@
 <template id="tool">
   <div class="article-breadcrumb"><a href="?page=experiments">交互实验</a><span>/</span><span data-tool-kind></span></div>
   <section class="page-heading"><p class="eyebrow">EXPERIMENT</p><h1 data-tool-title></h1><p class="page-description" data-tool-description></p></section>
-  <section class="tool-preview"><span class="eyebrow">DESIGN PREVIEW</span><h2>工具界面预览</h2><p>工具运行功能将在正式改版时接入；此页用于确认新版页面结构。</p><div class="tool-feature-list" data-tool-features></div><a class="text-link" href="?page=article&amp;post=Blog-Agents功能介绍">阅读工具介绍 →</a></section>
+  <div data-tool-app aria-busy="true"></div>
 </template>
 </body>
 </html>

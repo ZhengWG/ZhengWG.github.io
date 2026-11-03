@@ -248,22 +248,19 @@ async function renderArticle(posts) {
   }
   if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
 }
-function renderTool() {
+async function renderTool() {
   const tool = query.get('tool') === 'house-price' ? 'house-price' : 'ai-tracker';
   const title = tool === 'house-price' ? '城市房价观察' : 'AI 前沿追踪';
   const description = tool === 'house-price' ? '以杭州公开房价数据为样本，探索数据整理、交互分析与对话查询。' : '聚合 AI 领域的动态与信息线索，作为进一步阅读和探索的起点。';
   document.querySelector('[data-tool-title]').textContent = termLabel(title);
   document.querySelector('[data-tool-description]').textContent = termLabel(description);
   document.querySelector('[data-tool-kind]').textContent = tool;
-  const list = document.querySelector('[data-tool-features]');
-  ui.toolFeatures[tool].forEach((feature, i) => {
-    const item = element('div');
-    item.append(element('small', `0${i + 1}`), element('span', feature));
-    list.append(item);
-  });
+  const app = document.querySelector('[data-tool-app]');
+  await LabTools.mount(app, {tool, language, params:query});
+  app.setAttribute('aria-busy', 'false');
 }
 async function renderContent() {
-  if (page === 'tool') { renderTool(); return; }
+  if (page === 'tool') { await renderTool(); return; }
   if (['about', 'projects', 'experiments'].includes(page)) return;
   const response = await fetch('content/index.json');
   if (!response.ok) throw new Error('Index could not be loaded');

@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "latest": "2026-11-03",
+  "language": "zh-Hans",
+  "reports": [
+    {
+      "date": "2026-11-03",
+      "file": "2026-11-03.json",
+      "items": 80
+    },
+    {
+      "date": "2026-11-02",
+      "file": "2026-11-02.json",
+      "items": 74
+    },
+    {
+      "date": "2026-11-01",
+      "file": "2026-11-01.json",
+      "items": 66
+    },
+    {
+      "date": "2026-10-31",
+      "file": "2026-10-31.json",
+      "items": 72
+    },
+    {
+      "date": "2026-10-30",
+      "file": "2026-10-30.json",
+      "items": 83
+    },
+    {
+      "date": "2026-10-29",
+      "file": "2026-10-29.json",
+      "items": 75
+    },
+    {
+      "date": "2026-10-28",
+      "file": "2026-10-28.json",
+      "items": 79
+    },
+    {
+      "date": "2026-10-27",
+      "file": "2026-10-27.json",
+      "items": 83
+    },
+    {
+      "date": "2026-10-26",
+      "file": "2026-10-26.json",
+      "items": 73
+    },
+    {
+      "date": "2026-10-24",
+      "file": "2026-10-24.json",
+      "items": 75
+    },
+    {
+      "date": "2026-10-23",
+      "file": "2026-10-23.json",
+      "items": 86
+    },
+    {
+      "date": "2026-10-22",
+      "file": "2026-10-22.json",
+      "items": 93
+    },
+    {
+      "date": "2026-10-21",
+      "file": "2026-10-21.json",
+      "items": 66
+    },
+    {
+      "date": "2026-10-20",
+      "file": "2026-10-20.json",
+      "items": 69
+    }
+  ],
+  "repos": [
+    {
+      "repo": "sgl-project/sglang",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "vllm-project/vllm",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "vllm-project/vllm-omni",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "sgl-project/sglang-omni",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "NVIDIA/TensorRT-LLM",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "flashinfer-ai/flashinfer",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "ai-dynamo/dynamo",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "kvcache-ai/Mooncake",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "InternLM/lmdeploy",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "tile-ai/tilelang",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "tile-ai/TileRT",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "lightseekorg/tokenspeed",
+      "prs": true,
+      "releases": false
+    },
+    {
+      "repo": "deepseek-ai/FlashMLA",
+      "prs": true,
+      "releases": false
+    },
+    {
+      "repo": "deepseek-ai/DeepEP",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DeepGEMM",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "llm-d/llm-d",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "huggingface/text-generation-inference",
+      "prs": false,
+      "releases": true
+    },
+    {
+      "repo": "huggingface/transformers",
+      "prs": false,
+      "releases": true
+    },
+    {
+      "repo": "ggml-org/llama.cpp",
+      "prs": false,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DeepSpec",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/3FS",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/TileKernels",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DualPipe",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DeepJIT",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DeepSelect",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DeepGEMM-Ascend",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DeepEP-Ascend",
+      "prs": true,
+      "releases": true
+    },
+    {
+      "repo": "Niko1221/Strata",
+      "prs": false,
+      "releases": true
+    },
+    {
+      "repo": "deepseek-ai/DeepInfer",
+      "prs": true,
+      "releases": true
+    }
+  ],
+  "feeds": [
+    {
+      "name": "HuggingFace",
+      "url": "https://huggingface.co/blog/feed.xml"
+    },
+    {
+      "name": "vLLM",
+      "url": "https://vllm.ai/blog/rss.xml"
+    },
+    {
+      "name": "Interconnects",
+      "url": "https://www.interconnects.ai/feed"
+    },
+    {
+      "name": "PyTorch",
+      "url": "https://pytorch.org/blog/feed.xml"
+    },
+    {
+      "name": "NVIDIA-GenAI",
+      "url": "https://developer.nvidia.com/blog/category/generative-ai/feed/"
+    },
+    {
+      "name": "TogetherAI",
+      "url": "https://www.together.ai/blog/rss.xml"
+    },
+    {
+      "name": "Modal",
+      "url": "https://modal.com/blog/atom.xml"
+    },
+    {
+      "name": "Anyscale",
+      "url": "https://www.anyscale.com/rss.xml"
+    },
+    {
+      "name": "CharacterAI",
+      "url": "https://blog.character.ai/rss/"
+    },
+    {
+      "name": "llm-d",
+      "url": "https://llm-d.ai/blog/rss.xml"
+    },
+    {
+      "name": "RedHatDev",
+      "url": "https://developers.redhat.com/blog/feed"
+    }
+  ]
+}
