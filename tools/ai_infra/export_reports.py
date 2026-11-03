@@ -53,10 +53,21 @@ def export(agent_dir, output, limit):
         if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'BLOG_FEEDS' for t in node.targets):
             feeds = [{'name': name, 'url': url} for name, url in ast.literal_eval(node.value)]
     files = sorted((p for p in (agent_dir / 'reports').glob('*.md')
-                    if re.fullmatch(r'\d{4}-\d{2}-\d{2}', p.stem)), reverse=True)[:limit]
+                    if re.fullmatch(r'\d{4}-\d{2}-\d{2}', p.stem)), reverse=True)
     if not files:
         raise ValueError('No dated reports found')
-    reports = [parse_report(p.read_text(), p.stem) for p in files]
+    reports = []
+    for path in files:
+        try:
+            report = parse_report(path.read_text(), path.stem)
+        except ValueError:
+            if not reports:
+                raise
+            print(f'Skipping incomplete historical report: {path.stem}')
+            continue
+        reports.append(report)
+        if len(reports) == limit:
+            break
     manifest = {'schema_version': 1, 'latest': reports[0]['date'], 'language': 'zh-Hans',
                 'reports': [{'date': r['date'], 'file': r['date'] + '.json',
                              'items': sum(len(s['blocks']) for s in r['sections'])} for r in reports],

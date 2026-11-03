@@ -73,6 +73,13 @@ class SyncTests(unittest.TestCase):
             self.publish()
         self.assertEqual(self.tip(), before)
 
+    def test_old_incomplete_report_does_not_block_recovery(self):
+        (self.agent / 'reports/2026-11-02.md').write_text('An interrupted report\n（生成中…）\n')
+        (self.agent / 'reports/2026-11-01.md').write_text(self.report.read_text())
+        self.assertTrue(self.publish(report_date='2026-11-03', limit=2))
+        manifest = json.loads(run_git(self.remote, 'show', self.tip() + ':assets/data/ai_infra/index.json'))
+        self.assertEqual([r['date'] for r in manifest['reports']], ['2026-11-03', '2026-11-01'])
+
     def test_failed_push_can_be_retried(self):
         hook = self.remote / 'hooks/pre-receive'
         hook.write_text('#!/bin/sh\nexit 1\n')
