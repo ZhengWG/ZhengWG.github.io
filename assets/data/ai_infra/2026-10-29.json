@@ -100,8 +100,16 @@
       },
       "blocks": [
         "今天 arXiv 预筛 92 篇全部是已报过的，HF Daily 6 篇无推理相关（DLM 的 RL 信用分配、流式音视频分离、VLA）。只记一条回流：",
-        "[DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression](https://arxiv.org/abs/2609.19969) — 9 月 17 日的技术报告今天被重新贴上 HN（5⬆ 0💬）。552B 骨干、prefill 只激活 8B / decode 16B 的 CED 架构，CSA2 跨层复用 + FP4 KV 把常驻 HBM 的全局 KV 压到 **890 字节/token**（V4-Flash 的 1/4），SWA Bounded Replay 把 SSD / host 上的持久 KV 压到 1/8。今天 FlashInfer [#7410](https://github.com/flashinfer-ai/flashinfer/pull/7410) 合入的 NVFP4 稀疏 MLA cache 就是这条线在 kernel 侧的落地。",
-        "📰 博客与新闻",
+        "[DeepSeek-V4.1-Flash: Pushing the Limits of KV Cache Compression](https://arxiv.org/abs/2609.19969) — 9 月 17 日的技术报告今天被重新贴上 HN（5⬆ 0💬）。552B 骨干、prefill 只激活 8B / decode 16B 的 CED 架构，CSA2 跨层复用 + FP4 KV 把常驻 HBM 的全局 KV 压到 **890 字节/token**（V4-Flash 的 1/4），SWA Bounded Replay 把 SSD / host 上的持久 KV 压到 1/8。今天 FlashInfer [#7410](https://github.com/flashinfer-ai/flashinfer/pull/7410) 合入的 NVFP4 稀疏 MLA cache 就是这条线在 kernel 侧的落地。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[PyTorch 2.15 Release Blog](https://pytorch.org/blog/pytorch-2-15-release-blog/)（PyTorch，10-28）— 重写的 NCCL 后端成默认（`TORCH_DIST_USE_NCCL2=0` 回退）并自带挂起时全 rank dump 的 flight recorder；`torch.distributed` 加单边传输 API，首个后端 NIXL、传输可进 CUDA graph；NVGEMM 把 ModelOpt NVFP4 的标量反量化折进 GEMM、支持 PDL；MPS 加 FP8 `_scaled_mm` 和 `grouped_mm` 的 gemv 路径（M3 Ultra MoE decode 1.32–1.34x）；gfx950 的 FlyDSL kernel 进 Inductor autotune、gfx1250 用 Tensor Data Mover；默认 CUDA 13.2、13.4 wheel 带 Rubin 实验支持；**Python 3.10 和 macOS 14 不再支持**。",
         "[How DRA can improve the performance of distributed LLM inference workloads with RDMA and SR-IOV](https://developers.redhat.com/articles/2026/10/28/how-dra-can-improve-performance-of-distributed-llm-inference-workloads-with-rdma-and-sr-iov)（Red Hat，10-28）— Kubernetes DRA 用 `matchAttribute: pcieRoot` 让 GPU 和 SR-IOV VF 落在同一 PCIe root：`ib_write_bw` 对齐 194.6 Gbit/s，同 NUMA 不同 root 127.1，跨 NUMA 110.0；llm-d 上 Qwen3.8-27B 的 PD KV 传输对齐 20.7 GB/s / 56.8 ms vs 跨 NUMA 9.6 GB/s / 122.3 ms（2.15x）。",
         "[Launching a trillion-parameter model at Sakana AI](https://modal.com/blog/sakana-case-study)（Modal，10-23）— 约 1T 的 MoE「Namazu」在 Blackwell 上 NVFP4 TP4 serverless 上线：只量化 23,040 个路由专家、attention / router / 共享专家留 BF16，校准集偏日语商务；用模型自己的原始 token 流训 DFlash2 草稿器（不是重新分词的文本，保住工具调用 / JSON 的对齐），接受率 +25%、第二代接受长度 3.51 → 5.01，decode 每 token -35%，p99 68 → 52 s；去掉 CPU-GPU 同步点后 GPU 空转 -90%。",

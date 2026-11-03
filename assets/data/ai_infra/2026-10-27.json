@@ -110,8 +110,16 @@
         "[LoopFold: Parallelizing Recurrent Depth in Looped Transformers](https://arxiv.org/abs/2610.35556) — 循环 Transformer 的每一轮都要等上一轮结束，所以加深度就加 decode 延迟；LoopFold 用一个轻量预测器提前估出后续轮的输入、并行开算，再用校正器补齐。1.4B 模型上，相比 9 轮 vanilla 只需 5 个串行阶段，decode 延迟 -46%。对应 ALoDLM 这类可变深度模型的 serving 问题。",
         "[WorldPager: Zero-Stall Tiered Memory for Long-Horizon World Models on a Single Consumer GPU](https://arxiv.org/abs/2610.35529) — 交互式世界模型的 KV 主要卡在容量而不是带宽，而且相机位姿是输入，算之前就知道要读哪些 KV；于是把 int4 KV 放进 GPU / DRAM / NVMe 三层，按外推的位姿预取，单张 4090 + 32GB 内存连续生成 37.5 分钟视频、零卡顿、约 9.5 FPS。思路和专家流式引擎一样：访问集能提前算出，就能放心下沉到 SSD。",
         "[Triage: Skip, Skim, or Refine Attention Tiles in Video DiTs](https://arxiv.org/abs/2610.35706) — 视频 DiT 的每个注意力 tile 分三档处理：用块均值跳过、NVFP4 粗算、或 NVFP4 加残差修正；由路由器按预测误差决定升档，三档在 RTX Blackwell 的 FP4 tensor core 上一个融合 kernel 跑完。Wan2.2 / HunyuanVideo / LTX-2.5 端到端最高 2.32x，PSNR 比最好的基线还高 0.3–3.0 dB。vllm-omni 的 diffusion 路径可以直接参考。",
-        "[miniTE: Diagnosing and Bridging the Execution Gap in Native NVFP4 RL](https://huggingface.co/papers/2610.23928) — 指出训练引擎和采样引擎即使权重和数值格式都对齐，NVFP4 下数值执行仍会分叉，所以要做跨引擎的数值对齐；Qwen3-30B-A3B 长程 RL 稳定、接近 BF16，B300 单节点 learner 33,540 tok/s，是 BF16 的 1.39x、TE NVFP4 的 1.47x。推理引擎要给 RL 当 rollout 后端，就得加「训推数值对齐」模式（tokenspeed #2731 今天就在做）。",
-        "📰 博客与新闻",
+        "[miniTE: Diagnosing and Bridging the Execution Gap in Native NVFP4 RL](https://huggingface.co/papers/2610.23928) — 指出训练引擎和采样引擎即使权重和数值格式都对齐，NVFP4 下数值执行仍会分叉，所以要做跨引擎的数值对齐；Qwen3-30B-A3B 长程 RL 稳定、接近 BF16，B300 单节点 learner 33,540 tok/s，是 BF16 的 1.39x、TE NVFP4 的 1.47x。推理引擎要给 RL 当 rollout 后端，就得加「训推数值对齐」模式（tokenspeed #2731 今天就在做）。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[Cloudflare：Cross-request KV cache exposure in the GLM-5.3 Workers AI model](https://blog.cloudflare.com/kv-cache-exposure-remediation/)（10-26）— 事故复盘：prefill KV 池只有 681,280 token，却对外宣称 1,048,576 上下文。SGLang PD 模式下，超长请求被打上拒绝标记、prompt 换成 1 个 token 的占位，但 `finished()` 仍返回 False，于是照常走完交接；decode 预留了 8 页、只有 1 页被写过，剩下 7 页读的是前面请求留下的内容。8-27 至 9-9 共 155 条响应受影响，从 HackerOne 报告到下线用了不到 15 小时。修复包括把池子扩到约 204 万 token、引擎打补丁，负载均衡器也改成至少等到首 token 才允许断开。文末给出 KV 页代际标签的原型：decode 读前核对，开销 <1%。",
         "[LMSYS：SGLang security update: improving request isolation](https://lmsys.org/blog/2026-10-26-cf-security)（10-26）— SGLang 方的说明，重点在 RDMA 迟到写入：请求在传输途中被中止时，已发出的 one-sided WRITE 撤不回来，decode 如果立刻释放并复用这些槽位，迟到的 KV 就写进了别人的缓存，而且全程不报错。对策是 deferred release（默认开启）、拿到 drain 确认后才回收、abort 消息按请求打标签、`--disaggregation-enable-kv-checksum`。建议所有 PD 部署升级到 **v0.5.22**。",
         "[PyTorch：Optimizing Streaming Speech Recognition on Arm Edge Devices with ExecuTorch](https://pytorch.org/blog/optimizing-streaming-speech-recognition-on-arm-edge-devices-with-executorch/)（10-26）— Nemotron 3.5 流式 ASR（RNN-T）在 Pixel 11 上经 XNNPACK → KleidiAI 用上 SME2 矩阵单元，比较了 FP16 和 INT8（QC8W）两种精度；强调流式质量要按部署时的 chunk 大小来测，同一研究里 Qwen3-ASR-1.7B 按 2.4s 分块后 WER 涨了 77%。",

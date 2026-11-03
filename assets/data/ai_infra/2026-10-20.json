@@ -97,8 +97,16 @@
         "[Parallel Language Models via Variational Decoding](https://arxiv.org/abs/2610.26693) — 通过潜变量传递 token 之间的依赖，一次前向生成多个相互一致的 token，训练目标是自回归损失加并行解码损失。80M–3B 规模上预训练损失接近自回归，加速比随模型规模按幂律增长；后训练的 1.3B 模型在数学、代码、指令遵循上追平同配置的自回归模型，推理快 2.3–5.7 倍。这是扩散和投机之外的另一种非自回归解码，serving 侧需要支持每步产出可变数量的 token。",
         "[Answering While You Type](https://arxiv.org/abs/2610.26296) 与 [Heartbeat Thinking](https://arxiv.org/abs/2610.26233) — 都在请求还没输完时就开始计算。前者让模型根据不完整的请求先生成、再随输入修订，提交后只剩一小段要算，在自回归和扩散模型上都做了验证；后者面向语音 agent，边听边周期性启动推理和工具调用，新的输入不打断已在运行的调用。对 serving 来说，请求会变成可修订的流，需要投机式预算算力和取消机制。",
         "[LatComm: Reusable Context Compression for Latent Communication between LLMs](https://arxiv.org/abs/2610.26840) — 多模型系统里一段上下文常被不同模型、不同问题反复读取。LatComm 用一个冻结的编码模型把上下文压成固定大小的包，另一个冻结的接收模型按问题通过 cross-attention 选择读取。QuALITY 上接收方输入缩小 57 倍、回答快 3 倍，12 个 QA 数据集上比单向量方法高最多 10.2 分。相当于跨模型复用上下文，不需要共享 KV 格式。",
-        "（arXiv 今天 84 篇里与推理直接相关的不多，其余多为 agent / 机器人 / 世界模型。HF 高票的 [KronLSTM](https://huggingface.co/papers/2610.26834) 提出新的线性注意力记忆更新规则，属于架构研究，暂不展开。）",
-        "📰 博客与新闻",
+        "（arXiv 今天 84 篇里与推理直接相关的不多，其余多为 agent / 机器人 / 世界模型。HF 高票的 [KronLSTM](https://huggingface.co/papers/2610.26834) 提出新的线性注意力记忆更新规则，属于架构研究，暂不展开。）"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[vLLM：Elastic EP 扩缩容接近零停机](https://vllm.ai/blog/2026-10-19-elastic-ep-near-zero-downtime)（10-19）— 新 worker 的初始化、通信准备、权重传输和 warmup 都放到后台做，老 worker 照常服务；NIXL EP 支持原地增加 rank，现有 worker 的 CUDA graph 不用重新 capture，最后只短暂暂停调度器切换拓扑。GB200 上 DeepSeek V4 Pro 从 16 卡扩到 20 卡的停机时间从 100s 降到 0.82s，20→16 从 56s 降到 1.96s。已在最新的 vLLM 和 NIXL pip 包中提供。",
         "[LMSYS：SGLang Low-Latency Mode 的 kernel 与运行时](https://lmsys.org/blog/2026-10-18-sglang-low-latency-mode)（10-18）— 昨天报过的 megakernel 插件（SGLang #44945）的完整说明。NVIDIA 插件 sgl-nvidia-mega 用 PDL 让 kernel 在前一个结束前启动，把跨卡发送放进 GEMM epilogue，路由还没算完就开始专家 GEMM；GB300 上 DSV4.1-Flash + DSpark 单会话 p90 每用户速度 671→928 tok/s，decoder 层中位延迟 96.8→68.4µs。AMD 插件 sgl-amd-mono 把每个 decoder 层压成两个持久化 FlyDSL kernel，MI355X 上 4 会话 332→516 tok/s（1.56 倍）。后续计划支持 GLM-5.3、K3、MiniMax M3。",
         "[PyTorch / AWS：TorchNeuron](https://pytorch.org/blog/introducing-torchneuron-native-pytorch-backend-for-aws-trainium/)（10-19，[HF 同日博客](https://huggingface.co/blog/hf-torchneuron)）— Trainium 通过 PrivateUse1 成为 PyTorch 原生设备（`.to('neuron')`），支持 eager、torch.compile 和 NKI 自定义 kernel；vLLM Neuron 和 vLLM-Omni Neuron 插件都建在它的 torch.compile 之上。10-20 起以 Apache-2.0 公开 beta。Deepgram 称在他们的测试中每美元处理的音频比原 GPU 方案多约 60%。",

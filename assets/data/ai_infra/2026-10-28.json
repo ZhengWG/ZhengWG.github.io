@@ -108,8 +108,16 @@
         "[PipeLink: Contract-Guided Linking of GPU Kernel Components](https://arxiv.org/abs/2610.37200) — 最快的 kernel 都是 loader / GEMM 主循环 / epilogue / 通信阶段在一个 SM 上并发、共享片上内存和 barrier 的组合，但这些组件把自己在共享空间里的位置写死了，没法单独编译、分发或替换。PipeLink 给每个组件一份\"要求什么、承诺什么\"的契约，链接器据此拼装：链接产物和整体编译差 0.2% 以内，CuTe attention 塞进 ThunderKittens 的 decode megakernel 后 decode 2.16x，GEMM + SwiGLU 在 Blackwell 上比 cuBLAS 快 1.2x。昨天「One Megakernel is Not Enough」讲在哪切，这篇讲切开之后怎么拼。",
         "[TAO: Tool-Aware Joint Scheduling for LLM-Based Agentic Serving](https://arxiv.org/abs/2610.37230) — agent 服务在 GPU 推理和分布式 CPU 工具之间来回，现有系统既不看工具什么时候返回、也用启发式决定准入和放置。TAO 的价值接口合并了近期工具就绪度、带时间衰减的节点缓存信用和 token 占用，再用动态规划做联合调度；12 组设置里延迟最多 -26.8%、TTFT -36.3%、decode 吞吐 +29.5%。",
         "[On the SPOT: Speculative Decoding for Diffusion LMs via Commit-Order Prediction](https://huggingface.co/papers/2610.22543) — 扩散 LM 上一轮的预测在 90% 以上的位置已经是对的，缺的是\"哪些位置可以提交\"；把提交顺序作为预测目标，让投机解码在扩散模型上无损加速。和昨天的 dSpark（调度蒸馏）是同一个问题的两种答案。",
-        "（另有 [CRISP](https://arxiv.org/abs/2610.37442) 边缘 MoE 剪枝 + 调度、[EdgePace](https://arxiv.org/abs/2610.37307)、[CoS-VQ](https://arxiv.org/abs/2610.37336)、[H100 DSMEM 与 floorsweeping](https://arxiv.org/abs/2610.37466)，略。）",
-        "📰 博客与新闻",
+        "（另有 [CRISP](https://arxiv.org/abs/2610.37442) 边缘 MoE 剪枝 + 调度、[EdgePace](https://arxiv.org/abs/2610.37307)、[CoS-VQ](https://arxiv.org/abs/2610.37336)、[H100 DSMEM 与 floorsweeping](https://arxiv.org/abs/2610.37466)，略。）"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[NVIDIA：3 Ways to Boost MoE Inference on NVIDIA DGX Spark](https://developer.nvidia.com/blog/3-ways-to-boost-moe-inference-on-nvidia-dgx-spark/)（10-26）— SGLang 跑 Ling-3.0-flash（124B / 5.1B 激活）batch 1 的三步：MXFP4 MoE 换 Humming 后端（NVRTC 运行时编 CUBIN）36.09 → 39.45 tok/s；LM head 在线 FP8（`SGLANG_ENABLE_FP8_LM_HEAD=1`，157,184 × 2,560 的投影读一半字节）→ 43.94；NEXTN 层做 3 步 MTP → 合成负载 102.88。GSM8K 全集端到端 37.81 → 53.89 tok/s（+42.5%）、延迟 -24.5%、精度 96.89 → 96.82。坑：三项全开时 draft 和 target 必须共享同一个 LM head 模块，否则比基线还慢。",
         "[Ubicloud：Fixing Tool-Call Accuracy in vLLM](https://www.ubicloud.com/blog/fixing-tool-call-accuracy-in-vllm)（[HN 172⬆ / 71💬](https://news.ycombinator.com/item?id=50242870)）— Kimi K2.6 在 vLLM 0.28 上工具调用 schema 正确率 92%，每 25 次坏 2 次；升到 0.31 开 `--tool-strict-level`，用 XGrammar structural tag 在每步采样只放行合法 token，到 100%，DeepSeek V4 Flash 同样。工具调用的受限解码正在从可选项变成生产默认。",
         "（[Together 的 GPU 集群自动修复](https://www.together.ai/blog/auto-repair-for-together-gpu-clusters)按 Xid 码配置自动修复动作，运维向；miniTE 昨天已报；Anyscale / Red Hat / HF novelty-bench 与推理无关，略。）"

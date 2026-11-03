@@ -93,8 +93,16 @@
         "[Weight Placement Is Not Enough](https://arxiv.org/abs/2610.28620) — 三值模型每个 token 只读几 GB 权重，但在 4 个 NUMA 节点的双路服务器上，最快的运行时也用不到一半内存带宽。权重已放在本节点时，线程仍有 20–48% 的时间在同步点等各节点最慢的线程；改用 Megatron 式列切分、减少互相等待后，带宽受限时比基线快 1.5–2.1 倍。",
         "[The Token-Energy Law of LLM Decode](https://arxiv.org/abs/2610.28576) — 每个输出 token 的能耗由两项线性组合决定：活跃字节（batch 内共享的权重 + 每个请求私有的 KV）和实际 decode 时间。用它可以直接看出 batching 如何摊薄权重读取、长上下文如何推高 KV 开销；Hopper / Blackwell 上留出条件的估算误差不超过 3.73%。",
         "[The COUNT](https://www.reddit.com/r/LocalLLaMA/comments/1xat6o7/paper_the_count_counting_ngrams_unlocks_scaling/)（经 r/LocalLLaMA）— 在 host 内存里存预先统计的 n-gram 计数，用来加权模型自身的 unembedding，作为额外的输入 embedding，不增加可学习参数；1B 模型的验证损失改善相当于多用 57% 的算力。和 DeepSeek V4.1 的 Engram 一样，都是用便宜的 host 内存换模型能力；Engram 表分片放在各 rank 的 host 内存里，所以 DeepInfer #99 的取表要走 RDMA 或 NVLink。",
-        "（arXiv 主抓取今天被 429 限流，重试后补上；HF 高票多为 agent / 世界模型，与推理直接相关的还有 [KPage](https://arxiv.org/abs/2610.28096) 视频稀疏注意力的跨块页压缩、[Lafa](https://arxiv.org/abs/2610.28559) 8B 流式并行生成语言模型。）",
-        "📰 博客与新闻",
+        "（arXiv 主抓取今天被 429 限流，重试后补上；HF 高票多为 agent / 世界模型，与推理直接相关的还有 [KPage](https://arxiv.org/abs/2610.28096) 视频稀疏注意力的跨块页压缩、[Lafa](https://arxiv.org/abs/2610.28559) 8B 流式并行生成语言模型。）"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[vLLM：Humming，面向量化推理的 kernel 库](https://vllm.ai/blog/2026-10-21-humming)（10-21）— 蚂蚁集团与 vLLM 社区开源，把「量化格式」和「执行选择」分开，用共享 CUDA 组件 JIT 组合出 kernel，编译时间从 CUTLASS 的 23.35s 降到 1.82s。覆盖 SM75 到 SM120/121（也支持平头哥真武 810E），包括 WnA16、W8A8、W4A8、W4A4 和 MXFP4 / NVFP4 等格式。H200 上 W4A16 大 batch 约为 Marlin 的 2 倍；8×H20 上 DeepSeek-V4.1-Flash 用 W4A8 比 Marlin W4A16 吞吐高 14–43%、TTFT 低 25–32%。vLLM 0.29+ 加 `--linear-backend humming --moe-backend humming` 即可启用；DeepInfer 的 SM90 移植 #92 也已依赖它。",
         "[PyTorch：TorchTPU](https://pytorch.org/blog/introducing-torchtpu/)（10-20）— Google 与 Meta 合作的 TPU 原生 PyTorch 后端：运行时不依赖 JAX，eager 是一等公民，`torch.compile` 基于 Dynamo 而不是 PyTorch/XLA 的 Lazy Tensor，DDP / FSDP / DTensor 通过 Process Group 层的 TPU 集合通信支持，迁移只需 `.to(\"tpu\")`。[HF](https://huggingface.co/blog/hf-torchtpu) 和 [Anyscale Ray](https://anyscale.com/blog/announcing-ray-support-native-pytorch-google-tpu) 同日宣布支持。",
         "[vLLM TorchTPU](https://vllm.ai/blog/2026-10-20-vllm-torchtpu) 与 [SGLang-TorchTPU](https://lmsys.org/blog/2026-10-20-sglang-torchtpu)（10-20）— 两家都在 TorchTPU 上推出 TPU serving。vLLM 版是树外插件，调度器、worker、KV 管理器都用上游代码，模型通过 `torch.compile(backend=\"tpu\")` 降到 XLA，attention / MoE / 量化 matmul 用 Pallas kernel；推荐 v7x，支持 TP / DP / PP / EP / CP 和 PD 分离（自动重分片 KV）、host KV 卸载、MTP / EAGLE-3 / DFlash / DSpark。SGLang 版由 RadixArk 与 Google、Meta 合作，首批支持 Muse Spark Open、GLM-5.3、Kimi K3、DeepSeek V 系列。此前两家的 TPU 路线都依赖 JAX。",

@@ -102,8 +102,16 @@
       "blocks": [
         "本轮 arXiv 预筛 0 条（周末无新公告），HF Daily 26 篇几乎全是 agent / 具身 / 多模态训练，只两篇与推理部署相关：",
         "[Every Weight Is a Path of Shared Discrete Decisions（TWIG）](https://huggingface.co/papers/2610.31931)（HF 7 票）— 每个权重写成一条离散决策路径（符号、2 的幂移位、零门、共享表索引），相关权重共享上层路径、决策只存一次；剪枝 / 量化 / 低秩 / 码本 / 权重共享变成同一对象的编辑，可由一个优化器整网挑选。组 scale、共享指数、MX 微指数都是「浅层 TWIG」；在 LLM 五个权重矩阵上，同层误差下 3/4-bit 比 GPTQ 少 9–15% 加法，离群值强的矩阵少 20–55%。目标是权重固化进芯片的加法器电路，对 GPU 推理暂无直接收益，但给「量化格式统一表示」提供了一个框架。",
-        "[DuoLM: Fast and Effective Personalized Recommendation with Language Models](https://huggingface.co/papers/2610.24481)（HF 2 票）— LLM 做推荐的服务化：encoder LLM 离线算好物品表示复用，ranker LLM 结合用户历史打分；runtime 用虚拟 token ID 直取 embedding、共享历史计算、CUDA graph 回放。单 H100 每秒约 2.64 万个候选打分，是 teacher 用 vLLM + 前缀缓存的约 60 倍 —— 生成式推荐的吞吐靠专用 runtime，不靠通用引擎的前缀缓存。",
-        "📰 博客与新闻",
+        "[DuoLM: Fast and Effective Personalized Recommendation with Language Models](https://huggingface.co/papers/2610.24481)（HF 2 票）— LLM 做推荐的服务化：encoder LLM 离线算好物品表示复用，ranker LLM 结合用户历史打分；runtime 用虚拟 token ID 直取 embedding、共享历史计算、CUDA graph 回放。单 H100 每秒约 2.64 万个候选打分，是 teacher 用 vLLM + 前缀缓存的约 60 倍 —— 生成式推荐的吞吐靠专用 runtime，不靠通用引擎的前缀缓存。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[Serving DeepSeek-V4.1-Flash at Scale: vLLM Matches DeepInfer and Scales to GB300 NVL72](https://vllm.ai/blog/2026-10-23-deepseek-v41-flash-pd-wide-ep)（vLLM，10-23）— 一个 GB300 NVL72 机柜、P/D 分离 + Wide-EP，在 SemiAnalysis AgentX 上每 GPU 954K tok/s（P90 每用户 196 tok/s），是单机聚合的 7.9 倍；decode 在 131K 上下文、batch 8–256 与 DeepInfer 公布值差 6% 以内。几条可复用的经验：① 这个模型全局 KV 每 token 仅 890 字节，128K → 855K 上下文 decode 只慢 7%，decode 是 MoE 受限，所以 prefill 用 DEP2（DEP4 失步时掉 13.6%）、decode 才铺宽 EP；② EPLB 同时管 target（384 专家 top-6）和 DSpark 草稿（128 专家 top-3），均衡度 0.35 → 0.94；③ NVL72 规模上瓶颈是 CPU —— 未优化的 DEP32 比 DEP16 还慢，修掉同步 KV 读、Gloo 线性 all-reduce（10.8 → 1.5ms）、一步放进 140 个请求的准入突发后才吃到 GPU 收益；④ 小 batch 专用 decode 路径在 4×B300 单用户 826 tok/s（+44%）。",
         "[More Than DeepInfer: What SGLang Delivers](https://lmsys.org/blog/2026-10-24-dsv41-deepinfer)（LMSYS，10-24）— 用 DeepInfer 自己的基准、同硬件对比：prefill 在 4×GB300 / 4×B300 上最高 1.04x，decode 在 64×GB300（EP64）每步短 1.1–7.4%。SGLang 已集成 DeepSeek 的 Mega 系 kernel、DSpark、SWA bounded replay 和两种 Engram 摆放（host 表 / 跨卡直读）；强调 DeepInfer README 自己列明不含的三件 —— KV cache 系统（Linker 把 L1 直连 3FS / Mooncake）、P/D 分离、跨副本负载均衡。",
         "[Podcast: Kimi K3.1 Pro, the new cyber reality, and Muse musings](https://www.interconnects.ai/p/podcast-kimi-k31-pro-the-new-cyber)（Interconnects，10-25）— 只有标题可考；配 HN 那篇定价文，Kimi K3.1 Pro 权重定于 11-04 放出，届时 20 多家托管 K3 的服务商大概率跟进。"

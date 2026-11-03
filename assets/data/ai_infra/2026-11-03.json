@@ -108,8 +108,16 @@
         "[BYOD：AR→扩散 LM 的 LoRA 转换](https://huggingface.co/papers/2610.41574) — adapter 只占 4.1–5.8% 参数，就让 Gemma 2 / Llama 3.1 / Qwen2.5 / Ministral 具备扩散式并行生成。dLLM 上推理引擎的门槛从「重新预训练」降到「挂一个 LoRA」。",
         "[Library of Layers](https://huggingface.co/papers/2611.03526) — 推理时按问题动态选择层的执行顺序，单一超参在参数复用和稀疏之间连续切换。和今天 r/LocalLLaMA 上的 SenseNova-Loop（共享块循环执行）一样，每 token 算力不再由参数量决定，CUDA graph 和 KV 布局都得重新考虑。",
         "[FLAMIA](https://huggingface.co/papers/2611.03344) — Blackwell 上的 MXFP8 / NVFP4 混合 attention kernel，解决共享 scale 的因果泄漏和前向 / 反向数值不一致。训练向，但 token 块 scale 跨方向复用的做法可以直接借到低精度推理 attention。",
-        "[Wave Forcing](https://huggingface.co/papers/2611.00859) — 流式视频生成把生成、训练、执行一起设计，去掉「去噪 + 刷新历史 cache」两次前向，对 Omni / 世界模型的实时 serving 有参考价值。",
-        "📰 博客与新闻",
+        "[Wave Forcing](https://huggingface.co/papers/2611.00859) — 流式视频生成把生成、训练、执行一起设计，去掉「去噪 + 刷新历史 cache」两次前向，对 Omni / 世界模型的实时 serving 有参考价值。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[LMSYS：HiCache 跨多种并行与分布式 serving](https://lmsys.org/blog/2026-11-02-hicache-distributed-serving)（11-02）— CP 下按页分片 KV，GPU token 命中率从 42.83% 升到 83.31%；PD 下 decode 侧也有 radix 树，只拉缺失的后缀，多轮场景中位 TTFT 0.681 → 0.271 s（−60.3%）；生产 agent 负载命中率 95%。",
         "[Red Hat：H100 上分级 KV offload 实测（OpenShift AI 3.5）](https://developers.redhat.com/articles/2026/11/02/benchmarking-tiered-kv-cache-offloading-h100-gpus-openshift-ai-3-5)（11-02）— vLLM OffloadingConnector GPU→CPU→NVMe/CephFS，Nemotron-Ultra-253B：只加 CPU 层吞吐 3.3x，再加二级存储 5.8x，平均 TTFT 60 s → 10 s；高并发时只有 CPU 层的命中率掉到 1.5%，CephFS 层还有 59%。",
         "[HF：Transformers Model Integration Contracts](https://huggingface.co/blog/transformers-mic)（11-03）— 每个模型配一个缩小版 fixture（如 66 MB 对 1227 MB）+ 用法示例 + 基线输出，CPU runner 上就能抓回归。走 transformers backend 的 vLLM / SGLang 新模型接入多了一道正确性闸门。",

@@ -102,8 +102,16 @@
         "en": "Papers"
       },
       "blocks": [
-        "周六 arXiv 无新公告、HF Daily 为空。社区浮出的一篇见「🆕 新兴方向」的 Virtual Head Attention。",
-        "📰 博客与新闻",
+        "周六 arXiv 无新公告、HF Daily 为空。社区浮出的一篇见「🆕 新兴方向」的 Virtual Head Attention。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[GLM-5.3 Optimizations, Part 2: PCP, DCP, and Hybrid HiSparse on 16 H200s](https://vllm.ai/blog/2026-10-23-glm53-part2-pcp-dcp-hisparse)（vLLM，10-23）— **PCP**（prefill 上下文并行）把 prompt token 按负载均衡的 V 形切到各卡，不再按 head 切 TP、indexer 不再复制，H200 上算术强度约 26 → 191 FLOPs/byte；**DCP**（decode 上下文并行）把 KV 轮转切到 8 卡，1M 上下文每卡 KV 53.4GiB → 6.7GiB；**Hybrid HiSparse** 给 decode 加「压力驱动」的 host 内存层（每 rank 48GiB 池 + 16GiB 卸载）。拓扑是两台 8×H200：prefill 跑 PCP8×DCP8×EP8 + 512GiB CPU 卸载，decode 跑 8 个 DP rank + Hybrid HiSparse，llm-d router + NIXL connector 串起来，prefill 的 token 切分 KV 与 decode 的每 rank 分页 KV 布局不同，由 NIXL 重组且保前缀复用。AgentX 上同吞吐下交互性是 DP8 的 1.7–3.2x，中位 TTFT 1.5–5.2s → 0.8–0.9s，并发 64 下 8,340 tok/s/GPU、单用户 29.6 tok/s（对照组掉到 1–2）。DCP 每层全上下文 all-gather 在 64K 内约 6% 开销、248K 时 15%，下一步是和前一层计算重叠。flag：`--prefill-context-parallel-size 8 --decode-context-parallel-size 8` + `sparse_mla_force_mqa`，基于 Model Runner V2，v0.32.0+。",
         "[Max, Modular's inference and serving framework, is now source available](https://www.modular.com/blog/max-license)（Modular，10-22）— MAX 全部源码公开：kernel / Python API / 模型走 Apache-2.0，编译器内部 / 运行时 / 硬件后端走新 MAX License（任意硬件免费、可商用、可贡献修复；禁止拿源码喂 AI 做重实现、托管推理服务须标「Modular Accelerated」、不许分发修改版）。是实质动作但不是开源；本 agent 10-16 刚因 96 天无料把它从候选淘汰，这回记一笔不重挂。",
         "[Does Your Model Run on AWS Trainium? Look It Up](https://huggingface.co/blog/torch-neuronx-model-support)（HF，10-23）— torch-neuronx 的模型支持查询表：trn2 上实测生成 32 token 对 CPU 校验，只测 ≤4 设备（16 核）能放下的文本 / 图文模型，NEFF 编译缓存可下载跳过重编译。配 SGLang Trainium 插件（10-22）和 DeepInfer [#220](https://github.com/deepseek-ai/DeepInfer/pull/220)，Trainium 一周三条。"

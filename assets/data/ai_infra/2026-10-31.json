@@ -98,8 +98,16 @@
         "en": "Papers"
       },
       "blocks": [
-        "（今日无：周六 arXiv 无新 listing，抓到的 80 条都已在前两天报过；HF Daily Papers 为空）",
-        "📰 博客与新闻",
+        "（今日无：周六 arXiv 无新 listing，抓到的 80 条都已在前两天报过；HF Daily Papers 为空）"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[Build a Validated Kubernetes Runtime for NVIDIA Dynamo](https://developer.nvidia.com/blog/build-a-validated-kubernetes-runtime-for-nvidia-dynamo/)（NVIDIA，10-30）— 提出 AI Cluster Runtime（AICR）：Dynamo 1.4.2 + GPU Operator 26.7.1 + KAI Scheduler 0.16.9 + Grove + GPU DRA 驱动 + NVSentinel / NodeWright 节点健康 + AgentGateway 打成验证过的 recipe，五步流程把基础设施验证和应用部署分开。两个信号：Dynamo 默认不再用 NATS 做服务发现，KV 事件走 ZMQ 既可进原生 Frontend 路由也可进 Gateway API。详见 🆕。",
         "[Run AI Models for Edge Application Development with Just a Few Commands](https://developer.nvidia.com/blog/run-ai-models-for-edge-application-development-with-just-a-few-commands/) · [Build Specialized Agents on a Stack You Control with NVIDIA NemoClaw](https://developer.nvidia.com/blog/build-specialized-agents-on-a-stack-you-control-with-nvidia-nemoclaw/)（NVIDIA，10-30）— 边缘推理和 agent 运行时两篇，产品向，推理栈信息少。",
         "[Was I wrong about open models & cyber risks?](https://www.interconnects.ai/p/was-i-wrong-about-open-models-and)（Interconnects，10-30）— 「Black October」漏洞潮之后对开放权重风险的再评估，非推理技术文，但会影响开源模型的发布节奏。",

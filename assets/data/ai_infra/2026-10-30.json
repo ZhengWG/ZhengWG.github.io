@@ -109,8 +109,16 @@
         "[Rimuru: Unified Memory Management via Elastic Expert Offloading](https://arxiv.org/abs/2610.40305) — 见 🆕。",
         "[On the Fundamental Limits of Prefill-Based Decoding Length Prediction](https://arxiv.org/abs/2610.40541) — 用 prefill 隐状态预测输出长度的方法换模型 / 数据 / 采样就崩，根源是解码本身的随机性：把解码当停止过程，每条 prompt 的长度近似正态且 σ=αμ+b，给出任何 prefill 侧预测器都逃不掉的下界。给长度感知调度泼的一盆冷水。",
         "[DWISE: Denoising Workload-Informed Scheduling for dLLM](https://arxiv.org/abs/2610.39852) — 扩散 LM 用 AR 的 FCFS + prefill 优先会浪费大半速度：去噪成本到达时未知且异构，prefill 优先让只跑 prompt 的轮次大半 batch 空转；按「剩余工作量」（prefill 和去噪共用的块单位）调度，入场用 prompt 预测、第一轮去噪隐状态再修一次，SGLang 里实现。配 [KV Cache Quantization for dLLM](https://arxiv.org/abs/2610.39853)（去噪步间复用的 KV 在量化前就已经偏了，要按 reveal 轨迹校准）。",
-        "[Low-Bit GDN Recurrent-State Quantization](https://arxiv.org/abs/2610.39931) — 线性注意力的循环状态低比特化：按梯度敏感度给各 head 分配位宽（GGA），最近的纯写入另存 FP8 向量对走完整状态转移、出窗才并入低比特历史（PW）；Qwen3.5-4B/9B 上比 STEPQuant@4 宏平均 +38/+41 点，并抑制量化后的超长输出。",
-        "📰 博客与新闻",
+        "[Low-Bit GDN Recurrent-State Quantization](https://arxiv.org/abs/2610.39931) — 线性注意力的循环状态低比特化：按梯度敏感度给各 head 分配位宽（GGA），最近的纯写入另存 FP8 向量对走完整状态转移、出窗才并入低比特历史（PW）；Qwen3.5-4B/9B 上比 STEPQuant@4 宏平均 +38/+41 点，并抑制量化后的超长输出。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[Day 0 support for Mistral Large 4 on vLLM](https://vllm.ai/blog/2026-10-29-mistral-large-4)（vLLM，10-29）— 架构是 DeepSeek 式稀疏栈再加料：72 层 MLA（latent 512）+ 44 层 DSA indexer top-2048，**9 层 NoPE 直接读第 35 层的 latent KV、28 层复用最近 indexer 的 top-k**，YaRN+LeRoPE、SSMax、logit soft cap 30。自带 DSpark 草稿器（3 层滑窗 MLA + RNN Markov 头）TP8 下 c1 TPOT 8.84→3.50 ms、吞吐 1.9–2.2x；DCP8 把 TP8 的 KV 容量 2.38M→18.88M token（NVFP4 28.76M）但单 token 慢 16–28%；NVFP4 比 FP8 只差 2.1 分、快 1.08–1.19x；HiSparse host 卸载接了跨层共享、容量 4.5–5.7x；MI350（AITER MXFP4 + a4w4 专用 decode）和 TPU v7x（16 芯）day-0。",
         "[Topology as an End-to-End Contract: P/D in llm-d on GKE](https://llm-d.ai/blog/topology-as-an-end-to-end-contract)（llm-d，10-29）— 昨天 Red Hat DRA 文章的 GKE 全版本：H200/B200 一个 ResourceClaimTemplate 按 `pcieRoot` 同时要 GPU+NIC，GB200 的 NIC 走 DRA、GPU 走 device plugin（无法匹配）、GB300 的 CX-8 两个 PF 必须成对。**UCX 掉到 TCP 不报错**：A4X 上 48 MB KV 传输 6.6 ms 变 >100 ms、5400 请求超时 436 个，用 `UCX_TLS=rc_mlx5,...` 显式禁 TCP。16×H200 gpt-oss-120b 45 QPS：不管拓扑 TTFT 2.15 s → 通道校验 1.16 s → 拓扑打分配对 0.33 s。",
         "[Welcome Le Chonk: Mistral Large 4 on Hugging Face](https://huggingface.co/blog/mistral-large4)（HF，10-29）— 开源权重 `mistralai/Mistral-Large-4-1T-A52B`，同日 vLLM / llama.cpp / SGLang（[#47271](https://github.com/sgl-project/sglang/pull/47271)）三家接入。",

@@ -113,8 +113,16 @@
         "[SARIA: Persistence-Aware KV Caching with Coordinated DRAM–SSD Reload for LLM Agents](https://arxiv.org/abs/2610.31169) — 多轮 agent 的 KV 别全量写 SSD：按淘汰 / 复用历史只持久化「DRAM 留不住但还会用」的块，prefill 后把本会话要用的 SSD 块提前拉回 DRAM，传输协调器平衡两条路带宽；写入少 57–59%，TTFT 比纯 DRAM 好 42–80%。基于 LMCache MP 实现。",
         "[RIFT: KV Cache Compression for Draft Models with Complementary Compressibility Training](https://arxiv.org/abs/2610.31098) — 长输出下草稿模型的 KV 压缩会「decode 失效」（只看 prefill 的选择越来越过时）；RIFT 在生成中自适应刷新选择并用稀疏 mask 训练草稿的可压缩性，Qwen3.5-4B 给 122B 起草时 32K 输入 / 4K 输出 / 8K KV 预算下保 98% 接受长度。",
         "[Evaluating the Applicability of LLM Inference Optimizations on Apple Silicon](https://arxiv.org/abs/2610.31479) — 四台 Apple 机器 + 4090 对照：KV 剪枝在 Apple 上最高 1.75x 但在桌面 NVIDIA 上反而掉；**所有评测的投机解码在 Apple 上都降吞吐**；移植的 CUDA kernel 设计只拿到 1.2x（Metal 缺异步拷贝）；量化收益因机器而异。给 rec / Kapitsa / MLX 系做法一个解释框架。",
-        "[Extreme Compression of Per-Layer Embeddings via Cross-Layer Latent Vector Quantization](https://arxiv.org/abs/2610.31309) — Gemma 4 E4B 里 PLE 占 35.2% 参数；OPTIC 每个 token 只存一组码、每层用仿射解码器还原，码本按输出路径而非存储向量拟合，100x 压缩保 97.8%（product quantization 只剩 66.3%）。",
-        "📰 博客与新闻",
+        "[Extreme Compression of Per-Layer Embeddings via Cross-Layer Latent Vector Quantization](https://arxiv.org/abs/2610.31309) — Gemma 4 E4B 里 PLE 占 35.2% 参数；OPTIC 每个 token 只存一组码、每层用仿射解码器还原，码本按输出路径而非存储向量拟合，100x 压缩保 97.8%（product quantization 只剩 66.3%）。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[vLLM Delivers Day-0 Support for MiniMax-M3.1-Flash](https://vllm.ai/blog/2026-10-23-minimax-m31-flash)（vLLM，10-23）— MSA 稀疏注意力：KV 按 128 token 分块、indexer 对块打分取 max，每个 query 只看 top-16 块 + 最近块（≤2048 key）；路由专家 NVFP4 让 checkpoint 451.5 → 250.1GB，NVFP4 KV 每 token 34.5KB（FP8 61.4KB），4×B300 并发多 2.7x。Blackwell 上用 CUDA 13.4 的 QMUL4 在 kernel 内 NVFP4→FP8，indexer decode 1.7x、稀疏 decode 1.3x；MegaMoE 加 MXFP8 共享专家融合 + 提前释放 TMEM，prefill kernel 延迟 -20%；indexer 的 decode 上下文并行在 512K 上 3.3x；DSpark 走 FlashInfer PrimiTS 比 FA4 快 1.3–2x。GB300 419 / Rubin 725 / MI355X 331 tok/s 单用户，吞吐端 GB300 153.8K、Rubin 191.5K tok/s/GPU；day-0 RL 用 veRL + rank-32 LoRA 直接在 NVFP4 权重上训。",
         "[Announcing the SGLang AWS Trainium Plugin Beta](https://lmsys.org/blog/2026-10-22-sglang-trainium-beta)（LMSYS，10-22）— 基于 TorchNeuron（AWS 原生 PyTorch 后端）+ NKI 自定义 kernel，SGLang 模型组件少改即可迁；beta 覆盖 Qwen3 / Qwen3-MoE-30B-A3B / DeepSeek-V2-Lite / GLM-4 / GLM-5.2/5.3，DP / TP / EP、BF16 / FP8、Radix Cache、异步调度；RL rollout 跑 Trainium3、训练留 GPU。**没给性能数字**，小范围内测。",
         "[Running Frontier-Class AI Models Across 8 NVIDIA DGX Spark Nodes](https://developer.nvidia.com/blog/running-frontier-class-ai-models-across-8-nvidia-dgx-spark-nodes/)（NVIDIA，10-22）— 官方 8 节点 DGX Spark 方案，正文今天抓不到（域名被拦），对照社区 gr8 / TensorFold 的 3–6 节点自研引擎一起看。",

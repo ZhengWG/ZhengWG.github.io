@@ -102,8 +102,16 @@
         "HF Daily Papers 今日 21 篇，推理强相关只有一篇，另两篇沾边：",
         "[On the Origin and Evolution of Training-Inference Mismatch in LLM Reinforcement Learning](https://huggingface.co/papers/2610.40945) — 把 RL 里 rollout 引擎与 trainer 的分布错配拆成两个来源：**引擎数值**（kernel 精度 / 归约顺序）和**异步采样的陈旧权重**，并证明对一种有效的修正在另一种下会失效。提出 DLC（Discrepancy-Lag Correction）：按前缀中心化数值差、对采样器权重裁剪重要性比、有效样本数跌破 50% 就重同步采样器。对引擎方的意义：数值确定性（vLLM 的 batch-invariant 线、今天的 [#65069](https://github.com/vllm-project/vllm/pull/65069)）不只是可复现，而是训练稳定性变量。",
         "[Does Scaling Toward AGI Depend on What System-1 Lets System-2 Execute?](https://huggingface.co/papers/2610.39497)（46⬆）— predict-gate-execute-update：轻量 System-1 先估每个候选交互的效用，昂贵的 System-2 只对值得的出手；推理视角就是请求级算力闸门。",
-        "[Apriel Voice 27B Preview](https://huggingface.co/papers/2610.40738)（13⬆）— Gemma 4 26B-A4B 后训练的开放语音语言模型，语音直接进共享骨干、输出回复和工具调用，不挂独立对话模型。",
-        "📰 博客与新闻",
+        "[Apriel Voice 27B Preview](https://huggingface.co/papers/2610.40738)（13⬆）— Gemma 4 26B-A4B 后训练的开放语音语言模型，语音直接进共享骨干、输出回复和工具调用，不挂独立对话模型。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "（今日无新文章：73 篇 RSS 条目全部为已报过的旧文）"
       ]
     },

@@ -95,8 +95,16 @@
         "en": "Papers"
       },
       "blocks": [
-        "（今日无：周末 arXiv 与 HF Daily Papers 无新条目）",
-        "📰 博客与新闻",
+        "（今日无：周末 arXiv 与 HF Daily Papers 无新条目）"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "（今日无新文章：74 篇 RSS 条目全部为已报过的旧文）"
       ]
     },

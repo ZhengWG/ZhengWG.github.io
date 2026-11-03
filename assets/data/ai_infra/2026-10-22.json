@@ -119,8 +119,16 @@
         "[RISK-KV: Quality-Aware Selective KV Cache Reconstruction for Distributed LLM Inference](https://arxiv.org/abs/2610.29544) — 请求迁移 / 故障恢复时不传全部 KV 也不全量重放：用目标层两侧的精确 KV 做跨层岭回归重建中间层，按 NLL 变化做质量门控选哪几组层可省；省 18–33% 历史 KV、PPL 掉 <0.5%，比全量重放快 1.51–3.31x。",
         "[RCSD: Reinforcement and Continual Learning for Domain-Specific Speculative Decoding](https://arxiv.org/abs/2610.29527) — 草稿模型训练目标从「模仿目标分布」改成「最大化接受率」的 RL + 持续学习，专治领域漂移下接受率下滑。",
         "[SPARE: Sparsity Allocation via Routing Entropy for Efficient MoEs](https://arxiv.org/abs/2610.29662) — 专家剪枝不再每层剪一样多：用校准数据上 Top-K 门控权重的熵决定每层剪几个（熵高 = 剪一个丢得多），免训练、与选哪个专家的方法正交。",
-        "[Deciding Scale Placement in MXFP4 Dot Products with Integer Arithmetic](https://arxiv.org/abs/2610.29445) — MXFP4 的共享 scale 在归约前乘还是归约后乘，实数等价但 FP32 下会因上下溢给出不同结果，且依赖归约树；给出编译器可用的逐位等价判定条件。写 MXFP4 kernel 的人该读。",
-        "📰 博客与新闻",
+        "[Deciding Scale Placement in MXFP4 Dot Products with Integer Arithmetic](https://arxiv.org/abs/2610.29445) — MXFP4 的共享 scale 在归约前乘还是归约后乘，实数等价但 FP32 下会因上下溢给出不同结果，且依赖归约树；给出编译器可用的逐位等价判定条件。写 MXFP4 kernel 的人该读。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
         "[Day-0 Support for Flint on vLLM](https://vllm.ai/blog/2026-10-21-flint)（vLLM，10-21）— Recursive 的 Flint（40B 总 / 2.5B 激活，49 层里 35 层只看 513 token 滑窗、14 层全局，256 专家 sigmoid top-6 + 共享专家，学出来的 attention sink）。vLLM 给它写了融合 QK norm + RoPE + KV 写入、小 batch MoE / NVFP4 GEMV、CuTe DSL 带 sink 的滑窗 decode、PDL 低延迟路径，每步 kernel 1096 → 346；GB200 单请求 100K 上下文 decode 约 500 tok/s，NVFP4 decode 4.81 → 1.78 ms（2.7x）。",
         "[Elastic Expert Parallelism Scaling in SGLang: Growing a Live MoE Deployment with NIXL](https://lmsys.org/blog/2026-10-21-elastic-ep-scaling-nixl)（LMSYS，10-21）— 运行中的 MoE 部署直接加 rank：用 `max_ep_size` 预留通信缓冲，新 rank 进 Mooncake 可扩 WORLD 组，在 forward 边界装好专家与 DP 状态、同步后才开调度槽，再续跑 EPLB 把专家搬过去；NIXL 做专家数据面、保留已建连接。8×H100 DeepSeek-V3-Lite，首个完成请求比重启式扩容快 5.3–8.2x。缩容与 recapture 是 future work。",
         "[Accelerating PyTorch on AMD GPUs with FlyDSL](https://pytorch.org/blog/accelerating-pytorch-on-amd-gpus-with-flydsl/)（PyTorch，10-21）— FlyDSL kernel 成了 PyTorch 在 MI350 上的可选后端：GEMM 走 torch.compile autotune 候选、RMSNorm / TopK eager 自动分发、attention 经 AOTriton 0.14.2b 选择。MI355X 上 MXFP8 / MXFP4 GEMM 比 ATen 快 1.58x / 1.68x，grouped GEMM 比 Triton 1.20x；vLLM 端到端 MXFP8 最高 2.04x、MXFP4 3.01x（BF16 只有 1.13x）。DeepInfer 的 ROCm 移植 PR 用的就是它。",
