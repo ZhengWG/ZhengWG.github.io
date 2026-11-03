@@ -1,0 +1,59 @@
+_posts/2026-01-01-推理INFRA方法论-00-roofline.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 9-11
+_posts/2026-11-01-推理INFRA方法论-07-optimization.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 9-11
+docs/inference-infra-cover-prompts.json
+  s_238b97ebdf7f1e::t_a9605720717d7e 3
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 1-2,4-38
+.preview/requirements.txt
+  s_238b97ebdf7f1e::t_60553d63294ee4 1-2
+_posts/2026-09-19-推理INFRA方法论-06-pd-epd.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 9-11
+_posts/2026-03-29-推理INFRA方法论-02-parallelism.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 9-11
+.preview/lab/preview.js
+  s_238b97ebdf7f1e::t_1036e8fc636390 1-318
+_posts/2026-02-13-推理INFRA方法论-01-communication.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 10-12
+_posts/2026-08-06-推理INFRA方法论-05-moe.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 9-11
+.preview/build-content.py
+  s_238b97ebdf7f1e::t_1036e8fc636390 1-52
+docs/inference-infra-release.md
+  s_238b97ebdf7f1e::t_1036e8fc636390 21-22
+  s_238b97ebdf7f1e::t_60553d63294ee4 23-24
+_posts/2026-05-11-推理INFRA方法论-03-hardware.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 9-11
+_posts/2026-06-24-推理INFRA方法论-04-attention.md
+  s_238b97ebdf7f1e::t_ecdfd1d58422c5 9-11
+.preview/lab/i18n.js
+  s_05dc1385d891d8::t_27e93863b6c73c 1-106
+.preview/lab/index.html
+  s_05dc1385d891d8::t_9355e67bbc7ac8 1-165
+.preview/lab/style.css
+  s_238b97ebdf7f1e::t_b2226dedd16d74 1-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "112a2bf819e11e3bd56ec6d0065166465da9711c",
+  "prompts": {},
+  "sessions": {
+    "s_05dc1385d891d8": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a075-2fc5-7471-9267-d3bc9215a5c4",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "ZhengWG <zwg0606@gmail.com>"
+    },
+    "s_238b97ebdf7f1e": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a0d5-6afd-7ed0-9bca-742ae2d51ad7",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "ZhengWG <zwg0606@gmail.com>"
+    }
+  }
+}
