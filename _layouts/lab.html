@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hans" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% seo %}
+{% include favicons.html %}
+<link rel="stylesheet" href="{{ '/assets/css/lab.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+<link rel="stylesheet" href="{{ '/assets/css/lab-tools.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+<script src="{{ '/assets/js/site-i18n.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script src="{{ '/assets/js/house-chat.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script src="{{ '/assets/js/lab-tools.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+<script src="{{ '/assets/js/site.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+{% if jekyll.environment == 'production' and site.google_analytics.id %}
+{% include google-analytics.html %}
+{% endif %}
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<header class="site-header wrap">
+  <a class="identity" href="/" aria-label="Johney Zheng 首页"><span class="monogram" aria-hidden="true">jz<span>·</span></span><span>Johney Zheng<small>AI SYSTEMS & ENGINEERING</small></span></a>
+  <nav aria-label="主导航"><a href="/research/" data-nav="research">Research</a><a href="/projects/" data-nav="projects">Projects</a><a href="/experiments/" data-nav="experiments">Experiments</a><a href="/writing/" data-nav="writing">Writing</a><a href="/about/" data-nav="about">About</a></nav>
+  <div class="header-tools"><div class="language-switch" role="group" aria-label="网站语言"><button type="button" data-site-lang="zh" aria-pressed="true">中文</button><button type="button" data-site-lang="en" aria-pressed="false">EN</button></div><button class="theme-toggle" type="button" aria-label="切换深色模式" title="切换深浅色模式"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" stroke="none"/></svg></button></div>
+</header>
+<main id="main" class="wrap" tabindex="-1" data-page="{{ page.lab_page | default: 'static' }}">
+{% if page.lab_page %}
+  {% assign lab_template = page.lab_page | prepend: 'lab-pages/' | append: '.html' %}
+  {% include {{ lab_template }} %}
+{% else %}
+  {{ content }}
+{% endif %}
+</main>
+<footer class="site-footer wrap"><div><a href="/">Johney Zheng</a><span>© {{ site.time | date: "%Y" }} · AI Systems & Engineering Lab</span></div><div><a href="https://github.com/ZhengWG" target="_blank" rel="noopener">GitHub ↗</a><a href="mailto:zwg0606@gmail.com">Email ↗</a><a href="/tags/">标签</a><a href="/categories/">分类</a><a href="/archives/">归档</a></div></footer>
+<template id="home">
+{% include lab-pages/home.html %}
+</template>
+<template id="about">
+{% include lab-pages/about.html %}
+</template>
+<template id="projects">
+{% include lab-pages/projects.html %}
+</template>
+<template id="research">
+{% include lab-pages/research.html %}
+</template>
+<template id="writing">
+{% include lab-pages/writing.html %}
+</template>
+<template id="experiments">
+{% include lab-pages/experiments.html %}
+</template>
+<template id="article">
+{% include lab-pages/article.html %}
+</template>
+<template id="tags">
+{% include lab-pages/tags.html %}
+</template>
+<template id="categories">
+{% include lab-pages/categories.html %}
+</template>
+<template id="collection">
+{% include lab-pages/collection.html %}
+</template>
+<template id="archives">
+{% include lab-pages/archives.html %}
+</template>
+<template id="tool">
+{% include lab-pages/tool.html %}
+</template>
+{% if page.mathjax %}{% include mathjax_support.html %}{% endif %}
+</body>
+</html>

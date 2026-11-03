@@ -1,4 +1,4 @@
-/* Interactive tools shared by the lab preview and future Jekyll pages. */
+/* Interactive data tools for the engineering notes site. */
 (function (root) {
   'use strict';
   const copy = {
@@ -57,6 +57,7 @@
   };
   function control(text, input) {
     const label = el('label', null, 'lab-field');
+    input.setAttribute('aria-label', text);
     label.append(el('span', text), input);
     return label;
   }
@@ -105,7 +106,7 @@
     history.replaceState(null, '', url);
   }
   async function tracker(root, lang, labels, params) {
-    const index = await json('assets/data/ai_infra/index.json');
+    const index = await json('/assets/data/ai_infra/index.json');
     const stats = el('div', null, 'lab-stats');
     for (const [value,label] of [[index.latest, labels.snapshot],[index.reports.length, labels.reports],[index.repos.length, labels.tracked]]) {
       const cell = el('div'); cell.append(el('strong', value), el('span',label)); stats.append(cell);
@@ -147,7 +148,7 @@
       const current=++version; feed.textContent=labels.loading;
       try {
         const record=index.reports.find(r=>r.date===date.value);
-        const data=await json('assets/data/ai_infra/'+record.file);
+        const data=await json('/assets/data/ai_infra/'+record.file);
         if (current!==version) return;
         report=data; const previous=section.value || params.get('section') || '';
         const choices=select([['',labels.all],...data.sections.map(s=>[s.id,s.title[lang]])],previous);
@@ -177,7 +178,7 @@
     return svg;
   }
   async function housing(root, lang, t, params) {
-    const data=await json('assets/data/house_price/hz.json');
+    const data=await json('/assets/data/house_price/hz.json');
     const format=value=>value==null ? '—' : Number(value).toLocaleString(lang==='en'?'en-GB':'zh-CN',{maximumFractionDigits:0});
     const percent=value=>value==null ? '—' : `${value>0?'+':''}${value.toFixed(2)}%`;
     root.replaceChildren(el('p',`${t.published}: ${data.updated_at} · ${t.districtOriginal}`,'lab-note'));

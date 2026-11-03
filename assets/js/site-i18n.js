@@ -7,7 +7,6 @@ const englishCopy = {
   '切换浅色模式': 'Switch to light mode',
   '切换深浅色模式': 'Toggle color theme',
   '标签': 'Tags', '分类': 'Categories', '归档': 'Archive',
-  'UI 预览 · V04': 'UI PREVIEW · V04', '尚未发布': 'Not published',
   'AI 系统与': 'AI systems &', '工程笔记': 'engineering notes', '。': '.',
   '我是 Johney Zheng，主要从事 AI 基础设施与模型推理相关工作。': "I'm Johney Zheng. I work on AI infrastructure and model inference.",
   '这里记录学习笔记、工程实践和一些实验。': 'This is a collection of learning notes, engineering work, and experiments.',
@@ -80,7 +79,6 @@ const englishCopy = {
   '按内容方向浏览文章。': 'Browse articles by subject area.',
   '全部标签': 'All tags', '全部分类': 'All categories', '按年份浏览全部文章。': 'Browse all articles by year.',
   '按年份跳转': 'Jump to year', '工具界面预览': 'Tool interface preview',
-  '工具运行功能将在正式改版时接入；此页用于确认新版页面结构。': 'The working tool will be integrated during implementation. This page previews its place in the new site.',
   '阅读工具介绍 →': 'Read the tool introduction →',
   '工具': 'Tools', '工程篇': 'Engineering', '算法篇': 'Algorithms', '算法部署': 'Model deployment',
   '环境配置': 'Environment setup', '数据结构与算法': 'Data structures & algorithms', '语言': 'Programming languages',
@@ -90,7 +88,7 @@ const englishCopy = {
   '算子优化': 'Kernel optimization', '系统备份': 'System backup', '综述': 'Surveys',
   '芯片': 'Chips', '设计模式': 'Design patterns', '读书笔记': 'Reading notes', '静态编译': 'Static compilation'
 };
-const previewUI = {
+const siteUI = {
   zh: {
     pages: {home:'首页', about:'关于我', projects:'开源贡献', research:'研究笔记', experiments:'交互实验', writing:'技术文章', article:'文章', tags:'标签', categories:'分类', collection:'文章列表', archives:'文章归档', tool:'交互实验'},
     navigation: {research:'研究', projects:'项目', experiments:'实验', writing:'文章', about:'关于'},

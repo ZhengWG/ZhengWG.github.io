@@ -1,6 +1,6 @@
 ---
-layout: categories
+layout: lab
 title: Categories
-icon: fas fa-stream
-order: 1
+lab_page: categories
+permalink: /categories/
 ---

@@ -1,22 +1,29 @@
 const query = new URLSearchParams(location.search);
 let savedLanguage = 'zh';
-try { savedLanguage = localStorage.getItem('lab-preview-language') || 'zh'; } catch (_) {}
+try { savedLanguage = localStorage.getItem('site-language') || localStorage.getItem('lab-preview-language') || 'zh'; } catch (_) {}
 const language = ['zh', 'en'].includes(query.get('lang')) ? query.get('lang') : (savedLanguage === 'en' ? 'en' : 'zh');
-const ui = previewUI[language];
-const requested = query.get('page') || 'home';
-const page = Object.hasOwn(ui.pages, requested) ? requested : 'home';
+const ui = siteUI[language];
 const main = document.querySelector('#main');
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => Promise.all(registrations.map(registration => registration.update()))).catch(() => {});
+}
+const nativePost = main.querySelector('[data-native-post]');
+const nativeCollection = main.querySelector('[data-native-collection]');
+const requested = nativePost ? 'article' : nativeCollection ? 'collection' : query.get('page') || main.dataset.page || 'home';
+const page = Object.hasOwn(ui.pages, requested) ? requested : 'static';
 document.documentElement.lang = language === 'en' ? 'en' : 'zh-Hans';
-main.append(document.getElementById(page).content.cloneNode(true));
-document.title = `${ui.pages[page]} · Johney Zheng · UI Preview`;
+if (!nativePost && page !== 'static' && (nativeCollection || page !== main.dataset.page)) main.replaceChildren(document.getElementById(page).content.cloneNode(true));
+if (!nativePost && page !== 'static') document.title = `${ui.pages[page]} · Johney Zheng`;
 const writingPages = ['article', 'tags', 'categories', 'collection', 'archives'];
 const activePage = writingPages.includes(page) ? 'writing' : page === 'tool' ? 'experiments' : page;
 document.querySelector(`[data-nav="${activePage}"]`)?.setAttribute('aria-current', 'page');
 document.querySelectorAll('[data-nav]').forEach(link => { link.textContent = ui.navigation[link.dataset.nav]; });
 
 function route(destination, values = {}, hash = '') {
-  const params = new URLSearchParams({page: destination, ...values, lang: language});
-  return `?${params}${hash ? `#${hash}` : ''}`;
+  const path = destination === 'home' ? '/' : destination === 'article' ? '/' : destination === 'collection' ? `/${values.type || 'tags'}/` : `/${destination}/`;
+  const params = new URLSearchParams({...values, lang: language});
+  if (destination === 'article' || destination === 'collection') params.set('page', destination);
+  return `${path}?${params}${hash ? `#${hash}` : ''}`;
 }
 function english(text) { return englishCopy[text] || text; }
 function termLabel(term) { return language === 'en' ? english(term) : term; }
@@ -43,9 +50,14 @@ function localizeLinks(root) {
     const raw = link.getAttribute('href');
     if (!raw || raw.startsWith('#') || raw.startsWith('mailto:')) return;
     const url = new URL(raw, location.href);
-    if (url.origin === location.origin && url.pathname === location.pathname) {
+    if (raw.startsWith('?page=')) {
+      const values = Object.fromEntries(url.searchParams);
+      const destination = values.page;
+      delete values.page; delete values.lang;
+      link.setAttribute('href', route(destination, values, url.hash.slice(1)));
+    } else if (url.origin === location.origin && !url.pathname.startsWith('/assets/')) {
       url.searchParams.set('lang', language);
-      link.setAttribute('href', url.search + url.hash);
+      link.setAttribute('href', url.pathname + url.search + url.hash);
     }
   });
 }
@@ -56,7 +68,7 @@ document.querySelectorAll('[data-site-lang]').forEach(button => {
   button.addEventListener('click', () => {
     const url = new URL(location.href);
     url.searchParams.set('lang', button.dataset.siteLang);
-    try { localStorage.setItem('lab-preview-language', button.dataset.siteLang); } catch (_) {}
+    try { localStorage.setItem('site-language', button.dataset.siteLang); } catch (_) {}
     location.href = url.href;
   });
 });
@@ -65,11 +77,11 @@ function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
   themeButton.setAttribute('aria-label', theme === 'dark' ? ui.themeLight : ui.themeDark);
 }
-try { setTheme(localStorage.getItem('lab-preview-theme') || 'light'); } catch (_) { setTheme('light'); }
+try { setTheme(localStorage.getItem('site-theme') || localStorage.getItem('lab-preview-theme') || 'light'); } catch (_) { setTheme('light'); }
 themeButton.addEventListener('click', () => {
   const theme = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
   setTheme(theme);
-  try { localStorage.setItem('lab-preview-theme', theme); } catch (_) {}
+  try { localStorage.setItem('site-theme', theme); } catch (_) {}
 });
 function element(tag, text, className) {
   const el = document.createElement(tag);
@@ -77,11 +89,11 @@ function element(tag, text, className) {
   if (className) el.className = className;
   return el;
 }
-function postLink(post) { return route('article', {post: post.slug}); }
+function postLink(post) { return `${post.url}?lang=${language}`; }
 function coverImage(post, decorative = false) {
   if (!post.image?.src) return null;
   const img = element('img', undefined, 'post-cover-image');
-  img.src = post.image.src.replace(/^\//, '');
+  img.src = post.image.src;
   img.alt = decorative ? '' : post.image.alt;
   img.width = 1672;
   img.height = 941;
@@ -185,10 +197,11 @@ function rewriteArticleLinks(root, posts) {
   localizeLinks(root);
 }
 async function renderArticle(posts) {
-  const slug = query.get('post') || '推理INFRA方法论-00-roofline';
+  const slug = nativePost?.dataset.nativePost || query.get('post') || '推理INFRA方法论-00-roofline';
   const post = posts.find(item => item.slug === slug || normalizedSlug(item.slug) === normalizedSlug(slug));
   const body = document.querySelector('[data-post-body]');
   if (!post) { document.querySelector('[data-post-title]').textContent = ui.noArticle; body.textContent = ui.noArticle; return; }
+  if (!nativePost) { location.replace(postLink(post) + location.hash); return; }
   document.title = `${post.title} · Johney Zheng`;
   for (const [selector, value] of [['[data-post-title]', post.title], ['[data-post-description]', post.description], ['[data-post-date]', post.date]]) {
     const target = document.querySelector(selector);
@@ -198,23 +211,32 @@ async function renderArticle(posts) {
   document.querySelector('[data-post-language]').textContent = post.language === 'en' ? (language === 'en' ? 'Original: English' : '原文：英文') : ui.original;
   body.lang = post.language;
   const cover = coverImage(post);
-  if (cover) {
+  if (cover && !document.querySelector('.article-cover')) {
     cover.loading = 'eager';
     document.querySelector('.article-heading').after(cover);
     cover.classList.add('article-cover');
   }
   const taxonomy = document.querySelector('[data-post-taxonomy]');
+  taxonomy.replaceChildren();
   ['categories', 'tags'].forEach(type => post[type].forEach(term => {
     const link = element('a', termLabel(term));
     link.href = route('collection', {type, term});
     taxonomy.append(link);
   }));
-  const response = await fetch(`content/${post.file}`);
-  if (!response.ok) throw new Error('Article could not be loaded');
-  const data = await response.json();
-  body.innerHTML = data.html;
-  body.querySelectorAll('script, style, link, meta, base').forEach(el => el.remove());
   body.querySelectorAll('img').forEach(img => { img.loading = 'lazy'; });
+  body.querySelectorAll('div.highlighter-rouge').forEach(block => {
+    const source = block.querySelector('.rouge-code pre') || block.querySelector('pre');
+    if (!source) return;
+    const pre = source.cloneNode(true);
+    pre.dataset.language = /language-([\w+-]+)/.exec(block.className)?.[1] || '';
+    block.replaceWith(pre);
+  });
+  body.querySelectorAll('pre').forEach(pre => {
+    if (pre.dataset.language === 'mermaid' || pre.querySelector('code.language-mermaid')) {
+      const diagram = element('div', pre.textContent, 'mermaid');
+      pre.replaceWith(diagram);
+    }
+  });
   body.querySelectorAll('table').forEach(table => {
     const wrapper = element('div', undefined, 'reading-table');
     wrapper.tabIndex = 0;
@@ -224,7 +246,7 @@ async function renderArticle(posts) {
   body.querySelectorAll('pre').forEach(pre => {
     const wrapper = element('div', undefined, 'code-block');
     const bar = element('div');
-    const languageName = (pre.querySelector('code')?.className || '').replace('language-', '');
+    const languageName = pre.dataset.language || (pre.querySelector('code')?.className || '').replace('language-', '');
     const copyButton = element('button', ui.copy);
     copyButton.type = 'button';
     copyButton.addEventListener('click', async () => {
@@ -236,14 +258,23 @@ async function renderArticle(posts) {
     wrapper.append(bar, pre);
   });
   const toc = document.querySelector('[data-post-toc]');
-  toc.innerHTML = data.toc;
+  body.querySelectorAll('h2, h3').forEach((heading, index) => {
+    if (!heading.id) heading.id = `section-${index}`;
+    const link = element('a', heading.textContent);
+    link.href = '#' + encodeURIComponent(heading.id);
+    if (heading.tagName === 'H3') link.className = 'toc-subheading';
+    toc.append(link);
+  });
   toc.dataset.original = '';
   rewriteArticleLinks(body, posts);
-  if (post.math) {
-    window.MathJax = {tex: {inlineMath:[['$', '$'], ['\\(', '\\)']], displayMath:[['$$', '$$'], ['\\[', '\\]']], processEscapes:true}, options:{skipHtmlTags:['script','noscript','style','textarea','pre','code']}};
+  if (post.mermaid || body.querySelector('.mermaid')) {
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js';
+    script.onload = () => {
+      window.mermaid.initialize({startOnLoad:false, securityLevel:'strict', theme:document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default'});
+      window.mermaid.init(undefined, body.querySelectorAll('.mermaid'));
+    };
     document.head.append(script);
   }
   if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
@@ -251,6 +282,7 @@ async function renderArticle(posts) {
 async function renderTool() {
   const tool = query.get('tool') === 'house-price' ? 'house-price' : 'ai-tracker';
   const title = tool === 'house-price' ? '城市房价观察' : 'AI 前沿追踪';
+  document.title = `${termLabel(title)} · Johney Zheng`;
   const description = tool === 'house-price' ? '以杭州公开房价数据为样本，探索数据整理、交互分析与对话查询。' : '聚合 AI 领域的动态与信息线索，作为进一步阅读和探索的起点。';
   document.querySelector('[data-tool-title]').textContent = termLabel(title);
   document.querySelector('[data-tool-description]').textContent = termLabel(description);
@@ -260,9 +292,10 @@ async function renderTool() {
   app.setAttribute('aria-busy', 'false');
 }
 async function renderContent() {
+  if (page === 'static') return;
   if (page === 'tool') { await renderTool(); return; }
   if (['about', 'projects', 'experiments'].includes(page)) return;
-  const response = await fetch('content/index.json');
+  const response = await fetch('/assets/data/posts.json');
   if (!response.ok) throw new Error('Index could not be loaded');
   const posts = await response.json();
   const series = posts.filter(post => post.slug.startsWith('推理INFRA方法论-')).sort((a,b) => a.slug.localeCompare(b.slug));
@@ -270,7 +303,14 @@ async function renderContent() {
     document.querySelectorAll('.chapter-list a').forEach((link, i) => { link.href = postLink(series[i]); });
     const cover = coverImage(series[0], true);
     if (cover) document.querySelector('.feature-heading').prepend(cover);
-    document.querySelectorAll('.article-rows a').forEach((link, i) => { link.href = postLink(posts[i]); });
+    document.querySelectorAll('.article-rows a').forEach((link, i) => {
+      const post = posts[i];
+      if (!post) return;
+      link.href = postLink(post);
+      link.querySelector('time').textContent = post.date.replaceAll('-', '.');
+      link.querySelector('h3').textContent = termLabel(post.title.replace(/^推理 INFRA 方法论（\d）：/, ''));
+    });
+    document.querySelector('.section-rule a[href*="writing"]').textContent = language === 'en' ? `Browse all ${posts.length} articles ↗` : `${posts.length} 篇笔记，持续积累 ↗`;
   } else if (page === 'research') {
     const list = document.querySelector('[data-series]');
     list.classList.replace('series-table', 'series-covers');
@@ -293,8 +333,8 @@ async function renderContent() {
   } else if (page === 'tags' || page === 'categories') {
     renderTerms(posts);
   } else if (page === 'collection') {
-    const type = query.get('type') === 'categories' ? 'categories' : 'tags';
-    const term = query.get('term') || '';
+    const type = (query.get('type') || nativeCollection?.dataset.type) === 'categories' ? 'categories' : 'tags';
+    const term = query.get('term') || nativeCollection?.dataset.term || '';
     const matching = posts.filter(post => post[type].includes(term));
     document.querySelector('[data-collection-kind]').textContent = type === 'tags' ? ui.tag : ui.category;
     document.querySelector('[data-collection-title]').textContent = termLabel(term);

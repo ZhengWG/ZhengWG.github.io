@@ -1,5 +1,9 @@
 name: 'Automatic build'
 on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -14,6 +18,13 @@ on:
       - completed
     branches:
       - master
+
+permissions:
+  contents: write
+
+concurrency:
+  group: site-${{ github.event.pull_request.number || 'production' }}
+  cancel-in-progress: false
 
 jobs:
   continuous-delivery:
@@ -59,9 +70,11 @@ jobs:
 
       - name: Test Site
         run: |
+          python3 tools/check-site.py "_site$BASE_URL"
           bash tools/test.sh
 
       - name: Deploy
+        if: github.event_name != 'pull_request'
         run: |
           if [[ -n $BASE_URL ]]; then
             mv _site$BASE_URL _site-rename

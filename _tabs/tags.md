@@ -1,6 +1,6 @@
 ---
-layout: tags
+layout: lab
 title: Tags
-icon: fas fa-tags
-order: 2
+lab_page: tags
+permalink: /tags/
 ---

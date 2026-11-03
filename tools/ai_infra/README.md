@@ -9,8 +9,7 @@
 最新报告未完成、生成中或降级时停止发布；历史中的此类报告跳过，继续取更早的完整日报，
 避免一次失败阻塞后续更新。远端已有更新日期的数据时拒绝回退。
 
-当前目标为 `codex/ai-systems-lab`，不会触发只监听 `master` 的线上构建。网站改版合入并决定上线后，
-重新安装 hook，将 `--branch` 显式改为 `master`；数据推送便会触发现有部署流程。
+正式目标为 `master`，数据推送会触发现有网站部署流程。开发验证时应显式指定功能分支。
 任务依赖本机开机、登录和现有日报任务成功完成。
 
 安装或更新 hook（幂等；只修改 `run.sh` 的 L1 成功分支，不修改定时任务）：
@@ -20,7 +19,7 @@
   --agent-dir ../personal_agents/ai-infra-agent \
   --state-dir "$HOME/.cache/ai-infra-website-sync" \
   --remote git@github.com:ZhengWG/ZhengWG.github.io.git \
-  --branch codex/ai-systems-lab --install-hook
+  --branch master --install-hook
 ```
 
 手动重试使用相同命令，去掉 `--install-hook`。可添加 `--report-date YYYY-MM-DD`，要求最新日期匹配。

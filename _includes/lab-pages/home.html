@@ -1,0 +1,26 @@
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="small-line"></span> INDEPENDENT ENGINEERING NOTES</p>
+      <h1>AI 系统与<br>工程笔记<span class="accent">。</span></h1>
+      <p class="hero-intro">我是 Johney Zheng，主要从事 AI 基础设施与模型推理相关工作。<br class="desktop-break">这里记录学习笔记、工程实践和一些实验。</p>
+      <div class="hero-actions"><a class="button primary" href="/research/">阅读研究笔记 <span>↗</span></a><a class="text-link" href="/about/">关于我 <span>→</span></a></div>
+    </div>
+    <figure class="system-map" aria-label="从模型、推理引擎、GPU kernel 到硬件的系统视图">
+      <figcaption><span>SYSTEMS VIEW</span><span>01 — 04</span></figcaption>
+      <div class="map-title">The inference stack<span>从模型到算力</span></div>
+      <div class="stack"><div class="stack-row"><span>01</span><b>Model & Workload</b><small>LLM · MULTIMODAL</small></div><div class="stack-row"><span>02</span><b>Inference Runtime</b><small>SCHEDULE · KV CACHE</small></div><div class="stack-row active"><span>03</span><b>Kernel & Compute</b><small>GPU · MEMORY · OVERLAP</small></div><div class="stack-row"><span>04</span><b>Hardware & Interconnect</b><small>BANDWIDTH · TOPOLOGY</small></div></div>
+      <div class="map-foot"><span class="map-arrow">↓</span><span>Notes on inference systems.<br><strong>Models · runtimes · hardware.</strong></span><span class="map-cross">+</span></div>
+    </figure>
+  </section>
+  <div class="section-rule"><span>01 / RESEARCH</span><span>从原理出发，回到系统</span></div>
+  <section class="research-feature">
+    <div class="feature-heading"><p class="eyebrow">FEATURED SERIES · 8 ARTICLES</p><h2>推理 INFRA<br>方法论<span class="accent">。</span></h2><p>把算力、带宽、通信与延迟放进同一套分析框架。<br>从性能预算到系统取舍，再到可验证的优化。</p><a class="text-link" href="/research/">阅读完整系列 <span>↗</span></a><span class="feature-mark" aria-hidden="true">I / O</span></div>
+    <div class="chapter-list">
+      <a href="?page=article"><span class="chapter-no">00</span><span><small>PERFORMANCE MODELING</small><h3>Roofline：建立性能预算</h3><p>先判断瓶颈，再选择优化方向。</p></span><span class="arrow">↗</span></a>
+      <a href="/research/#series"><span class="chapter-no">01</span><span><small>COMMUNICATION</small><h3>从集合通信到跨机拓扑</h3><p>理解数据移动的成本与边界。</p></span><span class="arrow">↗</span></a>
+      <a href="/research/#series"><span class="chapter-no">02</span><span><small>DISTRIBUTED INFERENCE</small><h3>并行策略，是一组系统取舍</h3><p>TP / DP / EP / CP / PP 如何组合。</p></span><span class="arrow">↗</span></a>
+    </div>
+  </section>
+  <div class="section-rule"><span>02 / WRITING</span><a href="/writing/">128 篇笔记，持续积累 ↗</a></div>
+  <section class="latest"><div class="latest-heading"><h2>近期笔记</h2><p>Notes from the workbench.</p></div><div class="article-rows"><a href="/writing/"><time>2026.11.01</time><h3>核心优化：CUDA Graph、投机推理、Overlap 与量化</h3><span>↗</span></a><a href="/writing/"><time>2026.09.19</time><h3>PD 与 EPD：阶段分离、状态传输与资源配比</h3><span>↗</span></a><a href="/writing/"><time>2026.08.06</time><h3>MoE 推理：Batch、DeepEP、DeepGEMM 与负载均衡</h3><span>↗</span></a></div></section>
+  <section class="contact-strip"><div><span class="eyebrow">CONTACT</span><h2>欢迎交流技术问题与工程实践。</h2></div><a class="text-link" href="mailto:zwg0606@gmail.com">联系我 <span>↗</span></a></section>

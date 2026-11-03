@@ -1,7 +1,6 @@
 ---
-layout: archives
+layout: lab
 title: Archives
-icon: fas fa-archive
-order: 3
+lab_page: archives
+permalink: /archives/
 ---
-

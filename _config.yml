@@ -17,9 +17,9 @@ timezone: Asia/Shanghai
 # --------------------------
 title: Johney Zheng                          # the main title
 
-tagline: Johney Zheng的小站   # it will display as the sub-title
+tagline: AI 系统与工程笔记
 
-description: 不要习惯了黑暗就为黑暗辩护；不要为了自己的苟且而得意，做一个勇敢而热情的人                        # used by seo meta and the atom feed
+description: AI 基础设施、模型推理、异构硬件与分布式服务相关的学习笔记和工程实践。
 
 # Must match the CNAME file (apex domain, no `www`), otherwise jekyll-seo-tag
 # emits canonical URLs, the sitemap and the feed for a host the site is not

@@ -21,4 +21,8 @@
 
 2026-11-03 为 8 篇文章补充统一图解封面，保存在 `assets/img/inference-infra/covers/`，通过文章 `image.src` 与 `image.alt` 接入现有主题。封面使用英文技术标签，图形为概念示意；正文与原 URL 保留。网页使用 WebP，原始 PNG 保留在本地生成目录。封面使用内置图像工具制作，[完整提示词](inference-infra-cover-prompts.json)用于后续延续风格。
 
-同次提交保存 `.preview/lab/` 中已评审的双语 UI 预览源码；它尚未替换 Jekyll 正式页面。安装 `.preview/requirements.txt` 后运行 `python3 .preview/build-content.py`，再运行 `python3 -m http.server 4173 --bind 127.0.0.1 --directory .preview/lab` 即可查看。生成的文章数据、虚拟环境及截图不入库。预览与 8 篇文章的封面路径已验证；本机缺少 Jekyll gem，完整 Jekyll 构建尚未通过。
+新版页面现已迁入 `_layouts/lab.html`、`_includes/lab-pages/` 和 `assets/css/lab.css`、`assets/js/site*.js`，作为正式页面的单一来源。文章仍由 Jekyll 渲染，原 `/posts/:title/`、分类和标签链接保持可访问。`_plugins/lab-index.rb` 在构建时生成文章索引，供搜索、归档和系列列表使用；不再使用 Python Markdown 预处理或独立预览源码。
+
+正式入口为首页及 `/research/`、`/projects/`、`/experiments/`、`/writing/`、`/about/`；原 `/agents/` 转到实验页面。旧预览查询链接仍兼容，文章查询链接会转到原有正式网址。双语导航保留文章原文，评论继续使用原文章地址。
+
+发布流程沿用 `master` → Jekyll 构建与站内链接检查 → `gh-pages`。PR 只验证，不部署；发布任务串行运行。旧版缓存由 `/sw.js` 清理并退出，避免缓存中的旧页面遮住新版和日报数据。AI 日报同步配置见 [同步说明](../tools/ai_infra/README.md)。
