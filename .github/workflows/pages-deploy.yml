@@ -35,6 +35,9 @@ jobs:
       - name: Test house price conversation
         run: node --test tools/house_price/tests/*.test.js
 
+      - name: Test AI Infra report publication
+        run: python3 -m unittest discover -s tools/ai_infra -p 'test_*.py' -v
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:

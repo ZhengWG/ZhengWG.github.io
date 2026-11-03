@@ -13,6 +13,7 @@ SECTIONS = {
     '🚀': ('releases', '版本发布', 'Releases'),
     '📄': ('papers', '论文', 'Papers'),
     '📝': ('blogs', '技术博客', 'Engineering blogs'),
+    '📰': ('blogs', '技术博客', 'Engineering blogs'),
     '💬': ('community', '社区讨论', 'Community'),
     '🆕': ('discovery', '新兴方向', 'Emerging directions'),
     '⭐': ('insights', '跨源洞察', 'Cross-source insights'),
@@ -36,7 +37,8 @@ def parse_report(source, date):
                 current['blocks'][-1] += '\n' + text
             else:
                 current['blocks'].append(text)
-    if not sections or len(re.findall(r'\]\(https?://', source)) < 5 or '（生成中…）' in source:
+    if (not sections or len(re.findall(r'\]\(https?://', source)) < 5
+            or any(marker in source for marker in ('生成中…', '未完成报告', '降级报告'))):
         raise ValueError(f'Incomplete report: {date}')
     return {'date': date, 'language': 'zh-Hans', 'sections': sections}
 
@@ -60,7 +62,7 @@ def export(agent_dir, output, limit):
                              'items': sum(len(s['blocks']) for s in r['sections'])} for r in reports],
                 'repos': repos, 'feeds': feeds}
     output.mkdir(parents=True, exist_ok=True)
-    for name, data in [('index', manifest), *((r['date'], r) for r in reports)]:
+    for name, data in [*((r['date'], r) for r in reports), ('index', manifest)]:
         target = output / (name + '.json')
         temporary = target.with_suffix('.tmp')
         temporary.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
