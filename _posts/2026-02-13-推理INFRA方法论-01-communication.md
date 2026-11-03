@@ -7,6 +7,9 @@ tags: [LLM, AI-Infra, 推理优化]
 mathjax: true
 mermaid: true
 description: "把集合通信拆成步数、启动时延和每卡字节数，再结合 NVLink、RDMA、NUMA 与 PCIe 拓扑解释实测差异。"
+image:
+  src: /assets/img/inference-infra/covers/01-communication.webp
+  alt: "Two GPU nodes connected through NICs and RDMA, with the reduce-scatter and all-gather decomposition of all-reduce."
 ---
 
 把集合通信拆成步数、启动时延和每卡字节数，再结合 NVLink、RDMA、NUMA 与 PCIe 拓扑解释实测差异。

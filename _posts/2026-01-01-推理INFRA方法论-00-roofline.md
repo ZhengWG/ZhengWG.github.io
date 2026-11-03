@@ -6,6 +6,9 @@ categories: [工程篇]
 tags: [LLM, AI-Infra, 推理优化]
 mathjax: true
 description: "从算术强度、硬件转折点和实际 HBM 流量出发，判断 GEMM 与 Attention 的瓶颈，并区分量化、合批和融合的适用条件。"
+image:
+  src: /assets/img/inference-infra/covers/00-roofline.webp
+  alt: "Roofline performance bound: bandwidth-limited slope, compute ceiling, and arithmetic intensity."
 ---
 
 从算术强度、硬件转折点和实际 HBM 流量出发，判断 GEMM 与 Attention 的瓶颈，并区分量化、合批和融合的适用条件。

@@ -6,6 +6,9 @@ categories: [工程篇]
 tags: [LLM, AI-Infra, 推理优化]
 mathjax: true
 description: "把算力、HBM、片上缓存和互联放在同一张预算表中，理解不同硬件为什么需要不同的算子与部署策略。"
+image:
+  src: /assets/img/inference-infra/covers/03-hardware.webp
+  alt: "Conceptual GPU and NPU memory hierarchy: HBM, L2 cache, on-chip SRAM, and matrix compute."
 ---
 
 把算力、HBM、片上缓存和互联放在同一张预算表中，理解不同硬件为什么需要不同的算子与部署策略。

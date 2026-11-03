@@ -6,6 +6,9 @@ categories: [工程篇]
 tags: [LLM, AI-Infra, 推理优化]
 mathjax: true
 description: "从 KV 容量、每步读取量和并行可切性，理解 MLA、GDN 与压缩注意力对推理系统的影响。"
+image:
+  src: /assets/img/inference-infra/covers/04-attention.webp
+  alt: "GQA shared KV heads, MLA compressed KV latent with RoPE, and GDN recurrent state."
 ---
 
 从 KV 容量、每步读取量和并行可切性，理解 MLA、GDN 与压缩注意力对推理系统的影响。

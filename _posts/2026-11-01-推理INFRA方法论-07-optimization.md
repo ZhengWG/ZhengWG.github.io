@@ -6,6 +6,9 @@ categories: [工程篇]
 tags: [LLM, AI-Infra, 推理优化]
 mathjax: true
 description: "把前面各篇的瓶颈诊断落实到执行机制，梳理图捕获、投机验证、多流依赖、算子融合和低精度 kernel 的适用边界。"
+image:
+  src: /assets/img/inference-infra/covers/07-optimization.webp
+  alt: "CUDA Graph replay, speculative verification, compute-transfer overlap, fusion, and low precision."
 ---
 
 把前面各篇的瓶颈诊断落实到执行机制，梳理图捕获、投机验证、多流依赖、算子融合和低精度 kernel 的适用边界。

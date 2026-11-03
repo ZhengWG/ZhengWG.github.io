@@ -6,6 +6,9 @@ categories: [工程篇]
 tags: [LLM, AI-Infra, 推理优化]
 mathjax: true
 description: "围绕权重、KV、激活和通信预算，推演 Attention 与 MoE 的并行组合，并分析长上下文和流水线的额外约束。"
+image:
+  src: /assets/img/inference-infra/covers/02-parallelism.webp
+  alt: "Tensor, data, expert, context, and pipeline parallelism shown as five partitioning strategies."
 ---
 
 围绕权重、KV、激活和通信预算，推演 Attention 与 MoE 的并行组合，并分析长上下文和流水线的额外约束。
