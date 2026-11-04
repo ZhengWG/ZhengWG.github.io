@@ -51,11 +51,11 @@ AllReduce 的变体:
   <img loading="lazy" src="/assets/img/inference-infra/image-20260802084745948.png" alt="不同 AllReduce 算法的通信流程" width="720" style="display:block;margin:0 auto;" />
 </p>
 
-## 8 卡 / 4 NIC 的 NUMA 与 PCIe 拓扑
+## 公开拓扑示例：8 卡 / 4 NIC 的 NUMA 与 PCIe 关系
 
 **8 卡 + 4×400G NIC：NUMA / PCIe switch 架构示意**
 
-采用 [SGLang #5186 公布的 8 卡实机拓扑](https://github.com/sgl-project/sglang/issues/5186)作为参考：GPU0–3、NIC0–1 属于 NUMA0；GPU4–7、NIC2–3 属于 NUMA1。四组 PIX 配对与本文实验记录一致。NIC0–3 对应 `mlx5_bond_0` 至 `mlx5_bond_3`；图中 400G 沿用本文的聚合口径（2×200G）。
+以下根据 [SGLang #5186 公布的 8×H20 实机拓扑](https://github.com/sgl-project/sglang/issues/5186)重绘，用于说明拓扑距离：GPU0–3、NIC0–1 属于 NUMA0；GPU4–7、NIC2–3 属于 NUMA1。图中的设备编号和 PIX 配对沿用公开示例。NIC0–3 对应 `mlx5_bond_0` 至 `mlx5_bond_3`；图中 400G 沿用本文的聚合口径（2×200G）。
 
 下图突出 NUMA 归属和共享 PCIe switch 的关系；虚线表示拓扑距离，省略 Host Bridge 内部层级和 GPU 间 NVLink 互联。
 
@@ -153,7 +153,7 @@ graph TB
 T = 步数 × α + 每卡字节 / busBW
 ```
 
-| 参数             | 测试设备                                      | 910B                         |
+| 参数             | GPU 侧建模参数与实测参考                                      | 910B                         |
 |------------------|------------------------------------------|------------------------------|
 | 机内 busBW       | NVLink ~350-400 GB/s 有效(实测 AllReduce 128 MB busBW 336 GB/s,P2P 拷贝 395 GB/s) | HCCS 56×7 = 392 GB/s (full-mesh) |
 | 跨机 busBW/卡    | 20 GB/s (4×400G NIC,2 卡共享 1 卡;实测裸 RDMA 绑 NUMA 后 24.5,NCCL 8 对跨机 P2P 15.1) | 25 GB/s (200G RoCE,1:1)      |
@@ -197,7 +197,7 @@ T = 步数 × α + 每卡字节 / busBW
 三条结论:
 
 - 小消息(≲1 MB)拼步数:α 累积支配(ring 14 步 = 28 μs,1 MB 传输仅 5 μs)。two-shot 2 步是无冗余下界;one-shot 1 步再快一档但只到 ≈130 KB。典型负载:TP 每层 AllReduce ~56 KB,一步 decode 上百次,正是这一档。实测排序成立(自定义 kernel 约为 NCCL 的一半),但绝对值高 2.5–3 倍:flag 同步和屏障让下限在 ~10 μs;one-shot 与 two-shot 在 64 KB 以下就打平,256 KB 起 two-shot 明显更快
-- 大消息没得拼:Ring/HD/two-shot 字节相同 → 时间收敛(实测差 <10%)——交换式拓扑上瓶颈是每卡出口(没法并发)而非链路条。选型看图外成本:要 overlap / P 大 / 拓扑异构 → ring更有优势;有 NVLS → two-shot 类(该配置的 NVLS 不可用,NCCL 需 `NCCL_NVLS_ENABLE=0` 才能初始化)。注意 910B 的 HCCS 是点对点 full-mesh 而不是交换式,ring 只用 7 条链路中的 1 条,大消息也会慢 7×。
+- 大消息没得拼:Ring/HD/two-shot 字节相同 → 时间收敛(实测差 <10%)——交换式拓扑上瓶颈是每卡出口(没法并发)而非链路条。选型看图外成本:要 overlap / P 大 / 拓扑异构 → ring更有优势;支持 NVLS 时可评估 two-shot 类算法；遇到 NVLS 初始化失败时，应先确认硬件与软件支持情况，再评估 `NCCL_NVLS_ENABLE=0` 的回退路径。注意 910B 的 HCCS 是点对点 full-mesh 而不是交换式,ring 只用 7 条链路中的 1 条,大消息也会慢 7×。
 - 跨机拼字节:出口 ÷17.5、α ×7.5 → 跨机唯一有效的优化是砍机间通信量——分层把机间通信量压到 1/P_机内,机内多搬的部分因带宽差 17.5 倍近乎免费。
 
 跨机传输必须走 RDMA,TCP 只适合控制面。双机实测对比:

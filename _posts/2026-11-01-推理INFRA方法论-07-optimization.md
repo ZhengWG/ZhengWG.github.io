@@ -65,7 +65,7 @@ DSpark(DeepSpec)	DFlash 基础上	①半自回归生成:找回块内 token 间�
    verify 膨胀吃掉 → 置信度调度 = 接受率预期低时退化回普通 decode,不为低质量 draft 付验证费
 ③ 与 CUDA Graph 配合:draft/verify 两套 graph 分别分桶;tree attention 的 mask 走固定 buffer
 ④ 与 MoE 交互:verify 的 B×τ 个 token 反而提高 M_e —— 投机在 MoE 上有隐藏的正外部性
-⑤ 与 MLA 交互：本次 每卡 128 头 MLA decode 主要受算力限制，verify 的 q_len=2 时 attention 耗时增加到 2.0–2.2 倍。这是投机验证的额外成本，端到端收益还取决于接受长度；TP 切头后需重新判断瓶颈，不能推广到所有 MLA + 设备配置。
+⑤ 与 MLA 交互：本次实测中，每卡 128 头的 MLA decode 主要受算力限制，verify 的 q_len=2 时 attention 耗时增加到 2.0–2.2 倍。这是投机验证的额外成本，端到端收益还取决于接受长度；TP 切头后需重新判断瓶颈，不能推广到所有采用 MLA 的硬件与并行配置。
 ```
 
 ## Multi-Stream Overlap
@@ -106,7 +106,8 @@ SM(计算) / Copy Engine(D2H/H2D,独立 DMA)/ NIC(RDMA 在网卡上飞)/ CPU(下
 ```
 不融合:read x → RMSNorm → write x' → read x' → GEMM → write qkv     (x' 往返 2 次 HBM)
 融合:  read x → norm 在寄存器 → 直接进 GEMM epilogue → write qkv    (省 2·B·d·bpp 流量)
-B=256, d=7168:省 7.3MB/层 ≈ 2μs（实测） + 1 次 launch;实测单独的 RMSNorm kernel 3.3μs(sgl_kernel)/ 6.9μs(torch),
+B=256, d=7168：每层减少约 7.3MB 的 HBM 流量；按实测有效带宽估算，约对应 2μs 的搬运时间，并可减少一次 kernel launch。
+单独的 RMSNorm kernel 实测为 3.3μs（sgl_kernel）/ 6.9μs（torch）。
 CUDA Graph 下 61 层累积 ~0.25ms(eager 口径才到 ~0.5ms)
 ```
 

@@ -74,7 +74,7 @@ q_nope · k_nope^T = (x·W_UQ)·(c_KV·W_UK)^T = x·(W_UQ·W_UK^T)·c_KV^T
 
 latent 是全头共享的,没有 head 维可切 → TP 下只能复制不能切 → attention 必须走数据并行;而这又导致 token 分散在各卡,MoE 层需要 all-to-all 重新汇聚。P/D 传输时因为没有 head 维,反而不需要重排。
 
-另一个后果在本次测试中特别明显:吸收后 128 个头共享 576 维 latent,decode 的 I≈242(BF16),越过 Ridge 37–42,**decode attention 变成算力瓶颈**。实测 FlashInfer MLA 85–106 TFLOPS、只用 0.4 TB/s 带宽;B=32、s=32K 单层 3.2 ms,耗时 ∝ 头数 × 上下文。这一结论适用于本次每卡 128 头配置；KV 压缩仍有容量收益，但时延不按字节缩减比例下降。该配置下 verify(q_len=2)的 attention 耗时增加到 2.0–2.2 倍。TP8 切到每卡 16 头时 I≈30，WGMMA 的 M 维填不满，只跑到 23–26 TFLOPS，算力和带宽均未吃满，不能沿用 128 头的瓶颈结论。
+实测中还观察到瓶颈的变化：吸收后 128 个头共享 576 维 latent，decode 的 I≈242（BF16），高于该配置的转折点 37–42，**此时 decode attention 主要受算力限制**。实测 FlashInfer MLA 85–106 TFLOPS、只用 0.4 TB/s 带宽;B=32、s=32K 单层 3.2 ms,耗时 ∝ 头数 × 上下文。这一结论适用于本次每卡 128 头配置；KV 压缩仍有容量收益，但时延不按字节缩减比例下降。该配置下 verify(q_len=2)的 attention 耗时增加到 2.0–2.2 倍。TP8 切到每卡 16 头时 I≈30，WGMMA 的 M 维填不满，只跑到 23–26 TFLOPS，算力和带宽均未吃满，不能沿用 128 头的瓶颈结论。
 
 ### GDN:不压,直接绕开
 
