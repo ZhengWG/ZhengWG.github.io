@@ -13,8 +13,6 @@ image:
 
 把前面各篇的瓶颈诊断落实到执行机制，梳理图捕获、投机验证、多流依赖、算子融合和低精度 kernel 的适用边界。
 
-> 本文为「推理 INFRA 方法论」系列第 8/8 篇。发布日期按 2026 年 1–11 月编排；内容统一整理于 2026-11-01，包含年内后续更新的模型与实验资料。
-
 ## CUDA Graph
 
 核心机制:capture 阶段把一段 stream 上的 kernel launch 序列录成图(节点=kernel,边=依赖),instantiate 后 replay 时一次 API 调用提交整图——CPU launch 成本从 N × 单次下发(裸 `cudaLaunchKernel` ~2μs,PyTorch eager 5-12μs/op)变成一次 ~3μs;本次 1260 个微小节点的 GPU 侧 replay 约 0.96ms，摊到每节点约 0.76μs（含节点执行），不能作为任意 graph 的固定节点税。不开就 host-bound,这是可用性问题不是优化。实测 Qwen3.5-397B-FP8(TP8):每步 decode ~1770 个 kernel,开 Graph 时 B=1 的 TPOT 5.6ms,eager 下 141-146ms 且与 B 无关(慢 25×)——TP8 下最慢 rank 的提交会拖住 AllReduce。把 eager 单步时长除以 kernel 数约为 90μs/个，但这包含等待与执行，不能称为测得的单次 Python 下发耗时。
@@ -43,19 +41,18 @@ image:
    说明桶没命中(shape 掉出 capture sizes)在走回退路径
 ```
 
-**C++ 下发与 CUDA Graph 能否认为接近？** 本次裸 C++ 连发 1260 个 kernel 的主机提交时间为 2.4ms，graph 主机提交约 2.9μs，两者提交成本不接近。另一组相同负载的 PyTorch eager/graph 端到端时间为 12.1/4.9ms，GPU 工作约 4.87ms；这也不能当成 C++ 与 graph 的直接对照。只有 CPU 下发足以被 GPU 工作覆盖时，两者端到端才可能接近，需在相同 kernel 序列、同步方式和计时范围下比较。
+实测连发 1260 个 kernel，裸 C++ 的主机提交时间为 2.4ms，CUDA Graph 约为 2.9μs。另一组 PyTorch eager/graph 对比的端到端耗时为 12.1/4.9ms，其中 GPU 工作约 4.87ms。主机提交时间与端到端时间需要分开计量；当 CPU 下发能被 GPU 工作覆盖时，降低提交开销带来的端到端收益就会减小。
 
 ## 投机推理:EAGLE / MTP / DFlash / DSpark
 
 共同原理:draft 快速出 τ 个候选 → target 一次 forward 并行验证 → 接受采样保证输出分布与原模型严格一致(无损)。收益 = 把 τ 次串行的"读一遍权重"合成一次。
 
-```
-方法	draft 形态	核心机制	上限/实测
-EAGLE-3	目标模型特征上的小 AR 头	特征级自回归 + tree attention 多路验证	串行 draft 封顶 2-3×
-MTP	模型自带多 token 头(DS/Qwen 原生)	训练时就学,1 步 τ≈1.8-2;实测 Qwen3.5 3 步接受长度 3.1	TPOT 1/8/32 并发 2.45/5.1/7.6 ms(不开 5.6/8.9/16.4);本次最大并发配置为 48，未测试更高并发，不能视为 MTP 的固有上限
-DFlash	block diffusion 小模型	一次 forward 出整块 draft(并行!)+ 目标模型特征/KV 注入提升接受率	6× 无损,比 EAGLE-3 高至 2.5×;Blackwell 上 gpt-oss-120b 达 15×
-DSpark(DeepSpec)	DFlash 基础上	①半自回归生成:找回块内 token 间依赖(纯 diffusion 丢失)②置信度调度验证:只在有把握时投机	DS-V4 生产 serving 在用
-```
+| 方法 | draft 形态 | 核心机制 | 上限/实测 |
+| --- | --- | --- | --- |
+| EAGLE-3 | 目标模型特征上的小 AR 头 | 特征级自回归 + tree attention 多路验证 | 串行 draft 封顶 2-3× |
+| MTP | 模型自带多 token 头(DS/Qwen 原生) | 训练时就学,1 步 τ≈1.8-2;实测 Qwen3.5 3 步接受长度 3.1 | TPOT 1/8/32 并发 2.45/5.1/7.6 ms(不开 5.6/8.9/16.4) |
+| DFlash | block diffusion 小模型 | 一次 forward 出整块 draft(并行!)+ 目标模型特征/KV 注入提升接受率 | 6× 无损,比 EAGLE-3 高至 2.5×;Blackwell 上 gpt-oss-120b 达 15× |
+| DSpark(DeepSpec) | DFlash 基础上 | ①半自回归生成:找回块内 token 间依赖(纯 diffusion 丢失)②置信度调度验证:只在有把握时投机 | DS-V4 生产 serving 在用 |
 
 对应的系统优化手段:
 
@@ -65,7 +62,7 @@ DSpark(DeepSpec)	DFlash 基础上	①半自回归生成:找回块内 token 间�
    verify 膨胀吃掉 → 置信度调度 = 接受率预期低时退化回普通 decode,不为低质量 draft 付验证费
 ③ 与 CUDA Graph 配合:draft/verify 两套 graph 分别分桶;tree attention 的 mask 走固定 buffer
 ④ 与 MoE 交互:verify 的 B×τ 个 token 反而提高 M_e —— 投机在 MoE 上有隐藏的正外部性
-⑤ 与 MLA 交互：本次实测中，每卡 128 头的 MLA decode 主要受算力限制，verify 的 q_len=2 时 attention 耗时增加到 2.0–2.2 倍。这是投机验证的额外成本，端到端收益还取决于接受长度；TP 切头后需重新判断瓶颈，不能推广到所有采用 MLA 的硬件与并行配置。
+⑤ 与 MLA 交互：本次实测中，每卡 128 头的 MLA decode 主要受算力限制，verify 的 q_len=2 时 attention 耗时增加到 2.0–2.2 倍。投机验证增加了 attention 工作量，能否获得端到端收益还取决于接受长度。TP 切头后，需按每卡头数重新判断瓶颈。
 ```
 
 ## Multi-Stream Overlap
@@ -160,10 +157,6 @@ CUDA Graph 下 61 层累积 ~0.25ms(eager 口径才到 ~0.5ms)
   - 这解释了它的两个特点：
     1. **支持面极广**（8 比特以下任意权重类型、六种激活类型、图灵架构以后的全部 N 卡、稠密与专家并行两种矩阵乘都支持）
     2. **库规模小**（整个库只有一百多 KB，仅依赖 PyTorch 和编译器。项目致谢栏直接列出了 DeepGEMM、Marlin、LMDeploy、CUTLASS 四家。）
-
-## 每项优化都要对应一个可测量的瓶颈
-
-CUDA Graph 降低提交成本，融合减少中间流量，Overlap 隐藏可重叠资源的等待，投机用验证成本换串行步数，量化改变字节量与计算路径。逐项记录收益与额外成本，再做组合实验，才能判断端到端提升来自哪里。
 
 ## 系列导航
 
