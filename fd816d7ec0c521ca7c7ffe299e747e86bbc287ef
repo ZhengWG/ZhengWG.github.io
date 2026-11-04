@@ -1,0 +1,31 @@
+tools/ai_infra/sync_reports.py
+  s_4c8fd6387d272d::t_f1c2761591ddbd 62-64
+  s_4c8fd6387d272d::t_51ff7ba300ef00 1-27,29-61,65-162
+  s_4c8fd6387d272d::t_8134303273ee66 28
+tools/ai_infra/README.md
+  s_4c8fd6387d272d::t_f1c2761591ddbd 1-39
+tools/ai_infra/test_sync_reports.py
+  s_4c8fd6387d272d::t_f1c2761591ddbd 1-97,100-119,121-148
+  s_4c8fd6387d272d::t_2997f6689823fa 98-99
+  s_4c8fd6387d272d::t_8134303273ee66 120
+.github/workflows/pages-deploy.yml
+  s_4c8fd6387d272d::t_b696d6e0d6572a 38-40
+tools/ai_infra/export_reports.py
+  s_4c8fd6387d272d::t_51ff7ba300ef00 16,40-41,65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "fd816d7ec0c521ca7c7ffe299e747e86bbc287ef",
+  "prompts": {},
+  "sessions": {
+    "s_4c8fd6387d272d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a0d9-5025-7603-9c67-e697c2cd615a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "ZhengWG <zwg0606@gmail.com>"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+tools/ai_infra/export_reports.py
+  s_4c8fd6387d272d::t_e2e4563cf054c8 56,59-70
+tools/ai_infra/README.md
+  s_4c8fd6387d272d::t_e2e4563cf054c8 9-10
+tools/ai_infra/test_sync_reports.py
+  s_4c8fd6387d272d::t_e2e4563cf054c8 76-82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "ac00537bd9ad4dd685b8c2224fd5e83cebb1d688",
+  "prompts": {},
+  "sessions": {
+    "s_4c8fd6387d272d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a0d9-5025-7603-9c67-e697c2cd615a",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "ZhengWG <zwg0606@gmail.com>"
+    }
+  }
+}
