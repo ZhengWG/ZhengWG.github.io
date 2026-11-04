@@ -1,8 +1,13 @@
 {
   "schema_version": 1,
-  "latest": "2026-11-03",
+  "latest": "2026-11-04",
   "language": "zh-Hans",
   "reports": [
+    {
+      "date": "2026-11-04",
+      "file": "2026-11-04.json",
+      "items": 77
+    },
     {
       "date": "2026-11-03",
       "file": "2026-11-03.json",
@@ -67,11 +72,6 @@
       "date": "2026-10-21",
       "file": "2026-10-21.json",
       "items": 65
-    },
-    {
-      "date": "2026-10-20",
-      "file": "2026-10-20.json",
-      "items": 68
     }
   ],
   "repos": [
@@ -212,6 +212,11 @@
     },
     {
       "repo": "Niko1221/Strata",
+      "prs": false,
+      "releases": true
+    },
+    {
+      "repo": "jesdga95/basalt",
       "prs": false,
       "releases": true
     },
