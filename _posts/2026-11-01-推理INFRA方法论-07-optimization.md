@@ -17,7 +17,7 @@ image:
 
 ## CUDA Graph
 
-核心机制:capture 阶段把一段 stream 上的 kernel launch 序列录成图(节点=kernel,边=依赖),instantiate 后 replay 时一次 API 调用提交整图——CPU launch 成本从 N × 单次下发(裸 `cudaLaunchKernel` ~2μs,PyTorch eager 5-12μs/op)变成一次 ~3μs;本次 1260 个微小节点的 GPU 侧 replay 约 0.96ms，摊到每节点约 0.76μs（含节点执行），不能作为任意 graph 的固定节点税。不开就 host-bound,这是可用性问题不是优化。H20 实测 Qwen3.5-397B-FP8(TP8):每步 decode ~1770 个 kernel,开 Graph 时 B=1 的 TPOT 5.6ms,eager 下 141-146ms 且与 B 无关(慢 25×)——TP8 下最慢 rank 的提交会拖住 AllReduce。把 eager 单步时长除以 kernel 数约为 90μs/个，但这包含等待与执行，不能称为测得的单次 Python 下发耗时。
+核心机制:capture 阶段把一段 stream 上的 kernel launch 序列录成图(节点=kernel,边=依赖),instantiate 后 replay 时一次 API 调用提交整图——CPU launch 成本从 N × 单次下发(裸 `cudaLaunchKernel` ~2μs,PyTorch eager 5-12μs/op)变成一次 ~3μs;本次 1260 个微小节点的 GPU 侧 replay 约 0.96ms，摊到每节点约 0.76μs（含节点执行），不能作为任意 graph 的固定节点税。不开就 host-bound,这是可用性问题不是优化。Hxx 卡实测 Qwen3.5-397B-FP8(TP8):每步 decode ~1770 个 kernel,开 Graph 时 B=1 的 TPOT 5.6ms,eager 下 141-146ms 且与 B 无关(慢 25×)——TP8 下最慢 rank 的提交会拖住 AllReduce。把 eager 单步时长除以 kernel 数约为 90μs/个，但这包含等待与执行，不能称为测得的单次 Python 下发耗时。
 
 基础原理:capture 冻结三样东西(判断能否进 graph 的判据):
 
@@ -52,7 +52,7 @@ image:
 ```
 方法	draft 形态	核心机制	上限/实测
 EAGLE-3	目标模型特征上的小 AR 头	特征级自回归 + tree attention 多路验证	串行 draft 封顶 2-3×
-MTP	模型自带多 token 头(DS/Qwen 原生)	训练时就学,1 步 τ≈1.8-2;H20 实测 Qwen3.5 3 步接受长度 3.1	TPOT 1/8/32 并发 2.45/5.1/7.6 ms(不开 5.6/8.9/16.4);本次最大并发配置为 48，未测试更高并发，不能视为 MTP 的固有上限
+MTP	模型自带多 token 头(DS/Qwen 原生)	训练时就学,1 步 τ≈1.8-2;Hxx 卡实测 Qwen3.5 3 步接受长度 3.1	TPOT 1/8/32 并发 2.45/5.1/7.6 ms(不开 5.6/8.9/16.4);本次最大并发配置为 48，未测试更高并发，不能视为 MTP 的固有上限
 DFlash	block diffusion 小模型	一次 forward 出整块 draft(并行!)+ 目标模型特征/KV 注入提升接受率	6× 无损,比 EAGLE-3 高至 2.5×;Blackwell 上 gpt-oss-120b 达 15×
 DSpark(DeepSpec)	DFlash 基础上	①半自回归生成:找回块内 token 间依赖(纯 diffusion 丢失)②置信度调度验证:只在有把握时投机	DS-V4 生产 serving 在用
 ```
@@ -65,7 +65,7 @@ DSpark(DeepSpec)	DFlash 基础上	①半自回归生成:找回块内 token 间�
    verify 膨胀吃掉 → 置信度调度 = 接受率预期低时退化回普通 decode,不为低质量 draft 付验证费
 ③ 与 CUDA Graph 配合:draft/verify 两套 graph 分别分桶;tree attention 的 mask 走固定 buffer
 ④ 与 MoE 交互:verify 的 B×τ 个 token 反而提高 M_e —— 投机在 MoE 上有隐藏的正外部性
-⑤ 与 MLA 交互：本次 H20 每卡 128 头 MLA decode 主要受算力限制，verify 的 q_len=2 时 attention 耗时增加到 2.0–2.2 倍。这是投机验证的额外成本，端到端收益还取决于接受长度；TP 切头后需重新判断瓶颈，不能推广到所有 MLA + H20 配置。
+⑤ 与 MLA 交互：本次 Hxx 卡每卡 128 头 MLA decode 主要受算力限制，verify 的 q_len=2 时 attention 耗时增加到 2.0–2.2 倍。这是投机验证的额外成本，端到端收益还取决于接受长度；TP 切头后需重新判断瓶颈，不能推广到所有 MLA + Hxx 卡配置。
 ```
 
 ## Multi-Stream Overlap
@@ -106,7 +106,7 @@ SM(计算) / Copy Engine(D2H/H2D,独立 DMA)/ NIC(RDMA 在网卡上飞)/ CPU(下
 ```
 不融合:read x → RMSNorm → write x' → read x' → GEMM → write qkv     (x' 往返 2 次 HBM)
 融合:  read x → norm 在寄存器 → 直接进 GEMM epilogue → write qkv    (省 2·B·d·bpp 流量)
-B=256, d=7168:省 7.3MB/层 ≈ 2μs@H20 + 1 次 launch;实测单独的 RMSNorm kernel 3.3μs(sgl_kernel)/ 6.9μs(torch),
+B=256, d=7168:省 7.3MB/层 ≈ 2μs@Hxx 卡 + 1 次 launch;实测单独的 RMSNorm kernel 3.3μs(sgl_kernel)/ 6.9μs(torch),
 CUDA Graph 下 61 层累积 ~0.25ms(eager 口径才到 ~0.5ms)
 ```
 
@@ -150,7 +150,7 @@ CUDA Graph 下 61 层累积 ~0.25ms(eager 口径才到 ~0.5ms)
 
 - **DeepGEMM 优化：**
   1. **两级累加**
-     FP8 张量核心内部的累加器精度有限，深度方向（K 维通常七千以上）一路累加会让部分和越滚越大，新加进来的小数值在低位被截断丢失。解法是张量核心只连续累加四条矩阵乘指令（相当于 128 个 K 元素），然后交给 CUDA 计算核心乘上缩放因子、提升到 FP32 寄存器继续累加。H20 实测：全正数据、K=16K 时一路低精度累到底的相对误差约 25%（正态数据只有 0.3%），两级累加约 0.17%，等于 BF16 输出舍入。
+     FP8 张量核心内部的累加器精度有限，深度方向（K 维通常七千以上）一路累加会让部分和越滚越大，新加进来的小数值在低位被截断丢失。解法是张量核心只连续累加四条矩阵乘指令（相当于 128 个 K 元素），然后交给 CUDA 计算核心乘上缩放因子、提升到 FP32 寄存器继续累加。Hxx 卡实测：全正数据、K=16K 时一路低精度累到底的相对误差约 25%（正态数据只有 0.3%），两级累加约 0.17%，等于 BF16 输出舍入。
   2. **掩码布局**
      专家并行下每个专家每步收到的行数都在变，而 CUDA Graph 要求形状固定。解法是把输入缓冲区的形状固定成“最大行数”，另外用一个存放在显存里的计数张量记录每个专家的真实行数——地址固定（满足图捕获），内容每步可变（满足动态负载）。核函数运行时读这个计数，跳过完全没有数据的块，只对有效行发射计算。配合小的行分块尺寸，把按 tile 计的填充浪费从十倍级压下来（BM=16、M_e≈11 时约 1.4 倍）；tile 还是访存瓶颈时，这部分浪费不占时间。
 

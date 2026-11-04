@@ -51,29 +51,29 @@ AllReduce 的变体:
   <img loading="lazy" src="/assets/img/inference-infra/image-20260802084745948.png" alt="不同 AllReduce 算法的通信流程" width="720" style="display:block;margin:0 auto;" />
 </p>
 
-## H20 8 卡 / 4 NIC 的 NUMA 与 PCIe 拓扑
+## Hxx 卡 8 卡 / 4 NIC 的 NUMA 与 PCIe 拓扑
 
-**8×H20 + 4×400G NIC：NUMA / PCIe switch 架构示意**
+**8×Hxx 卡 + 4×400G NIC：NUMA / PCIe switch 架构示意**
 
-采用 [SGLang #5186 公布的 8×H20 实机拓扑](https://github.com/sgl-project/sglang/issues/5186)作为参考：GPU0–3、NIC0–1 属于 NUMA0；GPU4–7、NIC2–3 属于 NUMA1。四组 PIX 配对与本文实验记录一致。NIC0–3 对应 `mlx5_bond_0` 至 `mlx5_bond_3`；图中 400G 沿用本文的聚合口径（2×200G）。
+采用 [SGLang #5186 公布的 8×Hxx 卡实机拓扑](https://github.com/sgl-project/sglang/issues/5186)作为参考：GPU0–3、NIC0–1 属于 NUMA0；GPU4–7、NIC2–3 属于 NUMA1。四组 PIX 配对与本文实验记录一致。NIC0–3 对应 `mlx5_bond_0` 至 `mlx5_bond_3`；图中 400G 沿用本文的聚合口径（2×200G）。
 
 下图突出 NUMA 归属和共享 PCIe switch 的关系；虚线表示拓扑距离，省略 Host Bridge 内部层级和 GPU 间 NVLink 互联。
 
 ```mermaid
 graph TB
   subgraph N0["NUMA 0 · GPU0–3 / NIC0–1"]
-    G0["H20 GPU0"]
-    G2["H20 GPU2"]
+    G0["Hxx 卡 GPU0"]
+    G2["Hxx 卡 GPU2"]
     subgraph P0["PIX 域 A"]
       S0["PCIe switch"]
-      G1["H20 GPU1"]
+      G1["Hxx 卡 GPU1"]
       NIC0["NIC0 · 400G bond"]
       G1 --- S0
       S0 --- NIC0
     end
     subgraph P1["PIX 域 B"]
       S1["PCIe switch"]
-      G3["H20 GPU3"]
+      G3["Hxx 卡 GPU3"]
       NIC1["NIC1 · 400G bond"]
       G3 --- S1
       S1 --- NIC1
@@ -84,18 +84,18 @@ graph TB
   end
 
   subgraph N1["NUMA 1 · GPU4–7 / NIC2–3"]
-    G5["H20 GPU5"]
-    G7["H20 GPU7"]
+    G5["Hxx 卡 GPU5"]
+    G7["Hxx 卡 GPU7"]
     subgraph P2["PIX 域 C"]
       S2["PCIe switch"]
-      G4["H20 GPU4"]
+      G4["Hxx 卡 GPU4"]
       NIC2["NIC2 · 400G bond"]
       G4 --- S2
       S2 --- NIC2
     end
     subgraph P3["PIX 域 D"]
       S3["PCIe switch"]
-      G6["H20 GPU6"]
+      G6["Hxx 卡 GPU6"]
       NIC3["NIC3 · 400G bond"]
       G6 --- S3
       S3 --- NIC3
@@ -153,7 +153,7 @@ graph TB
 T = 步数 × α + 每卡字节 / busBW
 ```
 
-| 参数             | H20                                      | 910B                         |
+| 参数             | Hxx 卡                                      | 910B                         |
 |------------------|------------------------------------------|------------------------------|
 | 机内 busBW       | NVLink ~350-400 GB/s 有效(实测 AllReduce 128 MB busBW 336 GB/s,P2P 拷贝 395 GB/s) | HCCS 56×7 = 392 GB/s (full-mesh) |
 | 跨机 busBW/卡    | 20 GB/s (4×400G NIC,2 卡共享 1 卡;实测裸 RDMA 绑 NUMA 后 24.5,NCCL 8 对跨机 P2P 15.1) | 25 GB/s (200G RoCE,1:1)      |
@@ -185,7 +185,7 @@ T = 步数 × α + 每卡字节 / busBW
 | 16 MB  | 108       | 92      | **84**        | 322           | 1610      | 1490    | 1430          | 5615          | **480**       |
 | 128 MB | 668       | 652     | **644**       | 2562          | 11400     | 11290   | 11210         | 44815         | **2100**      |
 
-上表是模型值。H20 实测(μs;机内 8 卡,CUDA Graph 内连放取平均;跨机 2×8 卡,NCCL + GDR):
+上表是模型值。Hxx 卡实测(μs;机内 8 卡,CUDA Graph 内连放取平均;跨机 2×8 卡,NCCL + GDR):
 
 | S | NCCL 机内 | two-shot 机内(symm-mem) | one-shot 机内(symm-mem) | NCCL 跨机(分层) |
 | --- | --- | --- | --- | --- |
@@ -196,11 +196,11 @@ T = 步数 × α + 每卡字节 / busBW
 
 三条结论:
 
-- 小消息(≲1 MB)拼步数:α 累积支配(ring 14 步 = 28 μs,1 MB 传输仅 5 μs)。two-shot 2 步是无冗余下界;one-shot 1 步再快一档但只到 ≈130 KB。典型负载:TP 每层 AllReduce ~56 KB,一步 decode 上百次,正是这一档。H20 实测排序成立(自定义 kernel 约为 NCCL 的一半),但绝对值高 2.5–3 倍:flag 同步和屏障让下限在 ~10 μs;one-shot 与 two-shot 在 64 KB 以下就打平,256 KB 起 two-shot 明显更快
-- 大消息没得拼:Ring/HD/two-shot 字节相同 → 时间收敛(H20 实测差 <10%)——交换式拓扑上瓶颈是每卡出口(没法并发)而非链路条。选型看图外成本:要 overlap / P 大 / 拓扑异构 → ring更有优势;有 NVLS → two-shot 类(本集群 H20 的 NVLS 不可用,NCCL 需 `NCCL_NVLS_ENABLE=0` 才能初始化)。注意 910B 的 HCCS 是点对点 full-mesh 而不是交换式,ring 只用 7 条链路中的 1 条,大消息也会慢 7×。
+- 小消息(≲1 MB)拼步数:α 累积支配(ring 14 步 = 28 μs,1 MB 传输仅 5 μs)。two-shot 2 步是无冗余下界;one-shot 1 步再快一档但只到 ≈130 KB。典型负载:TP 每层 AllReduce ~56 KB,一步 decode 上百次,正是这一档。Hxx 卡实测排序成立(自定义 kernel 约为 NCCL 的一半),但绝对值高 2.5–3 倍:flag 同步和屏障让下限在 ~10 μs;one-shot 与 two-shot 在 64 KB 以下就打平,256 KB 起 two-shot 明显更快
+- 大消息没得拼:Ring/HD/two-shot 字节相同 → 时间收敛(Hxx 卡实测差 <10%)——交换式拓扑上瓶颈是每卡出口(没法并发)而非链路条。选型看图外成本:要 overlap / P 大 / 拓扑异构 → ring更有优势;有 NVLS → two-shot 类(该配置的 NVLS 不可用,NCCL 需 `NCCL_NVLS_ENABLE=0` 才能初始化)。注意 910B 的 HCCS 是点对点 full-mesh 而不是交换式,ring 只用 7 条链路中的 1 条,大消息也会慢 7×。
 - 跨机拼字节:出口 ÷17.5、α ×7.5 → 跨机唯一有效的优化是砍机间通信量——分层把机间通信量压到 1/P_机内,机内多搬的部分因带宽差 17.5 倍近乎免费。
 
-跨机传输必须走 RDMA,TCP 只适合控制面。H20 两机实测对比:
+跨机传输必须走 RDMA,TCP 只适合控制面。Hxx 卡两机实测对比:
 
 | 项 | RDMA(RoCE,GPUDirect) | TCP(容器网络 eth0,200 Gb/s) |
 | --- | --- | --- |
@@ -230,7 +230,7 @@ T = 步数 × α + 每卡字节 / busBW
 | 16 MB  | **42**    | 56            | 75         | 477       | 484           | 484           |
 | 128 MB | **322**   | 336           | 555        | **3397**  | 3403          | 3764          |
 
-H20 实测 NCCL AllToAll(μs):机内 8 卡 64 KB 9.5、1 MB 14.8、16 MB 72、64 MB 216(busBW 272 GB/s);跨机 2×8 卡 1 MB 173、16 MB 733、128 MB 4409。比模型值慢 1.3–4 倍,按 α≈10 μs(机内)、BW≈280 GB/s 重算更接近。
+Hxx 卡实测 NCCL AllToAll(μs):机内 8 卡 64 KB 9.5、1 MB 14.8、16 MB 72、64 MB 216(busBW 272 GB/s);跨机 2×8 卡 1 MB 173、16 MB 733、128 MB 4409。比模型值慢 1.3–4 倍,按 α≈10 μs(机内)、BW≈280 GB/s 重算更接近。
 
 ## 先明确通信语义，再选择算法
 
