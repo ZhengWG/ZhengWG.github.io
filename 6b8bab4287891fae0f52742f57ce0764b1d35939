@@ -1,0 +1,32 @@
+README.md
+  s_5a7077379529a1::t_70ba3cb1abb137 55-70
+docs/syndication-policy.md
+  s_5a7077379529a1::t_70ba3cb1abb137 15-19
+package.json
+  s_5a7077379529a1::t_5dc241776ac4b0 10
+tools/analytics/analytics.test.js
+  s_5a7077379529a1::t_164cc0b86a9945 1-28,30-94
+  s_5a7077379529a1::t_ab967698497762 29
+_includes/google-analytics.html
+  s_5a7077379529a1::t_5dc241776ac4b0 1-5
+assets/js/analytics.js
+  s_5a7077379529a1::t_5dc241776ac4b0 1-44
+.github/workflows/pages-deploy.yml
+  s_5a7077379529a1::t_5dc241776ac4b0 46-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6b8bab4287891fae0f52742f57ce0764b1d35939",
+  "prompts": {},
+  "sessions": {
+    "s_5a7077379529a1": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1a9dd-ff6c-75c1-af86-e65388c4f422",
+        "model": "gpt-6-astra"
+      },
+      "human_author": "ZhengWG <zwg0606@gmail.com>"
+    }
+  }
+}
