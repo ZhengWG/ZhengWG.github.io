@@ -43,8 +43,8 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Test house price conversation
-        run: node --test tools/house_price/tests/*.test.js
+      - name: Test browser scripts
+        run: npm test
 
       - name: Test AI Infra report publication
         run: python3 -m unittest discover -s tools/ai_infra -p 'test_*.py' -v
