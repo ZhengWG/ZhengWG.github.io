@@ -27,7 +27,7 @@ Distillation是一项常用于模型加速的技术。Ditillation通常包含两
 
 Distillation的基础原理在于提取Teacher model的高维度的输出作为Student model的训练输入，能够让Student model更好的学习。其中高维度的输出包括logits（soft-label）和hint feature（softmax前的feature）。同时通过控制T来实现不同平滑程度的分布（softmax前除以T）。Distillation的开山之作为：[Distilling the Knowledge in a Nerural Network](https://arxiv.org/pdf/1503.02531.pdf)，文章第一次定义了Distillation，并且提出了基于神经网络的训练方方法。典型的Distillation框架如下：
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-20-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E5%25B7%25A5%25E7%25A8%258B%25E7%25AF%2587%2529/2d_detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F%28%E5%B7%A5%E7%A8%8B%E7%AF%87%29_20210920_170213.png)
+![img](/assets/img/recovered/82382e4adc39549c.png)
 
 Distillation在一些简单的任务上通常有不错的效果:如分类；但是对于一些比较复杂的任务，如检测任务Distillation则不一定生效。因为Distillation的核心是通过Teacher Model的中间Feature来指导Studentnt Model的训练，使其能够更容易学习到一些高维特征。但是对于检测任务来说，其比较注重局部目标物体（bbox/class），特征更难学习。
 
@@ -43,7 +43,7 @@ MultiTask顾名思义是将多个Task合并为一个Task，是一项实践过程
 
 模型的量化一般是真实模型部署场景不可获取的一个环节：通常模型训练的时候为了减少精度损失，通常基于FP32精度（或者混合精度）训练，但是基于FP32精度的模型通常占用存储，运行效率也偏低，在移动端的部署上就会显得力不从心。 该需求背景下，量化便应运而生了。量化意义在于能将FP32数据转化为低精度数据（常见如INT8）。因为模型推理过程中，模型的权重都是固定的，且对于收敛较好的模型INT8数据类型通常能够表达FP32数据的大部分输出范围，从而保持比较好的精度。 目前业界最常用的便是NVIDIA TensorRT的量化方案：[8-bit Inference with TensorRT](https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf)。其核心原理是将原始FP32的各层的激活值通过INT8进行表达：转换为基于 `KL-divergence` 的最优化问题。当然大部分情况是无法无损映射的，通常会有一定的精度损失（尤其是边界值）。
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-20-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E5%25B7%25A5%25E7%25A8%258B%25E7%25AF%2587%2529/2d_detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F%28%E5%B7%A5%E7%A8%8B%E7%AF%87%29_20210920_173203.png)
+![img](/assets/img/recovered/c52cd94febf3d87f.png)
 
 TenRT会通过校验集来优化上述环节，校验集可以认为是真实场景的一个子集，可以基于此维持在真实场景尽可能高的精度。其基本流程如下：
 

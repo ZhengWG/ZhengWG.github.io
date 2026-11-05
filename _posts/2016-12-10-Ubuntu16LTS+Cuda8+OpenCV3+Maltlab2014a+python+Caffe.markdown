@@ -18,7 +18,7 @@ tags: []
 # 安装Cuda驱动
 采用下载文件安装，在系统设置选择软件和更新，更改下载源，选择`aliyun`，选择附件驱动，选择使用`NVIDA binary driver.......nvidia-367`
 
-![软件更新图片](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/1.png)
+![软件更新图片](/assets/img/recovered/5a7ad9807a32fba5.png)
 ![驱动安装图片](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2016-12-10-Ubuntu16LTS%2BCuda8%2BOpenCV3%2BMaltlab2014a%2Bpython%2BCaffe/2.png)
 
 提示重启后，终端输入：

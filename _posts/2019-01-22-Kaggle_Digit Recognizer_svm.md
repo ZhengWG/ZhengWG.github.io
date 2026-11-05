@@ -49,7 +49,7 @@ plt.title(train_labels.iloc[i,0])
 
 
 
-![图片1](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Kaggle_Digit%20Recognizer_svm/1.png)
+![图片1](/assets/img/recovered/884bf8a225378e6a.png)
 
 
 

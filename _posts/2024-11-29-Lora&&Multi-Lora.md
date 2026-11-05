@@ -47,10 +47,10 @@ PEFT降低了大模型fine-tuning的硬件算力需求，比较常见如：LoRA�
 
 4. 张量并行：LoRA侧的并行策略如下： 
 
-   ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-29-Lora&&Multi-Lora/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241002_141032.png)
+   ![img](/assets/img/recovered/b353d469fa422314.png)
 
 **Statistics**
 
 S-LoRA策略下，单个GPU/多个GPU下可以部署数千个LoRA适配器，以下为Llama-7B/13B/30B/70B的部分结果：
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-29-Lora&&Multi-Lora/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241002_141814.png)
+![img](/assets/img/recovered/e00c04dba6d2ca4c.png)

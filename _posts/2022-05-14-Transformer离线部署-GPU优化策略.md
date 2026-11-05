@@ -57,7 +57,7 @@ Encoder/Decoder的基本结构还是一致的。其中主要算子（算力大�
 
 优化后的 `Encoder` 结构流水图如下，可见各算子之间基本不存在空隙，提高了GPU的利用率；同时对核心算子的优化也大大提升了模型性能。
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-05-14-Transformer%25E7%25A6%25BB%25E7%25BA%25BF%25E9%2583%25A8%25E7%25BD%25B2-GPU%25E4%25BC%2598%25E5%258C%2596%25E7%25AD%2596%25E7%2595%25A5/transformer%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2-GPU%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5_20220514_171254.png)
+![img](/assets/img/recovered/62cfde93bed8981f.png)
 
 # 参考资料<a id="sec-4"></a>
 

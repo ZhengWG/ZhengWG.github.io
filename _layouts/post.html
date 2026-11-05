@@ -22,5 +22,5 @@ layout: lab
     {% if page.previous %}<a href="{{ page.previous.url | relative_url }}" data-original>← {{ page.previous.title }}</a>{% endif %}
     {% if page.next %}<a href="{{ page.next.url | relative_url }}" data-original>{{ page.next.title }} →</a>{% endif %}
   </nav>
-  {% if site.valine_comment.enable and page.comments %}{% include valine.html %}{% endif %}
+  {% if site.comments.enable and page.comments %}{% include comments.html %}{% endif %}
 </div>

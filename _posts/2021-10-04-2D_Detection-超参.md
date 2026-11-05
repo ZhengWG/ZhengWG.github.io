@@ -69,7 +69,7 @@ $$
     
        当学习率到达最低值时，存在两种机制：1是保持最小学习率进行更新；2是采用一种循环提高-衰减的学习策略，防止网络局限在局部极小值： 
     
-       ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-04-2D_Detection-%25E8%25B6%2585%25E5%258F%2582/2d_detection-%E8%B6%85%E5%8F%82_20211003_164849.png)
+       ![img](/assets/img/recovered/0cab87a03319ecfb.png)
     
     4. 余弦衰减：采用余弦相关的方式进行学习率的衰减，其衰减的趋势和余弦函数接近，常见的更新方式如下：
     
@@ -129,11 +129,11 @@ $$
 
   先定义初始化参数：全局学习率 &sigma; , 矩估计的指数衰减速率 $\rho_1$/$\rho_2$​, 初始化参数$\omega$，小常数$\varepsilon$;，以及一阶/二阶变量$s$,$r$，以及时间步计数器$t$。更新流程如下：
 
-   ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-04-2D_Detection-%25E8%25B6%2585%25E5%258F%2582/2d_detection-%E8%B6%85%E5%8F%82_20211003_180247.png)
+   ![img](/assets/img/recovered/4d3f2b1a78be8cf4.png)
 
 一些经典的 `optimizer` 对比如下：
 
- ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-04-2D_Detection-%25E8%25B6%2585%25E5%258F%2582/v2-4a3b4a39ab8e5c556359147b882b4788_b.gif)
+ ![img](/assets/img/recovered/8b64f5c19d70d127.gif)
 
 ## postive && negative assinger<a id="sec-2-3"></a>
 

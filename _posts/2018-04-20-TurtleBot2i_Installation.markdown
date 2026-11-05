@@ -322,9 +322,9 @@ rviz
 [图片1]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/1.jpg
 [图片2]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/2.png
 [图片3]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/3.png
-[图片4]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/4.png
-[图片5]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/5.png
-[图片6]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/6.png
+[图片4]: /assets/img/recovered/096535b655810175.png
+[图片5]: /assets/img/recovered/1182525b53d503f7.png
+[图片6]: /assets/img/recovered/0f7e8922c5f15f4c.png
 [图片7]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/7.png
 [图片8]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/8.png
 [图片9]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Turtlebot2i%E8%BD%AF%E4%BB%B6%E5%8C%85%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8E%E9%85%8D%E7%BD%AE/9.png

@@ -1,0 +1,10 @@
+<section class="blog-comments" data-comments data-server="{{ site.comments.server_url | escape }}" aria-labelledby="comments-title">
+<h2 id="comments-title">交流与讨论</h2>
+<form><label for="comment-content" data-comment-heading>写下你的想法</label>
+<textarea id="comment-content" name="content" rows="4" maxlength="2000" placeholder="对这篇文章有什么看法？" required></textarea>
+<div class="comment-trap" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+<div class="comment-actions"><span>无需登录，直接留言</span><button type="button" data-comment-cancel hidden>取消回复</button><button type="submit">发送评论</button></div></form>
+<p class="comment-status" role="status" aria-live="polite">正在加载评论…</p>
+<div data-comment-list></div><button type="button" class="comment-more" data-comment-more hidden>加载更多评论</button>
+<noscript>请启用 JavaScript 查看和发表评论。</noscript></section>
+<script src="{{ '/assets/js/comments.js' | relative_url }}" defer></script>

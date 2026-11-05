@@ -41,7 +41,7 @@ $$ Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d_k}})V $$
 
 对于输入位置的问题，作者额外加入了一个 `Positional Embedding` 特征用于刻画数据在输入时序上的差异。关于 `Positinal Embedding` 可以参照下图，其中横坐标表示输入序列顺序的位置信息，不同位置能够通过某种公式变换得到特定的输出结果。
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-11-07-Transformer%25E5%259C%25A8CV%25E9%25A2%2586%25E5%259F%259F%25E7%259A%2584%25E5%25BA%2594%25E7%2594%25A8%25E4%25B8%258E%25E9%2583%25A8%25E7%25BD%25B2/Transfomer_20211031_165529.png)
+![img](/assets/img/recovered/7d57f035dffeef36.png)
 
 介绍完 `Multi-Attention` 结构，可以发现 `Encoder` 结构主要由两部分组成： `Multi-Attention` 和 `Feed Forward` （两层全连接网络）。其中每个部分均为 `LayerNorm(x+Sublayer(x))` ，并且都加入了 `Dropout` 操作。另外对于 `Feed Forward` 部分来说，其计算过程可以归纳为:
 
@@ -113,7 +113,7 @@ Decoder结构整体上和Encoder结构类似，区别在于多了一个用于和
     
     -   进一步decoder得到最终分割结果，论文介绍了两种decoder结构: (b),reshape为图片维度后不断通过卷积进行上采样；（c）不同层的feature进行提取，然后合并提取（multi-level feature aggragation）最终的输入。
     
-    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-11-07-Transformer%25E5%259C%25A8CV%25E9%25A2%2586%25E5%259F%259F%25E7%259A%2584%25E5%25BA%2594%25E7%2594%25A8%25E4%25B8%258E%25E9%2583%25A8%25E7%25BD%25B2/Transfomer_20211107_141411.png)
+    ![img](/assets/img/recovered/28e7e0e6823342ee.png)
 
 1.  通用骨干网络
     

@@ -37,5 +37,5 @@ mathjax: true
 
 **Statistics**
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-06-Orca-Continuous_Batching%25E7%25AD%2596%25E7%2595%25A5/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240917_011550.png)
+![img](/assets/img/recovered/5b3cb8f69a58681d.png)
 

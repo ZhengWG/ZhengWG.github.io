@@ -239,6 +239,6 @@ rosrun rviz rviz
 [图片4]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/4.jpg
 [图片5]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/5.png
 [图片6]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/6.png
-[图片7]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/7.png
+[图片7]: /assets/img/recovered/85f7fca410346bac.png
 [图片8]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/8.png
 [图片9]: https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/ROS-kinetic%E4%B8%8BAstra%20Pro%E5%92%8CRealSense%E6%91%84%E5%83%8F%E5%A4%B4%E9%85%8D%E7%BD%AE/9.png

@@ -43,7 +43,7 @@ Inception系列网络包含了Inception V1, Inception V2, Inception V3, Inceptio
 
 Inception V1和VGG同一年提出,相较于VGG网络加深网络,Inception V1采用的是加宽网络:卷积核的合并(`Bottleneck Layer`):
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152404.png)
+![img](/assets/img/recovered/2f40f6809bfbeaca.png)
 
 上述结构核心在于单个block内采用不同尺度的卷积核,对将不同稀疏程度上的特征进行合并,提高了网络对尺度/感受野上的适用性.但是上述结构仍然存在计算量大的问题,基于上述结构还可以进一步优化,可以通过1X1的卷积核进行降维操作,从而减少参数量,最终采用的block结构如下:
 
@@ -79,7 +79,7 @@ stem结构之后便是inception 结构和reduction结构:
 
 ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152720.png)
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-15-2D_Detection-Backbone/2d_detection-Backbone_20210815_152744.png)
+![img](/assets/img/recovered/4e3ecf50c5f4b5a5.png)
 
 最后的Inception V4结构:
 

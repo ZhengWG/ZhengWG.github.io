@@ -88,16 +88,7 @@ avatar: /assets/img/avatar.jpg
 # boolean type, the global switch for ToC in posts.
 toc: true
 
-# Comments are handled by Valine below. The Disqus integration that shipped
-# with the theme was disabled and unused, and has been removed.
-valine_comment:
-  enable: true
-  # app_id
-  leancloud_appid: IJm2s0GdkzhEOLwVfClrHeWs-gzGzoHsz
-  # app_key
-  leancloud_appkey: Y281bajarkkIGs8p4WmrTkNi
-  # placeholder
-  placeholder: "请在下面评论："
+
 
 paginate: 10
 
@@ -177,3 +168,8 @@ jekyll-archives:
   permalinks:
     tag: /tags/:name/
     category: /categories/:name/
+
+# Anonymous comments (managed D1 backend)
+comments:
+  enable: true
+  server_url: https://johney-blog-comments.grassy-bread-7152.chatgpt.site

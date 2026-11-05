@@ -32,7 +32,6 @@ Qt没有被正确安装，请运行makeinstall
 
 打开界面文件，拖入一个控件：
 
-![图片3](https://thumbnail10.baidupcs.com/thumbnail/f65e9d8ba1d016a99316622b7a08597e?fid=2669703802-250528-9568149817825&rt=pr&sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-qApEjmtGSYaFPqLVIn2ryN%2bNHCw%3d&expires=8h&chkbd=0&chkv=0&dp-logid=316445576312036794&dp-callid=0&time=1547449200&size=c10000_u10000&quality=90&vuk=2669703802&ft=image)
 
 选择static的release进行编译。
 
@@ -44,7 +43,7 @@ Qt没有被正确安装，请运行makeinstall
 
 双击`exe`文件便可：
 
-![图片6](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2017-05-13-Win7%E4%B8%8B%E5%9F%BA%E4%BA%8EQt%E5%92%8Copencv%E7%9A%84%E7%A8%8B%E5%BA%8F%E7%9A%84%E8%BF%90%E8%A1%8C/6.jpg)
+![图片6](/assets/img/recovered/4f9b236088b0c5b7.jpg)
 
 该程序可以在没有配置环境的电脑上运行。
 

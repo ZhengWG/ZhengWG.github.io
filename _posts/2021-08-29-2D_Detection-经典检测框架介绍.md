@@ -169,7 +169,7 @@ YOLOv1：
 -   `BN层` ：在对所有卷积层加入BN层后，提升了2%的mAP
 -   `High Resolution Classifier`: YOLOv1训练分类网络时采用的input size为224X224，但是detection网络采用的输入为448X448，意味着detection网络训练的过程中需要重新学习更大的输入尺寸。YOLOv2先将分类网络在448X448的输入下进行finetune,然后进行detection网络的finetune，提升了4%的mAP
 -   `Convolutional With Anchor Boxes`: 采用anchor box（k-means聚类得到）的方式进行bounding box的预测。首先移除了YOLOv1的全连接层以卷积层替代，移除最后的pooling层，增大输出的size，输入的图片size由448X448->416X416,目的是为了保持输出为13X13的奇数，以保留图片正中间的grid cell位置（作者认为这对图片中间的大物体预测有帮助）。另外box的class的预测仍然沿用之前的YOLOV1的策略，位置预测直接预测中心点和大小，其中中心点预测采用sigmoid函数限制预测bbox在对应的anchor内。该方案的收益是提高了7%的recall，但是accuracy下降:69.5mAP@81%recall->69.2mAP@88%recall。
--   `Dimension Clusters`: 采用K-means进行box的聚类，相同情况下，能够比hand picked得到的box有更高的Avg IOU。 ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_163622.png)
+-   `Dimension Clusters`: 采用K-means进行box的聚类，相同情况下，能够比hand picked得到的box有更高的Avg IOU。 ![img](/assets/img/recovered/0fc8598761c26277.png)
 
 -   `Direct location prediction`: 默认的bounding box的center point的预测方案：
     
@@ -298,7 +298,7 @@ CenterNet其实有两篇：[CenterNet: Keypoint Triplets for Object Detection](h
 
 本文主要介绍第二篇即：Objects as Points，原因主要是该方法结构非常简单高效，拓展性很强，在其基础可拓展：2D检测/3D检测/人体姿态估计/Tracking算法（[Tracking Objects as Points](https://arxiv.org/pdf/2004.01177.pdf)），且本文一定程度上去掉NMS操作（采用来max_pool的方式），有很多启发性的亮点。
 
-这里简述下其在2D Detection这个任务上的算法设计（其他Task其实很类似）： CenterNet的核心思路是通过基于预测Key-Points的方式来得到检测框。与类似CornerNet的方式不同，Cornet的方案是通过预测中心点/框边缘点，然后再通过 `grouping` 的方式来进行点的关联，这样一方面带来额外的计算量，同时也带来了误差；CenterNet的方法比较简单粗暴：直接基于预测的到的中心点进行中心点偏差和检测框的宽高的预测,预测效果如下： ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_153846.png)
+这里简述下其在2D Detection这个任务上的算法设计（其他Task其实很类似）： CenterNet的核心思路是通过基于预测Key-Points的方式来得到检测框。与类似CornerNet的方式不同，Cornet的方案是通过预测中心点/框边缘点，然后再通过 `grouping` 的方式来进行点的关联，这样一方面带来额外的计算量，同时也带来了误差；CenterNet的方法比较简单粗暴：直接基于预测的到的中心点进行中心点偏差和检测框的宽高的预测,预测效果如下： ![img](/assets/img/recovered/a768daae923fcfbf.png)
 
 CenterNet算法细节：
 
@@ -308,11 +308,11 @@ CenterNet算法细节：
 
 -   `Loss设计` ： CenterNet的预测值包括三个部分：中心点/中心点偏置/检测框长宽；预测中心点的偏置的原因是heatmap是下采样得到的，中心点存在误差。值得注意的是在计算中心点损失的过程中，会遇到正负例样本不平衡的问题，SSD等Anchor Based的方案通过正负例的loss比例或者Focal loss的方式来缓解正负例样本不均衡的问题。CenterNet也采用了类似的方案： 
 
-    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_155713.png)
+    ![img](/assets/img/recovered/5c1753b2ca94e13b.png)
     
     对中心点偏置和长宽的loss都采用了L1 Loss： 
     
-    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_155859.png)
+    ![img](/assets/img/recovered/5f892986d09f9bc1.png)
     
     ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-29-2D_Detection-%25E7%25BB%258F%25E5%2585%25B8%25E6%25A3%2580%25E6%25B5%258B%25E6%25A1%2586%25E6%259E%25B6%25E4%25BB%258B%25E7%25BB%258D/2d_detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6_20210829_155917.png)
     

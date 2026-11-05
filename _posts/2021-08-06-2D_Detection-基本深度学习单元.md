@@ -273,6 +273,6 @@ max pooling图例:
 
 感受野(`receptive field`):
 
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-08-06-2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/2d_detection-%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84_20210725_181022.png)
+![img](/assets/img/recovered/a6dc5eeb497dce4e.png)
 
 计算公式: 其中 $R_n$ 对应n层的感受野, $f_(n-1)$ 为n层卷积核大小, $s_i$为$i$层的步长

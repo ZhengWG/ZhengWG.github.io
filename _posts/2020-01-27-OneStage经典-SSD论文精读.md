@@ -55,7 +55,7 @@ SSD作为One-Stage系列的论文，如今已经作为基本网络被广泛应�
 # 算法基本流程
 
 SSD算法框架:
-![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004704.png)
+![img](/assets/img/recovered/7391c7e7e14ddca6.png)
 
 SSD模型主要分为以下几个部分:
 

@@ -93,7 +93,7 @@ mathjax: true
       $$
       
       
-      ![image-20250202214833794](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2025-02-02-%25E9%2595%25BF%25E6%2580%259D%25E7%25BB%25B4%25E9%2593%25BE%25E6%25A8%25A1%25E5%259E%258B%2528Long-CoT%2529%25E5%25AF%25B9AI-Infra%25E7%259A%2584%25E5%2590%25AF%25E5%258F%2591/image-20250202214833794.png)
+      ![image-20250202214833794](/assets/img/recovered/4017c942c26e190c.png)
 
 ### DeepSeek R1
 

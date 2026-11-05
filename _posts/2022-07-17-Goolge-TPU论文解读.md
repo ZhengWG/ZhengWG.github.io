@@ -59,7 +59,7 @@ Tensor Processing Unit(TPU): Google自2015年开始开发，专注于NN网络的
 
 TPU架构的设计哲学： `The philosophy of the TPU microarchitecture is to keep the matrix unit busy.`
 
-但是由于从SRAM中读取数据消耗的功率比算术运算要大的多，所以TPU使用统一缓存区来减少读和写。采用“脉动运行(systolic execution)”来减少能耗，其原理是不同方向的数据以固定的间隔时间到达阵列中的单元，然后在单元中组合数据，其数据流如下图： ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-07-17-Goolge-TPU%25E8%25AE%25BA%25E6%2596%2587%25E8%25A7%25A3%25E8%25AF%25BB/Google-TPU%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB_20220717_162711.png)
+但是由于从SRAM中读取数据消耗的功率比算术运算要大的多，所以TPU使用统一缓存区来减少读和写。采用“脉动运行(systolic execution)”来减少能耗，其原理是不同方向的数据以固定的间隔时间到达阵列中的单元，然后在单元中组合数据，其数据流如下图： ![img](/assets/img/recovered/9e17bdad680c9d10.png)
 
 上述数据流中，给定的256-element（数据大小存在对齐限制）乘加操作在矩阵中以对角波（diagonal wavefront）向前运动。权重是提前加载的，能够立即更新每一个256累加器的每个为止。矩阵的脉动阵列对于软件是透明的，方面代码编写。
 

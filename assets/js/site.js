@@ -258,12 +258,16 @@ async function renderArticle(posts) {
     wrapper.append(bar, pre);
   });
   const toc = document.querySelector('[data-post-toc]');
+  const tocList = element('ul');
+  toc.replaceChildren(tocList);
   body.querySelectorAll('h2, h3').forEach((heading, index) => {
     if (!heading.id) heading.id = `section-${index}`;
     const link = element('a', heading.textContent);
     link.href = '#' + encodeURIComponent(heading.id);
     if (heading.tagName === 'H3') link.className = 'toc-subheading';
-    toc.append(link);
+    const item = element('li');
+    item.append(link);
+    tocList.append(item);
   });
   toc.dataset.original = '';
   rewriteArticleLinks(body, posts);
