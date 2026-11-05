@@ -1,8 +1,13 @@
 {
   "schema_version": 1,
-  "latest": "2026-11-04",
+  "latest": "2026-11-05",
   "language": "zh-Hans",
   "reports": [
+    {
+      "date": "2026-11-05",
+      "file": "2026-11-05.json",
+      "items": 80
+    },
     {
       "date": "2026-11-04",
       "file": "2026-11-04.json",
@@ -67,11 +72,6 @@
       "date": "2026-10-22",
       "file": "2026-10-22.json",
       "items": 92
-    },
-    {
-      "date": "2026-10-21",
-      "file": "2026-10-21.json",
-      "items": 65
     }
   ],
   "repos": [
@@ -217,6 +217,11 @@
     },
     {
       "repo": "jesdga95/basalt",
+      "prs": false,
+      "releases": true
+    },
+    {
+      "repo": "mw00/project-maya",
       "prs": false,
       "releases": true
     },
