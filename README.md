@@ -52,6 +52,22 @@ npx gulp build             # _javascript/ → assets/js/dist/
 
 > `assets/js/agents.js`、`house-chat.js` 和 `aiinfra.js` 目前**不经过** gulp，直接以源码形式引用。
 
+## 访问统计
+
+GA4 仅在生产构建且访问来源与 `_config.yml` 的 `url` 完全一致时加载；本地预览和其他域名不会上报。
+自己查看正式站点时，打开 `https://johneyzheng.top/?analytics=off`，当前浏览器会持续排除统计；用 `?analytics=on` 恢复。
+`?analytics=debug` 只为当前页面启用 DebugView，已设置的排除优先。存储被禁用时，排除参数仅对当前页面有效。
+
+沿用 Google tag 的自动 `page_view` 与 `user_engagement`，不额外发送浏览事件。
+数据流启用滚动和出站点击，关闭基于浏览器历史记录的页面更改（搜索输入使用 `replaceState`）。
+两个关键事件均按每会话一次统计且不设置货币价值：`contact_click`（点击邮件链接，非已发送邮件）和
+`github_visit`（访问自己的 GitHub 主页或仓库，非 Star）。事件不发送邮件地址、主题或正文。
+
+验收：正式文章停留并滚动到 90%，再点击个人 GitHub 链接，在 DebugView 核对
+`page_view`、`user_engagement`、`scroll`、`click`、`github_visit`；调试后恢复排除。
+`npm test` 覆盖生产域名限制、重复初始化、个人排除和目标链接判定。
+渠道参数统一遵循 [跨平台发布规则](docs/syndication-policy.md)，站内链接不添加 UTM。
+
 ## 数据管线
 
 `tools/house_price/` 抓取城市房价（当前仅杭州 `hz`），导出为

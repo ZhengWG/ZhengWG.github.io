@@ -12,6 +12,11 @@
 
 小红书使用独立摘要图文，在描述最前面保留对应的公开原文网址。禁止加入私密笔记、原始笔记仓库及其提交链接。
 
+对外分发的博客链接统一添加 `utm_source`（`zhihu` / `csdn` / `juejin` / `xiaohongshu`）、
+`utm_medium=referral`、`utm_campaign=technical_notes`，以及标识对应文章的 `utm_content`（稳定的文章 slug）。
+同一文章的首页、索引和原文链接使用相同参数；保留原链接其他参数及锚点，站内导航不加 UTM。
+知乎示例：`https://johneyzheng.top/posts/推理INFRA方法论-00-roofline/?utm_source=zhihu&utm_medium=referral&utm_campaign=technical_notes&utm_content=infra-00-roofline`。
+
 发布或修改已有文章前先检查平台记录，按已有文章 ID 更新，避免重复创建。草稿、已提交审核、已发布和平台限额待发布必须分别记录；不能把保存草稿视为正式发布。
 
 用户已明确要求：本次 8 篇推理 INFRA 系列同步四个平台，并向稀土掘金、小红书补发博客历史文章。知乎、CSDN 历史文章先核对已有记录，避免重复提交。
