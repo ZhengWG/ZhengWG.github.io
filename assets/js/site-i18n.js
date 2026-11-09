@@ -92,13 +92,13 @@ const siteUI = {
   zh: {
     pages: {home:'首页', about:'关于我', projects:'开源贡献', research:'研究笔记', experiments:'交互实验', writing:'技术文章', article:'文章', tags:'标签', categories:'分类', collection:'文章列表', archives:'文章归档', tool:'交互实验'},
     navigation: {research:'研究', projects:'项目', experiments:'实验', writing:'文章', about:'关于'},
-    count: n => `${n} 篇文章`, terms: n => `${n} 个主题`, loading:'正在加载…', error:'内容加载失败，请刷新重试。', empty:'没有找到匹配的文章。', original:'原文：中文', originalNote:'历史文章保留原文。', copy:'复制', copied:'已复制', copyFailed:'请选中复制', tag:'标签', category:'分类', searchHint:'搜索标题、方向…', noArticle:'没有找到这篇文章。', themeDark:'切换深色模式', themeLight:'切换浅色模式', source:'原文标签与分类',
+    count: n => `${n} 篇文章`, terms: n => `${n} 个主题`, loading:'正在加载…', error:'内容加载失败，请刷新重试。', empty:'没有找到匹配的文章。', original:'原文：中文', viewingZh:'中文', viewingEn:'英文', originalNote:'历史文章保留原文。', copy:'复制', copied:'已复制', copyFailed:'请选中复制', tag:'标签', category:'分类', searchHint:'搜索标题、方向…', noArticle:'没有找到这篇文章。', themeDark:'切换深色模式', themeLight:'切换浅色模式', source:'原文标签与分类',
     toolFeatures: { 'ai-tracker':['信息来源','主题筛选','更新记录'], 'house-price':['城市历史数据','区域与小区对比','数据来源与日期'] }
   },
   en: {
     pages: {home:'Home', about:'About', projects:'Open-source contributions', research:'Research notes', experiments:'Experiments', writing:'Writing', article:'Article', tags:'Tags', categories:'Categories', collection:'Articles', archives:'Article archive', tool:'Experiment'},
     navigation: {research:'Research', projects:'Projects', experiments:'Experiments', writing:'Writing', about:'About'},
-    count: n => `${n} ${n === 1 ? 'article' : 'articles'}`, terms: n => `${n} topics`, loading:'Loading…', error:'Could not load the content. Please refresh to try again.', empty:'No matching articles.', original:'Original: Chinese', originalNote:'Historical articles remain in their original language.', copy:'Copy', copied:'Copied', copyFailed:'Select the code to copy', tag:'Tag', category:'Category', searchHint:'Search titles and topics…', noArticle:'Article not found.', themeDark:'Switch to dark mode', themeLight:'Switch to light mode', source:'Original tags and categories',
+    count: n => `${n} ${n === 1 ? 'article' : 'articles'}`, terms: n => `${n} topics`, loading:'Loading…', error:'Could not load the content. Please refresh to try again.', empty:'No matching articles.', original:'Original: Chinese', viewingZh:'Chinese', viewingEn:'English', originalNote:'Historical articles remain in their original language.', copy:'Copy', copied:'Copied', copyFailed:'Select the code to copy', tag:'Tag', category:'Category', searchHint:'Search titles and topics…', noArticle:'Article not found.', themeDark:'Switch to dark mode', themeLight:'Switch to light mode', source:'Original tags and categories',
     toolFeatures: { 'ai-tracker':['Sources','Topic filters','Update history'], 'house-price':['City history','District and community comparisons','Sources and dates'] }
   }
 };

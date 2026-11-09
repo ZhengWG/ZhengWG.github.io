@@ -1,0 +1,144 @@
+---
+title: "A Classic One-Stage Detector: Reading the SSD Paper Closely"
+description: "A close reading of the Single Shot MultiBox Detector (SSD) paper that covers its motivation, pipeline, training details, and experimental results."
+---
+
+# Contents
+
+1.  [Preface](#org826fa12)
+2.  [Basic Paper Information](#orgce051c2)
+3.  [Background and Core Ideas (Motivation & Contribution)](#org6dfdd62)
+4.  [Basic Algorithm Pipeline](#org6a40c12)
+5.  [Algorithm Details](#orgb5bdbd1)
+6.  [Experimental Results](#orge94cc87)
+7.  [Summary](#orga72aba3)
+
+
+<a id="org826fa12"></a>
+
+# Preface
+
+SSD, a paper in the One-Stage family, is now widely used as a base network for object detection, and many network architectures are improvements built on top of it.
+Current Object Detection architectures fall into two camps:
+
+-   Two-Stage: classification and regression based on Region Proposal and a CNN: RCNN->SPPnet->MulriBox->Faster RCNN. The advantage of this approach is high detection accuracy, but it needs a lot of computation and is poor in real-time performance.
+-   Sliding-window style: there is no Region-Proposal step; it estimates the Bounding-Box and the class confidence directly: OverFet->Yolo->SSD
+
+
+<a id="orgce051c2"></a>
+
+# Basic Paper Information
+
+Author information:
+
+-   First author: `WeiLiu`, PhD student at UNC Chapel Hill
+-   Corresponding author: `Alexander C. Berg`, Assistant Professor at UNC Chapel Hill, CTO of Shapagon, 2.7k citations
+
+
+<a id="org6dfdd62"></a>
+
+# Background and Core Ideas (Motivation & Contribution)
+
+A brief look at other frameworks: the two-stage RCNN family and the one-stage YOLO family.
+
+-   `RCNN`: Region-based Convolution Neural Network. It has three main steps: Selective Search finds Region Proposals (about 2000), a CNN runs on each region, and the output of each CNN is fed into an SVM for classification and a linear regression for bounding box regression
+-   `Faster-RCNN`: first understand Fast RCNN. Fast RCNN feeds the input image through a CNN to get features, then obtains Regions from the features with a Proposal method, uses ROI Pooling, replaces the SVM with a Softmax layer after the fc layers, and uses Linear regression to get the boxes. Apart from the up-front Region Proposal extraction, everything else can be trained end to end. Faster RCNN builds on Fast RCNN by replacing the Proposal method with an RPN; the resulting ROIs and the features from the CNN go into ROI Pooling and several fully connected layers, and the final boxes come from softmax classification and bounding box regression, so the whole network is trained end to end.
+-   `YOLO`: YOLO uses a One-stage detection approach and treats object detection as a regression problem. Its CNN divides the input image into an S×S grid, and each cell is responsible for detecting the objects that fall inside it. Each cell predicts B boxes together with the confidence of each bounding box for the classes. Feature maps come from the outputs of the earlier convolutional layers and are fed into two fully connected layers; after a reshape, the output is the box predictions for the grid above.
+-   SSD's improvement: SSD avoids combining an RPN with Fast RCNN as Faster RCNN does. Instead, a series of boxes set up in advance correspond to feature maps at different scales, which gives an end-to-end network structure that makes the model easier to train and faster at detection. Compared with YOLO, SSD uses default boxes (of different sizes and aspect ratios) more flexibly. Convolutions after the base network produce feature maps at different scales, so predictions can combine features of different scales. Training and prediction on the feature maps of different scales use the outputs of convolutional layers directly, and convolutions replace fc, which makes detection accuracy higher across scales.
+
+
+<a id="org6a40c12"></a>
+
+# Basic Algorithm Pipeline
+
+SSD algorithm framework:
+![img](/assets/img/recovered/7391c7e7e14ddca6.png)
+
+The SSD model has the following main parts:
+
+1.  `Multi-scale feature maps for detection`: the backbone uses a standard base network (VGG). This paper modifies the last few layers of the backbone and introduces extra convolutional layers to extract features at different scales
+2.  `Convolutional predictions for detection`: for each feature map (say of size m\*n\*p), a 3\*3\*p convolution kernel produces the prediction values, including the relative position values (relative to the location in the original image that corresponds to the feature map pixel) and the confidence, among others
+3.  `Default boxes and aspect ratios`: each layer's feature map has default boxes with default sizes and aspect ratios. Each position on the feature map estimates the relative position and size with respect to the default boxes, along with the class scores. For a feature map of size m\*n, the final prediction has (c+4)kmn outputs, where c is the number of classes, 4 is the position offsets and size offsets, and k is the number of default boxes (k differs between feature maps of different scales; for example conv10_2 and conv11_2 use k=4 and the rest use 6).
+
+
+<a id="orgb5bdbd1"></a>
+
+# Algorithm Details
+
+Training
+
+-   `Matching strategy`: unlike [MultiBox](https://arxiv.org/pdf/1312.2249.pdf), SSD treats every default box whose IOU with a GT is above the 0.5 threshold as positive. That is, default boxes and GTs have a many-to-one relationship, rather than the one-to-one relationship of MultiBox, which takes the box with the maximum IOU
+-   Loss design: the loss has two parts, the `localization loss` and the `confidence loss`:
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004754.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004817.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004827.png)
+
+Here N is the number of matched boxes; if N=0, then loss=0. The localization loss is an L1 loss over (cx,cy,w,h), that is, four parts of loss for the center position, width, and height. The confidence loss is a softmax loss.
+
+-   Choosing scales and aspect ratios for detection: feature maps of different scales have different receptive fields, so default boxes of different sizes should be designed. The default box sizes SSD uses are designed as follows:
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004846.png)
+
+Here s_min is 0.2, s_max is 0.9, and the aspect ratios are a_r={1,2,3,1/2,1/3}
+
+-   `Hard negative mining`: the strategy is to sort by confidence loss and keep the ratio of positive to negative samples at 1:3.
+-   `Data augmentation`: it uses the `ramdom crop` strategy:
+    -   Take the input image at its original size
+    -   Sample a patch from the input image such that the minimum jaccard overlap with the objects is 0.1, 0.3, 0.5, 0.7 or 0.9
+    -   Sample a patch at random
+
+The size of a sampled patch is in [0.1,1] and its aspect ratio is 1/2 to 2; boxes whose center lies inside the sampled patch are kept. The resulting patch is resized to a fixed size and augmented with horizontally flip (probability 0.5), photo-metrix distortions, and so on.
+
+-   `Base network`: a series of changes is made on top of VGG: fc6 and fc7 are replaced with convolutional layers, pool5 is changed from 2x2-s2 to 3x3-s1 and uses atrous (dilated) convolution, and all drop-out layers and the fc8 layer are removed.
+
+
+<a id="orge94cc87"></a>
+
+# Experimental Results
+
+-   PASCAL VOC2007 test detection results: SSD performs very well on large objects and slightly worse on small objects (if an object is too small, the earlier feature layers do not necessarily hold enough information about it). Increasing the input size improves performance on small objects.
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004909.png)
+
+-   Performance analysis of the model's modules:
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_004936.png)
+
+There are three main conclusions:
+
+-   `Data Augumentation`: data augmentation alone improves mAP by 8.8. The authors think that faster-rcnn is more robust to translation of the data because it has a feature pooling step, so data augmentation brings it little benefit. This is open to doubt, because the random-crop augmentation strategy changes more than the translation of the object.
+-   `More default box shapes`: designing more aspect boxes covers default boxes of more sizes, which helps the model predict objects of multiple sizes
+-   `Atrous is faster`: using atrous convolution speeds things up by 20% without reducing performance
+-   Performance of SSD512 on VOC2007 for the three classes animals, vehicles, and furniture:
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005012.png)
+
+-   Effect of BBox size on performance for each class: small objects of the same class perform clearly worse
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005040.png)
+
+-   Multiple output layers at different resolutions: predicting on multi-scale feature maps gives better performance, and keeping the boundary boxes works better still (after the later, higher-level feature layers are introduced):
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005103.png)
+
+-   PASCAL_VOC2012: the conclusions are similar to those on VOC2007:
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005124.png)
+
+-   COCO: SSD uses smaller default box sizes here, and compared with faster-rcnn its performance on small objects is slightly worse:
+    ![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005142.png)
+
+-   Data Augumentation for Small Object Accuracy: for small objects, the paper proposes a "zoom out" random-expansion augmentation. The image is first placed at random on a canvas 16X its size, and then a random crop is taken, which clearly improves performance on small objects:
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005333.png)
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005348.png)
+
+-   Inference time: after the network produces its predictions, SSD needs a further NMS (non-maximum suppression) step, which takes 1.7msec per image for SSD300 and 20 VOC classes. The overall inference time comparison of the models is as follows:
+
+![img](https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-27-OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/2020_01_27_SSD_20210710_005412.png)
+
+
+<a id="orga72aba3"></a>
+
+# Summary
+
+Overall, SSD's network design is simple and workable. The One-Stage approach achieves a good trade-off between accuracy and speed, and the multi-scale-prediction design is its main contribution. However, data augmentation in the paper improves the model's performance by a large amount. This may be because the dataset itself is not large enough, so comparing against a Faster-rcnn that did not use the same augmentation is slightly unfair.
