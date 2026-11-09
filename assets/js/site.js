@@ -90,6 +90,14 @@ function element(tag, text, className) {
   return el;
 }
 function postLink(post) { return `${post.url}?lang=${language}`; }
+function displayTitle(post) { return postLocale.displayTitle(post, language); }
+function displayDescription(post) { return postLocale.displayDescription(post, language); }
+function uncoveredNote(posts) {
+  if (language !== 'en') return '';
+  const missing = posts.filter(post => !post.en).length;
+  if (!missing) return '';
+  return missing === 1 ? ' · 1 article is still in Chinese' : ` · ${missing} articles are still in Chinese`;
+}
 function coverImage(post, decorative = false) {
   if (!post.image?.src) return null;
   const img = element('img', undefined, 'post-cover-image');
@@ -108,7 +116,7 @@ function seriesCard(post, number) {
   if (img) link.append(img);
   const copy = element('div', undefined, 'series-card-copy');
   copy.dataset.original = '';
-  copy.append(element('small', `${String(number).padStart(2, '0')} / ${post.date}`), element('h3', post.title.replace(/^推理 INFRA 方法论（\d）：/, '')), element('p', post.description));
+  copy.append(element('small', `${String(number).padStart(2, '0')} / ${post.date}`), element('h3', postLocale.seriesTitle(post, language)), element('p', displayDescription(post)));
   link.append(copy);
   return link;
 }
@@ -116,8 +124,8 @@ function postRow(post, number) {
   const link = element('a');
   link.href = postLink(post);
   const copy = element('div');
-  const title = element('h3', post.title);
-  const description = element('p', post.description);
+  const title = element('h3', displayTitle(post));
+  const description = element('p', displayDescription(post));
   title.dataset.original = '';
   description.dataset.original = '';
   copy.append(element('small', `${post.date} / ${post.categories.map(termLabel).join(' · ')}`), title);
@@ -131,7 +139,7 @@ function showPosts(target, posts) {
   if (!posts.length) target.append(element('p', ui.empty, 'archive-note'));
 }
 function setCounts(posts) {
-  document.querySelectorAll('[data-result-count]').forEach(el => { el.textContent = `${ui.count(posts.length)} · ${ui.originalNote}`; });
+  document.querySelectorAll('[data-result-count]').forEach(el => { el.textContent = `${ui.count(posts.length)}${uncoveredNote(posts)}`; });
 }
 function groupedTerms(posts, type) {
   const terms = new Map();
@@ -202,14 +210,28 @@ async function renderArticle(posts) {
   const body = document.querySelector('[data-post-body]');
   if (!post) { document.querySelector('[data-post-title]').textContent = ui.noArticle; body.textContent = ui.noArticle; return; }
   if (!nativePost) { location.replace(postLink(post) + location.hash); return; }
-  document.title = `${post.title} · Johney Zheng`;
-  for (const [selector, value] of [['[data-post-title]', post.title], ['[data-post-description]', post.description], ['[data-post-date]', post.date]]) {
+  let showingTranslation = false;
+  if (language === 'en' && post.en) {
+    try {
+      const translation = await fetch(post.en);
+      if (translation.ok) {
+        body.innerHTML = await translation.text();
+        showingTranslation = true;
+      }
+    } catch (_) {}
+  }
+  const titleText = showingTranslation && post.title_en ? post.title_en : post.title;
+  const descriptionText = showingTranslation && post.description_en ? post.description_en : (post.description || '');
+  document.title = `${titleText} · Johney Zheng`;
+  for (const [selector, value] of [['[data-post-title]', titleText], ['[data-post-description]', descriptionText], ['[data-post-date]', post.date]]) {
     const target = document.querySelector(selector);
     target.textContent = value;
     target.dataset.original = '';
   }
-  document.querySelector('[data-post-language]').textContent = post.language === 'en' ? (language === 'en' ? 'Original: English' : '原文：英文') : ui.original;
-  body.lang = post.language;
+  document.querySelector('[data-post-language]').textContent = showingTranslation
+    ? ui.viewingEn
+    : (post.language === 'en' ? (language === 'en' ? 'Original: English' : '原文：英文') : (language === 'en' ? ui.original : ui.viewingZh));
+  body.lang = showingTranslation ? 'en' : (post.language === 'en' ? 'en' : 'zh-Hans');
   const cover = coverImage(post);
   if (cover && !document.querySelector('.article-cover')) {
     cover.loading = 'eager';
@@ -271,6 +293,14 @@ async function renderArticle(posts) {
   });
   toc.dataset.original = '';
   rewriteArticleLinks(body, posts);
+  document.querySelectorAll('.article-pagination a').forEach(link => {
+    let url;
+    try { url = new URL(link.getAttribute('href'), location.origin); } catch (_) { return; }
+    const found = posts.find(item => item.url === url.pathname);
+    if (!found) return;
+    const label = displayTitle(found);
+    link.textContent = link.textContent.trim().startsWith('←') ? `← ${label}` : `${label} →`;
+  });
   if (post.mermaid || body.querySelector('.mermaid')) {
     const script = document.createElement('script');
     script.async = true;
@@ -280,6 +310,16 @@ async function renderArticle(posts) {
       window.mermaid.init(undefined, body.querySelectorAll('.mermaid'));
     };
     document.head.append(script);
+  }
+  if (showingTranslation && post.math) {
+    const typeset = () => {
+      const math = window.MathJax;
+      if (!math?.typesetPromise) return;
+      const pending = math.startup?.promise || Promise.resolve();
+      pending.then(() => { math.typesetClear?.(); return math.typesetPromise([body]); }).catch(() => {});
+    };
+    if (window.MathJax) typeset();
+    else document.getElementById('MathJax-script')?.addEventListener('load', typeset, { once: true });
   }
   if (location.hash) document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
 }
@@ -312,19 +352,20 @@ async function renderContent() {
       if (!post) return;
       link.href = postLink(post);
       link.querySelector('time').textContent = post.date.replaceAll('-', '.');
-      link.querySelector('h3').textContent = termLabel(post.title.replace(/^推理 INFRA 方法论（\d）：/, ''));
+      link.querySelector('h3').textContent = postLocale.homeTitle(post, language);
     });
     document.querySelector('.section-rule a[href*="writing"]').textContent = language === 'en' ? `Browse all ${posts.length} articles ↗` : `${posts.length} 篇笔记，持续积累 ↗`;
   } else if (page === 'research') {
     const list = document.querySelector('[data-series]');
     list.classList.replace('series-table', 'series-covers');
     series.forEach((post, i) => list.append(seriesCard(post, i)));
-    list.after(element('p', ui.originalNote, 'archive-note'));
+    const seriesNote = uncoveredNote(series);
+    if (seriesNote) list.after(element('p', seriesNote.replace(/^ · /, ''), 'archive-note'));
   } else if (page === 'writing') {
     const search = document.querySelector('#article-search');
     function filter() {
       const text = search.value.trim().toLowerCase();
-      const matching = posts.filter(post => [post.title, post.description, ...post.tags, ...post.categories, ...post.tags.map(termLabel), ...post.categories.map(termLabel)].join(' ').toLowerCase().includes(text));
+      const matching = posts.filter(post => [post.title, post.title_en, post.description, post.description_en, post.card_title, ...post.tags, ...post.categories, ...post.tags.map(termLabel), ...post.categories.map(termLabel)].join(' ').toLowerCase().includes(text));
       showPosts(document.querySelector('[data-writing]'), matching);
       setCounts(matching);
       const url = new URL(location.href);

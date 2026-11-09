@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "node --test tools/house_price/tests/*.test.js tools/analytics/*.test.js",
+    "test": "node --test tools/house_price/tests/*.test.js tools/analytics/*.test.js tools/i18n/*.test.js",
     "test:house-data": "python3 -m unittest discover -s tools/house_price/tests -v"
   },
   "repository": {
