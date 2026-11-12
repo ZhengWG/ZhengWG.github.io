@@ -24,7 +24,7 @@ Before optimizing a model, you usually need to answer a few questions:
 The following uses the public specifications of the H20-96GB to illustrate the Roofline model; for the source of the specifications, see [SGLang's public technical article](https://www.lmsys.org/blog/2025-09-26-sglang-ant-group/). The curve illustrates how compute and bandwidth constrain each other.
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/image-20260801113507384.png" alt="Roofline model and arithmetic-intensity ridge point based on public H20 specifications" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801113507384.svg" alt="Roofline model and arithmetic-intensity ridge point based on public H20 specifications" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 The figure above is based on the following definitions:

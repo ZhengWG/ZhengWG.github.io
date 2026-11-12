@@ -9,7 +9,7 @@ Decompose collective communication into step count, launch latency, and bytes pe
 ## Common communication algorithms
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/eight_collective_primitives_full_reference.svg" alt="Data distribution and communication semantics of the eight collective communication primitives" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/eight_collective_primitives_full_reference.svg" alt="Data distribution and communication semantics of the eight collective communication primitives" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 | Category   | Primitive / algorithm | Semantics or mechanism     | Bytes per GPU                    | Steps          | Notes                       |
@@ -28,7 +28,7 @@ AllReduce variants:
 - Ring: 2(P−1) steps, each exchanging S/P with a fixed neighbor. Byte-optimal; each GPU always keeps 2 connections, and the reduction is spread over small chunks in every step → the easiest to overlap with compute and the easiest to pipeline. It has only one weakness: the step count is O(P), so α accumulates for small messages (14 α at P=8).
 
   <p align="center">
-    <img loading="lazy" src="/assets/img/inference-infra/image-20260901062208502.png" alt="Step-by-step reduction and gather in Ring AllReduce" width="720" style="display:block;margin:0 auto;" />
+    <img loading="lazy" src="/assets/img/inference-infra/en/image-20260901062208502.svg" alt="Step-by-step reduction and gather in Ring AllReduce" width="720" style="display:block;margin:0 auto;" />
   </p>
 
 - Halving-Doubling: 2·log₂P steps, with the same bytes as ring. The mechanism: the pairing distance doubles each step while the exchange volume halves each step (S/2→S/4→S/8, then back the same way) — larger chunks make up for the saved steps, and the load is perfectly balanced across GPUs. It requires P to be a power of 2; otherwise, after the padding steps are added, it often loses to ring.
@@ -38,7 +38,7 @@ AllReduce variants:
 - one-shot: 1 step; each GPU sends the full S to every peer, and each performs the full reduction locally (this needs more compute resources). The only way to go below 2 steps is to transfer redundantly: the bytes are (P−1)·S, P/2 times the lower bound. Applicable domain = small messages and small P (crossover point S* = α·BW/(P−1−lower-bound coefficient), about 130 KB within an 8-GPU node).
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/image-20260802084745948.png" alt="Communication flow of different AllReduce algorithms" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260802084745948.svg" alt="Communication flow of different AllReduce algorithms" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 ## Public topology example: NUMA and PCIe relationships with 8 GPUs / 4 NICs
@@ -153,7 +153,7 @@ T = steps × α + bytes per GPU / busBW
 Latency of the different AllReduce algorithms:
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/image-20260802083343907.png" alt="AllReduce algorithm latency across message sizes" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260802083343907.svg" alt="AllReduce algorithm latency across message sizes" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 For the cross-node case, since intra-node bandwidth is higher than inter-node bandwidth, the communication scheme is:
@@ -165,7 +165,7 @@ For the cross-node case, since intra-node bandwidth is higher than inter-node ba
 3. Intra-node AllGather last: the completed slices are broadcast back within the node, and each GPU collects the full result — more intra-node bytes, but intra-node bandwidth is much higher.
 
    <p align="center">
-     <img loading="lazy" src="/assets/img/inference-infra/image-20260811042529058.png" alt="Hierarchical communication: intra-node reduction, cross-node slice reduction, and intra-node gather" width="720" style="display:block;margin:0 auto;" />
+     <img loading="lazy" src="/assets/img/inference-infra/en/image-20260811042529058.svg" alt="Hierarchical communication: intra-node reduction, cross-node slice reduction, and intra-node gather" width="720" style="display:block;margin:0 auto;" />
    </p>
 
 | S      | Ring intra-node | HD intra-node | two-shot intra-node | one-shot intra-node | Ring cross-node | HD cross-node | two-shot cross-node | one-shot cross-node | **Hierarchical cross-node** |
@@ -202,7 +202,7 @@ Cross-node transfers must use RDMA; TCP is suitable only for the control plane. 
 AllToAll likewise has several algorithms:
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/all2all_four_algorithms_all_cards_distribution.svg" alt="Per-GPU data distribution for four AllToAll algorithms" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/all2all_four_algorithms_all_cards_distribution.svg" alt="Per-GPU data distribution for four AllToAll algorithms" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 **① Direct send**: each GPU sends its 3 blocks to their respective destinations at the same time, done in one step. Optimal in both steps and bytes; the weakness is that P−1 messages hit one NIC at once, which easily causes incast across nodes (congestion, many-to-one).

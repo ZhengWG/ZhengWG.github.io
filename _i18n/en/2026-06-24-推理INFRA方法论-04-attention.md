@@ -97,7 +97,7 @@ Capacity-planning formulas must have two segments; a single s×KV term badly und
 ### CSA/HCA
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/dsv4_attention_full_dataflow.svg" alt="Data flow of DeepSeek V4 compressed attention" width="720" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/dsv4_attention_full_dataflow.svg" alt="Data flow of DeepSeek V4 compressed attention" width="720" />
 </p>
 
 ## Series navigation

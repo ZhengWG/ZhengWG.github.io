@@ -20,7 +20,7 @@ MLA: KV is a single latent shared by all heads → no head dimension to split �
 How the communication mechanism differs across combinations of Attention-DP/TP and MoE-TP/EP:
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/attn_moe_parallel_matrix_formula.svg" alt="Communication matrix for combinations of attention and MoE parallelism" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/attn_moe_parallel_matrix_formula.svg" alt="Communication matrix for combinations of attention and MoE parallelism" width="720" style="display:block;margin:0 auto;" />
 </p>
 Here dispatch/combine are built on all2all:
 
@@ -32,7 +32,7 @@ Here dispatch/combine are built on all2all:
 Attn-TP/Attn-DP can also often be combined with MoE-EP (32 GPUs, EP32, k=8, MLA, d is the hidden size, B is the global batch):
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/attn_hybrid_grid_with_moe_ep_domains.svg" alt="Hybrid attention parallelism and MoE expert-parallel domains" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/attn_hybrid_grid_with_moe_ep_domains.svg" alt="Hybrid attention parallelism and MoE expert-parallel domains" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 | Dimension | Pure Attn-TP32 | **TP4 × DP8** | Pure Attn-DP32 |
@@ -160,7 +160,7 @@ So a third dimension comes in — the **sequence**. But the motivation is comple
 **Three routes for prefill CP:**
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/prefill_cp_three_routes_and_sharding.svg" alt="Three routes for prefill context parallelism and sequence sharding" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/prefill_cp_three_routes_and_sharding.svg" alt="Three routes for prefill context parallelism and sequence sharding" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 **Communication patterns compared**
@@ -208,7 +208,7 @@ In engineering terms: the allocator is built with `size × N` and `page_size × 
 **Three-step pipeline**
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/dcp_pipeline_and_merge_transpose.svg" alt="Decode context parallelism pipeline and LSE merge" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/dcp_pipeline_and_merge_transpose.svg" alt="Decode context parallelism pipeline and LSE merge" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 **① AllGather Q**: each GPU originally holds Q only for its own slice of heads, but its KV shard covers all heads, so Q must first be gathered within the group. In decode Q is only 1 token, so this communication is small; enabling Q replication (replicating the Q projection weights at load time) **eliminates this step entirely**.
@@ -310,7 +310,7 @@ PP turns off the generic overlap scheduler and uses its own event loop: `pp_size
 **Prefill and decode behave completely differently in the pipeline**
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/pp_prefill_vs_decode_pipeline.svg" alt="How dependencies differ between prefill and decode under pipeline parallelism" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/pp_prefill_vs_decode_pipeline.svg" alt="How dependencies differ between prefill and decode under pipeline parallelism" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 |                | Prefill (chunk) | Decode (micro-batch) |
@@ -350,7 +350,7 @@ On large-vocabulary models lm_head is not small (129K × 7168, about 0.9 GB in F
 With equal-length chunks, `t_k ∝ (1−α) + α·(2k+1)/m` (α = attention's share of the time). With T=32K, m=8, and α≈0.3, the first and last chunks differ by 1.7×, which under PP accumulates into gaps of 30/60/90.
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/chunk_balance_summary.svg" alt="Load-balancing methods for pipeline chunks" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/chunk_balance_summary.svg" alt="Load-balancing methods for pipeline chunks" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 | Fix | Approach | Cost |

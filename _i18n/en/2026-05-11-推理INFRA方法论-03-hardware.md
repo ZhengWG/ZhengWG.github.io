@@ -10,19 +10,19 @@ Chip architecture comparison:
 
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/image-20260801051101770.png" alt="Comparison of compute units and memory architecture in GPUs and NPUs" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801051101770.svg" alt="Comparison of compute units and memory architecture in GPUs and NPUs" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 Memory hierarchy:
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/image-20260801044145759.png" alt="GPU memory hierarchy" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801044145759.svg" alt="GPU memory hierarchy" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 HBM stacking diagram:
 
 <p align="center">
-  <img loading="lazy" src="/assets/img/inference-infra/image-20260801041738401.png" alt="HBM stack structure" width="720" style="display:block;margin:0 auto;" />
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801041738401.svg" alt="HBM stack structure" width="720" style="display:block;margin:0 auto;" />
 </p>
 
 HBM generations compared:
