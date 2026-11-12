@@ -58,7 +58,16 @@ for (const name of posts) {
     const sourceImages = tokens(source, /!\[[^\]]*\]\([^)\s]+\)|<img\b[^>]*\bsrc="[^"]+"/g);
     for (const image of sourceImages) {
       const src = /(?:\]\(|src=")([^)"\s]+)/.exec(image)[1];
-      assert.ok(english.includes(src), `missing image ${src}`);
+      if (english.includes(src)) continue;
+      // English articles may use a translated SVG with the same source stem.
+      // Keep an explicit correspondence and verify the replacement asset itself.
+      const localizedSrc = src.startsWith('/assets/')
+        ? path.posix.join(path.posix.dirname(src), 'en', `${path.posix.basename(src, path.posix.extname(src))}.svg`)
+        : null;
+      assert.ok(localizedSrc && english.includes(localizedSrc), `missing image ${src} or its English counterpart`);
+      const localizedPath = path.join(root, localizedSrc.slice(1));
+      assert.ok(fs.existsSync(localizedPath), `missing English image asset ${localizedSrc}`);
+      assert.equal(/[\u4e00-\u9fff]/.test(fs.readFileSync(localizedPath, 'utf8')), false, `Chinese left in English image ${localizedSrc}`);
     }
   });
 }
