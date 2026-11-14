@@ -1,0 +1,282 @@
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. grep</a></li>
+<li><a href="#sec-2">2. xargs</a></li>
+<li><a href="#sec-3">3. sed</a></li>
+<li><a href="#sec-4">4. awk</a></li>
+<li><a href="#sec-5">5. find</a></li>
+</ul>
+</div>
+</div>
+
+<h1 id="grep">grep<a id="sec-1" name="sec-1"></a></h1>
+
+<p>Search for strings</p>
+<ul>
+  <li>‘-r’: search directories recursively, <code class="language-plaintext highlighter-rouge">grep -r "sample" .</code></li>
+  <li>‘-c’: show the number of matches, <code class="language-plaintext highlighter-rouge">grep -c "sample" .</code></li>
+  <li>‘-i’: ignore case</li>
+  <li>‘-n’: print line numbers</li>
+</ul>
+
+<h1 id="xargs">xargs<a id="sec-2" name="sec-2"></a></h1>
+
+<p>xargs reads data from stdin and splits it into arguments, using whitespace or newline characters as delimiters. Its default command is echo, for example:</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>    <span class="nb">echo</span> <span class="s2">"</span><span class="se">\t</span><span class="s2">"</span> | xargs
+    t
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>‘-n’ limits the number of arguments per output line</li>
+  <li>‘-d’ sets the delimiter</li>
+  <li>‘-I’ sets a placeholder, which can be replaced with a specified string</li>
+  <li>‘-P’ enables parallel execution</li>
+</ul>
+
+<h1 id="sed">sed<a id="sec-3" name="sec-3"></a></h1>
+
+<p>sed is a non-interactive editor. It does not modify the original file. Instead, it stores the original file in a temporary buffer and processes it line by line: after each line is processed, the line is removed from the buffer and the result is written to the screen. sed commands edit a file by addressing: an address can be a number, a regular expression, or a combination of the two. With no address, sed acts on every line by default.</p>
+
+<p>Common commands:</p>
+
+<ul>
+  <li>Print:</li>
+</ul>
+
+<p>p :</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>    <span class="nb">cat </span>test.output
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,3.17</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,13.17</span>
+    <span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'$p'</span> test.output
+    <span class="c"># 打印出最后一行</span>
+    <span class="c"># -n表示只把符合要求的行进行打印，否则会把所有行以及符合要求都打印出来，即符合要求的行会被打印两遍</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,13.17</span>
+    <span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'/\[layer2/p'</span> test.output
+    <span class="c"># 把包含[layer2的行打印出来，[需要\进行转义</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,3.17</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,13.17</span>
+    <span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'/\[layer1/,2p'</span> test.output
+    <span class="c"># 输出包含[layer1的行到第二行</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,3.17</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>Delete:</li>
+</ul>
+
+<p>d:</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre>    <span class="nb">cat </span>test.output
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,3.17</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,13.17</span>
+    <span class="nb">sed</span> <span class="s1">'$d'</span> test.output
+    <span class="c"># 删除最后一行</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,3.17</span>
+    <span class="nb">sed</span> <span class="s1">'/\[layer2/d'</span> test.output
+    <span class="c"># 把包含[layer2的行删除</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'/\[layer1/,2d'</span> test.output
+    <span class="c"># 删除包含[layer1的行到第二行</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,13.17</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>Substitute:</li>
+</ul>
+
+<p>s: by default, it matches the first occurrence of the pattern on each line</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre>    <span class="nb">cat </span>test.output
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="c"># [layer2],[layer2],Forward Timer],__conv__,3.17</span>
+    <span class="c"># [layer2],Forward Timer],__conv__,13.17</span>
+    <span class="nb">sed</span> <span class="s1">'s/\[layer2]/Zheng/'</span> test.output
+    <span class="c"># 仅对行内第一个匹配到的字符进行替换</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="c"># Zheng,[layer2],Forward Timer],__conv__,3.17</span>
+    <span class="c"># Zheng,Forward Timer],__conv__,13.17</span>
+    <span class="nb">sed</span> <span class="s1">'s/\[layer2]/Zheng/g'</span> test.output
+    <span class="c"># 代表对行内所有匹配得打的字符进行替换</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.108</span>
+    <span class="c"># Zheng,Zheng,Forward Timer],__conv__,3.17</span>
+    <span class="c"># Zheng,Forward Timer],__conv__,13.17</span>
+    <span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'1,2s/[1-9]$/Zheng/p'</span> test.output
+    <span class="c"># 处理1-2行，对一个数字结尾的行，将数字替换成Zheng，并且打印输出</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.10Zheng</span>
+    <span class="c"># [layer2],[layer2],Forward Timer],__conv__,3.1Zheng</span>
+    <span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'1,2s/\([1-9]\)$/Zheng\1/p'</span> test.output
+    <span class="c"># \1为匹配符，能够匹配前面字符内容，在该基础上加上内容，但需要将前面的匹配的内容通过\(\)括号括出来</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.10Zheng8</span>
+    <span class="c"># [layer2],[layer2],Forward Timer],__conv__,3.1Zheng7</span>
+    <span class="nb">sed</span> <span class="nt">-n</span> <span class="s1">'1,2s/\(\.[0-9]\)/\1zheng/p'</span> test.output
+    <span class="c"># 同上，只是在后面添加内容</span>
+    <span class="c"># [layer1],[Forward Timer],__conv__,3.1zheng08</span>
+    <span class="c"># [layer2],[layer2],Forward Timer],__conv__,3.1zheng7</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>Other common modifiers
+    <ul>
+      <li>^: anchors at the start of a line</li>
+      <li>$: anchors at the end of a line</li>
+      <li>.: matches any single character except a newline</li>
+      <li>*: matches zero or more of the preceding character; it is often combined with . as .* to mean any number of characters</li>
+      <li>[]: matches any one character in the given set; common usage: [0-9], [a-zA-Z]</li>
+      <li>x\{m\}: exactly m consecutive x</li>
+      <li>x\{m,\}: at least m consecutive x</li>
+      <li>-i: edit the file in place</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="awk">awk<a id="sec-4" name="sec-4"></a></h1>
+
+<p>The basic format of the awk command is =awk ‘condition1 {action1} condition2 {action2} …’ filename</p>
+
+<p>awk reserved words: BEGIN runs when the awk program starts, before any data is read, and the action after BEGIN is executed only once at the start; END runs after awk has processed all data, just before the program ends, and the action after END is executed only once at the end.</p>
+
+<p>awk will not execute until it sees a complete pair of single quotes.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre>    <span class="nb">cat </span>test.output
+    <span class="c"># [layer1] [backward_Timer] __conv__      3.108</span>
+    <span class="c"># [layer2] [Forward_Timer] __conv__       19.17</span>
+    <span class="c"># [layer3]                  [backward_Timer] __conv__ 13.17</span>
+    <span class="c"># [layer3]                  [Forward_Timer] __conv__ 9.17</span>
+    <span class="nb">awk</span> <span class="s1">'BEGIN {print "This is just for test!"} {print $2}'</span> test.output
+    <span class="c"># awk比cut更加智能，cut指令不能很好地识别空格间隔，而awk则对空格和制表符都能很好的识别</span>
+    <span class="c"># BEGIN为执行命令前输出</span>
+    <span class="c"># This is just for test!</span>
+    <span class="c"># [backward_Timer]</span>
+    <span class="c"># [Forward_Timer]</span>
+    <span class="c"># [Forward_Timer]</span>
+    <span class="nb">awk</span> <span class="s1">'END {print "Just print layer2 and score&gt;10"} $4&gt;10 &amp;&amp; /Forward_Timer/ {print }'</span> test.output
+    <span class="c"># END 为执行命令结束后输出</span>
+    <span class="c"># awk指令支持正则，需要将正则指令通过//框出</span>
+    <span class="c"># &amp;&amp;表示多重与指令，或操作为||</span>
+    <span class="c"># [layer2] [Forward_Timer] __conv__       19.17</span>
+    <span class="c"># Just print layer2 and score&gt;10</span>
+    <span class="nb">awk</span> <span class="s1">'{printf "row:%d,column:%d\n",NR,NF}'</span> test.output
+    <span class="c"># NR:内置变量，为处理的行数</span>
+    <span class="c"># NF:内置变量，为处理的列数</span>
+    <span class="c"># %d为格式话输出，需要用printf，和print的区别是可以格式化输出，且默认无换行</span>
+    <span class="c"># row:1,column:4</span>
+    <span class="c"># row:2,column:4</span>
+    <span class="c"># row:3,column:4</span>
+    <span class="c"># row:4,column:4</span>
+    <span class="nb">awk</span> <span class="s1">'/Forward_Timer/ {sum += $4;i++} END {printf "%.2f\n",sum/i}'</span> test.output
+    <span class="c"># 多个命令需要;连接</span>
+    <span class="c"># 14.17</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="find">find<a id="sec-5" name="sec-5"></a></h1>
+
+<p>The most common use is to find files by name (regular expressions are supported):</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>    find <span class="nb">.</span> <span class="nt">-name</span> <span class="s2">"*.txt"</span>
+    <span class="c"># .为当前目录，*.txt为所有txt文件</span>
+    <span class="c"># ./test.txt</span>
+    <span class="c"># ./log.txt</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Other search modes:</p>
+
+<ul>
+  <li>-perm: permissions, such as 755, where the owner can read, write, and execute, and others can read and execute</li>
+  <li>-user: user name, such as find . -user zheng</li>
+  <li>-size: size, such as find . -size +1000000c, which finds files larger than 1M</li>
+  <li>-depth: recurse into subdirectories, such as find . -name “*.txt” -depth</li>
+</ul>

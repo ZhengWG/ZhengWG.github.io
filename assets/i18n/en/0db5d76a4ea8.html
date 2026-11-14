@@ -1,0 +1,353 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>MVC is a commonly used software architecture pattern in software engineering. It has no single standard definition, but it generally divides a software system into three basic parts: Model, View, and Controller.</p>
+
+<ul>
+  <li>M: responsible for data storage</li>
+  <li>V: responsible for data display</li>
+  <li>C: responsible for the logic of interaction with the user.</li>
+</ul>
+
+<p>The class diagram of the MVC pattern is as follows:</p>
+
+<p><img src="/assets/img/recovered/6f505f714c2b1982.png" alt="img" /></p>
+
+<p>Advantages:</p>
+
+<ul>
+  <li>Low coupling: the software is layered, the layers can evolve independently, which makes teamwork and rapid development easier</li>
+  <li>High reusability and applicability: it fits all kinds of scenarios, such as web, mobile, and desktop</li>
+  <li>Fast development and deployment: many ready-made frameworks are based on the MVC pattern</li>
+</ul>
+
+<p>Application scenarios:</p>
+
+<ul>
+  <li>It is widely used on the internet, for example in the separation of front end and back end, and even in the separation within the front end and within the back end themselves</li>
+  <li>Extensions based on MVC: the MVP (Model-View-Presenter) pattern, where P is the presenter and all interaction between Model and View goes through the P role, giving more thorough decoupling; and the MVVM (Model-View-ViewModel) pattern, where the ViewModel is the “Model of View”, characterized by “two-way data binding” that makes the synchronization of View and Model data “automatic”.</li>
+</ul>
+
+<h1 id="example">Example<a id="sec-2"></a></h1>
+
+<p>Here is a simple example, a camera design: data storage is implemented by the SD card module, data visualization by the display, and the camera body controls the overall camera functions:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">random</span>
+
+
+<span class="k">class</span> <span class="nc">Camera</span><span class="p">():</span>
+    <span class="s">"""相机机身"""</span>
+
+    <span class="c1"># 相机基本参数
+</span>    <span class="n">single_focus</span> <span class="o">=</span> <span class="s">"单点对焦"</span>
+    <span class="n">area_focus</span> <span class="o">=</span> <span class="s">"区域对焦"</span>
+    <span class="n">big_area_focus</span> <span class="o">=</span> <span class="s">"大区域对焦"</span>
+    <span class="n">focus45</span>  <span class="o">=</span> <span class="s">"45点自动对焦"</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="n">sefl</span><span class="p">.</span><span class="n">__apertune</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># 光圈
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">__shutter_speed</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 快门速度
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">__light_sensitivity</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 感光度
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">__lens</span> <span class="o">=</span> <span class="n">Lens</span><span class="p">()</span>  <span class="c1"># 静态
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">__sd_card</span> <span class="o">=</span> <span class="n">SDCard</span><span class="p">()</span>  <span class="c1"># SD卡
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">__display</span> <span class="o">=</span> <span class="n">Display</span><span class="p">()</span>  <span class="c1"># 显示器
+</span>
+    <span class="k">def</span> <span class="nf">shooting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""拍照"""</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"[开始拍摄中"</span><span class="p">)</span>
+        <span class="n">image_lighting</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">__lens</span><span class="p">.</span><span class="n">collecting</span><span class="p">()</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">__transfer_image</span><span class="p">(</span><span class="n">image_lighting</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__sd_card</span><span class="p">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"拍摄完成]"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">view_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="s">"""查看图像"""</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"查看第%d张图像："</span> <span class="o">%</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">__sd_card</span><span class="p">.</span><span class="n">get_image</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__display</span><span class="p">.</span><span class="n">show_image</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__transfer_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_lighting</span><span class="p">):</span>
+        <span class="s">"""将光线信号存储为数字信号：简单模拟"""</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"接收光线并处理成数字信号"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Image</span><span class="p">(</span><span class="mi">6000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="n">image_lighting</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aperture</span><span class="p">,</span> <span class="n">shutter_speed</span><span class="p">,</span> <span class="n">light_sensitivity</span><span class="p">):</span>
+        <span class="s">"""设置相机的拍摄属性：光圈、快门、感光度"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__aperture</span> <span class="o">=</span> <span class="n">aperture</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__shutter_speed</span> <span class="o">=</span> <span class="n">shutter_speed</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__light_sensitivity</span> <span class="o">=</span> <span class="n">light_sensitivity</span>
+
+    <span class="k">def</span> <span class="nf">focusing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus_mode</span><span class="p">):</span>
+        <span class="s">"""对焦:通过镜头组件实现"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__lens</span><span class="p">.</span><span class="n">set_focus</span><span class="p">(</span><span class="n">focus_mode</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">show_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""显示相机属性"""</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"%s 的设置 光圈：F%0.1f 快门：1/%d 感光度：ISO %d"</span> <span class="o">%</span>
+              <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__name</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__aperture</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__shutter_speed</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__light_sensitivity</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">Lens</span><span class="p">():</span>
+    <span class="s">"""镜头"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__focus_mode</span> <span class="o">=</span> <span class="s">''</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__scenes</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="mi">0</span><span class="p">:</span> <span class="s">'风光'</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="s">'生态'</span><span class="p">,</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="s">'人文'</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="s">'纪实'</span><span class="p">,</span>
+            <span class="mi">4</span><span class="p">:</span> <span class="s">'人像'</span><span class="p">,</span>
+            <span class="mi">5</span><span class="p">:</span> <span class="s">'建筑'</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">set_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">focus_mode</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__focus_mode</span> <span class="o">=</span> <span class="n">focus_mode</span>
+
+    <span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""图像采集：随机模拟"""</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"采集光线：%s"</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">__focus_mode</span><span class="p">)</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__scenes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">__scenes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s">"美丽的"</span> <span class="o">+</span> <span class="n">scene</span> <span class="o">+</span> <span class="s">" 图像"</span>
+
+
+<span class="k">class</span> <span class="nc">Display</span><span class="p">():</span>
+    <span class="s">"""显示器"""</span>
+    <span class="k">def</span> <span class="nf">show_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"图片大小: %d x %d 图片内容：%s"</span> <span class="o">%</span> <span class="p">(</span><span class="n">image</span><span class="p">.</span><span class="n">get_width</span><span class="p">(),</span> <span class="n">image</span><span class="p">.</span><span class="n">get_height</span><span class="p">(),</span> <span class="n">image</span><span class="p">.</span><span class="n">get_pix</span><span class="p">()))</span>
+
+
+<span class="k">class</span> <span class="nc">SDCard</span><span class="p">():</span>
+    <span class="s">"""SD存储卡"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__images</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"存储图像"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__images</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__images</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__images</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+
+<span class="k">class</span> <span class="nc">Image</span><span class="p">():</span>
+    <span class="s">"""图像：字符串替代像素内容"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">pixels</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__width</span> <span class="o">=</span> <span class="n">width</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__height</span> <span class="o">=</span> <span class="n">height</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__pixels</span> <span class="o">=</span> <span class="n">pixels</span>
+
+    <span class="k">def</span> <span class="nf">get_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__width</span>
+
+    <span class="k">def</span> <span class="nf">get_height</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__height</span>
+
+    <span class="k">def</span> <span class="nf">get_pix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__pixels</span>
+
+
+<span class="k">def</span> <span class="nf">test_camera</span><span class="p">():</span>
+    <span class="n">camera</span> <span class="o">=</span> <span class="n">Camera</span><span class="p">(</span><span class="s">"EOS 80D"</span><span class="p">)</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">setting</span><span class="p">(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">show_info</span><span class="p">()</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">focusing</span><span class="p">(</span><span class="n">Camera</span><span class="p">.</span><span class="n">big_area_focus</span><span class="p">)</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">shooting</span><span class="p">()</span>
+
+    <span class="n">camera</span><span class="p">.</span><span class="n">setting</span><span class="p">(</span><span class="mf">5.6</span><span class="p">,</span> <span class="mi">720</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">show_info</span><span class="p">()</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">focusing</span><span class="p">(</span><span class="n">Camera</span><span class="p">.</span><span class="n">focus45</span><span class="p">)</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">shooting</span><span class="p">()</span>
+
+    <span class="n">camera</span><span class="p">.</span><span class="n">view_image</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">camera</span><span class="p">.</span><span class="n">view_image</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="s">"""
+    测试结果：
+    EOS 80D的设置 光圈：F3.5 快门：1/60 感光度：ISO 200
+    [开始拍摄中
+    采集光线，大区域对焦
+    接收光线并处理成数字信号
+    存储图像
+    拍摄完成
+    ]
+
+    EOS 80D的设置 光圈：F5.6 快门：1/720 感光度：ISO 100
+    [开始拍摄中
+    采集光线，45点自动对焦
+    接收光线并处理成数字信号
+    存储图像
+    拍摄完成
+    ]
+
+    查看第1张图像：
+    图片大小：6000 x 4000，图像内容：美丽的风光图像
+    查看第2张图像：
+    图片大小：6000 x 4000，图像内容：美丽的建筑图像
+    """</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

@@ -1,0 +1,374 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Blog Setup Options</a></li>
+  <li><a href="#sec-3">Introduction to Jekyll</a></li>
+  <li><a href="#sec-4">Deploying the Blog</a></li>
+  <li><a href="#sec-5">Blog Comments</a></li>
+  <li><a href="#sec-6">Google Analytics</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>A record of rebuilding my blog. Tools/environment: PC: mac. Code: org-mode; for the powerful features of org-mode see <a href="http://doc.norang.ca/org-mode.html">Org-mode: Organize your life in plain text!</a>. Tool: Spacemacs</p>
+
+<h1 id="blog-setup-options">Blog Setup Options<a id="sec-2"></a>&gt;</h1>
+
+<p>A static site suits a blog that focuses on content. For common options for building a blog as a static site, see: <a href="https://www.cnblogs.com/buyz/p/10935831.html">The 11 Most Popular Static Site Generators</a>. Octopress/Jekyll support org-mode well and have plenty of resources, so I chose that solution. The blog platform is GitHub Pages, whose advantages are:</p>
+
+<ul>
+  <li>You can write posts locally</li>
+  <li>It is simple and lightweight</li>
+</ul>
+
+<h1 id="introduction-to-jekyll">Introduction to Jekyll<a id="sec-3"></a></h1>
+
+<p>Based on: <a href="https://www.zmonster.me/2013/09/14/blogging-with-jekyll-emacs.html">jekyll-emacs</a> and the <a href="https://jekyllrb.com/docs/">official Jekyll docs</a>. A fully featured Jekyll blog directory contains the following structure and files:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="nt">--</span> index.html <span class="c"># 网站首页文件</span>
+<span class="nt">--</span> archives.html <span class="c"># 文章存档页面文件，文件名可改</span>
+<span class="nt">--</span> categories.html <span class="c"># 文章分类页面文件，文件名可改</span>
+<span class="nt">--</span> tags.html <span class="c"># 文章标签页面文件，文件名可改</span>
+<span class="nt">--</span> about.html <span class="c"># “关于我”页面文件，文件名可</span>
+<span class="nt">--</span> rss.xml或atom.xml <span class="c"># 博客地图，SEO优化</span>
+<span class="nt">--</span> _config.yml <span class="c"># Jekyll博客配置文件</span>
+<span class="nt">--</span> _layouts <span class="c"># 博客模板目录</span>
+   <span class="nt">--</span> default.html
+   <span class="nt">--</span> post.html
+<span class="nt">--</span> _includes <span class="c"># 可复用的公用模板文件目录，例如博客的导航条，不是必须的，</span>
+             <span class="c"># 但分离出各个页面的共有部分可以使得模板更易读，结构更清晰</span>
+   <span class="nt">--</span> footer.html
+   <span class="nt">--</span> footer.html
+   <span class="nt">--</span> &lt;other file to include <span class="k">in </span>template&gt;
+<span class="nt">--</span> _posts <span class="c"># 文件存放目录</span>
+   <span class="nt">--</span> 2013-09-08-test.html
+   <span class="nt">--</span> &lt;other posts&gt;
+<span class="nt">--</span> assets/ <span class="c"># 其他博客文件存放目录，如css，图片，js文件，以下目录结构为示例</span>
+   <span class="nt">--</span> css
+      <span class="nt">--</span> style.css
+   <span class="nt">--</span> img
+      <span class="nt">--</span> favicon.ico
+   <span class="nt">--</span> js
+      <span class="nt">--</span> blog.js
+<span class="nt">--</span> _doc <span class="c"># yaml/json/csv/tsv文件，可定义通用的数据：valuable/options</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Notes on the core files:</p>
+
+<ul>
+  <li>
+    <p>_config.yaml: the <code class="language-plaintext highlighter-rouge">_config.yaml</code> file is the Jekyll blog’s configuration file. In it you can set the blog name, blog description, author name, and so on, and these can be <strong>used as variables in templates</strong>. If you configure the blog from a template, this is mainly the file you need to edit:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+</pre></td><td class="rouge-code"><pre><span class="c1"># Handing Reading
+</span><span class="n">encoding</span><span class="p">:</span> <span class="n">utf</span><span class="o">-</span><span class="mi">8</span>
+
+<span class="c1"># Basic
+</span><span class="n">title</span><span class="p">:</span> <span class="n">main_title</span>
+<span class="n">subtitle</span><span class="p">:</span> <span class="n">sub_title</span>
+<span class="n">description</span><span class="p">:</span> <span class="n">description</span>
+
+<span class="n">permalink</span><span class="p">:</span> <span class="o">/</span><span class="p">:</span><span class="n">year</span><span class="o">/</span><span class="p">:</span><span class="n">month</span><span class="o">/</span><span class="p">:</span><span class="n">title</span><span class="o">/</span>
+
+<span class="c1"># Format
+</span><span class="n">highlighter</span><span class="p">:</span> <span class="n">rouge</span>
+
+<span class="c1"># supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
+</span><span class="n">cover_color</span><span class="p">:</span>
+
+<span class="c1"># The blog button should not be removed.
+</span><span class="n">blog_button</span><span class="p">:</span>
+    <span class="n">title</span><span class="p">:</span> <span class="n">Blog</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Visit</span> <span class="n">blog</span>
+
+<span class="c1"># Navigation buttons in the front page.
+</span><span class="n">nav</span><span class="p">:</span>
+    <span class="c1"># - {title: Another Button, description: A button, url: 'http://example.com'}
+</span>
+<span class="c1"># Pagination
+</span><span class="n">plugins</span><span class="p">:</span> <span class="p">[</span><span class="n">jekyll</span><span class="o">-</span><span class="n">paginate</span><span class="p">]</span>
+<span class="n">paginate</span><span class="p">:</span> <span class="mi">10</span>
+<span class="n">paginate_path</span><span class="p">:</span> <span class="s">"page/:num/"</span>
+
+<span class="c1"># Comment
+</span><span class="n">comment</span><span class="p">:</span>
+    <span class="c1"># disqus: ****
+</span>    <span class="c1"># duoshuo:
+</span>
+<span class="c1"># Default: 对应目录下的默认页面配置信息
+</span><span class="n">default</span><span class="p">:</span>
+
+<span class="c1"># Social
+</span><span class="n">social</span><span class="p">:</span>
+    <span class="n">weibo</span><span class="p">:</span> <span class="o">****</span>
+    <span class="n">github</span><span class="p">:</span> <span class="o">****</span>
+    <span class="n">twitter</span><span class="p">:</span> <span class="o">****</span>
+    <span class="n">mail</span><span class="p">:</span> <span class="o">****</span>
+
+<span class="c1"># Google Analytics
+</span><span class="n">ga</span><span class="p">:</span>
+    <span class="c1"># id: your_ga_id
+</span>    <span class="c1"># host: your_host
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h1 id="deploying-the-blog">Deploying the Blog<a id="sec-4"></a></h1>
+
+<p>This post uses the Jekyll theme <a href="http://github.com/cotes2020/jekyll-theme-chirpy">jekyll-theme-chirpy</a>. The installation steps are as follows:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="c"># clone, 命名为username.github.io,方便GitHub Pages部署</span>
+git clone git@github.com:cotes2020/jekyll-theme-chirpy.git username.github.io
+<span class="c"># 安装gem依赖</span>
+bundle
+<span class="c"># 初始化</span>
+bash tools/init.sh
+<span class="c"># 删除现有文件</span>
+<span class="nb">rm</span> <span class="nt">-rf</span> .travis.yaml _posts/<span class="k">*</span> docs
+<span class="c"># 修改_config.yaml，主要修改：url/avatar/timezone/lang/social等内容</span>
+<span class="c"># 具体可参考个人博客：https://github.com/ZhengWG/ZhengWG.github.io</span>
+<span class="c"># 添加博客文件(markdonw/html格式)到_posts</span>
+<span class="c"># 本地预览</span>
+bundle <span class="nb">exec </span>jekyll s
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>For remote deployment to GitHub Pages: because GitHub Pages runs in safe mode, extra plugins cannot be applied. So I deploy with GitHub Actions, mainly based on the ./github/workflows/pages-deploy.yaml file (it is ignored by default, so you need to modify the .gitignore file). After you push to the remote repository, GitHub builds the site and generates the gh-pages branch. Finally, change the GitHub Pages setting: <strong>Settings-&gt;Options-&gt;Github Pages</strong>, and change the publishing source from master to gh-pages.</p>
+
+<h1 id="blog-comments">Blog Comments<a id="sec-5"></a></h1>
+
+<p>The comment options for Jekyll are briefly introduced below:</p>
+
+<ul>
+  <li>Disqus: supported by default in most Jekyll templates, but the drawback is that it needs a VPN to bypass the firewall</li>
+  <li>NetEase Cloud comments: requires your own domain name</li>
+  <li>Duoshuo: the service has been discontinued</li>
+  <li>gitment/gittalk: use GitHub issues, but they seem to carry the risk of requiring overly broad permissions</li>
+  <li>Valine: a comment system based on <a href="https://leancloud.cn">LeanCloud</a> that is fairly convenient: <a href="https://valine.js.org">official site</a>.</li>
+</ul>
+
+<p>Below, the comment configuration for Disqus and Valine is introduced. In the end I went with Valine (since it needs no VPN):</p>
+
+<ul>
+  <li>
+    <p>Disqus comments: <a href="http://github.com/cotes2020/jekyll-theme-chirpy">jekyll-theme-chirpy</a> supports Disqus comments by default. To configure it: register and sign in at <a href="https://disqus.com/">Disqus</a>, which provides a social comment system. Follow the prompts (skipping the paid plan); after registering and signing in you get a shortname. Then modify the <code class="language-plaintext highlighter-rouge">_config.yaml</code> file:</p>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>disqus:
+  comments: <span class="nb">true
+  </span>shortname: <span class="s1">'shortname'</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>The resulting comments look like this:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-06-29-%E5%9F%BA%E4%BA%8EJekyll%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/1.jpg" alt="img" /></p>
+  </li>
+  <li>
+    <p>Valine comments: to set up the Valine comment system, first create an application on the <a href="https://leancloud.cn">LeanCloud site</a>. After registering, create an application and name it:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-06-29-%E5%9F%BA%E4%BA%8EJekyll%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/build_blog_20210717_165359.png" alt="img" /></p>
+
+    <p>Then get the application’s credentials: Application -&gt; Settings -&gt; Application Credentials:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-06-29-%E5%9F%BA%E4%BA%8EJekyll%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/1626512245847.jpg" alt="img" /></p>
+
+    <p>Also set the Web security domain: Application -&gt; Settings -&gt; Security Center:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-06-29-%E5%9F%BA%E4%BA%8EJekyll%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/build_blog_20210717_165954.png" alt="img" /></p>
+
+    <p>After creating the application, add Valine support in your local blog project. First create the variables in the <code class="language-plaintext highlighter-rouge">_config.yaml</code> file:</p>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>valine_comment:
+<span class="nb">enable</span>: <span class="nb">true</span>
+<span class="c"># app_id</span>
+leancloud_appid: <span class="k">*****************</span>
+<span class="c"># app_key</span>
+leancloud_appkey: <span class="k">*****************</span>
+<span class="c"># placeholder</span>
+placeholder: <span class="s2">"请在下面评论："</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Then create <code class="language-plaintext highlighter-rouge">valine.html</code>, which by default goes in the <code class="language-plaintext highlighter-rouge">_includes</code> folder (note: remove the <code class="language-plaintext highlighter-rouge">\</code> escape character before <code class="language-plaintext highlighter-rouge">\{\%}</code>):</p>
+
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="err">\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="k">if</span> <span class="nx">site</span><span class="p">.</span><span class="nx">valine_comment</span><span class="p">.</span><span class="nx">enable</span> <span class="o">%</span><span class="p">}</span>
+    <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">id</span><span class="o">=</span><span class="dl">"</span><span class="s2">comments</span><span class="dl">"</span><span class="o">&gt;&lt;</span><span class="sr">/div</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="dl">"</span><span class="s2">//cdn1.lncld.net/static/js/3.0.4/av-min.js</span><span class="dl">"</span><span class="o">&gt;&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">script</span> <span class="nx">src</span><span class="o">=</span><span class="dl">'</span><span class="s1">//unpkg.com/valine/dist/Valine.min.js</span><span class="dl">'</span><span class="o">&gt;&lt;</span><span class="sr">/script</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+    <span class="k">new</span> <span class="nx">Valine</span><span class="p">({</span>
+        <span class="na">el</span><span class="p">:</span> <span class="dl">'</span><span class="s1">#comments</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">app_id</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&#123;{ site.valine_comment.leancloud_appid }}</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">app_key</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&#123;{ site.valine_comment.leancloud_appkey }}</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">placeholder</span><span class="p">:</span> <span class="dl">'</span><span class="s1">&#123;{ site.valine_comment.placeholder }}</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">visitor</span><span class="p">:</span> <span class="kc">true</span>
+    <span class="p">});</span>
+<span class="o">&lt;</span><span class="sr">/script</span><span class="err">&gt;
+\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="nx">endif</span> <span class="o">%</span><span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Finally, include the <code class="language-plaintext highlighter-rouge">valine.html</code> file wherever you want it to load, such as <code class="language-plaintext highlighter-rouge">page.html</code> and <code class="language-plaintext highlighter-rouge">post.html</code> in the <code class="language-plaintext highlighter-rouge">_layouts</code> folder:</p>
+
+    <p><code class="language-plaintext highlighter-rouge">page.html</code> (note: remove the <code class="language-plaintext highlighter-rouge">\</code> escape character before <code class="language-plaintext highlighter-rouge">\{\%}</code>):</p>
+
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="err">\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="k">if</span> <span class="nx">site</span><span class="p">.</span><span class="nx">valine_comment</span><span class="p">.</span><span class="nx">enable</span> <span class="nx">and</span> <span class="nx">page</span><span class="p">.</span><span class="nx">comments</span> <span class="o">%</span><span class="p">}</span>
+<span class="o">&lt;</span><span class="nx">div</span> <span class="kd">class</span><span class="o">=</span><span class="dl">"</span><span class="s2">row</span><span class="dl">"</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">div</span> <span class="kd">class</span><span class="o">=</span><span class="dl">"</span><span class="s2">col-12 col-lg-11 col-xl-8</span><span class="dl">"</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">div</span> <span class="kd">class</span><span class="o">=</span><span class="dl">"</span><span class="s2">pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4</span><span class="dl">"</span><span class="o">&gt;</span>
+
+      <span class="err">\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="nx">include</span> <span class="nx">valine</span><span class="p">.</span><span class="nx">html</span> <span class="o">%</span><span class="p">}</span>
+
+      <span class="o">&lt;</span><span class="sr">/div&gt; &lt;!-- .pl-1 pr-1 --</span><span class="err">&gt;
+</span>    <span class="o">&lt;</span><span class="sr">/div&gt; &lt;!-- .col-12 --</span><span class="err">&gt;
+</span>  <span class="o">&lt;</span><span class="sr">/div&gt; &lt;!-- .row --</span><span class="err">&gt;
+\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="nx">endif</span> <span class="o">%</span><span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p><code class="language-plaintext highlighter-rouge">post.html</code> (note: remove the <code class="language-plaintext highlighter-rouge">\</code> escape character before <code class="language-plaintext highlighter-rouge">\{\%}</code>):</p>
+
+    <div class="language-js highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="err">\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="k">if</span> <span class="nx">site</span><span class="p">.</span><span class="nx">valine_comment</span><span class="p">.</span><span class="nx">enable</span> <span class="nx">and</span> <span class="nx">page</span><span class="p">.</span><span class="nx">comments</span> <span class="o">%</span><span class="p">}</span>
+  <span class="err">\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="nx">include</span> <span class="nx">valine</span><span class="p">.</span><span class="nx">html</span> <span class="o">%</span><span class="p">}</span>
+<span class="err">\</span><span class="p">{</span><span class="err">\</span><span class="o">%</span> <span class="nx">endif</span> <span class="o">%</span><span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Finally, you get the comment result:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-06-29-%E5%9F%BA%E4%BA%8EJekyll%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/build_blog_20210717_173023.png" alt="img" /></p>
+  </li>
+</ul>
+
+<h1 id="google-analytics">Google Analytics<a id="sec-6"></a></h1>
+
+<p>Google Analytics can be used to monitor the site. Sign in at the <a href="https://analytics.google.com/analytics/web">GA site</a> (which requires a VPN), and create an account and a property. Note that in the new version you need to choose the UA-related option under advanced options:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2021-06-29-%E5%9F%BA%E4%BA%8EJekyll%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/2.jpg" alt="img" /></p>
+
+<p>Finally you get the <code class="language-plaintext highlighter-rouge">track-id（UA-\*\*\*\*)</code>: Account -&gt; Property. Modify the <code class="language-plaintext highlighter-rouge">_config.yaml</code> file:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>google_analytics:
+<span class="nb">id</span>: <span class="s1">'UA-*******'</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

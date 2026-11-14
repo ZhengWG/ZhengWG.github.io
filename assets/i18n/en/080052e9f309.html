@@ -1,0 +1,527 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Public Datasets</a></li>
+  <li><a href="#sec-3">Classic Papers</a></li>
+  <li><a href="#sec-4">Basic Structure</a></li>
+  <li><a href="#sec-5">Backbone</a></li>
+  <li><a href="#sec-6">Hyperparameters</a></li>
+  <li><a href="#sec-7">Loss</a></li>
+  <li><a href="#sec-8">Classic Detection Frameworks</a></li>
+  <li><a href="#sec-9">Network Acceleration</a></li>
+  <li><a href="#sec-10">General Detection Tricks</a></li>
+  <li><a href="#sec-11">Links to Selected Paper Walkthroughs</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p><strong>update on 4/10/2021: I have finally finished the 2D_Detection series, which is a bit of a look back at my earlier work in this field. From now on I will occasionally post articles on deploying deep learning models and walkthroughs of papers.</strong></p>
+
+<p><del>This article summarizes the knowledge I have worked with on <code class="language-plaintext highlighter-rouge">2D-Detection</code>. The content is organized as below, and I will update it chapter by chapter from time to time.</del></p>
+
+<p>Main references:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">&lt;&lt;Deep Learning with PyTorch: Object Detection in Practice&gt;&gt;</code></li>
+  <li>Online sources: <code class="language-plaintext highlighter-rouge">Zhihu</code> / <code class="language-plaintext highlighter-rouge">CSDN</code> etc</li>
+</ul>
+
+<h1 id="public-datasets">Public Datasets<a id="sec-2"></a></h1>
+
+<p>Links to commonly used datasets:</p>
+
+<ul>
+  <li>2D object detection datasets:
+    <ul>
+      <li><a href="https://pjreddie.com/projects/pascal-voc-dataset-mirror/">Pascal VOC</a></li>
+      <li><a href="http://www.objects365.org/overview.html">Object365</a></li>
+      <li><a href="https://cocodataset.org/">COCO</a></li>
+    </ul>
+  </li>
+  <li>3D object detection datasets:
+    <ul>
+      <li><a href="http://www.cvlibs.net/datasets/kitti/">KITTI</a></li>
+      <li><a href="https://nuscenes.org/">nuScenes</a></li>
+      <li><a href="https://self-driving.lyft.com/">Lyft</a></li>
+      <li><a href="https://waymo.com/">Waymo</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="classic-papers">Classic Papers<a id="sec-3"></a></h1>
+
+<p>Note: updated on 2021-05-02</p>
+
+<p>Reference: <a href="https://github.com/hoya012/deep_learning_object_detection">github_object_detection</a></p>
+
+<p>Performance comparison of different detection frameworks:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Detector</td>
+      <td>VOC07(mAP@IoU=0.5)</td>
+      <td>VOC12(mAP@IoU=0.5)</td>
+      <td>COCO(mAP@IoU=0.5:0.95)</td>
+      <td>Published In</td>
+    </tr>
+    <tr>
+      <td>RCNN</td>
+      <td>58.5</td>
+      <td>-</td>
+      <td>-</td>
+      <td>CVPR’14</td>
+    </tr>
+    <tr>
+      <td>SPP-Net</td>
+      <td>59.2</td>
+      <td>-</td>
+      <td>-</td>
+      <td>ECCV’14</td>
+    </tr>
+    <tr>
+      <td>MR-CNN</td>
+      <td>78.2(07+12)</td>
+      <td>73.9(07+12)</td>
+      <td>-</td>
+      <td>ICCV’15</td>
+    </tr>
+    <tr>
+      <td>Fast RCNN</td>
+      <td>70.0(07+12)</td>
+      <td>68.4(07+12)</td>
+      <td>19.7</td>
+      <td>ICCV’15</td>
+    </tr>
+    <tr>
+      <td>Faster RCNN</td>
+      <td>73.2(07+12)</td>
+      <td>70.4(07+12)</td>
+      <td>21.9</td>
+      <td>NIPS’15</td>
+    </tr>
+    <tr>
+      <td>YOLO v1</td>
+      <td>66.4(07+12)</td>
+      <td>57.9(07+12)</td>
+      <td>-</td>
+      <td>CVPR’16</td>
+    </tr>
+    <tr>
+      <td>G-CNN</td>
+      <td>66.8</td>
+      <td>66.4(07+12)</td>
+      <td>-</td>
+      <td>CVPR’16</td>
+    </tr>
+    <tr>
+      <td>AZNet</td>
+      <td>70.4</td>
+      <td>-</td>
+      <td>22.3</td>
+      <td>CVPR’16</td>
+    </tr>
+    <tr>
+      <td>ION</td>
+      <td>80.1</td>
+      <td>77.9</td>
+      <td>33.1</td>
+      <td>CVPR’16</td>
+    </tr>
+    <tr>
+      <td>HyperNet</td>
+      <td>76.3(07+12)</td>
+      <td>71.4(07+12)</td>
+      <td>-</td>
+      <td>CVPR’16</td>
+    </tr>
+    <tr>
+      <td>OHEM</td>
+      <td>78.9(07+12)</td>
+      <td>76.3(07+12)</td>
+      <td>22.4</td>
+      <td>CVPR’16</td>
+    </tr>
+    <tr>
+      <td>MPN</td>
+      <td>-</td>
+      <td>-</td>
+      <td>33.2</td>
+      <td>BMVC’16</td>
+    </tr>
+    <tr>
+      <td>SSD</td>
+      <td>76.8(07+12)</td>
+      <td>74.9(07+12)</td>
+      <td>31.2</td>
+      <td>ECCV’16</td>
+    </tr>
+    <tr>
+      <td>GBDNet</td>
+      <td>77.2(07+12)</td>
+      <td>-</td>
+      <td>27.0</td>
+      <td>ECCV’16</td>
+    </tr>
+    <tr>
+      <td>CPF</td>
+      <td>76.4(07+12)</td>
+      <td>72.6(07+12)</td>
+      <td>-</td>
+      <td>ECCV’16</td>
+    </tr>
+    <tr>
+      <td>R-FCN</td>
+      <td>79.5(07+12)</td>
+      <td>77.6(07+12)</td>
+      <td>29.9</td>
+      <td>NIPS’16</td>
+    </tr>
+    <tr>
+      <td>DeepID-Net</td>
+      <td>69.0</td>
+      <td>-</td>
+      <td>-</td>
+      <td>PAMI’16</td>
+    </tr>
+    <tr>
+      <td>NoC</td>
+      <td>71.6(07+12)</td>
+      <td>68.8(07+12)</td>
+      <td>27.2</td>
+      <td>TPAMI’16</td>
+    </tr>
+    <tr>
+      <td>DSSD</td>
+      <td>81.5(07+12)</td>
+      <td>80.0(07+12)</td>
+      <td>33.2</td>
+      <td>arXiv’17</td>
+    </tr>
+    <tr>
+      <td>TDM</td>
+      <td>-</td>
+      <td>-</td>
+      <td>37.3</td>
+      <td>CVPR’17</td>
+    </tr>
+    <tr>
+      <td>FPN</td>
+      <td>-</td>
+      <td>-</td>
+      <td>36.2</td>
+      <td>CVPR’17</td>
+    </tr>
+    <tr>
+      <td>YOLO v2</td>
+      <td>78.6(07+12)</td>
+      <td>73.4(07+12)</td>
+      <td>-</td>
+      <td>CVPR’17</td>
+    </tr>
+    <tr>
+      <td>RON</td>
+      <td>77.6(07+12)</td>
+      <td>75.4(07+12)</td>
+      <td>27.4</td>
+      <td>CVPR’17</td>
+    </tr>
+    <tr>
+      <td>DeNet</td>
+      <td>77.1(07+12)</td>
+      <td>73.9(07+12)</td>
+      <td>33.8</td>
+      <td>ICCV’17</td>
+    </tr>
+    <tr>
+      <td>CoupleNet</td>
+      <td>82.7(07+12)</td>
+      <td>80.4(07+12))</td>
+      <td>34.4</td>
+      <td>ICCV’17</td>
+    </tr>
+    <tr>
+      <td>RetinaNet</td>
+      <td>-</td>
+      <td>-</td>
+      <td>39.1</td>
+      <td>ICCV’17</td>
+    </tr>
+    <tr>
+      <td>DSOD</td>
+      <td>77.7(07+12)</td>
+      <td>76.3(07+12)</td>
+      <td>-</td>
+      <td>ICCV’17</td>
+    </tr>
+    <tr>
+      <td>SMN</td>
+      <td>70.0</td>
+      <td>-</td>
+      <td>-</td>
+      <td>ICCV’17</td>
+    </tr>
+    <tr>
+      <td>Light-Head R-CNN</td>
+      <td>-</td>
+      <td>-</td>
+      <td>41.5</td>
+      <td>arXiv’17</td>
+    </tr>
+    <tr>
+      <td>YOLO v3</td>
+      <td>-</td>
+      <td>-</td>
+      <td>33.0</td>
+      <td>arXiv’18</td>
+    </tr>
+    <tr>
+      <td>SIN</td>
+      <td>76.0(07+12)</td>
+      <td>73.1(07+12)</td>
+      <td>23.2</td>
+      <td>CVPR’18</td>
+    </tr>
+    <tr>
+      <td>STDN</td>
+      <td>80.9(07+12)</td>
+      <td>-</td>
+      <td>-</td>
+      <td>CVPR’18</td>
+    </tr>
+    <tr>
+      <td>RefineDet</td>
+      <td>83.8(07+12)</td>
+      <td>83.5(07+12)</td>
+      <td>41.8</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>SNIP</td>
+      <td>-</td>
+      <td>-</td>
+      <td>45.7</td>
+      <td>CVPR’18</td>
+    </tr>
+    <tr>
+      <td>Relation-Network</td>
+      <td>-</td>
+      <td>-</td>
+      <td>32.5</td>
+      <td>CVPR’18</td>
+    </tr>
+    <tr>
+      <td>Cascade R-CNN</td>
+      <td>-</td>
+      <td>-</td>
+      <td>42.8</td>
+      <td>CVPR’18</td>
+    </tr>
+    <tr>
+      <td>MLKP</td>
+      <td>80.6(07+12)</td>
+      <td>77.2(07+12)</td>
+      <td>28.6</td>
+      <td>CVPR’18</td>
+    </tr>
+    <tr>
+      <td>Fitness-NMS</td>
+      <td>-</td>
+      <td>-</td>
+      <td>41.8</td>
+      <td>CVPR’18</td>
+    </tr>
+    <tr>
+      <td>RFBNet</td>
+      <td>82.2(07+12)</td>
+      <td>-</td>
+      <td>-</td>
+      <td>ECCV’18</td>
+    </tr>
+    <tr>
+      <td>CornerNet</td>
+      <td>-</td>
+      <td>-</td>
+      <td>42.1</td>
+      <td>ECCV’18</td>
+    </tr>
+    <tr>
+      <td>PFPNet</td>
+      <td>84.1(07+12)</td>
+      <td>83.7(07+12)</td>
+      <td>39.4</td>
+      <td>ECCV’18</td>
+    </tr>
+    <tr>
+      <td>Pelee</td>
+      <td>70.9(07+12)</td>
+      <td>-</td>
+      <td>-</td>
+      <td>NIPS’18</td>
+    </tr>
+    <tr>
+      <td>HKRM</td>
+      <td>78.8(07+12)</td>
+      <td>-</td>
+      <td>37.8</td>
+      <td>NIPS’18</td>
+    </tr>
+    <tr>
+      <td>M2Det</td>
+      <td>-</td>
+      <td>-</td>
+      <td>44.2</td>
+      <td>AAAI’19</td>
+    </tr>
+    <tr>
+      <td>E-DAD</td>
+      <td>81.2</td>
+      <td>82.0</td>
+      <td>43.1</td>
+      <td>AAAI’19</td>
+    </tr>
+    <tr>
+      <td>ScratchDet</td>
+      <td>84.1(07+12)</td>
+      <td>83.6(07+12)</td>
+      <td>39.1</td>
+      <td>CVPR’19</td>
+    </tr>
+    <tr>
+      <td>Libra R-CNN</td>
+      <td>-</td>
+      <td>-</td>
+      <td>43.0</td>
+      <td>CVPR’19</td>
+    </tr>
+    <tr>
+      <td>Reasoning-RCNN</td>
+      <td>82.5(07+12)</td>
+      <td>-</td>
+      <td>43.2</td>
+      <td>CVPR’19</td>
+    </tr>
+    <tr>
+      <td>FSAF</td>
+      <td>-</td>
+      <td>-</td>
+      <td>44.6</td>
+      <td>CVPR’19</td>
+    </tr>
+    <tr>
+      <td>AmoebaNet+NAS-FPN</td>
+      <td>-</td>
+      <td>-</td>
+      <td>47.0</td>
+      <td>CVPR’19</td>
+    </tr>
+    <tr>
+      <td>Cascade-RetinaNet</td>
+      <td>-</td>
+      <td>-</td>
+      <td>41.1</td>
+      <td>CVPR’19</td>
+    </tr>
+    <tr>
+      <td>TridenNet</td>
+      <td>-</td>
+      <td>-</td>
+      <td>48.4</td>
+      <td>ICCV’19</td>
+    </tr>
+    <tr>
+      <td>DAFS</td>
+      <td>85.3(07+12)</td>
+      <td>83.1(07+12)</td>
+      <td>40.5</td>
+      <td>ICCV’19</td>
+    </tr>
+    <tr>
+      <td>Auto-FPN</td>
+      <td>81.8(07+12)</td>
+      <td>-</td>
+      <td>40.5</td>
+      <td>ICCV’19</td>
+    </tr>
+    <tr>
+      <td>FCOS</td>
+      <td>-</td>
+      <td>-</td>
+      <td>44.7</td>
+      <td>ICCV’19</td>
+    </tr>
+    <tr>
+      <td>FreeAnchor</td>
+      <td>-</td>
+      <td>-</td>
+      <td>44.8</td>
+      <td>NeurIPS’19</td>
+    </tr>
+    <tr>
+      <td>DetNAS</td>
+      <td>81.5(07+12)</td>
+      <td>-</td>
+      <td>42.0</td>
+      <td>NeurIPS’19</td>
+    </tr>
+    <tr>
+      <td>NATS</td>
+      <td>-</td>
+      <td>-</td>
+      <td>42.0</td>
+      <td>NeurIPS’19</td>
+    </tr>
+    <tr>
+      <td>AmoebaNet+NAS-FPN+AA</td>
+      <td>-</td>
+      <td>-</td>
+      <td>50.7</td>
+      <td>arXiv’19</td>
+    </tr>
+    <tr>
+      <td>EfficientDet</td>
+      <td>-</td>
+      <td>-</td>
+      <td>51.0</td>
+      <td>arXiv’19</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="basic-structure">Basic Structure<a id="sec-4"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83/">2D_Detection: Basic Deep Learning Units</a></p>
+
+<h1 id="backbone">Backbone<a id="sec-5"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-Backbone/">2D_Detection: Backbone</a></p>
+
+<h1 id="hyperparameters">Hyperparameters<a id="sec-6"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-%E8%B6%85%E5%8F%82/">2D_Detection: Hyperparameters</a></p>
+
+<h1 id="loss">Loss<a id="sec-7"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-Loss/">2D_Detection: Loss</a></p>
+
+<h1 id="classic-detection-frameworks">Classic Detection Frameworks<a id="sec-8"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-%E7%BB%8F%E5%85%B8%E6%A3%80%E6%B5%8B%E6%A1%86%E6%9E%B6%E4%BB%8B%E7%BB%8D/">2D_Detection: Classic Detection Algorithm Frameworks</a></p>
+
+<h1 id="model-acceleration">Model Acceleration<a id="sec-9"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F(%E7%BD%91%E7%BB%9C%E7%AF%87)/">2D_Detection: Model Acceleration (Network)</a></p>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F(%E5%B7%A5%E7%A8%8B%E7%AF%87)/">2D_Detection: Model Acceleration (Engineering)</a></p>
+
+<h1 id="detection-tricks-for-common-scenarios">Detection Tricks for Common Scenarios<a id="sec-10"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/2D_Detection-%E9%80%9A%E7%94%A8%E6%A3%80%E6%B5%8BTricks/">2D_Detection: General Detection Tricks</a></p>
+
+<h1 id="links-to-selected-paper-walkthroughs">Links to Selected Paper Walkthroughs<a id="sec-11"></a></h1>
+
+<p><a href="https://johneyzheng.top/posts/OneStage%E7%BB%8F%E5%85%B8-SSD%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB/">SSD Paper Walkthrough</a></p>
+
+<p><a href="https://johneyzheng.top/posts/YOLO%E8%AE%BA%E6%96%87%E7%B3%BB%E5%88%97%E8%A7%A3%E8%AF%BB/">YOLO Paper Series Walkthrough</a></p>
+
+<p><a href="https://johneyzheng.top/posts/nms_soft-nms/">Non-Maximum Suppression (NMS) and Soft-NMS</a></p>
+

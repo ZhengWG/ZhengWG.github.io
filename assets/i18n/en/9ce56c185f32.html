@@ -1,0 +1,713 @@
+<h1 id="development-environment">Development Environment</h1>
+
+<h2 id="the-compiler">The Compiler</h2>
+
+<p>A C++ compiler is a tool that turns C++ source code into machine code. Different platforms and systems support different C++ compilers. A few mainstream C++ compilers are:</p>
+
+<ul>
+  <li>
+    <p><a href="https://gcc.gnu.org/projects/cxx-status.html">GCC (GNU Compiler Collection)</a>:</p>
+
+    <p>Cross-platform, commonly used on Linux, integrated with the GNU toolchain, and strong at optimization. It suits high-performance computing and embedded development. Basic usage:</p>
+  </li>
+  <li>
+    <p>Clang:</p>
+
+    <p>Cross-platform, with native support on macOS. It compiles quickly, integrates with the LLVM toolchain, and its error messages are friendly. It suits development and debugging.</p>
+  </li>
+  <li>
+    <p>MSVC:</p>
+
+    <p>Only Windows. It is provided together with Visual Studio, integrates performance-analysis tools, and suits Windows application development.</p>
+  </li>
+</ul>
+
+<p>Basic usage (GCC/Clang as the example):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="c"># Compile and link</span>
+<span class="c"># --std: select the C++ standard</span>
+<span class="c"># -Wall: enable all warnings</span>
+<span class="c"># -O2: </span>
+<span class="c"># -Iinclude: add an include path</span>
+<span class="c"># -Llib: add a library path</span>
+<span class="c"># -lmy_library: link the library</span>
+g++ <span class="nt">-std</span><span class="o">=</span>c++11 <span class="nt">-Wall</span> <span class="nt">-O2</span> <span class="nt">-Iinclude</span> <span class="nt">-Llib</span> <span class="nt">-o</span> my_program main.cpp lib.cpp <span class="nt">-lmy_library</span>
+
+<span class="c"># Generate debug information</span>
+g++ <span class="nt">-g</span> <span class="nt">-o</span> my_program my_program.cpp
+
+<span class="c"># Generate the preprocessed file</span>
+g++ <span class="nt">-E</span> my_program.cpp <span class="o">&gt;</span> output.i
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="the-working-environment">The Working Environment</h2>
+
+<p>Take VSCode as the example:</p>
+
+<ol>
+  <li>
+    <p>Install the basic environment</p>
+
+    <p>Install the compiler:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nb">sudo </span>apt-get <span class="nb">install </span>g++
+<span class="c"># brew install g++</span>
+<span class="c"># brew install clang</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Install the C/C++ extension in VSCode</p>
+  </li>
+  <li>
+    <p>Configure the build environment</p>
+
+    <p>VSCode is configured through <code class="language-plaintext highlighter-rouge">tasks.json/launch.json/c_cpp_properties.json</code>:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>my_project/
+├── .vscode/
+│   ├── tasks.json
+│   ├── launch.json
+│   └── c_cpp_properties.json
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p><code class="language-plaintext highlighter-rouge">task.json</code> mainly defines the build task, with GCC as the example:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre><span class="p">{</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"tasks"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"build"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shell"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"command"</span><span class="p">:</span><span class="w"> </span><span class="s2">"g++"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"-g"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"-std=c++11"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"-o"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"${workspaceFolder}/bin/my_program"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"${workspaceFolder}/src/main.cpp"</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"group"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"build"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"isDefault"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"problemMatcher"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"$gcc"</span><span class="p">],</span><span class="w">
+      </span><span class="nl">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Generated task by VSCode"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p><code class="language-plaintext highlighter-rouge">launch.json</code> mainly defines the debug configuration, for example on <code class="language-plaintext highlighter-rouge">GDB/LLDB</code>:</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="rouge-code"><pre><span class="p">{</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.2.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"configurations"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Debug C++"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cppdbg"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"request"</span><span class="p">:</span><span class="w"> </span><span class="s2">"launch"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"program"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${workspaceFolder}/bin/my_program"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+      </span><span class="nl">"stopAtEntry"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"cwd"</span><span class="p">:</span><span class="w"> </span><span class="s2">"${workspaceFolder}"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"environment"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+      </span><span class="nl">"externalConsole"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"MIMode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdb"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"setupCommands"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Enable pretty-printing for gdb"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-enable-pretty-printing"</span><span class="p">,</span><span class="w">
+          </span><span class="nl">"ignoreFailures"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nl">"preLaunchTask"</span><span class="p">:</span><span class="w"> </span><span class="s2">"build"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"miDebuggerPath"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdb"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"logging"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"trace"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"traceResponse"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"engineLogging"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p><code class="language-plaintext highlighter-rouge">c_cpp_properties.json</code> configures IntelliSense and the header search path</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre><span class="o">{</span>
+  <span class="s2">"configurations"</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"Linux"</span>,
+      <span class="s2">"includePath"</span>: <span class="o">[</span>
+        <span class="s2">"</span><span class="k">${</span><span class="nv">workspaceFolder</span><span class="k">}</span><span class="s2">/include"</span>,
+        <span class="s2">"/usr/include"</span>,
+        <span class="s2">"/usr/local/include"</span>
+      <span class="o">]</span>,
+      <span class="s2">"defines"</span>: <span class="o">[]</span>,
+      <span class="s2">"compilerPath"</span>: <span class="s2">"/usr/bin/g++"</span>,
+      <span class="s2">"cStandard"</span>: <span class="s2">"c11"</span>,
+      <span class="s2">"cppStandard"</span>: <span class="s2">"c++17"</span>,
+      <span class="s2">"intelliSenseMode"</span>: <span class="s2">"gcc-x64"</span>
+    <span class="o">}</span>
+  <span class="o">]</span>,
+  <span class="s2">"version"</span>: 4
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="build-tools">Build Tools</h2>
+
+<p>The core role of a build tool is to <strong>automate</strong> and <strong>standardize</strong> the development process, for example automatic compilation and linking, dependency management, and cross-platform support. Common build tools include:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left"><strong>Build tool</strong></th>
+      <th style="text-align: left"><strong>Characteristics</strong></th>
+      <th style="text-align: left"><strong>Where it fits</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><strong>CMake</strong></td>
+      <td style="text-align: left">Cross-platform, powerful, widely used</td>
+      <td style="text-align: left">Cross-platform projects, large projects</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Bazel</strong></td>
+      <td style="text-align: left">High performance, multi-language, complex configuration</td>
+      <td style="text-align: left">Large projects, multi-language projects</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Ninja</strong></td>
+      <td style="text-align: left">Focused on build speed, suited as a low-level build tool</td>
+      <td style="text-align: left">Fast builds, as a backend for other tools</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Autotools</strong></td>
+      <td style="text-align: left">A traditional tool, supports automatic configuration, and is gradually being replaced</td>
+      <td style="text-align: left">Unix/Linux development, legacy projects</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>SCons</strong></td>
+      <td style="text-align: left">Based on Python, flexible configuration, relatively slow builds</td>
+      <td style="text-align: left">Small and medium projects that need flexible configuration</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Premake</strong></td>
+      <td style="text-align: left">Based on Lua, simple configuration, supports several build systems</td>
+      <td style="text-align: left">Small and medium projects that need a simple configuration</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Gradle</strong></td>
+      <td style="text-align: left">Based on Groovy/Kotlin, multi-language, weaker C++ support</td>
+      <td style="text-align: left">Multi-language projects, mixed Java and C++ projects</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Xcode</strong></td>
+      <td style="text-align: left">Integrated in the Xcode IDE, limited to Apple platforms</td>
+      <td style="text-align: left">macOS/iOS development</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The basic usage below uses CMake as the example. It usually has two parts:</p>
+
+<ol>
+  <li>
+    <p>Writing CMakeLists.txt</p>
+
+    <div class="language-cmake highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="nb">project</span><span class="p">(</span>MyProject CXX<span class="p">)</span>  <span class="c1"># 定义项目名称和语言</span>
+<span class="nb">add_executable</span><span class="p">(</span>my_program main.cpp<span class="p">)</span> <span class="c1"># 添加可执行文件</span>
+<span class="nb">add_library</span><span class="p">(</span>my_library STATIC my_library.cpp<span class="p">)</span> <span class="c1"># 添加库</span>
+<span class="nb">include_directories</span><span class="p">(</span>include<span class="p">)</span> <span class="c1"># 包含头文件目录</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span>my_program my_library<span class="p">)</span> <span class="c1"># 链接库</span>
+<span class="nb">target_link_libraries</span><span class="p">(</span>my_program my_library<span class="p">)</span> <span class="c1"># 设置编译选项</span>
+<span class="nb">set</span><span class="p">(</span>CMAKE_CXX_STANDARD 11<span class="p">)</span> <span class="c1"># 设置变量</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Compiling with CMake</p>
+
+    <p>The working directory for the CMakeLists.txt file above is:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>MyProject/
+├── CMakeLists.txt
+├── include/
+│   └── my_library.h
+├── src/
+│   ├── main.cpp
+│   └── my_library.cpp
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Compile and run on that basis:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nb">mkdir </span>build
+<span class="nb">cd </span>build
+cmake ..  <span class="c"># produce the Makefile</span>
+cmake <span class="nt">--build</span> <span class="nb">.</span>
+./my_program
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="development-tools">Development Tools</h3>
+
+<h4 id="formatters">Formatters</h4>
+
+<p><code class="language-plaintext highlighter-rouge">Clang-Format</code> is the code formatter commonly used in the LLVM project.</p>
+
+<p>Format from the command line:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>clang-format <span class="nt">-i</span> my_file.cpp  							  <span class="c"># format a single file</span>
+clang-format <span class="nt">-i</span> <span class="k">*</span>.cpp        							  <span class="c"># format every .cpp file</span>
+clang-format <span class="nt">-style</span><span class="o">=</span>Google <span class="nt">-i</span> my_file.cpp   <span class="c"># select a code style</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Configuration file:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="c"># .clang-format</span>
+BasedOnStyle: Google
+IndentWidth: 4
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h4 id="debuggers">Debuggers</h4>
+
+<p>Basic use of GDB (GNU Debugger); LLDB is similar:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>g++ <span class="nt">-g</span> <span class="nt">-o</span> my_program my_program.cpp <span class="c"># generate debug information at compile time</span>
+gdb ./my_program <span class="c"># start GDB</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Common commands:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">break &lt;line number&gt;</code>: set a breakpoint.</p>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">run</code>: run the program.</li>
+  <li><code class="language-plaintext highlighter-rouge">next</code>: step over (do not enter the function).</li>
+  <li><code class="language-plaintext highlighter-rouge">step</code>: step into (enter the function).</li>
+  <li><code class="language-plaintext highlighter-rouge">print &lt;variable&gt;</code>: print a variable’s value.</li>
+  <li><code class="language-plaintext highlighter-rouge">backtrace</code>: show the call stack.</li>
+  <li><code class="language-plaintext highlighter-rouge">quit</code>: quit GDB.</li>
+</ul>
+
+<h1 id="unit-testing">Unit Testing</h1>
+
+<p>Common C++ unit-testing libraries are <code class="language-plaintext highlighter-rouge">Boost.Test</code> and <code class="language-plaintext highlighter-rouge">Catch2</code>.</p>
+
+<ol>
+  <li>
+    <p>Boost.Test</p>
+
+    <p>Basic usage:</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre><span class="cp">#define BOOST_TEST_MAIN
+#include &lt;boost/test/unit_test.hpp&gt;
+#include &lt;stdexcept&gt;
+</span>   
+<span class="kt">void</span> <span class="nf">test</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">42</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span>
+    <span class="s">"Not the answer"</span><span class="p">);</span>
+<span class="p">}</span>
+   
+<span class="n">BOOST_AUTO_TEST_CASE</span><span class="p">(</span><span class="n">my_test</span><span class="p">)</span> <span class="c1">// 定义测试用例</span>
+<span class="p">{</span>
+  <span class="n">BOOST_TEST_MESSAGE</span><span class="p">(</span><span class="s">"Testing"</span><span class="p">);</span>
+  <span class="n">BOOST_TEST</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="n">BOOST_CHECK_THROW</span><span class="p">(</span> <span class="c1">// 检查抛出异常</span>
+    <span class="n">test</span><span class="p">(</span><span class="mi">41</span><span class="p">),</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">);</span>
+  <span class="n">BOOST_CHECK_NO_THROW</span><span class="p">(</span><span class="n">test</span><span class="p">(</span><span class="mi">42</span><span class="p">));</span>
+   
+  <span class="kt">int</span> <span class="n">expected</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+  <span class="n">BOOST_TEST</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">expected</span><span class="p">);</span>
+  <span class="n">BOOST_CHECK</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">expected</span><span class="p">);</span> <span class="c1">// 与BOOST_TEST不同的是：不会尝试输出表达式内容</span>
+<span class="p">}</span>
+   
+<span class="n">BOOST_AUTO_TEST_CASE</span><span class="p">(</span><span class="n">null_test</span><span class="p">)</span> <span class="p">{}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>The output looks like this (the command-line argument <code class="language-plaintext highlighter-rouge">--log_level=all</code> can be added):</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-30-Modern-%25E5%25B7%25A5%25E7%25A8%258B%25E5%25AE%259E%25E8%25B7%25B5/image-20241230212413034.png" alt="image-20241230212413034" class="img-mid" />「」</p>
+  </li>
+  <li>
+    <p>Catch2</p>
+
+    <p>Catch2 has these advantages:</p>
+
+    <ul>
+      <li>A single header is enough to use it. There is no install step and no link step, so it is simple.</li>
+      <li>It can optionally use the sectional style of BDD (Behavior-Driven Development).</li>
+      <li>On failure it can optionally drop straight into the debugger (on Windows and macOS).</li>
+    </ul>
+
+    <p>Usage:</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="cp">#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
+#include &lt;stdexcept&gt;
+</span>   
+<span class="kt">void</span> <span class="nf">test</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="mi">42</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span>
+    <span class="s">"Not the answer"</span><span class="p">);</span>
+<span class="p">}</span>
+   
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="s">"My first test"</span><span class="p">,</span> <span class="s">"[my]"</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">INFO</span><span class="p">(</span><span class="s">"Testing"</span><span class="p">);</span>
+  <span class="n">CHECK</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span>
+  <span class="n">CHECK_THROWS_AS</span><span class="p">(</span>
+    <span class="n">test</span><span class="p">(</span><span class="mi">41</span><span class="p">),</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">);</span>
+  <span class="n">CHECK_NOTHROW</span><span class="p">(</span><span class="n">test</span><span class="p">(</span><span class="mi">42</span><span class="p">));</span>
+   
+  <span class="kt">int</span> <span class="n">expected</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+  <span class="n">CHECK</span><span class="p">(</span><span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">==</span> <span class="n">expected</span><span class="p">);</span>
+<span class="p">}</span>
+   
+<span class="n">TEST_CASE</span><span class="p">(</span><span class="s">"A null test"</span><span class="p">,</span> <span class="s">"[null]"</span><span class="p">)</span> <span class="p">{}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>The result looks like this:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-30-Modern-%25E5%25B7%25A5%25E7%25A8%258B%25E5%25AE%259E%25E8%25B7%25B5/image-20241230212615792.png" alt="image-20241230212615792" class="img-mid" /></p>
+  </li>
+</ol>
+
+<h1 id="performance-analysis">Performance Analysis</h1>
+
+<p>Linux ships with many performance-analysis tools, such as <code class="language-plaintext highlighter-rouge">top</code> and <code class="language-plaintext highlighter-rouge">vmstat</code>.</p>
+
+<ol>
+  <li>
+    <p>The output of top shows an overview of the running processes, CPU use, memory use, and so on.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-30-Modern-%25E5%25B7%25A5%25E7%25A8%258B%25E5%25AE%259E%25E8%25B7%25B5/image-20241230201450319.png" alt="image-20241230201450319" class="img-mid" /></p>
+  </li>
+  <li>
+    <p>pstack/strace: pstack can print a process’s call information:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-30-Modern-%25E5%25B7%25A5%25E7%25A8%258B%25E5%25AE%259E%25E8%25B7%25B5/image-20241230201512470.png" alt="image-20241230201512470" class="img-mid" /></p>
+
+    <p>strace can show the system calls a process is running, and in real time what information the process is exchanging with the kernel:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-30-Modern-%25E5%25B7%25A5%25E7%25A8%258B%25E5%25AE%259E%25E8%25B7%25B5/image-20241230201536504.png" alt="image-20241230201536504" class="img-mid" /></p>
+  </li>
+  <li>
+    <p>perf: it can sample at a fixed frequency, that is, run pstack many times, and obtain the function call pattern. For example <code class="language-plaintext highlighter-rouge">perf top -K -p xxx</code> sorts by CPU use and looks only at user-space calls, which makes it easy to find the function that consumes the most CPU.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-30-Modern-%25E5%25B7%25A5%25E7%25A8%258B%25E5%25AE%259E%25E8%25B7%25B5/image-20241230201835648.png" alt="image-20241230201835648" class="img-mid" /></p>
+  </li>
+  <li>
+    <p>Analysis at the source level needs some “intrusive” means, such as <strong>Google Performance Tools</strong>, including <code class="language-plaintext highlighter-rouge">CPUProfiler</code> and <code class="language-plaintext highlighter-rouge">HeapProfiler</code>. Install them as follows:</p>
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>apt-get <span class="nb">install </span>google-perftools
+apt-get <span class="nb">install </span>libgoogle-perftools-dev
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Basic usage:</p>
+
+    <ul>
+      <li>
+        <p>ProfilerStart() starts profiling and stores the data in the given file.</p>
+      </li>
+      <li>
+        <p>ProfilerRegisterThread() allows a thread to be profiled.</p>
+      </li>
+      <li>
+        <p>ProfilerStop() stops profiling.</p>
+
+        <p>A simple use is shown below. Here <code class="language-plaintext highlighter-rouge">shared_ptr</code> implements automatic management. Using <code class="language-plaintext highlighter-rouge">void*</code> and a null pointer, arbitrary code can run when the smart pointer is destroyed (a simple <code class="language-plaintext highlighter-rouge">RAII</code> idiom):</p>
+      </li>
+    </ul>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="k">auto</span> <span class="n">make_cpu_profiler</span> <span class="o">=</span>            <span class="c1">// lambda表达式启动性能分析</span>
+<span class="p">[](</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">filename</span><span class="p">)</span>          <span class="c1">// 传入性能分析的数据文件名</span>
+<span class="p">{</span>
+  <span class="n">ProfilerStart</span><span class="p">(</span><span class="n">filename</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>  <span class="c1">// 启动性能分析</span>
+  <span class="n">ProfilerRegisterThread</span><span class="p">();</span>         <span class="c1">// 对线程做性能分析</span>
+   
+  <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="p">(</span>     <span class="c1">// 返回智能指针</span>
+    <span class="nb">nullptr</span><span class="p">,</span>                        <span class="c1">// 空指针，只用来占位</span>
+    <span class="p">[](</span><span class="kt">void</span><span class="o">*</span><span class="p">){</span>                      <span class="c1">// 删除函数执行停止动作</span>
+        <span class="n">ProfilerStop</span><span class="p">();</span>             <span class="c1">// 停止性能分析</span>
+    <span class="p">}</span>   
+  <span class="p">);</span>  
+<span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Test the facility with <code class="language-plaintext highlighter-rouge">make_cpu_profiler</code>:</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">auto</span> <span class="n">cp</span> <span class="o">=</span> <span class="n">make_cpu_profiler</span><span class="p">(</span><span class="s">"case1.perf"</span><span class="p">);</span>     <span class="c1">// 启动性能分析</span>
+<span class="k">auto</span> <span class="n">str</span> <span class="o">=</span> <span class="s">"neir:automata"</span><span class="n">s</span><span class="p">;</span>
+   
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>               <span class="c1">// 循环一千次</span>
+  <span class="k">auto</span> <span class="n">reg</span>  <span class="o">=</span> <span class="n">make_regex</span><span class="p">(</span><span class="s">R"(^(\w+)\:(\w+)$)"</span><span class="p">);</span><span class="c1">// 正则表达式对象</span>
+  <span class="k">auto</span> <span class="n">what</span> <span class="o">=</span> <span class="n">make_match</span><span class="p">();</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">regex_match</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">reg</span><span class="p">));</span>        <span class="c1">// 正则匹配</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Run the test:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>git clone git@github.com:gperftools/gperftools.git
+   
+pprof <span class="nt">--text</span> ./a.out case1.perf <span class="o">&gt;</span> case1.txt
+   
+Total: 72 samples
+  4   5.6%   5.6%   4   5.6% __gnu_cxx::__normal_iterator::base
+  4   5.6%  11.1%   4   5.6% _init
+  4   5.6%  16.7%   4   5.6% std::vector::begin
+  3   4.2%  20.8%   4   5.6% __gnu_cxx::operator-
+  3   4.2%  25.0%   5   6.9% std::__distance
+  2   2.8%  27.8%   2   2.8% __GI___strnlen
+  2   2.8%  30.6%   6   8.3% __GI___strxfrm_l
+  2   2.8%  33.3%   3   4.2% __dynamic_cast
+  2   2.8%  36.1%   2   2.8% __memset_sse2
+  2   2.8%  38.9%   2   2.8% operator new[]
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>Flame graphs can be generated with <code class="language-plaintext highlighter-rouge">Graphviz</code> and <code class="language-plaintext highlighter-rouge">FlameGraph</code>:</p>
+
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>apt-get <span class="nb">install </span>graphviz
+git clone git@github.com:brendangregg/FlameGraph.git
+   
+<span class="c"># generate a visualization from --svg / --collapsed</span>
+pprof <span class="nt">--svg</span> ./a.out case1.perf <span class="o">&gt;</span> case1.svg
+pprof <span class="nt">--collapsed</span> ./a.out case1.perf <span class="o">&gt;</span> case1.cbt
+flamegraph.pl case1.cbt <span class="o">&gt;</span> flame.svg
+flamegraph.pl <span class="nt">--invert</span> <span class="nt">--color</span> aqua case1.cbt <span class="o">&gt;</span> icicle.svg
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>​	<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-30-Modern-%25E5%25B7%25A5%25E7%25A8%258B%25E5%25AE%259E%25E8%25B7%25B5/image-20241230204128791.png" alt="image-20241230204128791" class="img-mid" /></p>
+

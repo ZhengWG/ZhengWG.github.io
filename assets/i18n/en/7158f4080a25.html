@@ -1,0 +1,54 @@
+<h1 id="contents">Contents</h1>
+
+<ol>
+  <li><a href="#org4cb91b3">Background and Core Idea</a></li>
+  <li><a href="#org25493ae">Algorithm Pipeline</a></li>
+  <li><a href="#org5d8aebd">Algorithm Details</a></li>
+</ol>
+
+<p><a href="https://arxiv.org/pdf/1903.01864v1.pdf">Frustum ConvNet: Sliding Frustums to Aggregate Local Point-Wise Features for Amodal 3D Object Detection</a></p>
+
+<p><a id="org4cb91b3"></a></p>
+
+<h1 id="background-and-core-idea">Background and Core Idea</h1>
+
+<p>Motivation: this paper builds on the idea of Frustum PointNets. It argues that Frustum PointNets is not end to end, and that its final 3D box prediction depends heavily on the 3D point cloud segmentation result, so missing points in the earlier module make the later prediction inaccurate.</p>
+
+<p><a id="org25493ae"></a></p>
+
+<h1 id="algorithm-pipeline">Algorithm Pipeline</h1>
+
+<ul>
+  <li>Core points:
+    <ul>
+      <li>The frustum obtained from the 2D detection result is divided equally into T sections. PointNet features are extracted for every frustum section to form a 2D feature map (L*d), and an FCN (kernel: 3*d) performs box classification and position prediction for each section</li>
+      <li>Frustum splitting uses several groups of strides, and features are fused at multiple scales at different stages of the network</li>
+    </ul>
+  </li>
+  <li>
+    <p>Overall framework:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-10-F-ConvNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-ConvNet_20210710_002603.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>Frustum division, with features produced by different strides being fused:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-10-F-ConvNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-ConvNet_20210710_002618.png" alt="img" /></p>
+  </li>
+  <li>Fusing features at multiple scales:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-10-F-ConvNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-ConvNet_20210710_002740.png" alt="img" /></li>
+</ul>
+
+<p><a id="org5d8aebd"></a></p>
+
+<h1 id="algorithm-details">Algorithm Details</h1>
+
+<p>Other details:</p>
+
+<ul>
+  <li>Focal loss is used to balance foreground and background</li>
+  <li>
+    <p>Final refinement: after the 3D box output is obtained, the predicted 3D box is expanded and normalized (the box is enlarged by a factor (1.2) with its orientation unchanged), and the points inside these boxes are fed into the network again for a second round of refinement. The results show a large gain from refinement (more than +2 AP):
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-10-F-ConvNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-ConvNet_20210710_002756.png" alt="img" /></p>
+  </li>
+  <li>Ablation study: focal loss and refinement:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-10-F-ConvNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_F-ConvNet_20210710_002823.png" alt="img" /></li>
+</ul>

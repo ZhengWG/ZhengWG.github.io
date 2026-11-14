@@ -1,0 +1,799 @@
+<h2 id="contents">Contents</h2>
+<ol>
+  <li><a href="#background">Background</a></li>
+  <li><a href="#basic-syntax">Basic Syntax</a></li>
+  <li><a href="#core-concepts">Core Concepts</a></li>
+  <li><a href="#worked-example-flash-attention">Worked Example: Flash Attention</a></li>
+  <li><a href="#advanced-optimization-techniques">Advanced Optimization Techniques</a></li>
+</ol>
+
+<hr />
+
+<h2 id="background">Background<a id="background"></a></h2>
+
+<h3 id="what-is-triton">What Is Triton</h3>
+<ul>
+  <li><strong>Definition</strong>: Triton is a Python programming language and compiler for GPUs</li>
+  <li><strong>Goal</strong>: simplify writing GPU kernels, without low-level CUDA/HIP knowledge</li>
+  <li><strong>Advantages</strong>:
+    <ul>
+      <li>Python syntax, easy to write and maintain</li>
+      <li>Automatically optimizes memory access and scheduling</li>
+      <li>Supports autotuning (Autotune)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="where-it-applies">Where it applies</h3>
+<ul>
+  <li>Fused operators</li>
+  <li>Custom optimized algorithms (such as Flash Attention)</li>
+  <li>Performance-sensitive, compute-intensive tasks</li>
+</ul>
+
+<hr />
+
+<h2 id="basic-syntax">Basic Syntax<a id="basic-syntax"></a></h2>
+
+<h3 id="1-kernel-definition">1. Kernel Definition</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">triton</span>
+<span class="kn">import</span> <span class="nn">triton.language</span> <span class="k">as</span> <span class="n">tl</span>
+
+<span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">kernel_name</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">,</span> <span class="n">y_ptr</span><span class="p">,</span> <span class="n">n_elements</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">:</span> <span class="n">tl</span><span class="p">.</span><span class="n">constexpr</span><span class="p">):</span>
+    <span class="c1"># kernel 代码
+</span>    <span class="k">pass</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Key points</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">@triton.jit</code>: the decorator that marks a Triton kernel</li>
+  <li><code class="language-plaintext highlighter-rouge">tl.constexpr</code>: a compile-time constant, and it must be a power of two</li>
+</ul>
+
+<h3 id="2-program-id-and-offsets">2. Program ID and Offsets</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="n">pid</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">program_id</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># 当前程序块的 ID
+</span><span class="n">block_start</span> <span class="o">=</span> <span class="n">pid</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span>
+<span class="n">offsets</span> <span class="o">=</span> <span class="n">block_start</span> <span class="o">+</span> <span class="n">tl</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">)</span>  <span class="c1"># [0, 1, 2, ..., BLOCK_SIZE-1]
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="3-memory-operations">3. Memory Operations</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1"># 加载
+</span><span class="n">mask</span> <span class="o">=</span> <span class="n">offsets</span> <span class="o">&lt;</span> <span class="n">n_elements</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">x_ptr</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+<span class="c1"># 存储
+</span><span class="n">tl</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">output_ptr</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="4-common-operations">4. Common Operations</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c1"># 算术
+</span><span class="n">result</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 矩阵运算
+</span><span class="n">acc</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>  <span class="c1"># 矩阵乘法
+</span><span class="n">acc</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>  <span class="c1"># 累加形式
+</span>
+<span class="c1"># 条件
+</span><span class="n">result</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="5-loops">5. Loops</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c1"># 标准循环
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">BLOCK_SIZE_K</span><span class="p">):</span>
+    <span class="c1"># 处理逻辑
+</span>    
+<span class="c1"># 支持自动流水线
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">BLOCK_SIZE_K</span><span class="p">,</span> <span class="n">num_stages</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="c1"># 编译器自动流水线化
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<hr />
+
+<h2 id="core-concepts">Core Concepts<a id="core-concepts"></a></h2>
+
+<h3 id="the-block">The Block</h3>
+<ul>
+  <li><strong>Block</strong>: the chunk of data each program instance processes</li>
+  <li><strong>Block Size</strong>: must be a power of two (32, 64, 128, …)</li>
+  <li><strong>Block Pointer</strong>: a pointer to the data</li>
+</ul>
+
+<h3 id="launch-grid">Launch Grid</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="n">META</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">triton</span><span class="p">.</span><span class="n">cdiv</span><span class="p">(</span><span class="n">n_elements</span><span class="p">,</span> <span class="n">META</span><span class="p">[</span><span class="s">'BLOCK_SIZE'</span><span class="p">]),)</span>
+
+<span class="n">kernel</span><span class="p">[</span><span class="n">grid</span><span class="p">](</span><span class="n">args</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="data-types">Data Types</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">tl.float16</code>, <code class="language-plaintext highlighter-rouge">tl.bfloat16</code>, <code class="language-plaintext highlighter-rouge">tl.float32</code>, <code class="language-plaintext highlighter-rouge">tl.int32</code>, <code class="language-plaintext highlighter-rouge">tl.int64</code></li>
+  <li><code class="language-plaintext highlighter-rouge">tl.float8e5</code>, <code class="language-plaintext highlighter-rouge">tl.float8e4nv</code> (FP8 formats)</li>
+  <li><code class="language-plaintext highlighter-rouge">tl.constexpr</code>: a compile-time constant</li>
+</ul>
+
+<hr />
+
+<h2 id="worked-example-flash-attention">Worked Example: Flash Attention<a id="worked-example-flash-attention"></a></h2>
+
+<p>Flash Attention is a classic Triton application. It shows how to implement a memory-efficient attention mechanism.</p>
+
+<h3 id="core-idea-of-the-algorithm">Core Idea of the Algorithm</h3>
+
+<p>Standard attention has to store the full attention matrix (O(N²) memory). Flash Attention uses tiled computation and an online softmax to bring the memory complexity down to O(N).</p>
+
+<h3 id="full-implementation">Full Implementation</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+</pre></td><td class="rouge-code"><pre><span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">_attn_fwd_inner</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">l_i</span><span class="p">,</span> <span class="n">m_i</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">desc_k</span><span class="p">,</span> <span class="n">desc_v</span><span class="p">,</span> 
+                    <span class="n">offset_y</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">start_m</span><span class="p">,</span> <span class="n">qk_scale</span><span class="p">,</span>
+                    <span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">HEAD_DIM</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="n">STAGE</span><span class="p">,</span>
+                    <span class="n">offs_m</span><span class="p">,</span> <span class="n">offs_n</span><span class="p">,</span> <span class="n">N_CTX</span><span class="p">,</span> 
+                    <span class="n">warp_specialize</span><span class="p">,</span> <span class="n">IS_HOPPER</span><span class="p">):</span>
+    <span class="s">"""核心计算循环：分块处理 K/V，在线更新 softmax"""</span>
+    
+    <span class="c1"># 1. 确定处理范围（因果注意力需要分阶段）
+</span>    <span class="k">if</span> <span class="n">STAGE</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">start_m</span> <span class="o">*</span> <span class="n">BLOCK_M</span>  <span class="c1"># 非因果或 off-band
+</span>    <span class="k">elif</span> <span class="n">STAGE</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">start_m</span> <span class="o">*</span> <span class="n">BLOCK_M</span><span class="p">,</span> <span class="p">(</span><span class="n">start_m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">BLOCK_M</span>  <span class="c1"># 因果 on-band
+</span>    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">N_CTX</span>  <span class="c1"># 完整范围
+</span>    
+    <span class="n">offsetk_y</span> <span class="o">=</span> <span class="n">offset_y</span> <span class="o">+</span> <span class="n">lo</span>
+    <span class="n">offsetv_y</span> <span class="o">=</span> <span class="n">offset_y</span> <span class="o">+</span> <span class="n">lo</span>
+    
+    <span class="c1"># 2. 循环处理每个 K/V 块
+</span>    <span class="k">for</span> <span class="n">start_n</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="n">lo</span><span class="p">,</span> <span class="n">hi</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="n">warp_specialize</span><span class="o">=</span><span class="n">warp_specialize</span><span class="p">):</span>
+        <span class="c1"># 加载 K 块
+</span>        <span class="n">k</span> <span class="o">=</span> <span class="n">desc_k</span><span class="p">.</span><span class="n">load</span><span class="p">([</span><span class="n">offsetk_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">]).</span><span class="n">T</span>
+        <span class="n">qk</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>  <span class="c1"># 计算 QK^T
+</span>        
+        <span class="c1"># 3. 应用因果掩码（如果需要）
+</span>        <span class="k">if</span> <span class="n">STAGE</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">offs_m</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">start_n</span> <span class="o">+</span> <span class="n">offs_n</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:])</span>
+            <span class="n">qk</span> <span class="o">=</span> <span class="n">qk</span> <span class="o">*</span> <span class="n">qk_scale</span> <span class="o">+</span> <span class="n">tl</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0e6</span><span class="p">)</span>
+            <span class="n">m_ij</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">m_i</span><span class="p">,</span> <span class="n">tl</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">qk</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">qk</span> <span class="o">-=</span> <span class="n">m_ij</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 数值稳定的 softmax：先缩放，再减去最大值
+</span>            <span class="n">m_ij</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">m_i</span><span class="p">,</span> <span class="n">tl</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">qk</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">qk_scale</span><span class="p">)</span>
+            <span class="n">qk</span> <span class="o">=</span> <span class="n">qk</span> <span class="o">*</span> <span class="n">qk_scale</span> <span class="o">-</span> <span class="n">m_ij</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span>
+        
+        <span class="c1"># 4. 计算注意力权重
+</span>        <span class="n">p</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">math</span><span class="p">.</span><span class="n">exp2</span><span class="p">(</span><span class="n">qk</span><span class="p">)</span>
+        
+        <span class="c1"># 5. 计算修正因子（Flash Attention 的核心）
+</span>        <span class="n">alpha</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">math</span><span class="p">.</span><span class="n">exp2</span><span class="p">(</span><span class="n">m_i</span> <span class="o">-</span> <span class="n">m_ij</span><span class="p">)</span>  <span class="c1"># 修正旧累加器
+</span>        <span class="n">l_ij</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 当前块的 exp sum
+</span>        
+        <span class="c1"># 6. 更新累加器
+</span>        <span class="k">if</span> <span class="ow">not</span> <span class="n">IS_HOPPER</span> <span class="ow">and</span> <span class="n">warp_specialize</span> <span class="ow">and</span> <span class="n">BLOCK_M</span> <span class="o">==</span> <span class="mi">128</span> <span class="ow">and</span> <span class="n">HEAD_DIM</span> <span class="o">==</span> <span class="mi">128</span><span class="p">:</span>
+            <span class="c1"># 特殊优化：拆分累加器以利用多个 warp
+</span>            <span class="n">acc0</span><span class="p">,</span> <span class="n">acc1</span> <span class="o">=</span> <span class="n">acc</span><span class="p">.</span><span class="n">reshape</span><span class="p">([</span><span class="n">BLOCK_M</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">HEAD_DIM</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]).</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">).</span><span class="n">split</span><span class="p">()</span>
+            <span class="n">acc0</span> <span class="o">=</span> <span class="n">acc0</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span>
+            <span class="n">acc1</span> <span class="o">=</span> <span class="n">acc1</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">acc0</span><span class="p">,</span> <span class="n">acc1</span><span class="p">).</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">).</span><span class="n">reshape</span><span class="p">([</span><span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">HEAD_DIM</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="n">acc</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span>  <span class="c1"># 应用修正
+</span>        
+        <span class="c1"># 7. 加载 V 并累加输出
+</span>        <span class="n">v</span> <span class="o">=</span> <span class="n">desc_v</span><span class="p">.</span><span class="n">load</span><span class="p">([</span><span class="n">offsetv_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">acc</span><span class="p">)</span>  <span class="c1"># 累加到 accumulator
+</span>        
+        <span class="c1"># 8. 更新归一化因子（在线 softmax 的核心）
+</span>        <span class="n">l_i</span> <span class="o">=</span> <span class="n">l_i</span> <span class="o">*</span> <span class="n">alpha</span> <span class="o">+</span> <span class="n">l_ij</span>  <span class="c1"># 更新 exp sum
+</span>        <span class="n">m_i</span> <span class="o">=</span> <span class="n">m_ij</span>  <span class="c1"># 更新最大值
+</span>        
+        <span class="c1"># 移动到下一个块
+</span>        <span class="n">offsetk_y</span> <span class="o">+=</span> <span class="n">BLOCK_N</span>
+        <span class="n">offsetv_y</span> <span class="o">+=</span> <span class="n">BLOCK_N</span>
+    
+    <span class="k">return</span> <span class="n">acc</span><span class="p">,</span> <span class="n">l_i</span><span class="p">,</span> <span class="n">m_i</span>
+
+
+<span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">_attn_fwd</span><span class="p">(</span><span class="n">sm_scale</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">desc_q</span><span class="p">,</span> <span class="n">desc_k</span><span class="p">,</span> <span class="n">desc_v</span><span class="p">,</span> <span class="n">desc_o</span><span class="p">,</span> <span class="n">N_CTX</span><span class="p">,</span>
+              <span class="n">HEAD_DIM</span><span class="p">,</span> <span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="n">FP8_OUTPUT</span><span class="p">,</span> <span class="n">STAGE</span><span class="p">,</span>
+              <span class="n">warp_specialize</span><span class="p">,</span> <span class="n">IS_HOPPER</span><span class="p">):</span>
+    <span class="s">"""主 kernel：初始化并分阶段处理"""</span>
+    
+    <span class="n">dtype</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">float8e5</span> <span class="k">if</span> <span class="n">FP8_OUTPUT</span> <span class="k">else</span> <span class="n">tl</span><span class="p">.</span><span class="n">float16</span>
+    <span class="n">start_m</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># 沿序列维度的块索引
+</span>    <span class="n">off_hz</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>   <span class="c1"># batch × head 索引
+</span>    
+    <span class="c1"># 初始化 Flash Attention 变量
+</span>    <span class="n">m_i</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">BLOCK_M</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tl</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="s">"inf"</span><span class="p">)</span>  <span class="c1"># 最大值
+</span>    <span class="n">l_i</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">BLOCK_M</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tl</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span>           <span class="c1"># 归一化因子
+</span>    <span class="n">acc</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">HEAD_DIM</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">tl</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>       <span class="c1"># 输出累加器
+</span>    
+    <span class="c1"># 计算缩放因子
+</span>    <span class="n">qk_scale</span> <span class="o">=</span> <span class="n">sm_scale</span> <span class="o">*</span> <span class="mf">1.44269504</span>  <span class="c1"># 1/log(2)，用于 exp2
+</span>    
+    <span class="c1"># 加载 Q（在整个计算中保持不变）
+</span>    <span class="n">qo_offset_y</span> <span class="o">=</span> <span class="n">off_hz</span> <span class="o">*</span> <span class="n">N_CTX</span> <span class="o">+</span> <span class="n">start_m</span> <span class="o">*</span> <span class="n">BLOCK_M</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">desc_q</span><span class="p">.</span><span class="n">load</span><span class="p">([</span><span class="n">qo_offset_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    
+    <span class="c1"># 阶段 1: Off-band（非对角线，无需掩码）
+</span>    <span class="k">if</span> <span class="n">STAGE</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">acc</span><span class="p">,</span> <span class="n">l_i</span><span class="p">,</span> <span class="n">m_i</span> <span class="o">=</span> <span class="n">_attn_fwd_inner</span><span class="p">(</span>
+            <span class="n">acc</span><span class="p">,</span> <span class="n">l_i</span><span class="p">,</span> <span class="n">m_i</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">desc_k</span><span class="p">,</span> <span class="n">desc_v</span><span class="p">,</span>
+            <span class="n">off_hz</span> <span class="o">*</span> <span class="n">N_CTX</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">start_m</span><span class="p">,</span> <span class="n">qk_scale</span><span class="p">,</span>
+            <span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">HEAD_DIM</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="mi">4</span> <span class="o">-</span> <span class="n">STAGE</span><span class="p">,</span>
+            <span class="p">...,</span> <span class="n">warp_specialize</span><span class="p">,</span> <span class="n">IS_HOPPER</span><span class="p">)</span>
+    
+    <span class="c1"># 阶段 2: On-band（对角线，需要因果掩码）
+</span>    <span class="k">if</span> <span class="n">STAGE</span> <span class="o">&amp;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">acc</span><span class="p">,</span> <span class="n">l_i</span><span class="p">,</span> <span class="n">m_i</span> <span class="o">=</span> <span class="n">_attn_fwd_inner</span><span class="p">(</span>
+            <span class="n">acc</span><span class="p">,</span> <span class="n">l_i</span><span class="p">,</span> <span class="n">m_i</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">desc_k</span><span class="p">,</span> <span class="n">desc_v</span><span class="p">,</span>
+            <span class="n">off_hz</span> <span class="o">*</span> <span class="n">N_CTX</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">start_m</span><span class="p">,</span> <span class="n">qk_scale</span><span class="p">,</span>
+            <span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">HEAD_DIM</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="p">...,</span> <span class="n">warp_specialize</span><span class="p">,</span> <span class="n">IS_HOPPER</span><span class="p">)</span>
+    
+    <span class="c1"># Epilogue: 最终归一化
+</span>    <span class="n">m_i</span> <span class="o">+=</span> <span class="n">tl</span><span class="p">.</span><span class="n">math</span><span class="p">.</span><span class="n">log2</span><span class="p">(</span><span class="n">l_i</span><span class="p">)</span>  <span class="c1"># 最终的 log-sum-exp
+</span>    <span class="n">acc</span> <span class="o">=</span> <span class="n">acc</span> <span class="o">/</span> <span class="n">l_i</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span>  <span class="c1"># 归一化输出
+</span>    
+    <span class="c1"># 写回结果
+</span>    <span class="n">offs_m</span> <span class="o">=</span> <span class="n">start_m</span> <span class="o">*</span> <span class="n">BLOCK_M</span> <span class="o">+</span> <span class="n">tl</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BLOCK_M</span><span class="p">)</span>
+    <span class="n">m_ptrs</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="n">off_hz</span> <span class="o">*</span> <span class="n">N_CTX</span> <span class="o">+</span> <span class="n">offs_m</span>
+    <span class="n">tl</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">m_ptrs</span><span class="p">,</span> <span class="n">m_i</span><span class="p">)</span>  <span class="c1"># 保存 m 用于反向传播
+</span>    <span class="n">desc_o</span><span class="p">.</span><span class="n">store</span><span class="p">([</span><span class="n">qo_offset_y</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">acc</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="key-techniques">Key Techniques</h3>
+
+<ol>
+  <li><strong>Online softmax</strong>: use <code class="language-plaintext highlighter-rouge">m_i</code> (the maximum) and <code class="language-plaintext highlighter-rouge">l_i</code> (the normalization factor) to implement a numerically stable online softmax</li>
+  <li><strong>Tiled computation</strong>: Q is loaded only once, and K and V are loaded in blocks, which avoids storing the full attention matrix</li>
+  <li><strong>Two-stage processing</strong>: causal attention is implemented in two stages, off-band and on-band</li>
+  <li><strong>Numerical stability</strong>: a correction by the maximum avoids overflow</li>
+</ol>
+
+<hr />
+
+<h2 id="advanced-optimization-techniques">Advanced Optimization Techniques<a id="advanced-optimization-techniques"></a></h2>
+
+<h3 id="1-tma-tensor-memory-accelerator">1. TMA (Tensor Memory Accelerator)</h3>
+
+<p><strong>Purpose</strong>: hardware-accelerated memory access on Hopper (H100+) GPUs</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">triton.tools.tensor_descriptor</span> <span class="kn">import</span> <span class="n">TensorDescriptor</span>
+
+<span class="c1"># 创建 descriptor
+</span><span class="n">a_desc</span> <span class="o">=</span> <span class="n">TensorDescriptor</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">M</span><span class="p">,</span> <span class="n">K</span><span class="p">],</span> <span class="n">strides</span><span class="o">=</span><span class="p">[</span><span class="n">K</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> 
+                         <span class="n">block_shape</span><span class="o">=</span><span class="p">[</span><span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">BLOCK_K</span><span class="p">])</span>
+
+<span class="c1"># 使用 TMA 加载
+</span><span class="n">a</span> <span class="o">=</span> <span class="n">a_desc</span><span class="p">.</span><span class="n">load</span><span class="p">([</span><span class="n">offs_m</span><span class="p">,</span> <span class="n">offs_k</span><span class="p">])</span>
+
+<span class="c1"># 使用 TMA 存储
+</span><span class="n">c_desc</span><span class="p">.</span><span class="n">store</span><span class="p">([</span><span class="n">offs_m</span><span class="p">,</span> <span class="n">offs_n</span><span class="p">],</span> <span class="n">result</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Advantages</strong>:</p>
+<ul>
+  <li>The hardware checks boundaries automatically</li>
+  <li>Lower register pressure</li>
+  <li>Higher memory bandwidth</li>
+</ul>
+
+<p><strong>Requirement</strong>: compute capability &gt;= 9.0</p>
+
+<h3 id="2-warp-specialization">2. Warp Specialization</h3>
+
+<p><strong>Purpose</strong>: let different warps run different tasks, raising hardware utilization</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1"># 在循环中启用
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="n">warp_specialize</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="c1"># 编译器自动将操作分配到不同的 warp groups:
+</span>    <span class="c1"># - Memory warp: 负责加载数据
+</span>    <span class="c1"># - Compute warp: 负责计算
+</span>    <span class="k">pass</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Advantages</strong>:</p>
+<ul>
+  <li>Overlap memory access and compute</li>
+  <li>More instruction-level parallelism</li>
+</ul>
+
+<p><strong>Requirement</strong>: used mainly on Blackwell, and being extended to other architectures</p>
+
+<h3 id="3-persistent-kernel-persistent-pid-optimization">3. Persistent Kernel (Persistent PID Optimization)</h3>
+
+<p><strong>Purpose</strong>: fix the number of thread blocks so that each thread block processes multiple tiles, reducing context switches</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">persistent_kernel</span><span class="p">(...,</span> <span class="n">NUM_SMS</span><span class="p">:</span> <span class="n">tl</span><span class="p">.</span><span class="n">constexpr</span><span class="p">):</span>
+    <span class="n">start_pid</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># 起始 tile ID
+</span>    <span class="n">num_tiles</span> <span class="o">=</span> <span class="n">num_pid_m</span> <span class="o">*</span> <span class="n">num_pid_n</span>
+    
+    <span class="c1"># 每个线程块处理多个 tiles
+</span>    <span class="k">for</span> <span class="n">tile_id</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="n">start_pid</span><span class="p">,</span> <span class="n">num_tiles</span><span class="p">,</span> <span class="n">NUM_SMS</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="c1"># 计算当前 tile 的位置
+</span>        <span class="n">pid_m</span><span class="p">,</span> <span class="n">pid_n</span> <span class="o">=</span> <span class="n">_compute_pid</span><span class="p">(</span><span class="n">tile_id</span><span class="p">,</span> <span class="p">...)</span>
+        
+        <span class="c1"># 处理 tile
+</span>        <span class="n">accumulator</span> <span class="o">=</span> <span class="n">compute_tile</span><span class="p">(...)</span>
+        
+        <span class="c1"># 软件流水线：计算当前 tile 的同时写回前一个 tile
+</span>        <span class="n">tile_id_c</span> <span class="o">+=</span> <span class="n">NUM_SMS</span>
+        <span class="n">pid_m_c</span><span class="p">,</span> <span class="n">pid_n_c</span> <span class="o">=</span> <span class="n">_compute_pid</span><span class="p">(</span><span class="n">tile_id_c</span><span class="p">,</span> <span class="p">...)</span>
+        <span class="n">write_back_tile</span><span class="p">(</span><span class="n">pid_m_c</span><span class="p">,</span> <span class="n">pid_n_c</span><span class="p">,</span> <span class="n">prev_result</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Key points</strong>:</p>
+<ul>
+  <li>Grid size = <code class="language-plaintext highlighter-rouge">min(NUM_SMS, num_tiles)</code> rather than <code class="language-plaintext highlighter-rouge">num_tiles</code></li>
+  <li>Use a separate counter to pipeline compute and write-back</li>
+  <li><code class="language-plaintext highlighter-rouge">flatten=True</code> flattens the loop so that software pipelining is supported</li>
+</ul>
+
+<p><strong>Advantages</strong>:</p>
+<ul>
+  <li>Less context-switch overhead</li>
+  <li>Better SM occupancy</li>
+  <li>Supports software pipelining</li>
+</ul>
+
+<h3 id="4-low-memory-optimization-seeded-prng">4. Low-Memory Optimization (Seeded PRNG)</h3>
+
+<p><strong>Purpose</strong>: use a pseudorandom number generator to produce data on demand, instead of storing the full state</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">_seeded_dropout</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">,</span> <span class="n">output_ptr</span><span class="p">,</span> <span class="n">n_elements</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">):</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">block_start</span> <span class="o">=</span> <span class="n">pid</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span>
+    <span class="n">offsets</span> <span class="o">=</span> <span class="n">block_start</span> <span class="o">+</span> <span class="n">tl</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">offsets</span> <span class="o">&lt;</span> <span class="n">n_elements</span>
+    
+    <span class="n">x</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">x_ptr</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    
+    <span class="c1"># 使用 Philox PRNG 在 kernel 内生成随机数
+</span>    <span class="c1"># 关键：使用 offsets 作为 PRNG 的 counter
+</span>    <span class="n">random</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">rand</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">offsets</span><span class="p">)</span>
+    <span class="n">x_keep</span> <span class="o">=</span> <span class="n">random</span> <span class="o">&gt;</span> <span class="n">p</span>
+    
+    <span class="c1"># 应用 dropout
+</span>    <span class="n">output</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">x_keep</span><span class="p">,</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">tl</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">output_ptr</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Key techniques</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">tl.rand(seed, offsets)</code>: use <code class="language-plaintext highlighter-rouge">(seed, offset)</code> as the PRNG input</li>
+  <li>Determinism: the same <code class="language-plaintext highlighter-rouge">(seed, offset)</code> produces the same random number</li>
+  <li>Memory drops from O(N) to O(1) (only one seed value is required)</li>
+</ul>
+
+<p><strong>Advantages</strong>:</p>
+<ul>
+  <li>Much lower memory use</li>
+  <li>The full mask tensor does not have to be stored</li>
+  <li>Reproducible (the same seed produces the same result)</li>
+</ul>
+
+<h3 id="5-parallel-reduction">5. Parallel Reduction</h3>
+
+<p><strong>Purpose</strong>: an efficient parallel reduction (such as softmax or layer norm)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre><span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">softmax_kernel</span><span class="p">(</span><span class="n">output_ptr</span><span class="p">,</span> <span class="n">input_ptr</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">,</span> <span class="n">n_cols</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">):</span>
+    <span class="n">row_start</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">row_step</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">num_programs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="c1"># 每个程序处理多个行（减少启动开销）
+</span>    <span class="k">for</span> <span class="n">row_idx</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="n">row_start</span><span class="p">,</span> <span class="n">n_rows</span><span class="p">,</span> <span class="n">row_step</span><span class="p">,</span> <span class="n">num_stages</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+        <span class="c1"># 加载行数据
+</span>        <span class="n">col_offsets</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">input_ptr</span> <span class="o">+</span> <span class="n">row_idx</span> <span class="o">*</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="n">col_offsets</span><span class="p">,</span> 
+                     <span class="n">mask</span><span class="o">=</span><span class="n">col_offsets</span> <span class="o">&lt;</span> <span class="n">n_cols</span><span class="p">,</span> <span class="n">other</span><span class="o">=-</span><span class="nb">float</span><span class="p">(</span><span class="s">'inf'</span><span class="p">))</span>
+        
+        <span class="c1"># 1. 计算最大值（归约操作）
+</span>        <span class="n">row_max</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># 2. 数值稳定的 exp
+</span>        <span class="n">row_minus_max</span> <span class="o">=</span> <span class="n">row</span> <span class="o">-</span> <span class="n">row_max</span>
+        <span class="n">numerator</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">row_minus_max</span><span class="p">)</span>
+        
+        <span class="c1"># 3. 计算 sum（归约操作）
+</span>        <span class="n">denominator</span> <span class="o">=</span> <span class="n">tl</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">numerator</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        
+        <span class="c1"># 4. 归一化
+</span>        <span class="n">softmax_output</span> <span class="o">=</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+        
+        <span class="c1"># 写回
+</span>        <span class="n">tl</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="n">output_ptr</span> <span class="o">+</span> <span class="n">row_idx</span> <span class="o">*</span> <span class="n">n_cols</span> <span class="o">+</span> <span class="n">col_offsets</span><span class="p">,</span> 
+                <span class="n">softmax_output</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">col_offsets</span> <span class="o">&lt;</span> <span class="n">n_cols</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Optimization techniques</strong>:</p>
+<ul>
+  <li><strong>Multi-stage pipeline</strong>: <code class="language-plaintext highlighter-rouge">num_stages=4</code> enables software pipelining</li>
+  <li><strong>Multiple rows</strong>: each program processes multiple rows, which reduces kernel launch overhead</li>
+  <li><strong>Fused operations</strong>: one pass completes max, exp, sum, and normalize</li>
+</ul>
+
+<p><strong>What Triton optimizes automatically</strong>:</p>
+<ul>
+  <li>The compiler turns <code class="language-plaintext highlighter-rouge">tl.max</code> and <code class="language-plaintext highlighter-rouge">tl.sum</code> into an efficient warp-level reduction</li>
+  <li>Shared memory is used for the cross-warp reduction</li>
+  <li>Data-layout optimization is handled automatically</li>
+</ul>
+
+<h3 id="6-autotune">6. Autotune</h3>
+
+<p><strong>Purpose</strong>: automatically select the best configuration</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">autotune</span><span class="p">(</span>
+    <span class="n">configs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">triton</span><span class="p">.</span><span class="n">Config</span><span class="p">({</span><span class="s">'BLOCK_SIZE_M'</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span> <span class="s">'BLOCK_SIZE_N'</span><span class="p">:</span> <span class="mi">128</span><span class="p">},</span> <span class="n">num_warps</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+        <span class="n">triton</span><span class="p">.</span><span class="n">Config</span><span class="p">({</span><span class="s">'BLOCK_SIZE_M'</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s">'BLOCK_SIZE_N'</span><span class="p">:</span> <span class="mi">128</span><span class="p">},</span> <span class="n">num_warps</span><span class="o">=</span><span class="mi">8</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">key</span><span class="o">=</span><span class="p">[</span><span class="s">'M'</span><span class="p">,</span> <span class="s">'N'</span><span class="p">,</span> <span class="s">'K'</span><span class="p">],</span>  <span class="c1"># 根据这些参数选择配置
+</span><span class="p">)</span>
+<span class="o">@</span><span class="n">triton</span><span class="p">.</span><span class="n">jit</span>
+<span class="k">def</span> <span class="nf">kernel</span><span class="p">(...):</span>
+    <span class="k">pass</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="7-epilogue-subtiling">7. Epilogue Subtiling</h3>
+
+<p><strong>Purpose</strong>: split the output into small pieces to reduce shared-memory use</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="k">if</span> <span class="n">EPILOGUE_SUBTILE</span><span class="p">:</span>
+    <span class="c1"># 将 accumulator 分成两部分
+</span>    <span class="n">acc0</span><span class="p">,</span> <span class="n">acc1</span> <span class="o">=</span> <span class="n">split_accumulator</span><span class="p">(</span><span class="n">accumulator</span><span class="p">)</span>
+    <span class="n">c_desc</span><span class="p">.</span><span class="n">store</span><span class="p">([</span><span class="n">offs_m</span><span class="p">,</span> <span class="n">offs_n</span><span class="p">],</span> <span class="n">acc0</span><span class="p">)</span>
+    <span class="n">c_desc</span><span class="p">.</span><span class="n">store</span><span class="p">([</span><span class="n">offs_m</span><span class="p">,</span> <span class="n">offs_n</span> <span class="o">+</span> <span class="n">BLOCK_N</span> <span class="o">//</span> <span class="mi">2</span><span class="p">],</span> <span class="n">acc1</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">c_desc</span><span class="p">.</span><span class="n">store</span><span class="p">([</span><span class="n">offs_m</span><span class="p">,</span> <span class="n">offs_n</span><span class="p">],</span> <span class="n">accumulator</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Advantage</strong>: frees shared memory, which can be used to add pipeline stages</p>
+
+<h3 id="8-software-pipelining">8. Software Pipelining</h3>
+
+<p><strong>Purpose</strong>: overlap memory access and compute</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="c1"># 在循环中启用
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tl</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">BLOCK_K</span><span class="p">,</span> <span class="n">num_stages</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="c1"># 编译器自动创建流水线：
+</span>    <span class="c1"># Stage 0: 加载数据
+</span>    <span class="c1"># Stage 1: 计算
+</span>    <span class="c1"># Stage 2: 写回
+</span>    <span class="c1"># 三个阶段同时进行
+</span>    <span class="k">pass</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Key parameters</strong>:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">num_stages</code>: the number of pipeline stages, usually 2-4</li>
+  <li>Enough shared memory and registers are required</li>
+</ul>
+
+<hr />
+
+<h2 id="best-practices">Best Practices</h2>
+
+<h3 id="1-choosing-the-block-size">1. Choosing the Block Size</h3>
+<ul>
+  <li>It must be a power of two: 32, 64, 128, 256</li>
+  <li>Choose according to the data size and the hardware</li>
+  <li>Use Autotune to choose automatically</li>
+</ul>
+
+<h3 id="2-memory-access-optimization">2. Memory-Access Optimization</h3>
+<ul>
+  <li>Use a mask to handle boundaries</li>
+  <li>Use <code class="language-plaintext highlighter-rouge">tl.multiple_of</code> to tell the compiler about alignment</li>
+  <li>Consider coalesced memory-access patterns</li>
+</ul>
+
+<h3 id="3-numerical-stability">3. Numerical Stability</h3>
+<ul>
+  <li>Use a float32 accumulator (even when the input is float16 or bf16)</li>
+  <li>Subtract the maximum in softmax</li>
+  <li>Watch out for floating-point precision</li>
+</ul>
+
+<h3 id="4-debugging-tips">4. Debugging Tips</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c1"># 使用 tl.device_print 调试
+</span><span class="n">tl</span><span class="p">.</span><span class="n">device_print</span><span class="p">(</span><span class="s">"value"</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="c1"># 验证结果
+</span><span class="n">torch</span><span class="p">.</span><span class="n">testing</span><span class="p">.</span><span class="n">assert_close</span><span class="p">(</span><span class="n">triton_result</span><span class="p">,</span> <span class="n">pytorch_result</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="5-performance-analysis">5. Performance Analysis</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1"># 使用 triton.testing 基准测试
+</span><span class="n">triton</span><span class="p">.</span><span class="n">testing</span><span class="p">.</span><span class="n">do_bench</span><span class="p">(</span><span class="n">kernel_func</span><span class="p">)</span>
+
+<span class="c1"># 使用 Profiler
+</span><span class="k">with</span> <span class="n">triton</span><span class="p">.</span><span class="n">profiler</span><span class="p">.</span><span class="n">profile</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">kernel</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<hr />
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://triton-lang.org/">Triton official documentation</a></li>
+  <li>Flash Attention paper: https://arxiv.org/abs/2205.14135</li>
+  <li>Example code: the <code class="language-plaintext highlighter-rouge">tutorials/</code> directory</li>
+</ul>

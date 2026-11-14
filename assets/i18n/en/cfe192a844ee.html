@@ -1,0 +1,109 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Introduction to the metaclass Concept</a></li>
+  <li><a href="#sec-3">Case Study</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>This article focuses on how to use a <code class="language-plaintext highlighter-rouge">metaclass</code>. A <code class="language-plaintext highlighter-rouge">metaclass</code> is rarely used. To quote <strong>Tim Peters</strong>:</p>
+
+<p>The main reason is that changing things with a <code class="language-plaintext highlighter-rouge">metaclass</code> may modify the normal Python type model, so it can put the whole code base at risk. It is usually used when developing framework-level Python libraries, and is rarely used at the application level.</p>
+
+<h1 id="introduction-to-the-metaclass-concept">Introduction to the metaclass Concept<a id="sec-2"></a></h1>
+
+<p>The core operation of a <code class="language-plaintext highlighter-rouge">metaclass</code> is “dynamically changing the behavior of a class”. In <strong>Python</strong>, a class is itself an object, and every class is an instance of the built-in <strong>Python</strong> class <code class="language-plaintext highlighter-rouge">type</code>. A user-defined class is essentially created by overloading the <code class="language-plaintext highlighter-rouge">__call__</code> operator of the <code class="language-plaintext highlighter-rouge">type</code> class:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+  <span class="k">pass</span>
+
+<span class="n">instance</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+
+<span class="nb">type</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+<span class="c1"># 输出
+</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">'</span><span class="nc">__main__</span><span class="p">.</span><span class="n">C</span><span class="s">'&gt;
+
+type(MyClass)
+# 输出
+&lt;class '</span><span class="nb">type</span><span class="s">'&gt;
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>A <code class="language-plaintext highlighter-rouge">metaclass</code> is a subclass of the <code class="language-plaintext highlighter-rouge">type</code> class. It can replace the original <code class="language-plaintext highlighter-rouge">__call__</code> overloading mechanism of <code class="language-plaintext highlighter-rouge">type</code>, that is, these classes are created through the <code class="language-plaintext highlighter-rouge">metaclass</code>. By defining a <code class="language-plaintext highlighter-rouge">metaclass</code>, you can intercept the implementation of all of its subclasses and then dynamically modify the class implementation. Let’s look at a classic use case (described in detail below):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">YAMLObjectMetaclass</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">kwds</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">YAMLObjectMetaclass</span><span class="p">,</span> <span class="n">cls</span><span class="p">).</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">kwds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s">'yaml_tag'</span> <span class="ow">in</span> <span class="n">kwds</span> <span class="ow">and</span> <span class="n">kwds</span><span class="p">[</span><span class="s">'yaml_tag'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">cls</span><span class="p">.</span><span class="n">yaml_loader</span><span class="p">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">cls</span><span class="p">.</span><span class="n">yaml_tag</span><span class="p">,</span> <span class="n">cls</span><span class="p">.</span><span class="n">from_yaml</span><span class="p">)</span>
+  <span class="c1"># 省略其余定义
+</span>
+<span class="k">class</span> <span class="nc">YAMLObject</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">YAMLObjectMetaclass</span><span class="p">):</span>
+  <span class="n">yaml_loader</span> <span class="o">=</span> <span class="n">Loader</span>
+  <span class="c1"># 省略其余定义
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="case-study">Case Study<a id="sec-3"></a></h1>
+
+<p><code class="language-plaintext highlighter-rouge">YAML</code> is a tool commonly used in Python for “serialization” and “deserialization”. Its core functions are to <strong>load</strong> a YAML text file and convert the text into a series of <code class="language-plaintext highlighter-rouge">Python Object</code>s, or to <strong>dump</strong> a series of <code class="language-plaintext highlighter-rouge">Python Object</code>s into text. Looking at the <code class="language-plaintext highlighter-rouge">load</code> function in more detail, it builds a global <code class="language-plaintext highlighter-rouge">registry</code> and registers all the objects that need to be deserialized:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">def</span> <span class="nf">add_constructor</span><span class="p">(</span><span class="n">target_class</span><span class="p">):</span>
+    <span class="n">registry</span><span class="p">[</span><span class="n">target_class</span><span class="p">.</span><span class="n">yaml_tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_class</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>With the implementation above, an <code class="language-plaintext highlighter-rouge">add_constructor(object)</code> call has to be added after the definition of every object that needs to be serialized. This is clearly not concise. A <code class="language-plaintext highlighter-rouge">metaclass</code> makes the implementation much more flexible:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">YAMLObjectMetaclass</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">kwds</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">YAMLObjectMetaclass</span><span class="p">,</span> <span class="n">cls</span><span class="p">).</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">kwds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s">'yaml_tag'</span> <span class="ow">in</span> <span class="n">kwds</span> <span class="ow">and</span> <span class="n">kwds</span><span class="p">[</span><span class="s">'yaml_tag'</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">cls</span><span class="p">.</span><span class="n">yaml_loader</span><span class="p">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">cls</span><span class="p">.</span><span class="n">yaml_tag</span><span class="p">,</span> <span class="n">cls</span><span class="p">.</span><span class="n">from_yaml</span><span class="p">)</span>
+  <span class="c1"># 省略其余定义
+</span>
+<span class="k">class</span> <span class="nc">YAMLObject</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">YAMLObjectMetaclass</span><span class="p">):</span>
+  <span class="n">yaml_loader</span> <span class="o">=</span> <span class="n">Loader</span>
+  <span class="c1"># 省略其余定义
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>As you can see, <code class="language-plaintext highlighter-rouge">YAMLObject</code> declares its <code class="language-plaintext highlighter-rouge">metaclass</code> as <code class="language-plaintext highlighter-rouge">YAMLObjectMetaclass</code>. This changes the usual class initialization, so that every subclass that inherits from <code class="language-plaintext highlighter-rouge">YAMLObject</code> is forced to have the following function call added after it is defined:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">cls</span><span class="p">.</span><span class="n">yaml_loader</span><span class="p">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="n">cls</span><span class="p">.</span><span class="n">yaml_tag</span><span class="p">,</span> <span class="n">cls</span><span class="p">.</span><span class="n">from_yaml</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

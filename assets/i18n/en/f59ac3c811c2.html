@@ -1,0 +1,735 @@
+<ul>
+  <li><a href="#sec-1">C++ Overview</a></li>
+  <li><a href="#sec-2">Lifecycle and Programming Paradigms</a></li>
+  <li><a href="#sec-3">Data Types and Keywords</a></li>
+  <li><a href="#sec-4">Memory Management</a></li>
+  <li><a href="#sec-4-1">Basic Concepts</a></li>
+  <li><a href="#sec-4-2">Lvalues and Rvalues</a></li>
+  <li><a href="#sec-5">Pointers</a></li>
+  <li><a href="#sec-6">C++ Classes</a></li>
+</ul>
+
+<h1 id="c-overview">C++ Overview<a id="sec-1"></a></h1>
+
+<p>What defines C++: <code class="language-plaintext highlighter-rouge">C++ is a multi-paradigm, general-purpose programming language.</code></p>
+
+<p>C++ supports “object-oriented programming”, “generic programming”, and “functional programming”:</p>
+
+<ul>
+  <li>Object-oriented: the core is abstraction and encapsulation. Tasks are completed through communication and cooperation among objects that are highly cohesive and loosely coupled.</li>
+  <li>Generic programming: the core is “everything is a type”. Code is reused through templates rather than inheritance.</li>
+  <li>Functional programming: the core is “everything is callable”. Data is processed through a series of consecutive or nested function calls.</li>
+</ul>
+
+<h1 id="lifecycle-and-programming-paradigms">Lifecycle and Programming Paradigms<a id="sec-2"></a></h1>
+
+<p>A C++ program goes through several stages from “birth” to “death”: coding, pre-processing, compiling, and running.</p>
+
+<ul>
+  <li>
+    <p>Pre-processing: executed by the <code class="language-plaintext highlighter-rouge">Pre-processor</code>, whose purpose is text substitution. Preprocessor directives all begin with the symbol #, as in #include, #define, and #if. A #define macro has no notion of scope and takes effect globally.</p>
+  </li>
+  <li>
+    <p>Compiling: the work done here is “compilation” and “linking”, which produces machine code the computer can recognize. Commonly used features are “attributes” and “static assertions”.</p>
+  </li>
+</ul>
+
+<h1 id="data-types-and-keywords">Data Types and Keywords<a id="sec-3"></a></h1>
+
+<ul>
+  <li>const: a variable defined with const can only be an integer or an enumeration (a #define macro has no data type and is simple text substitution, so type checking is impossible). What const does is <code class="language-plaintext highlighter-rouge">prevent modification and make the program more robust</code>, and <code class="language-plaintext highlighter-rouge">save space by avoiding unnecessary memory allocation</code>. From the assembly point of view, a constant defined with const is only given a memory address, rather than an immediate value as with #define, so #define leads to several copies while const does not.</li>
+</ul>
+
+<p>A non-const variable is extern by default, while a const object is by default local to its file. To access it from elsewhere, you must declare it extern explicitly, and it must be initialized. const and pointers:</p>
+
+<p>If const is to the left of *, const modifies the variable the pointer points to, that is, the pointee is constant. If const is to the right of *, const modifies the pointer itself, that is, the pointer itself is constant.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">a</span><span class="p">;</span> <span class="c1">//指向const对象的指针或者说指向常量的指针。</span>
+  <span class="kt">char</span> <span class="k">const</span> <span class="o">*</span> <span class="n">a</span><span class="p">;</span> <span class="c1">//同上</span>
+  <span class="kt">char</span> <span class="o">*</span> <span class="k">const</span> <span class="n">a</span><span class="p">;</span> <span class="c1">//指向类型对象的const指针。或者说常指针、const指针。</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span> <span class="k">const</span> <span class="n">a</span><span class="p">;</span> <span class="c1">//指向const对象的const指针。</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>
+    <p>volatile: it means “unstable” or “changeable”. When <code class="language-plaintext highlighter-rouge">volatile</code> modifies a <code class="language-plaintext highlighter-rouge">const</code> variable, the compiler does not apply optimizations with side effects when it generates binary machine code: it does not replace the <code class="language-plaintext highlighter-rouge">const value</code> with a constant, and instead reads the value from memory. <code class="language-plaintext highlighter-rouge">volatile</code> disables compiler optimizations, so unless it is necessary, use volatile sparingly.</p>
+  </li>
+  <li>
+    <p>mutable: it modifies a member variable and allows a <code class="language-plaintext highlighter-rouge">const member function</code> to modify it. Changes to a <code class="language-plaintext highlighter-rouge">mutable</code> variable do not affect the constness of the object, but they may “quietly” modify or corrupt the object, so use it as little as possible.</p>
+  </li>
+</ul>
+
+<h1 id="memory-management">Memory Management<a id="sec-4"></a></h1>
+
+<h2 id="basic-concepts">Basic Concepts<a id="sec-4-1"></a></h2>
+
+<h3 id="heap">Heap:</h3>
+
+<p>The heap is the region where memory is allocated dynamically. Once allocated, memory must be released manually, otherwise it causes a memory leak. Two allocation/deallocation pairs are involved:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">new</code> and <code class="language-plaintext highlighter-rouge">delete</code> operate on the <code class="language-plaintext highlighter-rouge">free store</code>, which is generally a subset of the heap.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">malloc</code> and <code class="language-plaintext highlighter-rouge">free</code> operate on the <code class="language-plaintext highlighter-rouge">heap</code>.</p>
+  </li>
+</ul>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>  <span class="c1">// C++</span>
+  <span class="k">auto</span> <span class="n">ptr</span> <span class="o">=</span> <span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>In actual memory allocation, the allocator has to consider how much unallocated memory the program currently has. When memory runs short, it has to request new memory from the operating system. Releasing memory is not just a matter of marking it as unused. For contiguous blocks of unused memory, the memory manager usually has to merge them into one block so that later, larger allocation requests can be satisfied.</p>
+
+<p>Without garbage collection, memory must be released manually, and memory can become fragmented (freeing memory leaves non-contiguous blocks that cannot be merged).</p>
+
+<h3 id="stack">Stack:</h3>
+
+<p>In the context of memory management, the stack is the region for the local variables and call data produced during function calls. This stack is very similar to the stack data structure: both are “last-in-first-out” (<code class="language-plaintext highlighter-rouge">LIFO</code>).</p>
+
+<p>In C++ function calls, local variables use the stack for memory management. Any function can, according to the architecture’s conventions, use only the stack space above the stack pointer at the time the function was entered. When a function calls another function, it also pushes the arguments onto the stack (we ignore the case of passing arguments in registers here), then pushes the address of the next assembly instruction onto the stack and jumps to the new function. After entering, the new function first does some necessary saving work, then adjusts the stack pointer to allocate the space needed for its local variables, then executes the code in the function. When it finishes, it uses the address the caller pushed onto the stack to return to the caller’s unexecuted code and continue. The memory for local variables lives on the stack, together with the other data the function needs to execute. When the function finishes, this memory is naturally released.</p>
+
+<p>Characteristics of the stack:</p>
+
+<ol>
+  <li>
+    <p>Allocation on the stack is extremely simple: just move the stack pointer.</p>
+  </li>
+  <li>
+    <p>Deallocation on the stack is also extremely simple: just move the stack pointer when the function finishes.</p>
+  </li>
+  <li>
+    <p>Because of the last-in-first-out execution order, memory fragmentation cannot occur. The data usually has a fixed, known size.</p>
+  </li>
+</ol>
+
+<h3 id="raii-resource-acquisition-is-initialization">RAII (Resource Acquisition Is Initialization):</h3>
+
+<p><code class="language-plaintext highlighter-rouge">RAII</code>, short for “Resource Acquisition Is Initialization”, lets C++ manage memory effectively without a garbage-collection mechanism like Java’s. Its core idea is to bind the acquisition and release of a resource (such as memory, a file handle, or a lock) to the lifetime of an object.</p>
+
+<p>The core mechanisms of <code class="language-plaintext highlighter-rouge">RAII</code>:</p>
+
+<ol>
+  <li>
+    <p>Resource acquisition: acquire the resource in the object’s constructor.</p>
+  </li>
+  <li>
+    <p>Resource release: release the resource in the object’s destructor.</p>
+  </li>
+  <li>
+    <p>Scope management: the lifetime of the resource is controlled by the scope of the object. When the object leaves its scope, its destructor is called automatically and the resource is released correctly.</p>
+  </li>
+</ol>
+
+<p>Common applications of <code class="language-plaintext highlighter-rouge">RAII</code>:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Resource type</td>
+      <td>RAII implementation</td>
+      <td>Standard implementation</td>
+    </tr>
+    <tr>
+      <td>Dynamic memory</td>
+      <td>Smart pointers (std::unique<sub>ptr</sub>, std::shared<sub>ptr</sub>)</td>
+      <td>Supported by the C++ standard library</td>
+    </tr>
+    <tr>
+      <td>File handle</td>
+      <td>Custom file management</td>
+      <td>std::fstream</td>
+    </tr>
+    <tr>
+      <td>Thread lock</td>
+      <td>std::lock<sub>guard</sub>, std::unique<sub>lock</sub></td>
+      <td>Supported by the C++ standard library</td>
+    </tr>
+    <tr>
+      <td>Database connection</td>
+      <td>Database connection class</td>
+      <td>Supported by third-party libraries</td>
+    </tr>
+    <tr>
+      <td>Network resource</td>
+      <td>Socket management class</td>
+      <td>Supported by third-party libraries</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="lvalues-and-rvalues">Lvalues and Rvalues<a id="sec-4-2"></a></h2>
+
+<ul>
+  <li>
+    <p>Lvalue</p>
+  </li>
+  <li>
+    <p>An lvalue is an expression that has an address and can persist.</p>
+  </li>
+  <li>
+    <p>It is usually on the left side of an assignment operator, but not always.</p>
+  </li>
+  <li>
+    <p>It can be manipulated through references.</p>
+  </li>
+</ul>
+
+<p>Characteristics: addressable: its address can be taken (with the &amp; operator) / modifiable (if it is not a constant).</p>
+
+<ul>
+  <li>
+    <p>Rvalue</p>
+  </li>
+  <li>An rvalue is a temporary value whose address cannot be accessed directly through a reference.</li>
+  <li>It is usually on the right side of an assignment operator.</li>
+  <li>An rvalue may be a literal, a temporary variable, or the result of an expression.</li>
+</ul>
+
+<p>Characteristics: not addressable: its address cannot be taken with &amp; (except through a type conversion) / short-lived: the lifetime of an rvalue is usually very short, typically valid only while the expression is being evaluated.</p>
+
+<p>Use cases:</p>
+
+<ol>
+  <li>Reference binding</li>
+</ol>
+
+<p>C++ provides two kinds of references: lvalue references and rvalue references.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>  <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+  <span class="kt">int</span><span class="o">&amp;</span> <span class="n">lref</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>      <span class="c1">// 左值引用，绑定到变量 a</span>
+  <span class="kt">int</span><span class="o">&amp;&amp;</span> <span class="n">rref</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>    <span class="c1">// 右值引用，绑定到字面值 20</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>An rvalue reference is a reference bound to an rvalue, declared with &amp;&amp;. It is mainly used to implement move semantics and perfect forwarding (which the smart pointer implementation relies on). Example of rvalue references:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre>  <span class="cp">#include &lt;iostream&gt;
+</span>  <span class="cp">#include &lt;utility&gt; // std::move
+</span>  <span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+  <span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+  <span class="nl">public:</span>
+      <span class="n">MyClass</span><span class="p">()</span> <span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Default Constructor"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+      <span class="n">MyClass</span><span class="p">(</span><span class="k">const</span> <span class="n">MyClass</span><span class="o">&amp;</span><span class="p">)</span> <span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Copy Constructor"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+      <span class="n">MyClass</span><span class="p">(</span><span class="n">MyClass</span><span class="o">&amp;&amp;</span><span class="p">)</span> <span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Move Constructor"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+      <span class="n">MyClass</span> <span class="n">obj1</span><span class="p">;</span>             <span class="c1">// 默认构造函数</span>
+      <span class="n">MyClass</span> <span class="n">obj2</span> <span class="o">=</span> <span class="n">obj1</span><span class="p">;</span>      <span class="c1">// 拷贝构造函数</span>
+      <span class="n">MyClass</span> <span class="n">obj3</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">obj1</span><span class="p">);</span> <span class="c1">// 移动构造函数</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>C++ introduced a finer-grained classification of value categories:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Value category</td>
+      <td>Meaning</td>
+      <td>Example</td>
+    </tr>
+    <tr>
+      <td>lvalue</td>
+      <td>A persistent, addressable object</td>
+      <td>++x, x = 1, cout « ’ ‘ string literal</td>
+    </tr>
+    <tr>
+      <td>rvalue</td>
+      <td>A short-lived value</td>
+      <td>Literals, expression results, etc.</td>
+    </tr>
+    <tr>
+      <td>prvalue</td>
+      <td>Represents only the value itself, not associated with a storage location</td>
+      <td>x++, x + 1, make<sub>shared</sub><int>(42)</int></td>
+    </tr>
+    <tr>
+      <td>xvalue</td>
+      <td>An object about to be destroyed (the result of moving via an rvalue reference); it has an identity but cannot be bound by a reference</td>
+      <td>The result of std::move(x)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="pointers">Pointers<a id="sec-5"></a></h1>
+
+<p>A <code class="language-plaintext highlighter-rouge">pointer</code> comes from C. It is essentially a memory address index that represents a small region of memory and supports reading and writing memory directly. Because pointers map completely onto the computer hardware, they are efficient but also bring many problems: accessing invalid data, out-of-bounds pointers, memory that is never released, and so on.</p>
+
+<p>A <code class="language-plaintext highlighter-rouge">smart pointer</code> wraps a raw pointer based on <code class="language-plaintext highlighter-rouge">RAII</code> and overloads the <code class="language-plaintext highlighter-rouge">*</code> and <code class="language-plaintext highlighter-rouge">-&gt;</code> operators, so it is used just like a raw pointer.</p>
+
+<p>Smart pointers fall into three kinds: <code class="language-plaintext highlighter-rouge">unique_ptr</code>, <code class="language-plaintext highlighter-rouge">shared_ptr</code>, and <code class="language-plaintext highlighter-rouge">weak_ptr</code>. A smart pointer is in fact an object. It automatically manages the pointer it was initialized with and releases the memory automatically when it leaves its scope, and you must not call delete on it. An uninitialized pointer defaults to a null pointer. Initializing with a factory function is recommended.</p>
+
+<ul>
+  <li>uniqure_ptr</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">uniqure_ptr</code> relies on C++ move semantics and forbids copying. Basic usage:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>  <span class="k">auto</span> <span class="n">ptr1</span> <span class="o">=</span> <span class="n">make_unique</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">ptr1</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">ptr1</span> <span class="o">==</span> <span class="mi">12</span><span class="p">);</span>
+
+  <span class="k">auto</span> <span class="n">ptr2</span> <span class="o">=</span> <span class="n">make_unique</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">"God of war."</span><span class="p">);</span>
+  <span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">ptr2</span><span class="o">-&gt;</span><span class="n">empty</span><span class="p">());</span>
+
+  <span class="k">auto</span> <span class="n">ptr3</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">ptr2</span><span class="p">);</span>
+  <span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">ptr2</span> <span class="o">&amp;&amp;</span> <span class="n">ptr3</span><span class="p">);</span>  <span class="c1">// move转移控制权后，ptr2成为空指针</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>shared_ptr</li>
+</ul>
+
+<p>The difference between <code class="language-plaintext highlighter-rouge">shared_ptr</code> and <code class="language-plaintext highlighter-rouge">uniqure_ptr</code> is that its ownership can be shared safely, that is, it supports copy assignment and can be held by several owners. <code class="language-plaintext highlighter-rouge">shared_ptr</code> supports safe sharing because it uses “reference counting” internally. <code class="language-plaintext highlighter-rouge">shared_ptr</code> costs more to store and manage, and it has the circular reference problem:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>  <span class="k">auto</span> <span class="n">ptr1</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">43</span><span class="p">);</span>
+  <span class="n">assert</span><span class="p">(</span><span class="n">ptr1</span> <span class="o">&amp;&amp;</span> <span class="n">ptr1</span><span class="p">.</span><span class="n">unique</span><span class="p">());</span>  <span class="c1">// 此时指针有效且唯一</span>
+
+  <span class="k">auto</span> <span class="n">ptr2</span> <span class="o">=</span> <span class="n">ptr1</span><span class="p">;</span>  <span class="c1">// 支持直接拷贝赋值</span>
+  <span class="n">assert</span> <span class="p">(</span><span class="n">ptr1</span> <span class="o">==</span> <span class="n">ptr2</span><span class="p">);</span> <span class="c1">// 支持直接比较</span>
+
+  <span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">ptr1</span><span class="p">.</span><span class="n">unique</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">ptr1</span><span class="p">.</span><span class="n">use_count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">);</span> <span class="c1">// 两个智能指针不唯一，且引用计数为2</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<ul>
+  <li>weak_ptr</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">weak_ptr</code> can solve the circular reference problem. Assigning to it does not add to the reference count, so it is a weak reference. When you use it, call the <code class="language-plaintext highlighter-rouge">loca()</code> function to obtain a <code class="language-plaintext highlighter-rouge">shared_ptr</code> strong reference.</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>  <span class="k">class</span> <span class="nc">Node</span> <span class="k">final</span>
+  <span class="p">{</span>
+  <span class="nl">public:</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">weak_ptr</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span> <span class="n">next</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">auto</span> <span class="n">n1</span> <span class="o">=</span> <span class="n">make_shaped</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span><span class="p">();</span>
+  <span class="k">auto</span> <span class="n">n2</span> <span class="o">=</span> <span class="n">make_shaped</span><span class="o">&lt;</span><span class="n">Node</span><span class="o">&gt;</span><span class="p">();</span>
+
+  <span class="n">n1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">n2</span><span class="p">;</span>
+  <span class="n">n2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">n1</span><span class="p">;</span> <span class="c1">// 循环引用，如果shared_ptr，则循环引用次数变为2</span>
+
+  <span class="n">assert</span><span class="p">(</span><span class="n">n1</span><span class="p">.</span><span class="n">use_count</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">);</span> <span class="c1">// weak_ptr，引用计数为1</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">n1</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">.</span><span class="n">expired</span><span class="p">())</span> <span class="p">{</span> <span class="c1">// 检查指针是否有效</span>
+      <span class="k">auto</span> <span class="n">ptr</span> <span class="o">=</span> <span class="n">n1</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">.</span><span class="n">lock</span><span class="p">();</span> <span class="c1">// lock获取shared_ptr</span>
+      <span class="n">assert</span><span class="p">(</span><span class="n">ptr</span> <span class="o">==</span> <span class="n">n2</span><span class="p">);</span>
+  <span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="c-classes">C++ Classes<a id="sec-6"></a></h1>
+
+<p>Basic concepts of classes:</p>
+
+<ol>
+  <li>Class functions
+    <ul>
+      <li>Constructors: initialize an object of the class and define its initial state. They fall into default constructors, parameterized constructors, copy constructors, and move constructors.</li>
+    </ul>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="rouge-code"><pre>  <span class="c1">// 默认构造函数</span>
+  <span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+  <span class="nl">public:</span>
+      <span class="n">MyClass</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* 初始化 */</span> <span class="p">}</span>  <span class="c1">// 用户自定义默认构造函数</span>
+  <span class="p">};</span>
+
+  <span class="c1">// 参数化构造函数</span>
+  <span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+  <span class="nl">public:</span>
+      <span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">)</span> <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">{}</span>
+  <span class="nl">private:</span>
+      <span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="c1">// 拷贝构造函数</span>
+  <span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+  <span class="nl">public:</span>
+      <span class="n">MyClass</span><span class="p">(</span><span class="k">const</span> <span class="n">MyClass</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* 拷贝数据 */</span> <span class="p">}</span>
+  <span class="p">};</span>
+
+  <span class="c1">// 移动构造函数</span>
+  <span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+  <span class="nl">public:</span>
+      <span class="n">MyClass</span><span class="p">(</span><span class="n">MyClass</span><span class="o">&amp;&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span> <span class="cm">/* 转移资源 */</span> <span class="p">}</span>
+  <span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<ul>
+  <li>
+    <p>Destructors: a destructor cleans up the resources held by an object of the class. The compiler generates a default destructor, but if dynamic resources are managed, you need to define it explicitly.</p>
+  </li>
+  <li>
+    <p>Copy assignment and move assignment operators: copy assignment assigns one object to another existing object. If it is not defined explicitly, the compiler generates a shallow-copy implementation automatically.</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">MyClass</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">MyClass</span><span class="o">&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="k">this</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">other</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* 防止自赋值 */</span> <span class="p">}</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p>The move assignment operator moves a temporary object into another object. It can significantly improve performance by avoiding unnecessary resource copying.</p>
+
+    <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+<span class="nl">public:</span>
+  <span class="n">MyClass</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="n">MyClass</span><span class="o">&amp;&amp;</span> <span class="n">other</span><span class="p">)</span> <span class="k">noexcept</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="k">this</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">other</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* 转移资源 */</span> <span class="p">}</span>
+      <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Other commonly used functions</p>
+    <ul>
+      <li>Friend functions: in specific cases they allow a non-member function to access private data. A friend function does not belong to the class, but it can access the class’s private and protected members. Because it is a non-member function, it cannot access the object through the this pointer. Scenarios for using friend functions:
+        <ol>
+          <li>
+            <p>Accessing private members in specific cases: they provide an interface between the class’s internal data and external functions, and avoid exposing private data by adding public member functions.</p>
+          </li>
+          <li>
+            <p>Convenience in operator overloading: friend functions are often used to overload operators (such as « and »), because these operators cannot be implemented as class member functions.</p>
+
+            <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;iostream&gt;
+</span><span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="kt">int</span> <span class="n">data</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span> <span class="n">val</span><span class="p">)</span> <span class="o">:</span> <span class="n">data</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="c1">// 声明友元函数</span>
+    <span class="k">friend</span> <span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="k">const</span> <span class="n">MyClass</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="c1">// 定义友元函数</span>
+<span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">os</span><span class="p">,</span> <span class="k">const</span> <span class="n">MyClass</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">os</span> <span class="o">&lt;&lt;</span> <span class="n">obj</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">os</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">MyClass</span> <span class="n">obj</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">obj</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// 输出: 42</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>            </div>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <p>constexpr constructors: a constexpr constructor is a special kind of constructor introduced in C++11 that allows an object to be initialized at compile time. It guarantees that the constructor is a constant expression, and suits scenarios with compile-time computation. Requirements: all operations in the constructor must be computable at compile time, and the data members must be initializable in a constant expression.</p>
+
+        <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;iostream&gt;
+</span><span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
+
+<span class="nl">public:</span>
+    <span class="c1">// constexpr 构造函数</span>
+    <span class="k">constexpr</span> <span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="o">:</span> <span class="n">value</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="p">{}</span>
+
+    <span class="c1">// constexpr 成员函数</span>
+    <span class="k">constexpr</span> <span class="kt">int</span> <span class="n">getValue</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">value</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">constexpr</span> <span class="n">MyClass</span> <span class="n">obj</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span> <span class="c1">// 编译期构造对象</span>
+    <span class="k">constexpr</span> <span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">getValue</span><span class="p">();</span> <span class="c1">// 编译期获取值</span>
+            
+      <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">val</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// 输出: 42</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>
+        <p>Delegating constructors: a delegating constructor is a feature introduced in C++11 that allows one constructor to call another constructor of the same class. Its purpose is to reduce code duplication and simplify the implementation of constructors.</p>
+
+        <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;iostream&gt;
+</span><span class="k">class</span> <span class="nc">MyClass</span> <span class="p">{</span>
+<span class="nl">private:</span>
+    <span class="kt">int</span> <span class="n">value1</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">value2</span><span class="p">;</span>
+            
+<span class="nl">public:</span>
+    <span class="c1">// 主构造函数</span>
+    <span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span> <span class="n">v1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">v2</span><span class="p">)</span> <span class="o">:</span> <span class="n">value1</span><span class="p">(</span><span class="n">v1</span><span class="p">),</span> <span class="n">value2</span><span class="p">(</span><span class="n">v2</span><span class="p">)</span> <span class="p">{}</span>
+            
+    <span class="c1">// 委托构造函数</span>
+    <span class="n">MyClass</span><span class="p">(</span><span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="o">:</span> <span class="n">MyClass</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{}</span> <span class="c1">// 调用主构造函数</span>
+            
+    <span class="kt">void</span> <span class="n">display</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Value1: "</span> <span class="o">&lt;&lt;</span> <span class="n">value1</span> <span class="o">&lt;&lt;</span> <span class="s">", Value2: "</span> <span class="o">&lt;&lt;</span> <span class="n">value2</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+            
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">MyClass</span> <span class="n">obj1</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+    <span class="n">obj1</span><span class="p">.</span><span class="n">display</span><span class="p">();</span> <span class="c1">// 输出: Value1: 10, Value2: 20</span>
+            
+    <span class="n">MyClass</span> <span class="n">obj2</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span> <span class="c1">// 调用委托构造函数</span>
+    <span class="n">obj2</span><span class="p">.</span><span class="n">display</span><span class="p">();</span> <span class="c1">// 输出: Value1: 42, Value2: 0</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div>        </div>
+      </li>
+      <li>Operator overloading: operator overloading lets developers give user-defined types (such as classes and structs) operations like those of built-in types. It is done by defining special operator functions. Some points to note:
+        <ol>
+          <li>Must use member functions of the class: unary operators (such as +) and the assignment operator must be member functions of the class.</li>
+          <li>Friend functions can be used: for example, « and » are usually implemented as friend functions.</li>
+          <li>Do not abuse operator overloading: make sure the semantics of an overloaded operator match expectations.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<ol>
+  <li>
+    <p>Virtual functions and polymorphism: a virtual function is a mechanism C++ provides to support runtime polymorphism (also called dynamic polymorphism). It allows a derived class to override a member function of the base class, and chooses the appropriate function to call at runtime based on the actual object type. A member function declared with virtual in the base class is a virtual function, and a derived class can override it. The C++ compiler generates a virtual function table for the class, which is used at runtime to call the correct function according to the object’s type. When a virtual function is called, the program determines at runtime which version to call (the base-class version or the derived-class version).</p>
+
+    <p>How virtual functions work:</p>
+
+    <p>Virtual function table (vtable):</p>
+
+    <ul>
+      <li>Every class that has virtual functions generates a virtual function table (vtable).</li>
+      <li>The table stores pointers to all the virtual functions of the class.</li>
+      <li>An object finds the vtable through a pointer, and thereby determines which function to call.</li>
+    </ul>
+
+    <p>Advantages: it provides dynamic polymorphism and simplifies code design. It supports interface abstraction and suits object-oriented design patterns.</p>
+
+    <p>Disadvantages: looking up the vtable at runtime has some performance overhead. It increases the memory overhead of the class, since every object contains a pointer to the vtable. It adds complexity: you need to pay attention to whether the destructor is virtual (to prevent the wrong destructor from being called when a derived-class object is deleted through a base-class pointer, which causes a memory leak).</p>
+  </li>
+  <li>
+    <p>Access control and special specifiers</p>
+
+    <table>
+      <tbody>
+        <tr>
+          <td>Specifier</td>
+          <td>Function and use</td>
+        </tr>
+        <tr>
+          <td>public</td>
+          <td>Accessible to everyone</td>
+        </tr>
+        <tr>
+          <td>protected</td>
+          <td>Accessible to this class and derived classes</td>
+        </tr>
+        <tr>
+          <td>private</td>
+          <td>Accessible only to this class</td>
+        </tr>
+        <tr>
+          <td>const</td>
+          <td>A member function does not modify state; a variable or pointer cannot be changed</td>
+        </tr>
+        <tr>
+          <td>static</td>
+          <td>Members and member functions shared by the class, independent of any particular object</td>
+        </tr>
+        <tr>
+          <td>virtual</td>
+          <td>Supports dynamic polymorphism</td>
+        </tr>
+        <tr>
+          <td>override</td>
+          <td>Explicitly marks the overriding of a virtual function, preventing signature errors</td>
+        </tr>
+        <tr>
+          <td>final</td>
+          <td>Prevents a function from being overridden or a class from being inherited</td>
+        </tr>
+        <tr>
+          <td>mutable</td>
+          <td>Allows a variable to be modified inside a const member function</td>
+        </tr>
+        <tr>
+          <td>explicit</td>
+          <td>Prevents implicit type conversion</td>
+        </tr>
+        <tr>
+          <td>inline</td>
+          <td>Suggests that the compiler treat the function</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>

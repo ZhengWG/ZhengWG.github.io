@@ -1,0 +1,239 @@
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>A brief introduction to the various optimization algorithms for attention score computation.</p>
+
+<h1 id="flashattentionv1">FlashAttentionV1<a id="sec-2"></a></h1>
+
+<p><a href="https://arxiv.org/pdf/2205.14135.pdf">FlashAttention</a> was developed in June 2022 by researchers at Stanford University and the State University of New York. Its core idea is to restructure the attention computation so that the input can be split into blocks and the softmax reduction is performed incrementally. This avoids computing over the whole input at once, so there are fewer memory accesses (HBM), and intermediate results do not need to be written out to HBM.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-09-20-FlashAttention%25E7%25B3%25BB%25E5%2588%2597%25E4%25BC%2598%25E5%258C%2596/FlashAttention%E4%BC%98%E5%8C%96_20231029_220026.png" alt="img" /></p>
+
+<h2 id="background">Background<a id="sec-2-1"></a></h2>
+
+<p>Because of the multi-level cache design of computers, SRAM, HBM, and DRAM have progressively lower bandwidth and larger capacity. The I/O complexity of the original attention score computation is $Ω(N \times d+N^2)$ HBM accesses, where $d$ is the head dimension and N is related to the batch.</p>
+
+<h2 id="algorithm-design">Algorithm Design<a id="sec-2-2"></a></h2>
+
+<p>The core of FlashAttention is <code class="language-plaintext highlighter-rouge">Online-Softmax</code> plus tiled computation. By reordering the attention computation and using two extra statistics to compute block by block, it avoids materializing the full $N \times N$ attention matrices $P,S$, which reduces the number of HBM accesses.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Online-Softmax</code> improves on <code class="language-plaintext highlighter-rouge">Safe-Softmax</code>. The formula for <code class="language-plaintext highlighter-rouge">Safe-Softmax</code> is:</p>
+
+\[y_i=\frac {e^{x_{i}-\mathop{\text {max}} \limits_ {k=1} ^{V} x_k}} {\sum \limits_ {j=1}^{V}e^{x_j-\mathop{\text {max}} \limits_ {k=1} ^{V} x_k}}\]
+
+<p><code class="language-plaintext highlighter-rouge">Online-Softmax</code> updates $y_i$ iteratively:</p>
+
+\[d_S=d_{S-1} \times e^{m_{S-1}-m_S}+e^{x_S-m_S}\]
+
+<p>Here $d_j$ and $m_j$ must be stored as intermediate variables, and the final pseudocode is as follows:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>1: m_0 &lt;- -inf
+2: d_0 &lt;- 0
+3: for j &lt;- 1..V do
+4:     m_j &lt;- max(m_{j-1}, x_j)
+5:     d_j &lt;- d_{j-1} * exp(m_{j-1} - m_j) + exp(x_j - m_j)
+6: end for
+7: for i &lt;- 1..V do
+8:     y_i &lt;- exp(x_i - m_V) / d_V
+9: end for
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The FlashAttention algorithm flow is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-09-20-FlashAttention%25E7%25B3%25BB%25E5%2588%2597%25E4%25BC%2598%25E5%258C%2596/FlashAttention%E4%BC%98%E5%8C%96_20231029_220113.png" alt="img" /></p>
+
+<p>FlashAttention needs only $O\left(\frac {N^2 \times d^2} {M}\right)$ HBM accesses, where M is the SRAM size (which determines the block size).</p>
+
+<h1 id="flashattentionv2">FlashAttentionV2<a id="sec-3"></a></h1>
+
+<p><a href="https://arxiv.org/pdf/2307.08691.pdf">FlashAttentionV2</a> was proposed in July 2023. Its core contributions are:</p>
+
+<ul>
+  <li>
+    <p>Fewer non-matmul FLOPs: The original softmax computation subtracts the maximum value, but this increases the number of passes over x. V2 removes this step, compensates for it within the local blocks instead, and eliminates the rescale computation. For intermediate variables, it moves from storing $d_j$ and $m_j$ in V1 to storing $l_j$.</p>
+  </li>
+  <li>
+    <p>Parallelism along the sequence length, so that good parallelism is achieved even for a single head with a long sequence: The FlashAttention algorithm has two loops, with K and V in the outer loop j and Q and O in the inner loop i.</p>
+
+    <p>FlashAttention-2 moves Q to the outer loop i and K and V to the inner loop j. Because the improved algorithm no longer requires warps to communicate with each other to process Q_i, the outer loop can be placed on different thread blocks.</p>
+  </li>
+  <li>
+    <p>GPU optimization: Within one attention computation block, the work is divided among different warps of a single thread block, which reduces communication and shared memory accesses.</p>
+  </li>
+</ul>
+
+<p>The difference between V1 and V2 shows up in the computation of local attention:</p>
+
+\[\text {FlashAttentionV1:}\  O^{(1)}=P(1)V^{(1)}=diag(l^{(1)})^{-1}e^{S^{(1)}-m^{(1)}}V^{(1)}\]
+
+\[\text {FlashAttentionV2:}\  O^{(1)}=e^{S^{(1)}-m^{(1)}}V^{(1)}\]
+
+<p>$\text {FlashAttentionV2}$ does not rescale by $diag(l^{(i)})^{-1}$. It has to compensate for the max value, and the final output $O^{(last)}$ needs one more rescale:</p>
+
+\[O^{(2)}=diag(e^{m^{(1)}-m^{(2)}})O^{(1)}+e^{S^{(2)}-m^{(2)}}V^{(2)}=e^{s^{(1)}-m}V^{(1)}+e^{e^{(2)}-m}V^{(2)}\]
+
+\[O=diag(l^{(2)})^{-1}O^{(2)}\]
+
+<p>The forward pass pseudocode is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-09-20-FlashAttention%25E7%25B3%25BB%25E5%2588%2597%25E4%25BC%2598%25E5%258C%2596/FlashAttention%E4%BC%98%E5%8C%96_20231029_222337.png" alt="img" /></p>
+
+<p>For a basic implementation, see:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="n">torch</span><span class="p">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">456</span><span class="p">)</span>
+
+<span class="n">N</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">8</span>
+<span class="n">Q_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">rand</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+<span class="n">K_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">rand</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+<span class="n">V_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">rand</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+
+<span class="n">expected_softmax</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">Q_mat</span> <span class="o">@</span> <span class="n">K_mat</span><span class="p">.</span><span class="n">T</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">expected_attention</span> <span class="o">=</span> <span class="n">expected_softmax</span> <span class="o">@</span> <span class="n">V_mat</span>
+
+<span class="c1"># 分块（tiling）尺寸，以SRAM的大小计算得到
+</span><span class="n">Br</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">Bc</span> <span class="o">=</span> <span class="n">d</span>
+
+<span class="n">O</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+
+<span class="c1"># 算法流程第3步，执行外循环
+</span><span class="k">for</span> <span class="n">block_start_Br</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">Br</span><span class="p">):</span>
+    <span class="n">block_end_Br</span> <span class="o">=</span> <span class="n">block_start_Br</span> <span class="o">+</span> <span class="n">Br</span>
+    <span class="c1"># 算法流程第4步，从HBM中load Qi 的一个block到SRAM
+</span>     <span class="n">Qi</span> <span class="o">=</span> <span class="n">Q_mat</span><span class="p">[</span><span class="n">block_start_Br</span><span class="p">:</span><span class="n">block_end_Br</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="c1"># 算法流程第5步，初始化每个block的值
+</span>     <span class="n">Oi</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Br</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>  <span class="c1"># shape Br x d
+</span>     <span class="n">li</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">Br</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># shape Br x 1
+</span>     <span class="n">mi</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">full</span><span class="p">((</span><span class="n">Br</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="n">torch</span><span class="p">.</span><span class="n">inf</span><span class="p">)</span>  <span class="c1"># shape Br x 1
+</span>
+<span class="c1"># 算法流程第6步，执行内循环
+</span><span class="k">for</span> <span class="n">block_start_Bc</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">Bc</span><span class="p">):</span>
+    <span class="n">block_end_Bc</span> <span class="o">=</span> <span class="n">block_start_Bc</span> <span class="o">+</span> <span class="n">Bc</span>
+
+    <span class="c1"># 算法流程第7步，load Kj, Vj到SRAM
+</span>    <span class="n">Kj</span> <span class="o">=</span> <span class="n">K_mat</span><span class="p">[</span><span class="n">block_start_Bc</span><span class="p">:</span><span class="n">block_end_Bc</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">Vj</span> <span class="o">=</span> <span class="n">V_mat</span><span class="p">[</span><span class="n">block_start_Bc</span><span class="p">:</span><span class="n">block_end_Bc</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="c1"># 算法流程第8步
+</span>    <span class="n">Sij</span> <span class="o">=</span> <span class="n">Qi</span> <span class="o">@</span> <span class="n">Kj</span><span class="p">.</span><span class="n">T</span>
+    <span class="c1"># 算法流程第9步
+</span>    <span class="n">mi_new</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">mi</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">Sij</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="n">values</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]]),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="n">values</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span>
+    <span class="n">Pij_hat</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Sij</span> <span class="o">-</span> <span class="n">mi_new</span><span class="p">)</span>
+    <span class="n">li</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">mi</span> <span class="o">-</span> <span class="n">mi_new</span><span class="p">)</span> <span class="o">*</span> <span class="n">li</span> <span class="o">+</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">Pij_hat</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="bp">None</span><span class="p">]</span>
+    <span class="c1"># 算法流程第10步
+</span>    <span class="n">Oi</span> <span class="o">=</span> <span class="n">Oi</span> <span class="o">*</span> <span class="n">torch</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">mi</span> <span class="o">-</span> <span class="n">mi_new</span><span class="p">)</span> <span class="o">+</span> <span class="n">Pij_hat</span> <span class="o">@</span> <span class="n">Vj</span>
+
+    <span class="n">mi</span> <span class="o">=</span> <span class="n">mi_new</span>
+
+<span class="c1"># 第12步
+</span><span class="n">Oi</span> <span class="o">=</span> <span class="n">Oi</span> <span class="o">/</span> <span class="n">li</span>
+
+<span class="c1"># 第14步
+</span><span class="n">O</span><span class="p">[</span><span class="n">block_start_Br</span><span class="p">:</span><span class="n">block_end_Br</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">Oi</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="flashattentionv3">FlashAttentionV3</h1>
+
+<p>The core optimizations of <code class="language-plaintext highlighter-rouge">FlashAttentionV3</code> target the <code class="language-plaintext highlighter-rouge">Hopper</code> architecture and have two parts: hardware asynchrony and FP8 low precision.</p>
+
+<ol>
+  <li>
+    <p>Hardware asynchrony</p>
+
+    <p>Hopper introduces a new hardware module, the <code class="language-plaintext highlighter-rouge">Tensor Memory Accelerator (TMA)</code>. The TMA allows efficient asynchronous data transfer between global memory and shared memory and reduces the dependence on registers. When data is copied asynchronously between global memory and shared memory through the TMA, the GPU can spend the saved instruction cycles on issuing computation.</p>
+
+    <p>The authors call this optimization warp specialization: some warps produce and some warps consume, each with its own role. Using the warp-group approach, GEMM and softmax computation are overlapped through ping-pong scheduling.</p>
+  </li>
+  <li>
+    <p>FP8 low precision</p>
+
+    <p>To improve FP8 accuracy and reduce outliers, two main techniques are used:</p>
+
+    <ul>
+      <li>Block quantization: Q, K, and V are split into blocks, with one scaling factor per block.</li>
+      <li><a href="https://arxiv.org/abs/2307.13304">Incoherent Processing</a>: Q and K are each multiplied by a random orthogonal matrix, which reduces the outliers in every Q and K without affecting the final result.</li>
+    </ul>
+  </li>
+</ol>
+
+<h1 id="pagedattention">PagedAttention<a id="sec-4"></a></h1>
+
+<p><a href="https://arxiv.org/abs/2309.06180">PagedAttention</a> was proposed by vLLM. Its core is that it allows contiguous KV tensors to be stored in non-contiguous memory. Specifically, PagedAttention splits each sequence’s KV cache into blocks, each block holding a fixed number of tokens, and when computing attention it can efficiently locate and fetch the corresponding memory blocks.</p>
+
+<p>The design borrows the ideas of virtual memory and paging: each fixed-length block can be viewed as a page in virtual memory, tokens as bytes, and sequences as processes. A block table then maps contiguous logical blocks to non-contiguous physical blocks, and physical blocks can be allocated on demand as new tokens are generated.</p>
+
+<p>PagedAttention enables efficient memory sharing: in parallel sampling, one prompt needs to generate multiple output sequences. In this case, the computation and memory for that prompt can be shared among the output sequences.</p>
+
+<p>The block table makes memory sharing natural. Just as processes share physical pages, different sequences in PagedAttention can share blocks by mapping their logical blocks to the same physical blocks. To make sharing safe, PagedAttention tracks reference counts for physical blocks and implements a Copy-on-Write mechanism. Memory sharing reduces memory usage by 55%, which greatly lowers the memory overhead of sampling algorithms, and improves throughput by up to 2.2x.</p>
+
+<h1 id="references">References<a id="sec-5"></a></h1>
+
+<p><a href="https://zhuanlan.zhihu.com/p/639228219">FlashAttention: faster computation, less GPU memory, I/O-aware exact attention</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/645376942">FlashAttention2 explained (200% faster than FlashAttention)</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/649537608">How the vLLM framework works: PagedAttention</a></p>
+
+<p><a href="https://www.zhihu.com/question/661395457/answer/3559517523">Zhihu: FA3</a></p>

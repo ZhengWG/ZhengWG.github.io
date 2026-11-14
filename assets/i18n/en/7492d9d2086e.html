@@ -1,0 +1,184 @@
+<h2 id="preface">Preface</h2>
+
+<p>I recently added an <a href="https://johneyzheng.top/agents/"><strong>Agents</strong></a> page to the blog: an interactive analysis tool platform integrated into the blog sidebar. Unlike traditional static posts, the Agents page offers analysis that is interactive, configurable, and backed by continuously updated data. Two agents are live so far: <strong>house_price_analyzer</strong> (housing price analyzer) and <strong>ai_tracker</strong> (AI frontier tracker).</p>
+
+<p>This post covers the design of the whole Agents system, the features of each agent, and the technical implementation behind them.</p>
+
+<p>Mainly helped by <a href="http://claude.ai/">Cluade</a>.</p>
+
+<h2 id="overall-architecture">Overall Architecture</h2>
+
+<h3 id="agent-hub">Agent Hub</h3>
+
+<p>The Agents page uses a two-level <strong>Hub + Sub-agent</strong> architecture:</p>
+
+<ul>
+  <li><strong>Hub layer</strong>: shows an overview card for every available agent, including its name, description, tags, and online status. Clicking a card opens that agent’s detail page</li>
+  <li><strong>Sub-agent layer</strong>: each agent has its own interactive interface</li>
+</ul>
+
+<h3 id="tech-stack">Tech Stack</h3>
+
+<ul>
+  <li><strong>Frontend rendering</strong>: plain JavaScript plus the Plotly.js charting library, with no additional framework dependencies</li>
+  <li><strong>Data storage</strong>: static JSON files hosted under <code class="language-plaintext highlighter-rouge">assets/data/</code>, updated automatically by GitHub Actions</li>
+  <li><strong>Data collection</strong>: a Python crawler toolchain (<code class="language-plaintext highlighter-rouge">tools/house_price/</code>) that supports aggregating multiple data sources</li>
+  <li><strong>AI analysis</strong>: integrates the DeepSeek API and supports streaming output (SSE)</li>
+</ul>
+
+<h2 id="agent-1-house_price_analyzer">Agent 1: house_price_analyzer</h2>
+
+<p>The housing price analyzer is a multi-dimensional data analysis tool for the real estate market in Chinese cities. It currently covers all 12 districts of Hangzhou.</p>
+
+<h3 id="feature-modules">Feature Modules</h3>
+
+<h4 id="1-price-trend-trend">1. Price Trend (Trend)</h4>
+
+<ul>
+  <li><strong>City-wide trend</strong>: shows the historical trend line of average prices for second-hand and new homes, with an MA6 moving average overlaid to help judge the trend direction</li>
+  <li><strong>District comparison</strong>: pick multiple districts with the Chip selector and compare their trends on the same axes</li>
+  <li>Supports switching between second-hand and new homes</li>
+</ul>
+
+<h4 id="2-latest-prices-latest">2. Latest Prices (Latest)</h4>
+
+<ul>
+  <li><strong>Key metric cards</strong>: the citywide average price, the highest and lowest districts, and the total number of districts at a glance</li>
+  <li><strong>District bar chart</strong>: sorted by average price in descending order, with colors distinguishing year-over-year rises and falls</li>
+  <li><strong>District detail table</strong>: shows each district’s latest average price and its year-over-year change</li>
+  <li><strong>Sub-district average prices</strong>: after you choose a district, shows the price details of each sub-district in it</li>
+  <li><strong>Residential community price breakdown</strong>:
+    <ul>
+      <li>Price range distribution chart (&lt;20k, 20-30k, 30-40k… 80k+)</li>
+      <li>Paginated browsing of all community data, with page number jumping</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="3-buy-timing-assessment-timing">3. Buy Timing Assessment (Timing)</h4>
+
+<p>This is the core analysis module. It uses a quantitative scoring system:</p>
+
+<p><strong>Five-dimension scoring model (100 points total)</strong>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>Weight</th>
+      <th>Evaluation logic</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Price position</td>
+      <td>30%</td>
+      <td>The percentile of the current price within its historical range; lower is better</td>
+    </tr>
+    <tr>
+      <td>Trend</td>
+      <td>25%</td>
+      <td>MA3/MA6 crossover to judge rising, falling, or consolidating</td>
+    </tr>
+    <tr>
+      <td>Momentum</td>
+      <td>20%</td>
+      <td>Pattern recognition on the month-over-month changes of the last 3 months (such as a bottom reversal signal)</td>
+    </tr>
+    <tr>
+      <td>Year-over-year</td>
+      <td>15%</td>
+      <td>The larger the year-over-year drop, the higher the buying value</td>
+    </tr>
+    <tr>
+      <td>Volatility</td>
+      <td>10%</td>
+      <td>Standard deviation divided by mean over the last 6 months; lower volatility is more stable</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Rating criteria</strong>:</p>
+
+<ul>
+  <li>≥80 points: strongly recommended to buy</li>
+  <li>≥65 points: recommended to buy</li>
+  <li>≥50 points: worth considering</li>
+  <li>≥35 points: recommended to wait and see</li>
+  <li>&lt;35 points: strongly recommended to wait and see</li>
+</ul>
+
+<p>It also provides:</p>
+<ul>
+  <li><strong>Radar chart</strong>: a visual comparison of the five-dimension metrics of the Top 6 districts</li>
+  <li><strong>District detail expansion panel</strong>: each district can be expanded to show a mini chart of the last 12 months, key metrics, and community-level data</li>
+</ul>
+
+<h4 id="4-ai-deep-analysis">4. AI Deep Analysis</h4>
+
+<p>Integrates the DeepSeek large language model and supports two analysis modes:</p>
+
+<ul>
+  <li><strong>Global analysis</strong>: aggregates the scores, sub-districts, and Top 20 community data of all districts in the city to generate a comprehensive report covering a market phase judgment, a district comparison, and value-for-money recommendations</li>
+  <li><strong>District deep analysis</strong>: for a single district, takes the last 36 months of historical prices, sub-district average prices, and the full community data as input, and generates a sub-district divergence analysis, community-level recommendations, and an outlook on future trends</li>
+</ul>
+
+<p>Analysis reports are streamed over SSE, and the Markdown content is rendered in real time.</p>
+
+<h3 id="data-pipeline">Data Pipeline</h3>
+
+<p>The data collection layer uses a multi-source aggregation strategy:</p>
+<ul>
+  <li><strong>GoToHui</strong>: provides city- and district-level historical average price series (from 2018 to the present)</li>
+  <li><strong>Beike</strong>: provides community-level real-time prices and month-over-month data</li>
+</ul>
+
+<p>A GitHub Actions workflow runs automatically every day. It includes data validation (at least 3 districts, at least 12 historical records) and a failure rollback mechanism, so the online data is always usable.</p>
+
+<h2 id="agent-2-ai_tracker">Agent 2: ai_tracker</h2>
+
+<p>The AI frontier tracker helps you quickly keep up with the latest papers and open-source project updates in the AI Infra field.</p>
+
+<h3 id="paper-tracking-papers">Paper Tracking (Papers)</h3>
+
+<ul>
+  <li>Searches arXiv papers by keyword through the <strong>Semantic Scholar API</strong></li>
+  <li>Supports filtering by title, author, and keyword</li>
+  <li>Supports filtering by date range</li>
+  <li>Shows the paper abstract (expandable), authors, and category tags</li>
+  <li>Built-in translation feature</li>
+</ul>
+
+<p>The default tracked keywords cover the core directions of LLM inference optimization:</p>
+<ul>
+  <li>Eagle VLM inference / LLM inference optimization</li>
+  <li>Speculative decoding / FlashAttention kernel</li>
+  <li>Continuous batching / RL infrastructure</li>
+  <li>vLLM &amp; SGLang serving</li>
+</ul>
+
+<h3 id="project-tracking-github-repos">Project Tracking (GitHub Repos)</h3>
+
+<ul>
+  <li>Tracks the <strong>Releases</strong>, <strong>Milestones</strong>, and <strong>Hot Issues</strong> of specified GitHub repositories</li>
+  <li>Shows the star count, the latest version number, and the release date</li>
+  <li>Release notes can be expanded to view the full content</li>
+</ul>
+
+<p>The projects tracked by default include SGLang, vLLM, OpenRLHF, Verl, Slime, AReaL, and other core open-source projects in the AI Infra field.</p>
+
+<h3 id="configurability">Configurability</h3>
+
+<p>Through the Settings panel, users can:</p>
+<ul>
+  <li>Customize the arXiv search keywords (add, delete, edit)</li>
+  <li>Customize the tracked GitHub repositories</li>
+  <li>Configure a GitHub Token to raise the API request quota (from 60 req/h to 5000 req/h)</li>
+  <li>Adjust the maximum number of papers returned for each keyword</li>
+</ul>
+
+<p>All settings are stored in the browser’s localStorage, so your privacy is protected.</p>
+
+<h2 id="other">Other</h2>
+
+<p>Future plans include extending housing price data support to more cities (the configurations for Beijing and Shanghai are already in place) and exploring more interesting agent scenarios. You are welcome to try it out on the Agents page!</p>

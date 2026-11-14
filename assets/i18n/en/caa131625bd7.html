@@ -1,0 +1,162 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Design Template</a></li>
+  <li><a href="#sec-3">Worked Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>The core of the Prototype pattern is to create a new object by copying the attributes of an existing one. The key method is the <code class="language-plaintext highlighter-rouge">clone</code> method, which involves two steps:</p>
+
+<ul>
+  <li>Allocate a new block of memory for the new object</li>
+  <li>Copy all the attributes of the original object</li>
+</ul>
+
+<p>The characteristics of the Prototype pattern are:</p>
+
+<ul>
+  <li>It copies by duplicating memory, which performs better than creating an object with new</li>
+  <li>You can choose to design either a shallow copy or a deep copy</li>
+  <li>When an object is created through clone, the class’s <code class="language-plaintext highlighter-rouge">__init__</code> initialization function is not executed</li>
+</ul>
+
+<h1 id="design-template">Design Template<a id="sec-2"></a></h1>
+
+<p>The Prototype pattern is fairly simple. A simple framework is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
+
+
+<span class="k">class</span> <span class="nc">Clone</span><span class="p">:</span>
+    <span class="s">"基类"</span>
+
+    <span class="k">def</span> <span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"浅拷贝方式"</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">deepclone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"深拷贝方式"</span>
+        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="worked-example">Worked Example<a id="sec-3"></a></h1>
+
+<p>Provide an interface for backing up an application’s configuration:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">AppConfig</span><span class="p">(</span><span class="n">Clone</span><span class="p">):</span>
+    <span class="s">"应用程序功能配置类"</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configName</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__configName</span> <span class="o">=</span> <span class="n">configName</span>
+        <span class="c1"># self.parseFromFile('./config/default.xml')
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">__frontType</span> <span class="o">=</span> <span class="s">'宋体'</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__frontSize</span> <span class="o">=</span> <span class="mi">14</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__language</span> <span class="o">=</span> <span class="err">“</span><span class="s">'中文'</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__logPath</span> <span class="o">=</span> <span class="s">'./logs/appException.log'</span>
+
+    <span class="k">def</span> <span class="nf">saveToFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filePath</span><span class="p">):</span>
+        <span class="s">"保存配置"</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">copyConfig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configName</span><span class="p">):</span>
+        <span class="s">"创建配置的副本：clone接口"</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">deepClone</span><span class="p">()</span>
+        <span class="n">config</span><span class="p">.</span><span class="n">__configName</span> <span class="o">=</span> <span class="n">conifigName</span>
+        <span class="k">return</span> <span class="n">config</span>
+
+    <span class="k">def</span> <span class="nf">showInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"%s 的配置信息如下："</span> <span class="o">%</span> <span class="bp">self</span><span class="p">.</span><span class="n">__configName</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"字体："</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__frontType</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"字号："</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__frontSize</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"语言："</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__language</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"异常文件的路径："</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__logPath</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setFontType</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fontType</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__fontType</span> <span class="o">=</span> <span class="n">fontType</span>
+
+    <span class="k">def</span> <span class="nf">setFontSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fontSize</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__fontSize</span> <span class="o">=</span> <span class="n">fontSize</span>
+
+    <span class="k">def</span> <span class="nf">setLanguage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">language</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__language</span> <span class="o">=</span> <span class="n">language</span>
+
+    <span class="k">def</span> <span class="nf">setLogPath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logPath</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__logPath</span> <span class="o">=</span> <span class="n">logPath</span>
+
+
+<span class="c1"># 测试代码
+</span><span class="k">def</span> <span class="nf">testAppConfig</span><span class="p">():</span>
+    <span class="n">defaultConfig</span> <span class="o">=</span> <span class="n">AppConfig</span><span class="p">(</span><span class="s">"default"</span><span class="p">)</span>
+    <span class="n">defaultConfig</span><span class="p">.</span><span class="n">showInfo</span><span class="p">()</span>
+
+    <span class="n">newConfig</span> <span class="o">=</span> <span class="n">defaultConfig</span><span class="p">.</span><span class="n">copyConfig</span><span class="p">(</span><span class="s">"tonyConfig"</span><span class="p">)</span>
+    <span class="n">newConfig</span><span class="p">.</span><span class="n">setFontType</span><span class="p">(</span><span class="s">"雅黑"</span><span class="p">)</span>
+    <span class="n">newConfig</span><span class="p">.</span><span class="n">setFontSize</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
+    <span class="n">newConfig</span><span class="p">.</span><span class="n">setLanguage</span><span class="p">(</span><span class="s">"English"</span><span class="p">)</span>
+    <span class="n">newConfig</span><span class="p">.</span><span class="n">showInfo</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

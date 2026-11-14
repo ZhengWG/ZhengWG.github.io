@@ -1,0 +1,51 @@
+<h1 id="contents">Contents</h1>
+
+<ol>
+  <li><a href="#org0fd639c">Background and Core Idea</a></li>
+  <li><a href="#org28170ad">Algorithm Pipeline</a></li>
+  <li><a href="#orgaa02989">Algorithm Details</a></li>
+</ol>
+
+<p><a href="http://openaccess.thecvf.com/content_ECCV_2018/papers/Ming_Liang_Deep_Continuous_Fusion_ECCV_2018_paper.pdf">Deep Continuous Fusion for Multi-Sensor 3D Object Detection</a></p>
+
+<p><a id="org0fd639c"></a></p>
+
+<h1 id="background-and-core-idea">Background and Core Idea</h1>
+
+<p>Motivation: the authors argue that the difficulty in fusing lidar data with image data is how to combine sparse, continuous 3D point cloud information with image data that is semantically rich but discrete. They propose a point-wise fusion based on continuous convolution for deep fusion of the BEV and the image.</p>
+
+<p><a id="org28170ad"></a></p>
+
+<h1 id="algorithm-pipeline">Algorithm Pipeline</h1>
+
+<ul>
+  <li>Core:
+    <ul>
+      <li>Building the Fusion Layers: the inputs are the image features output by the four blocks of resnet18, which are combined through an FPN. For fusion, the K nearest points of a target pixel are found on the BEV 2D plane, then mapped to the corresponding 3D points in 3D space; the 3D positions and the image features (obtained by interpolation) are then fed into an MLP to get the fused feature</li>
+      <li>The last feature layer of the BEV branch is used for the final classification and prediction, and it combines the features of the previous three blocks (similar to FPN)</li>
+    </ul>
+  </li>
+  <li>Algorithm framework:</li>
+</ul>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-04-Cont-Fuse%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_ContFuse_20210710_002124.png" alt="img" />
+<img src="/assets/img/recovered/014c088009c273c8.png" alt="img" /></p>
+
+<p><a id="orgaa02989"></a></p>
+
+<h1 id="algorithm-details">Algorithm Details</h1>
+
+<ul>
+  <li>Key points:
+    <ul>
+      <li>Point-fusion is applied to every block during feature extraction</li>
+      <li>The input BEV has higher dimensions: 512*448*32</li>
+      <li>Negative sample strategy: randomly sample 5% and take the top-k</li>
+    </ul>
+  </li>
+  <li>Paper results: the authors report that detection at long range (&gt;60m) improves, because the sparse point cloud information at a distance is supplemented by image information</li>
+</ul>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-04-Cont-Fuse%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_ContFuse_20210710_002311.png" alt="img" /></p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-04-Cont-Fuse%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_ContFuse_20210710_002356.png" alt="img" /></p>

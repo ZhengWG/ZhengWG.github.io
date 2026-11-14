@@ -1,0 +1,391 @@
+<p>Model the encoder, prefill, and decode separately, account for the transfer cost of embeddings and the KV cache, and derive machine ratios and admission control from the target SLO.</p>
+
+<h2 id="how-prefill-and-decode-differ">How prefill and decode differ</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Phase</th>
+      <th>Bottleneck type</th>
+      <th>Recommended hardware</th>
+      <th>Optimal batch</th>
+      <th>Parallelism strategy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Prefill</td>
+      <td>compute-bound (AI~s, in the thousands)</td>
+      <td>compute-oriented accelerators (H800/950PR)</td>
+      <td>small (a single sequence already saturates the GPU)</td>
+      <td>TP/PP (chunks as micro-batches), DeepEP (normal, contiguous GEMM), etc.</td>
+    </tr>
+    <tr>
+      <td>Decode</td>
+      <td>bandwidth-bound (B~tens)</td>
+      <td>devices with high memory bandwidth</td>
+      <td>large (constrained by the SLO and C(B); see <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">Part 5</a>)</td>
+      <td>DP-attn+EP, DeepEP (low-latency), masked GEMM; the SLO is judged by TPOT (P99), etc.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="how-vit-llm-prefill-and-llm-decode-differ">How ViT, LLM prefill, and LLM decode differ</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>ViT</th>
+      <th>LLM-P</th>
+      <th>LLM-D</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bottleneck</td>
+      <td>compute + launch overhead of small kernels</td>
+      <td>compute</td>
+      <td>bandwidth</td>
+    </tr>
+    <tr>
+      <td>State</td>
+      <td><strong>stateless</strong> → instant scaling, can run on cheap GPUs (L20, 1/5 the cost)</td>
+      <td>KV producer</td>
+      <td>KV consumer</td>
+    </tr>
+    <tr>
+      <td>Load variance</td>
+      <td>multiple images can use DP</td>
+      <td>10×</td>
+      <td>3-5×</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="kv-cache-transfer-schemes-and-latency">KV cache transfer: schemes and latency</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>Scheme</th>
+      <th>Key points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TP_p = TP_d (homogeneous)</td>
+      <td>direct rank-i → rank-i transfer</td>
+      <td>layouts align, and SGLang bypasses staging automatically</td>
+    </tr>
+    <tr>
+      <td><strong>TP_p ≠ TP_d (heterogeneous)</strong></td>
+      <td><strong>per-worker gather+permute → staging buffer → bulk RDMA → scatter on the peer</strong></td>
+      <td>the head dimension is merged/split by a routing table; the token dimension removes block fragmentation; <strong>2-5×</strong> faster than per-token slices; never centralize on rank0 (that uses only 1 NIC)</td>
+    </tr>
+    <tr>
+      <td>MLA</td>
+      <td>direct transfer, no staging</td>
+      <td>the latent is shared by all heads, so the head dimension is immune (token-dimension fragmentation remains)</td>
+    </tr>
+    <tr>
+      <td>Destination blocks in place</td>
+      <td>D preallocates the block_table and preregisters the pool, and P lands data directly with <strong>RDMA writes at offsets</strong></td>
+      <td>multiple P ranks write concurrently to different offsets of the same D buffer → the concat is eliminated</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Three latency techniques</strong> (reducing the transfer time exposed on the critical path):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>① layer-wise: send layer i as soon as it is computed, overlapping with later layers; actual exposure depends on the pipeline and the link
+② Sample the first token on the P side: less waiting, but TTFT may still include the last segment of KV transfer
+③ GPUDirect + NIC affinity binding: avoids the CPU bounce (effective bandwidth 8→20GB/s)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Two-node measurements (sglang 0.5.22 + Mooncake, Qwen3-32B, KV 256 KB/token; P and D both at TP2, NICs on the same NUMA node):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Input</th>
+      <th>TTFT colocated on the same GPUs</th>
+      <th>PD RDMA</th>
+      <th>PD TCP (<code class="language-plaintext highlighter-rouge">mooncake_tcp</code>)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1K</td>
+      <td>261 ms</td>
+      <td>278(+17)</td>
+      <td>358(+97)</td>
+    </tr>
+    <tr>
+      <td>4K</td>
+      <td>1052</td>
+      <td>1088(+36)</td>
+      <td>1401(+349)</td>
+    </tr>
+    <tr>
+      <td>16K</td>
+      <td>4860</td>
+      <td>4927(+67)</td>
+      <td>5584(+724)</td>
+    </tr>
+    <tr>
+      <td>32K</td>
+      <td>11274</td>
+      <td>11357(+83)</td>
+      <td>11908(+634)</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>Over RDMA, only 0.7–6.5% of the transfer is exposed; over TCP it adds 7–33%. With long inputs, most of the TCP transfer overlaps with chunked prefill compute (about 2.6 s/rank in theory at 32K, of which only 0.63 s is exposed); with short inputs it is almost fully exposed.</li>
+  <li>The first decode step (the interval to the second token) is 12–15 ms in all three setups and does not get longer from waiting on KV; TTFT still includes the transfer of the last segment of KV.</li>
+  <li>Mismatched TP (P TP4 → D TP2): without staging it is 10–52% slower than homogeneous TP4→TP4; with <code class="language-plaintext highlighter-rouge">SGLANG_DISAGG_STAGING_BUFFER=1</code> it is only 1.4–6% slower.</li>
+  <li>Affinity: Mooncake GPU→GPU writes over a single NIC reach 48.9 GB/s, halving to 24 GB/s when the GPU is paired with a NIC across NUMA nodes.</li>
+</ul>
+
+<p>Whether to disaggregate also depends on decode jitter when a long prefill is inserted. Measured (16 concurrent decode streams, with one 16K prefill inserted every 6 seconds): colocated on the same GPUs, the decode ITL P99/P50 is 27× (default chunk), 48× (mixed-chunk 2048), and 13× (mixed-chunk 512, but whenever a chunk is running every decode step takes about 180 ms, and the 16K prefill is also 9% slower); with PD it is 1.23× (P99 17.4 ms). Here a smaller chunk lowered the worst-case stall, but there is still a trade-off between decode latency and prefill efficiency; PD isolates the two kinds of workload on separate resources.</p>
+
+<h2 id="heterogeneous-kv-prefix-reuse-and-hierarchical-caching">Heterogeneous KV, prefix reuse, and hierarchical caching</h2>
+
+<p>A single unified KV pool allocated as “the same size per layer per token” cannot adequately represent hybrid attention. Distinguish by type — variable-length KV, recurrent state, sliding windows, compressed blocks, and the uncompressed tail — and include the type, position, head/TP ownership, and destination offset in the transfer metadata.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Object</th>
+      <th>Allocation and reuse principle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Standard KV</td>
+      <td>paged block management; prefixes are reused by token/position and model version</td>
+    </tr>
+    <tr>
+      <td>GDN recurrent state</td>
+      <td>only saved prefix checkpoints can be restored; an arbitrary historical state cannot be truncated out of the final state</td>
+    </tr>
+    <tr>
+      <td>CSA/HCA compressed KV</td>
+      <td>record both the completed compressed blocks and the incomplete tail, and preserve the compression boundary at handoff</td>
+    </tr>
+    <tr>
+      <td>SWA / indexer</td>
+      <td>maintain the sliding-window lifetime and the index data separately; moving only the latent does not make the state complete</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The benefit of prefix caching depends on whether the complete state can be restored; it does not simply multiply out to a fixed 1/4 from “15/60 layers”. Hierarchical caching extends capacity through GPU → CPU → NVMe; whether to read back is decided by <code class="language-plaintext highlighter-rouge">lookup + queueing + transfer + layout restoration &lt; time to recompute the prefix</code>, including contention for bandwidth with online requests. Long contexts are usually more worth reusing, but small requests may not be worth the extra hop.</p>
+
+<h2 id="slo-driven-resource-ratios-and-admission-control">SLO-driven resource ratios and admission control</h2>
+
+<p>The goal is to maximize the throughput that meets percentile SLOs on TTFT/ITL. First pin down the percentile and the measurement window, then sweep batch, context, and load; average TPOT cannot stand in for P99 ITL.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>TTFT = queueing + encoder + prefill + exposed KV transfer + first-token output
+n_P : n_D = (avg input tokens / prefill tok/s per P instance)
+          : (avg output tokens / decode tok/s per D instance)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>These throughputs must be measured under the target SLO and the real length distribution; cache hits are credited by the prefill work they actually save. The input and output length distributions directly change the required ratio. Routing first excludes instances whose memory or predicted tail latency would exceed the limits, then weighs prefix hits, queue length, KV occupancy, and SLO headroom; real-time, interactive, and batch workloads can be served from separate pools.</p>
+
+<p>In this PD comparison, colocation uses 2 GPUs and disaggregation uses 2P+2D GPUs; P99/P50 drops from 13–48 to about 1.2. The two setups use different resources, so the comparison is mainly for observing how long prefills affect decode jitter.</p>
+
+<h2 id="embedding-transfer">Embedding transfer</h2>
+
+<p><strong>① Computing shapes and volume:</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>emb/image = n_token × d × bpp
+1080p (1920*1080) image (Qwen-VL family, 28×28/token, no pixel limit) → 2664 token × 7168 × 2B ≈ 37 MB/image
+8-image request = 296 MB
+⚠️ emb/token = d×2B = 14KB (d=7168) —— not compressed!
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Take both d and the token count from the model and the actual preprocessing output: here Qwen3.5 has d=4096, and a 1024² image produces 1026 tokens, about 8.4 MB of embeddings. When comparing EPD setups, keep the image preprocessing and the token workload the same. KV compression does not compress embeddings along with it, so the byte ratios for E→P and P→D must be computed separately.</p>
+
+<p><strong>② Multi-image overlap (pipelining):</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>No pipelining (wait until every image is encoded, then prefill):
+E: [img1][img2][img3][img4][img5][img6][img7][img8]
+P:                                                 [────prefill all────]
+                                                   ↑ idle wait 8×130ms = 1040ms
+TTFT = 1040 + T_prefill
+
+Pipelining (send one chunk to prefill as soon as k images are encoded):
+E: [img1][img2][img3][img4][img5][img6][img7][img8]
+P:       [chunk1][chunk2][chunk3][chunk4][chunk5][chunk6][chunk7]
+               ↑ waits only for the first k images to be encoded
+TTFT ≈ k×130ms + T_prefill_last_chunk
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Measured (Qwen3.5-397B-FP8, language model at TP8; for EPD, 4 encoder-only replicas on another machine, with embeddings sent over Mooncake RDMA):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Request</th>
+      <th>Colocated, idle</th>
+      <th>EPD, idle</th>
+      <th>Colocated, loaded (burst of 12 requests)</th>
+      <th>EPD, loaded</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>448² × 8</td>
+      <td>319 ms</td>
+      <td>168(−47%)</td>
+      <td>1097</td>
+      <td>515(−53%)</td>
+    </tr>
+    <tr>
+      <td>1024² × 1</td>
+      <td>168</td>
+      <td>185(+10%)</td>
+      <td>590</td>
+      <td>351(−40%)</td>
+    </tr>
+    <tr>
+      <td>1024² × 4</td>
+      <td>456</td>
+      <td>314(−31%)</td>
+      <td>2679</td>
+      <td>1322(−51%)</td>
+    </tr>
+    <tr>
+      <td>1024² × 8</td>
+      <td>879</td>
+      <td>605(−31%)</td>
+      <td>5174</td>
+      <td>2913(−44%)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>In this run EPD adds 4 encoder GPUs on top of colocation, so the results explain the benefit of stage isolation and do not represent a speedup at fixed resources. With multiple images, idle latency drops by about 31% and loaded latency by 40–61%; with a single image, EPD adds a hop for remote encoding and is actually 10–68% slower, so a few small images are not worth splitting out. Estimated from the colocated idle runs, ViT takes about 70 ms per 1024² image (on the TP8 LLM GPUs).</p>
+
+<p><strong>③ The D2H/H2D problem (across processes / across nodes):</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre>Path comparison (37MB, measured, PCIe Gen5):
+  Actually going through pickle (dumps+shm+loads+H2D): 45-61 ms
+  Preallocated shm + memcpy + H2D (no pickle): ~7.6 ms (preallocated pageable 13-16GB/s; a fresh allocation each time gets only ~3GB/s)
+  pinned memory:                  D2H/H2D ~0.7ms each (54GB/s)
+  ★ CUDA IPC preregistered slab (same node): 0.11 ms across GPUs (NVLink 363GB/s), 0.03 ms on the same GPU
+  ★ GPUDirect RDMA (cross-node):       GPU→NIC→GPU, bypassing the host; Mooncake single NIC ~49GB/s
+Principle: embeddings should never be staged through CPU memory —— pinned is the floor, IPC/GPUDirect is the right answer
+Note: IPC handle open takes 0.24ms on the same GPU and ~0.8ms across GPUs (2.2ms the first time) → slabs must be preregistered at startup, and only offsets are passed at runtime
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>④ E/P/D ratios and communication design:</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>Ratio = match the throughput of each stage: n_E : n_P : n_D = (load/Thr_E) : (load/Thr_P) : (load/Thr_D)
+   Thr_X = throughput of a single instance under the SLO (images/s, prefill tok/s, decode tok/s), not per-request latency
+   D batches hundreds of requests at once; using per-request latency ratios directly (e.g. E=1.04s / P=1.93s / D=8s) overestimates D by an order of magnitude
+
+Four principles for the communication mechanism (so that the benefit of the ratio is actually realized):
+① Async + queue decoupling: E→P goes through a request queue, not a synchronous RPC (otherwise E's jitter propagates directly into bubbles in P)
+② Preregister transfer resources: IPC slabs / RDMA MRs registered at startup, zero setup at runtime
+③ Decouple batch boundaries: E batches by image and P batches by token, regrouped at the queue, so neither has to accommodate the other
+④ Backpressure: use queue depth for admission control, so E cannot run ahead and flood P's GPU memory
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="series-navigation">Series navigation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Part</th>
+      <th>Article</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-00-roofline/">Roofline: Performance Budgets from Compute and Bandwidth</a></td>
+      <td>2026-01-01</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a></td>
+      <td>2026-02-13</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a></td>
+      <td>2026-03-29</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a></td>
+      <td>2026-05-11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a></td>
+      <td>2026-06-24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a></td>
+      <td>2026-08-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><strong>PD and EPD: Disaggregation, State Transfer, and Resource Allocation (this post)</strong></td>
+      <td>2026-09-19</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></td>
+      <td>2026-11-01</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Previous: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a> · Next: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></p>

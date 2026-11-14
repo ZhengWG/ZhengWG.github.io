@@ -1,0 +1,53 @@
+<h5 id="moes-mixture-of-experts-models">MoEs (Mixture-of-Experts Models)</h5>
+
+<p>MoEs were first proposed in the <a href="https://arxiv.org/abs/2101.03961">Switch Transformer</a>. The core structure consists of sparse MoE layers and a gating network, or router:</p>
+
+\[y = \sum_{i=1}^{n} g_i(x) \cdot f_i(x)\]
+
+<p>where $n$ is the number of experts, $g_i(x)$ is the gating network’s weight for the $i$-th expert, and $f_i(x)$ is the output of the $i$-th expert for the input.</p>
+
+<ul>
+  <li>
+    <p>Sparse MoE layers:</p>
+
+    <p>These layers replace the feed-forward network (FFN) layers of a traditional Transformer model. An MoE layer contains a number of “experts” (for example, 8), and each expert is itself an independent neural network. In practice, these experts are usually FFNs, but they can also be more complex network structures, or even MoE layers themselves, forming a hierarchical MoE structure.</p>
+  </li>
+  <li>
+    <p>Gating network or router</p>
+
+    <p>The gating network is usually a small neural network that generates expert weights from the input features: the output $g(x)$ commonly takes the form of a $Softmax$.</p>
+
+    <p>This part decides which tokens are sent to which expert. For example, in the figure below, the token “More” might be sent to the second expert, while the token “Parameters” is sent to the first expert. Sometimes a token can even be sent to more than one expert. How tokens are routed is a key point in using MoEs, because the router consists of learned parameters and is pretrained together with the rest of the network.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-19-MoEs%25E7%25AE%2597%25E6%25B3%2595&amp;&amp;%25E9%2583%25A8%25E7%25BD%25B2%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240922_195012.png" alt="img" class="img-mid" /></p>
+  </li>
+</ul>
+
+<p>The difficulty of accelerating MoEs is that:</p>
+
+<p>their branching structure makes computation inefficient, and as the number of experts grows they must be deployed in a distributed fashion across multiple GPUs or machines, which adds communication overhead. MoE models usually need multiple parallelism strategies, <code class="language-plaintext highlighter-rouge">DP/PP(MP)/TP/EP</code>, and these strategies often have to be combined.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-19-MoEs%25E7%25AE%2597%25E6%25B3%2595&amp;&amp;%25E9%2583%25A8%25E7%25BD%25B2%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240922_195814.png" alt="img" class="img-mid" /></p>
+
+<p>DeepSpeed’s combination of parallelism strategies is as follows. The figure below uses a single MoE layer to explain how hybrid parallelism is used. Assume there are 16 GPUs in total and 8 experts. The parallel modes are designed separately for expert and non-expert modules, as follows:</p>
+
+<ul>
+  <li>For the non-expert parameter modules:
+    <ul>
+      <li>4-way data parallelism is used, so these parameters are replicated 4 times.</li>
+      <li>Within each data-parallel replica, 4-way tensor parallelism is used.</li>
+    </ul>
+  </li>
+  <li>For the expert parameter modules:
+    <ul>
+      <li>8-way expert parallelism is used.</li>
+      <li>Each expert’s parameters are split with 2-way tensor parallelism.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-19-MoEs%25E7%25AE%2597%25E6%25B3%2595&amp;&amp;%25E9%2583%25A8%25E7%25BD%25B2%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240922_200026.png" alt="img" class="img-mid" /></p>
+
+<p>Communication can also be optimized between TP and EP. The core idea is that the TP inputs and outputs are identical, so no all-to-all communication is needed, which saves EP’s communication overhead:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-19-MoEs%25E7%25AE%2597%25E6%25B3%2595&amp;&amp;%25E9%2583%25A8%25E7%25BD%25B2%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240922_200256.png" alt="img" class="img-mid" /></p>

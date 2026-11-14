@@ -1,0 +1,175 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Design Template</a></li>
+  <li><a href="#sec-3">Worked Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>As the name suggests, the Singleton pattern means that you want a class to have only one instance. It is commonly used for global managers.</p>
+
+<h1 id="design-template">Design Template<a id="sec-2"></a></h1>
+
+<p>Three different ways of implementing the Singleton pattern are shown below:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Singleton1</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s">"单例实现方式一：基本实现"</span>
+    <span class="n">__instance</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">__isFirstInit</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="p">.</span><span class="n">__instance</span><span class="p">:</span>
+            <span class="n">Singleton1</span><span class="p">.</span><span class="n">__instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">().</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">.</span><span class="n">__instance</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">.</span><span class="n">__isFirstInit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="n">Singleton1</span><span class="p">.</span><span class="n">__isFirstInit</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">def</span> <span class="nf">getName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__name</span>
+
+
+<span class="k">class</span> <span class="nc">Singleton2</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="s">"单例实现方式二：metaclass"</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">bases</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="nb">dict</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">what</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">cls</span><span class="p">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="bp">None</span> <span class="c1"># 初始化全局变量cls._instance为None
+</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># 控制对象的创建过程，如果cls._instance为None，则创建，否则直接返回
+</span>        <span class="k">if</span> <span class="n">cls</span><span class="p">.</span><span class="n">_instance</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="p">.</span><span class="n">_instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">().</span><span class="n">__call__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">.</span><span class="n">_instance</span>
+
+
+<span class="k">class</span> <span class="nc">CustomClass</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">Singleton2</span><span class="p">):</span>
+    <span class="s">"用户自定义的类"</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">getName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__name</span>
+
+
+<span class="k">def</span> <span class="nf">singletonDecorator</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="s">"单例实现方式三：装饰器"</span>
+    <span class="n">instance</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">wrapperSingletone</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">cls</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">instance</span><span class="p">:</span>
+            <span class="n">instance</span><span class="p">[</span><span class="n">cls</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="p">[</span><span class="n">cls</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">wapperSigleton</span>
+
+
+<span class="o">@</span><span class="n">singleDecorator</span>
+<span class="k">class</span> <span class="nc">Singleton3</span><span class="p">:</span>
+    <span class="s">"单列装饰器修饰类"</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">getName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__name</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="worked-example">Worked Example<a id="sec-3"></a></h1>
+
+<p>A simple example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="o">@</span><span class="n">singletonDecorator</span>
+<span class="k">class</span> <span class="nc">MyBeautifulGirl</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="s">"唯一女神"</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"遇见"</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">", 我一见钟情!"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"遇见"</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">", 我置若罔闻!"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">showMyHeart</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">+</span> <span class="s">"就是我的唯一!"</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

@@ -1,0 +1,375 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Design Template</a></li>
+  <li><a href="#sec-3">Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>The Object Pool technique designs a collection that holds initialized, ready-to-use objects. When an object is needed, it is taken directly from the pool, and it must be returned after use. The difference from the preceding Flyweight pattern is that Flyweight has no notion of “occupying”: flyweight objects are all shared, whereas objects in an object pool are held exclusively while “borrowed”, and some of their attributes can be modified, while the attributes owned by a flyweight usually cannot be changed. An object pool has two core objects:</p>
+
+<ul>
+  <li>The pooled objects: usually objects that are expensive to create and destroy, or that take up a lot of memory</li>
+  <li>The object pool: the collection of objects, or its manager, used to manage borrowing and returning objects</li>
+</ul>
+
+<p>Its advantages are:</p>
+
+<ul>
+  <li>It reuses objects, reducing memory usage and improving program performance</li>
+</ul>
+
+<p>Its disadvantages are:</p>
+
+<ul>
+  <li>Borrow and return operations must come in pairs, otherwise an object stays occupied forever</li>
+  <li>Wrongly holding a reference to an already returned object can cause problems</li>
+</ul>
+
+<p>The Object Pool technique is very widely used. Python’s “reference counting” idea is an application of object pool counting; other examples include Java’s Commons-pool and C++ smart pointers, and other applications include database connection pools and thread pools.</p>
+
+<h1 id="design-template">Design Template<a id="sec-2"></a></h1>
+
+<p>The framework model of the object pool mechanism is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="n">logging</span><span class="p">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">PooledObject</span><span class="p">():</span>
+    <span class="s">"""池化对象"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__obj</span> <span class="o">=</span> <span class="n">obj</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__busy</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">get_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__obj</span>
+
+    <span class="k">def</span> <span class="nf">set_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__obj</span> <span class="o">=</span> <span class="n">obj</span>
+
+    <span class="k">def</span> <span class="nf">is_busy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__busy</span>
+
+    <span class="k">def</span> <span class="nf">set_busy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">busy</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__busy</span> <span class="o">=</span> <span class="n">busy</span>
+
+
+<span class="k">class</span> <span class="nc">ObjectPool</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="s">"""对象池"""</span>
+
+    <span class="c1"># 初始化参数
+</span>    <span class="n">initial_num_of_objects</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_num_of_objects</span> <span class="o">=</span> <span class="mi">50</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__pools</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ObjectPool</span><span class="p">.</span><span class="n">initial_num_of_objects</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">create_pooled_object</span><span class="p">()</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__pools</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">create_pooled_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""创建池对象，由子类实现该方法"""</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">borrow_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""借用对象"""</span>
+        <span class="c1"># 如果找到空闲对象，直接返回
+</span>        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">__find_free_object</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">logging</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"%x 对象已被借用，time:%s"</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+                         <span class="n">time</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"%Y-%m-%d %H:%M:%S"</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">())))</span>
+
+            <span class="k">return</span> <span class="n">obj</span>
+        <span class="c1"># 对象池未满，则添加新的对象
+</span>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__pools</span> <span class="o">&lt;</span> <span class="n">ObjectPool</span><span class="p">.</span><span class="n">max_num_of_objects</span><span class="p">):</span>
+            <span class="n">pooled_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">add_object</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">pooled_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">pooled_obj</span><span class="p">.</span><span class="n">set_busy</span><span class="p">()</span>
+                <span class="n">logging</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"%x 对象已被借用，time:%s"</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+                             <span class="n">time</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"%Y-%m-%d %H:%M:%S"</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">())))</span>
+                <span class="k">return</span> <span class="n">pooled_obj</span><span class="p">.</span><span class="n">get_object</span><span class="p">()</span>
+        <span class="c1"># 对象池已满且没有空闲对象，返回None
+</span>        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">return_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="s">"""归还对象"""</span>
+        <span class="k">for</span> <span class="n">pooled_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">__pools</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">pooled_obj</span><span class="p">.</span><span class="n">get_object</span><span class="p">()</span> <span class="o">==</span> <span class="n">obj</span><span class="p">:</span>
+                <span class="n">pooled_obj</span><span class="p">.</span><span class="n">set_busy</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+                <span class="n">logging</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"%x 对象已被归还，time:%s"</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+                             <span class="n">time</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"%Y-%m-%d %H:%M:%S"</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">())))</span>
+
+    <span class="k">def</span> <span class="nf">add_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""添加新对象"""</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__pools</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">ObjectPool</span><span class="p">.</span><span class="n">max_num_of_objects</span><span class="p">):</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">create_pooled_object</span><span class="p">()</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__pools</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="n">logging</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"添加新对象%x，time:%s"</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span>
+                         <span class="n">time</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"%Y-%m-%d %H:%M:%S"</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">())))</span>
+            <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""清空对象池"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__pools</span><span class="p">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_find_free_object</span><span class="p">():</span>
+        <span class="s">"""查找空闲的对象"""</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">for</span> <span class="n">pooled_obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">__pools</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">pooled_obj</span><span class="p">.</span><span class="n">is_busy</span><span class="p">():</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">pooled_obj</span><span class="p">.</span><span class="n">get_object</span><span class="p">()</span>
+                <span class="n">pooled_obj</span><span class="p">.</span><span class="n">set_busy</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">obj</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="example">Example<a id="sec-3"></a></h1>
+
+<p>Scenario: design the borrowing mechanism for shared power banks</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+</pre></td><td class="rouge-code"><pre><span class="k">class</span>  <span class="nc">PowerBank</span><span class="p">():</span>
+    <span class="s">"""移动电源"""</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial_num</span><span class="p">,</span> <span class="n">electric_quantity</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__serial_num</span> <span class="o">=</span> <span class="n">serial_num</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__electric_quantity</span> <span class="o">=</span> <span class="n">electric_quantity</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__user</span> <span class="o">=</span> <span class="s">""</span>
+
+    <span class="k">def</span> <span class="nf">get_serial_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__serial_num</span>
+
+    <span class="k">def</span> <span class="nf">get_electric_quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__electric_quantity</span>
+
+    <span class="k">def</span> <span class="nf">set_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__user</span> <span class="o">=</span> <span class="n">user</span>
+
+    <span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__user</span>
+
+    <span class="k">def</span> <span class="nf">show_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"序列号：%03d 电量：%d%% 使用者:%s"</span> <span class="o">%</span>
+              <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__serial_num</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__electric_quantity</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__user</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">PowerBankPool</span><span class="p">(</span><span class="n">ObjectPool</span><span class="p">):</span>
+    <span class="s">"""存放移动电源的智能箱盒"""</span>
+
+    <span class="n">__serial_num</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="o">@</span><span class="nb">classmethod</span>
+    <span class="k">def</span> <span class="nf">get_serial_num</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="n">cls</span><span class="p">.</span><span class="n">__serial_num</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">.</span><span class="n">__serial_num</span>
+
+    <span class="k">def</span> <span class="nf">create_pooled_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">power_bank</span> <span class="o">=</span> <span class="n">PowerBank</span><span class="p">(</span><span class="n">PowerBankPool</span><span class="p">.</span><span class="n">get_serial_num</span><span class="p">(),</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PooledObject</span><span class="p">(</span><span class="n">power_bank</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">test_object_pool</span><span class="p">():</span>
+    <span class="n">power_bank_pool</span> <span class="o">=</span> <span class="n">PowerBankPool</span><span class="p">()</span>
+    <span class="n">powerbank1</span> <span class="o">=</span> <span class="n">power_bank_pool</span><span class="p">.</span><span class="n">borrow_object</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">powerbank1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">powerbank1</span><span class="p">.</span><span class="n">set_user</span><span class="p">(</span><span class="s">"Tony"</span><span class="p">)</span>
+        <span class="n">powerbank1</span><span class="p">.</span><span class="n">show_info</span><span class="p">()</span>
+
+    <span class="n">powerbank2</span> <span class="o">=</span> <span class="n">power_bank_pool</span><span class="p">.</span><span class="n">borrow_object</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">powerbank2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">powerbank2</span><span class="p">.</span><span class="n">set_user</span><span class="p">(</span><span class="s">"Sam"</span><span class="p">)</span>
+        <span class="n">powerbank2</span><span class="p">.</span><span class="n">show_info</span><span class="p">()</span>
+
+    <span class="n">power_bank_pool</span><span class="p">.</span><span class="n">return_object</span><span class="p">(</span><span class="n">powerbank1</span><span class="p">)</span>
+    <span class="n">powerbank3</span> <span class="o">=</span> <span class="n">power_bank_pool</span><span class="p">.</span><span class="n">borrow_object</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">powerbank3</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">powerbank3</span><span class="p">.</span><span class="n">set_user</span><span class="p">(</span><span class="s">"Aimee"</span><span class="p">)</span>
+        <span class="n">powerbank3</span><span class="p">.</span><span class="n">show_info</span><span class="p">()</span>
+
+    <span class="n">power_bank_pool</span><span class="p">.</span><span class="n">return_object</span><span class="p">(</span><span class="n">powerbank2</span><span class="p">)</span>
+    <span class="n">power_bank_pool</span><span class="p">.</span><span class="n">return_object</span><span class="p">(</span><span class="n">powerbank3</span><span class="p">)</span>
+    <span class="n">power_bank_pool</span><span class="p">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="s">"""
+    测试结果：
+    INFO：root:1111对象已被借用，time：yyyy-yy-yy yy:yy:yy
+    序列号：001 电量：100% 使用者：Tony
+    INFO：root:2222对象已被借用，time：yyyy-yy-yy yy:yy:yy
+    序列号：002 电量：100% 使用者：Sam
+    INFO: root:1111对象已归还，time：yyyy-yy-yy yy:yy:yy
+    INFO：root:3333对象已被借用，time：yyyy-yy-yy yy:yy:yy
+    序列号：003 电量：100% 使用者：Aimee
+    INFO: root:2222对象已归还，time：yyyy-yy-yy yy:yy:yy
+    INFO: root:3333对象已归还，time：yyyy-yy-yy yy:yy:yy
+    """</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

@@ -1,0 +1,566 @@
+<h2 id="overview">Overview</h2>
+
+<blockquote>
+  <p>Based on Clash Verge Rev (Mihomo core), for Windows and macOS.
+Simplified architecture: <strong>direct connection to airport nodes</strong>, with no chained proxies and no fixed-IP relay.</p>
+</blockquote>
+
+<h2 id="related-dependencies">Related Dependencies</h2>
+
+<ul>
+  <li>Static IP: https://dashboard.1024proxy.com/getporxy/langStatic?pageType=apModel</li>
+  <li>Airport IP: https://justmysocks3.net/members/clientarea.php</li>
+  <li>Clash Verge installation: https://github.com/clash-verge-rev/clash-verge-rev/releases</li>
+</ul>
+
+<h2 id="architecture-overview">Architecture Overview</h2>
+
+<pre><code class="language-plain">Local traffic
+├── Domestic IPs / domains   →  direct
+├── Private / LAN IPs        →  direct
+└── Other foreign traffic    →  mihomo  →  airport nodes (automatic speed test)
+</code></pre>
+
+<hr />
+
+<h2 id="part-1-install-clash-verge-rev">Part 1: Install Clash Verge Rev</h2>
+
+<h3 id="windows">Windows</h3>
+
+<ol>
+  <li>Open <a href="https://github.com/clash-verge-rev/clash-verge-rev/releases">GitHub Releases</a> and download the installer for your architecture:
+    <ul>
+      <li>64-bit Intel/AMD CPU: <code class="language-plaintext highlighter-rouge">Clash.Verge_x.y.z_x64-setup.exe</code></li>
+      <li>ARM processor (such as Surface Pro X): <code class="language-plaintext highlighter-rouge">Clash.Verge_x.y.z_arm64-setup.exe</code></li>
+    </ul>
+  </li>
+  <li>Double-click to run the installer and finish the installation with the default wizard.</li>
+  <li>If a Windows SmartScreen warning appears, click <strong>More info → Run anyway</strong>.</li>
+  <li>On first launch, allow the firewall/network-related permissions.</li>
+</ol>
+
+<h3 id="macos">macOS</h3>
+
+<ol>
+  <li>Download the DMG for your chip from <a href="https://github.com/clash-verge-rev/clash-verge-rev/releases">GitHub Releases</a>:
+    <ul>
+      <li>Apple Silicon (M series): <code class="language-plaintext highlighter-rouge">Clash.Verge_x.y.z_aarch64.dmg</code></li>
+      <li>Intel Mac: <code class="language-plaintext highlighter-rouge">Clash.Verge_x.y.z_x64.dmg</code></li>
+    </ul>
+  </li>
+  <li>Open the DMG and drag <code class="language-plaintext highlighter-rouge">Clash Verge</code> into the <code class="language-plaintext highlighter-rouge">Applications</code> folder.</li>
+  <li>If a security restriction prompt appears on first launch, click <strong>Open Anyway</strong> under <strong>System Settings → Privacy &amp; Security</strong>.</li>
+  <li>Grant the necessary local network / network extension permissions.</li>
+</ol>
+
+<blockquote>
+  <p>If the DMG/EXE download stalls because of network problems, download it first with another proxy tool, or get it from a mirror site.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="part-2-configuration-flow-first-use">Part 2: Configuration Flow (First Use)</h2>
+
+<h3 id="1-import-a-subscription">1. Import a Subscription</h3>
+
+<ol>
+  <li>Open Clash Verge Rev and go to the <strong>Profiles</strong> page in the left sidebar.</li>
+  <li>Click <strong>New / Import</strong> in the upper right corner.</li>
+  <li>Choose <strong>Remote</strong> as the type, enter the Clash/Clash Meta format subscription link provided by your airport, name it, and save.</li>
+  <li>After the download finishes, click <strong>Use</strong> on that subscription card to activate it.</li>
+  <li>If the subscription link is blocked and cannot be downloaded, check <strong>Update via System Proxy</strong> or <strong>Update via Core Proxy</strong> on the subscription item.</li>
+</ol>
+
+<h3 id="2-choose-a-node-and-mode">2. Choose a Node and Mode</h3>
+
+<ol>
+  <li>Go to the <strong>Proxies</strong> page and click the lightning icon to run a latency test.</li>
+  <li>Choose <strong>Rule</strong> mode: foreign traffic goes through the proxy and domestic traffic goes direct. This is recommended for daily use.</li>
+  <li>In the <code class="language-plaintext highlighter-rouge">PROXY</code> group, choose <code class="language-plaintext highlighter-rouge">url-test</code> (automatic speed test) or specify a node manually.</li>
+</ol>
+
+<h3 id="3-enable-the-system-proxy">3. Enable the System Proxy</h3>
+
+<p>Turn on the <strong>System Proxy</strong> switch in the upper right corner of the main window.
+Browsers and most GUI applications will then use the proxy automatically.</p>
+
+<h3 id="4-optional-enable-tun-mode">4. (Optional) Enable TUN Mode</h3>
+
+<p>TUN mode takes over all outbound traffic, including UDP and CLI tools that do not support an HTTP proxy.</p>
+
+<ul>
+  <li><strong>Windows</strong>
+    <ol>
+      <li>Go to <strong>Settings → Service Mode</strong>, click <strong>Install</strong>, confirm the UAC authorization, and wait for the indicator to turn green.</li>
+      <li>Go to <strong>Settings → TUN Mode</strong> and turn on the switch. The system will create a virtual network adapter named <code class="language-plaintext highlighter-rouge">Meta</code>.</li>
+      <li>Recommended settings: <code class="language-plaintext highlighter-rouge">stack: mixed</code>, <code class="language-plaintext highlighter-rouge">dns-hijack: any:53</code>, <code class="language-plaintext highlighter-rouge">auto-route: true</code>.</li>
+    </ol>
+  </li>
+  <li><strong>macOS</strong>
+    <ol>
+      <li>Go to <strong>Settings → TUN Mode</strong> and turn on the switch.</li>
+      <li>The first time you turn it on, you will be asked to enter your login password to authorize installing the Helper.</li>
+      <li>It is recommended to turn on <strong>Enhanced Mode</strong> at the same time.</li>
+    </ol>
+  </li>
+</ul>
+
+<blockquote>
+  <p>After enabling TUN mode, it is recommended to turn off the traditional system proxy to avoid processing traffic twice.</p>
+</blockquote>
+
+<p>Once you reach this point, <strong>the default scenario already works</strong>: the airport subscription comes with its own <code class="language-plaintext highlighter-rouge">proxies</code> / <code class="language-plaintext highlighter-rouge">proxy-groups</code> / <code class="language-plaintext highlighter-rouge">rules</code>, so you do not need to write any configuration by hand.</p>
+
+<p>If you want to customize further (custom DNS, TUN, a few special rules), see Part 3.</p>
+
+<hr />
+
+<h2 id="part-3-advanced-customization-overriding-the-subscription-configuration">Part 3: Advanced Customization: Overriding the Subscription Configuration</h2>
+
+<p>The YAML of an airport subscription is maintained by the airport, but you can override some of its fields with a Clash Verge <strong>Merge</strong> file, and <strong>they will not be overwritten by subscription updates</strong>.</p>
+
+<h3 id="when-you-need-it">When You Need It</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Need</th>
+      <th>Override needed?</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Only need to reach foreign sites, with domestic traffic direct</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Want a more stable domestic DNS (Alibaba/Tencent)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Want to enable TUN mode and fine-tune its parameters</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Want to force certain domains to use the proxy or go direct</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Want to change <code class="language-plaintext highlighter-rouge">mixed-port</code> to avoid a port conflict</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="steps-to-create-a-merge-file">Steps to Create a Merge File</h3>
+
+<ol>
+  <li>Go to <strong>Profiles → the “…” menu in the upper right → Merge → New</strong> and give it a name such as <code class="language-plaintext highlighter-rouge">local-override</code>.</li>
+  <li>Paste the snippet below into it and save.</li>
+  <li>Go back to the Profiles page, <strong>right-click your airport subscription → Edit → Associate Merge</strong>, and select the <code class="language-plaintext highlighter-rouge">local-override</code> you just created.</li>
+  <li>Re-activate the subscription for it to take effect.</li>
+</ol>
+
+<h3 id="recommended-merge-snippet-sanitized">Recommended Merge Snippet (Sanitized)</h3>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+</pre></td><td class="rouge-code"><pre><span class="na">mixed-port</span><span class="pi">:</span> <span class="m">7897</span>
+<span class="na">mode</span><span class="pi">:</span> <span class="s">rule</span>
+<span class="na">log-level</span><span class="pi">:</span> <span class="s">info</span>
+<span class="na">ipv6</span><span class="pi">:</span> <span class="no">true</span>
+<span class="na">unified-delay</span><span class="pi">:</span> <span class="no">true</span>
+
+<span class="na">profile</span><span class="pi">:</span>
+  <span class="na">store-selected</span><span class="pi">:</span> <span class="no">true</span>
+
+<span class="na">tun</span><span class="pi">:</span>
+  <span class="na">enable</span><span class="pi">:</span> <span class="no">false</span>        <span class="c1"># 需要 CLI/UDP 接管时改为 true</span>
+  <span class="na">stack</span><span class="pi">:</span> <span class="s">mixed</span>         <span class="c1"># UDP 走 system，TCP 走 gVisor</span>
+  <span class="na">auto-route</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">auto-detect-interface</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">strict-route</span><span class="pi">:</span> <span class="no">false</span>
+  <span class="na">dns-hijack</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">any:53</span>
+
+<span class="na">dns</span><span class="pi">:</span>
+  <span class="na">enable</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">ipv6</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">enhanced-mode</span><span class="pi">:</span> <span class="s">redir-host</span>
+  <span class="na">nameserver</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">223.5.5.5</span>       <span class="c1"># 阿里 DNS</span>
+    <span class="pi">-</span> <span class="s">119.29.29.29</span>    <span class="c1"># 腾讯 DNS</span>
+  <span class="na">fallback</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">8.8.8.8</span>         <span class="c1"># Google DNS</span>
+    <span class="pi">-</span> <span class="s">1.1.1.1</span>         <span class="c1"># Cloudflare DNS</span>
+  <span class="na">fallback-filter</span><span class="pi">:</span>
+    <span class="na">geoip</span><span class="pi">:</span> <span class="no">true</span>
+    <span class="na">geoip-code</span><span class="pi">:</span> <span class="s">CN</span>
+    <span class="na">ipcidr</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">240.0.0.0/4</span>
+
+<span class="c1"># 在订阅 rules 前插入的自定义规则</span>
+<span class="na">prepend-rules</span><span class="pi">:</span>
+  <span class="c1"># 示例：强制某域名直连</span>
+  <span class="c1"># - DOMAIN-SUFFIX,example.com,DIRECT</span>
+  <span class="c1"># 示例：强制某域名走代理（PROXY 组名以你机场订阅里的为准）</span>
+  <span class="c1"># - DOMAIN-SUFFIX,example.org,PROXY</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p>This Merge file <strong>contains no nodes and no passwords</strong>; all nodes come from the airport subscription itself.</p>
+
+  <p><code class="language-plaintext highlighter-rouge">prepend-rules</code> / <code class="language-plaintext highlighter-rouge">append-rules</code> are Clash Verge override keywords that insert rules before / after the subscription’s original rules respectively. If you are not familiar with YAML syntax, prefer <code class="language-plaintext highlighter-rouge">prepend-rules</code> (highest priority).</p>
+</blockquote>
+
+<hr />
+
+<h2 id="appendix-fully-custom-configuration-without-an-airport-subscription">Appendix: Fully Custom Configuration (Without an Airport Subscription)</h2>
+
+<p>You only need this section if you <strong>do not import a subscription</strong> and want to write a complete configuration from scratch. For everyday use, just follow Part 2.</p>
+
+<blockquote>
+  <p>Do not write credentials (node passwords, UUIDs, <code class="language-plaintext highlighter-rouge">secret</code>) into this document. Keep them all in a local, uncommitted <code class="language-plaintext highlighter-rouge">secrets.local.yaml</code>.</p>
+</blockquote>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+</pre></td><td class="rouge-code"><pre><span class="na">mode</span><span class="pi">:</span> <span class="s">rule</span>
+<span class="na">mixed-port</span><span class="pi">:</span> <span class="m">7897</span>
+<span class="na">allow-lan</span><span class="pi">:</span> <span class="no">false</span>
+<span class="na">log-level</span><span class="pi">:</span> <span class="s">info</span>
+<span class="na">ipv6</span><span class="pi">:</span> <span class="no">true</span>
+<span class="na">external-controller</span><span class="pi">:</span> <span class="s1">'</span><span class="s">'</span>
+<span class="na">secret</span><span class="pi">:</span> <span class="s">&lt;YOUR_LOCAL_SECRET&gt;</span>
+<span class="na">unified-delay</span><span class="pi">:</span> <span class="no">true</span>
+
+<span class="na">tun</span><span class="pi">:</span>
+  <span class="na">enable</span><span class="pi">:</span> <span class="no">false</span>
+  <span class="na">stack</span><span class="pi">:</span> <span class="s">mixed</span>
+  <span class="na">auto-route</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">auto-detect-interface</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">strict-route</span><span class="pi">:</span> <span class="no">false</span>
+  <span class="na">dns-hijack</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">any:53</span>
+
+<span class="na">profile</span><span class="pi">:</span>
+  <span class="na">store-selected</span><span class="pi">:</span> <span class="no">true</span>
+
+<span class="na">dns</span><span class="pi">:</span>
+  <span class="na">enable</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">ipv6</span><span class="pi">:</span> <span class="no">true</span>
+  <span class="na">enhanced-mode</span><span class="pi">:</span> <span class="s">redir-host</span>
+  <span class="na">nameserver</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">223.5.5.5</span>
+    <span class="pi">-</span> <span class="s">119.29.29.29</span>
+  <span class="na">fallback</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="s">8.8.8.8</span>
+    <span class="pi">-</span> <span class="s">1.1.1.1</span>
+  <span class="na">fallback-filter</span><span class="pi">:</span>
+    <span class="na">geoip</span><span class="pi">:</span> <span class="no">true</span>
+    <span class="na">geoip-code</span><span class="pi">:</span> <span class="s">CN</span>
+    <span class="na">ipcidr</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">240.0.0.0/4</span>
+
+<span class="na">proxies</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">ss-node-1</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">ss</span>
+    <span class="na">server</span><span class="pi">:</span> <span class="s">&lt;SERVER_IP_OR_DOMAIN&gt;</span>
+    <span class="na">port</span><span class="pi">:</span> <span class="s">&lt;PORT&gt;</span>
+    <span class="na">cipher</span><span class="pi">:</span> <span class="s">&lt;CIPHER&gt;</span>
+    <span class="na">password</span><span class="pi">:</span> <span class="s">&lt;PASSWORD&gt;</span>
+
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">ss-node-2</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">ss</span>
+    <span class="na">server</span><span class="pi">:</span> <span class="s">&lt;SERVER_IP_OR_DOMAIN&gt;</span>
+    <span class="na">port</span><span class="pi">:</span> <span class="s">&lt;PORT&gt;</span>
+    <span class="na">cipher</span><span class="pi">:</span> <span class="s">&lt;CIPHER&gt;</span>
+    <span class="na">password</span><span class="pi">:</span> <span class="s">&lt;PASSWORD&gt;</span>
+
+  <span class="c1"># VMess 节点示例</span>
+  <span class="c1"># - name: vmess-node-1</span>
+  <span class="c1">#   type: vmess</span>
+  <span class="c1">#   server: &lt;SERVER&gt;</span>
+  <span class="c1">#   port: &lt;PORT&gt;</span>
+  <span class="c1">#   uuid: &lt;UUID&gt;</span>
+  <span class="c1">#   alterId: 0</span>
+  <span class="c1">#   cipher: auto</span>
+
+<span class="na">proxy-groups</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">PROXY</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">url-test</span>
+    <span class="na">url</span><span class="pi">:</span> <span class="s">http://www.gstatic.com/generate_204</span>
+    <span class="na">interval</span><span class="pi">:</span> <span class="m">300</span>
+    <span class="na">tolerance</span><span class="pi">:</span> <span class="m">50</span>
+    <span class="na">proxies</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">ss-node-1</span>
+      <span class="pi">-</span> <span class="s">ss-node-2</span>
+
+<span class="na">rules</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="s">IP-CIDR,10.0.0.0/8,DIRECT,no-resolve</span>
+  <span class="pi">-</span> <span class="s">IP-CIDR,127.0.0.0/8,DIRECT,no-resolve</span>
+  <span class="pi">-</span> <span class="s">IP-CIDR,100.64.0.0/10,DIRECT,no-resolve</span>
+  <span class="pi">-</span> <span class="s">IP-CIDR,172.16.0.0/12,DIRECT,no-resolve</span>
+  <span class="pi">-</span> <span class="s">IP-CIDR,192.168.0.0/16,DIRECT,no-resolve</span>
+  <span class="pi">-</span> <span class="s">IP-CIDR,169.254.0.0/16,DIRECT,no-resolve</span>
+  <span class="pi">-</span> <span class="s">IP-CIDR,224.0.0.0/4,DIRECT,no-resolve</span>
+  <span class="pi">-</span> <span class="s">GEOIP,CN,DIRECT</span>
+  <span class="pi">-</span> <span class="s">MATCH,PROXY</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<blockquote>
+  <p><strong>About <code class="language-plaintext highlighter-rouge">external-controller-unix</code></strong>: this setting is supported only on macOS / Linux. On Windows, delete or comment it out, otherwise the core will fail to start.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="part-4-terminal-environment-variables">Part 4: Terminal Environment Variables</h2>
+
+<p>When TUN mode is off, CLI tools do not go through mihomo automatically, so you need to set the proxy environment variables manually.</p>
+
+<h3 id="macos--linux-zshrc-or-bashrc">macOS / Linux (<code class="language-plaintext highlighter-rouge">~/.zshrc</code> or <code class="language-plaintext highlighter-rouge">~/.bashrc</code>)</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nb">export </span><span class="nv">HTTPS_PROXY</span><span class="o">=</span>http://127.0.0.1:7897
+<span class="nb">export </span><span class="nv">HTTP_PROXY</span><span class="o">=</span>http://127.0.0.1:7897
+<span class="nb">export </span><span class="nv">ALL_PROXY</span><span class="o">=</span>socks5://127.0.0.1:7897
+<span class="nb">export </span><span class="nv">NO_PROXY</span><span class="o">=</span>localhost,127.0.0.1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>To apply:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="nb">source</span> ~/.zshrc
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="windows-powershell-current-session">Windows PowerShell (Current Session)</h3>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">HTTPS_PROXY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"http://127.0.0.1:7897"</span><span class="w">
+</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">HTTP_PROXY</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s2">"http://127.0.0.1:7897"</span><span class="w">
+</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">ALL_PROXY</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"socks5://127.0.0.1:7897"</span><span class="w">
+</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">NO_PROXY</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s2">"localhost,127.0.0.1"</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="windows-permanent-user-level">Windows Permanent (User Level)</h3>
+
+<p>Run this in a PowerShell administrator window:</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="p">[</span><span class="n">Environment</span><span class="p">]::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">"HTTPS_PROXY"</span><span class="p">,</span><span class="w"> </span><span class="s2">"http://127.0.0.1:7897"</span><span class="p">,</span><span class="w"> </span><span class="s2">"User"</span><span class="p">)</span><span class="w">
+</span><span class="p">[</span><span class="n">Environment</span><span class="p">]::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">"HTTP_PROXY"</span><span class="p">,</span><span class="w">  </span><span class="s2">"http://127.0.0.1:7897"</span><span class="p">,</span><span class="w"> </span><span class="s2">"User"</span><span class="p">)</span><span class="w">
+</span><span class="p">[</span><span class="n">Environment</span><span class="p">]::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">"ALL_PROXY"</span><span class="p">,</span><span class="w">   </span><span class="s2">"socks5://127.0.0.1:7897"</span><span class="p">,</span><span class="w"> </span><span class="s2">"User"</span><span class="p">)</span><span class="w">
+</span><span class="p">[</span><span class="n">Environment</span><span class="p">]::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">"NO_PROXY"</span><span class="p">,</span><span class="w">    </span><span class="s2">"localhost,127.0.0.1"</span><span class="p">,</span><span class="w"> </span><span class="s2">"User"</span><span class="p">)</span><span class="w">
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Or use the GUI: <strong>This PC → Properties → Advanced system settings → Environment Variables → New user variable</strong>.</p>
+
+<h3 id="windows-cmd-current-session">Windows CMD (Current Session)</h3>
+
+<div class="language-bat highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="kd">set</span> <span class="kd">HTTPS_PROXY</span><span class="o">=</span><span class="kd">http</span>://127.0.0.1:7897
+<span class="kd">set</span> <span class="kd">HTTP_PROXY</span><span class="o">=</span><span class="kd">http</span>://127.0.0.1:7897
+<span class="kd">set</span> <span class="kd">ALL_PROXY</span><span class="o">=</span><span class="kd">socks5</span>://127.0.0.1:7897
+<span class="kd">set</span> <span class="kd">NO_PROXY</span><span class="o">=</span><span class="kd">localhost</span><span class="o">,</span><span class="m">127</span>.0.0.1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<hr />
+
+<h2 id="part-5-routing-rules">Part 5: Routing Rules</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Traffic type</th>
+      <th>Matching rule</th>
+      <th>Destination</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Private IP ranges</td>
+      <td><code class="language-plaintext highlighter-rouge">IP-CIDR</code></td>
+      <td>Direct</td>
+    </tr>
+    <tr>
+      <td>Mainland China IPs</td>
+      <td><code class="language-plaintext highlighter-rouge">GEOIP,CN</code></td>
+      <td>Direct</td>
+    </tr>
+    <tr>
+      <td>Other foreign traffic</td>
+      <td><code class="language-plaintext highlighter-rouge">MATCH</code></td>
+      <td><code class="language-plaintext highlighter-rouge">PROXY</code> (automatic speed test)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2 id="part-6-troubleshooting">Part 6: Troubleshooting</h2>
+
+<h3 id="1-verify-the-proxy-is-working">1. Verify the Proxy Is Working</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c"># 确认代理环境变量已生效</span>
+<span class="nb">echo</span> <span class="nv">$HTTPS_PROXY</span>              <span class="c"># macOS/Linux</span>
+<span class="nb">echo</span> %HTTPS_PROXY%             <span class="c"># Windows CMD</span>
+<span class="nv">$env</span>:HTTPS_PROXY               <span class="c"># Windows PowerShell</span>
+
+<span class="c"># 测试代理链路</span>
+curl <span class="nt">-v</span> <span class="nt">--proxy</span> socks5://127.0.0.1:7897 https://www.google.com
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h3 id="2-verify-which-rule-a-domain-matched">2. Verify Which Rule a Domain Matched</h3>
+
+<p>Open the <strong>Clash Verge → Connections</strong> page to watch, in real time, the rule each request hit and the exit node it used.</p>
+
+<h3 id="3-tun-mode-fails-to-start-on-windows">3. TUN Mode Fails to Start on Windows</h3>
+
+<ul>
+  <li>Confirm that the core service has been installed and started through <strong>Settings → Service Mode</strong> (the indicator is green).</li>
+  <li>Close other clients that occupy port 7897 or also use TUN (such as Clash for Windows).</li>
+  <li>If necessary, re-run Clash Verge <strong>as administrator</strong>.</li>
+</ul>
+
+<h3 id="4-no-internet-after-switching-networks">4. No Internet After Switching Networks</h3>
+
+<ul>
+  <li>Turn the <strong>System Proxy</strong> switch off and on again.</li>
+  <li>Or restart the system proxy guard under <strong>Settings → System Proxy → Proxy Guard</strong>.</li>
+</ul>

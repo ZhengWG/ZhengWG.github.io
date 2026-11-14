@@ -1,0 +1,170 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Design Template</a></li>
+  <li><a href="#sec-3">Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>A callback is the process of passing a function as an argument to another function and deferring its execution to some moment inside that other function. It is essentially an expression of functional programming. If a language only supports object-oriented programming, the Strategy pattern can be used to implement the callback mechanism. Advantages:</p>
+
+<ul>
+  <li>It avoids duplicated code</li>
+  <li>It improves code maintainability</li>
+  <li>It allows more customization</li>
+</ul>
+
+<p>Disadvantages:</p>
+
+<ul>
+  <li>You need to avoid “callback hell”: calls to multiple nested callback functions</li>
+</ul>
+
+<p>Common scenarios:</p>
+
+<ul>
+  <li>Third-party libraries and frameworks</li>
+  <li>Asynchronous execution (for example reading files, sending HTTP requests, etc.)</li>
+</ul>
+
+<h1 id="design-template">Design Template<a id="sec-2"></a></h1>
+
+<p>The code framework of the callback mechanism is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="s">"""回调函数"""</span>
+    <span class="c1"># todo 函数体的实现
+</span>
+
+<span class="k">def</span> <span class="nf">otherFun</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="s">"""高阶函数：也叫包含函数"""</span>
+    <span class="c1"># todo 函数体的实现
+</span>
+
+<span class="c1"># 函数的调用方式
+</span><span class="n">otherFun</span><span class="p">(</span><span class="nb">callable</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="example">Example<a id="sec-3"></a></h1>
+
+<p>Scenario: provide asynchronous HTTP download. “Asynchronous” here means that the next task can run before the previous one has finished (and a notification is received once the previous task completes):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span>
+
+
+<span class="k">class</span> <span class="nc">DownloadThread</span><span class="p">(</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="s">"""下载文件的线程"""</span>
+
+    <span class="c1"># 每次写文件的缓存大小
+</span>    <span class="n">CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">512</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">callback_progress</span><span class="p">,</span> <span class="n">callback_finished</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__save_path</span> <span class="o">=</span> <span class="n">save_path</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__callback_progress</span> <span class="o">=</span> <span class="n">callback_progress</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__callback_finished</span> <span class="o">=</span> <span class="n">callback_finished</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">readsize</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">totalsize</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="p">.</span><span class="n">headers</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="s">'Content-Length'</span><span class="p">))</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"[下载%s]文件大小：%d"</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__filename</span><span class="p">,</span> <span class="n">totalsize</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__save_path</span><span class="p">,</span> <span class="s">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="nb">file</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">r</span><span class="p">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">CHUNK_SIZE</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">chunk</span><span class="p">:</span>
+                    <span class="nb">file</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                    <span class="n">readsize</span> <span class="o">+=</span> <span class="bp">self</span><span class="p">.</span><span class="n">CHUNK_SIZE</span>
+                    <span class="bp">self</span><span class="p">.</span><span class="n">__callback_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__filename</span><span class="p">,</span> <span class="n">readsize</span><span class="p">,</span> <span class="n">totalsize</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__callback_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__filename</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">test_download</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">download_progress</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">readsize</span><span class="p">,</span> <span class="n">totalsize</span><span class="p">):</span>
+        <span class="c1"># 定义显示下载进度的回调函数
+</span>        <span class="n">percent</span> <span class="o">=</span> <span class="p">(</span><span class="n">readsize</span> <span class="o">/</span> <span class="n">totalsize</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"[下载%s] 下载进度:%.2f%%"</span> <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">percent</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">download_finished</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="c1"># 定义下载完成后的回调函数
+</span>        <span class="k">print</span><span class="p">(</span><span class="s">"[下载%s] 文件下载完成!"</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"开始下载TestForDownload1.pdf..."</span><span class="p">)</span>
+    <span class="n">downloadurl1</span> <span class="o">=</span> <span class="s">"http://xxxx.pdf"</span>
+    <span class="n">download1</span> <span class="o">=</span> <span class="n">DownloadThread</span><span class="p">(</span><span class="s">"TestForDownload1"</span><span class="p">,</span> <span class="n">downloadurl1</span><span class="p">,</span> <span class="s">"./download/1.pdf"</span><span class="p">,</span> <span class="n">download_progress</span><span class="p">,</span> <span class="n">download_finished</span><span class="p">)</span>
+    <span class="n">download1</span><span class="p">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"开始下载TestForDownload2.pdf..."</span><span class="p">)</span>
+    <span class="n">downloadurl2</span> <span class="o">=</span> <span class="s">"http://yyyy.pdf"</span>
+    <span class="n">download2</span> <span class="o">=</span> <span class="n">DownloadThread</span><span class="p">(</span><span class="s">"TestForDownload2"</span><span class="p">,</span> <span class="n">downloadurl2</span><span class="p">,</span> <span class="s">"./download/2.pdf"</span><span class="p">,</span> <span class="n">download_progress</span><span class="p">,</span> <span class="n">download_finished</span><span class="p">)</span>
+    <span class="n">download2</span><span class="p">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="s">"执行其他的任务..."</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

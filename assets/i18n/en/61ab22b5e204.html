@@ -1,0 +1,622 @@
+<p>Start from arithmetic intensity, the ridge point, and measured HBM traffic to decide whether GEMM and attention are compute-bound or bandwidth-bound, and when quantization, batching, or fusion applies.</p>
+
+<p>Any piece of computation on a GPU spends its time on two things: <strong>computing</strong> (executing floating-point operations) and <strong>moving</strong> (moving data between memory and the compute units; communication also counts as moving). The hardware has a ceiling for each: compute throughput F (FLOP/s) and bandwidth BW (Byte/s). With an ideal pipeline the two overlap:</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>T ≥ max<span class="o">(</span> W/F , Q/BW <span class="o">)</span>
+        ↑ compute <span class="nb">time</span>  ↑ memory <span class="nb">time</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Before optimizing a model, you usually need to answer a few questions:</p>
+
+<p><strong>① What is the physical upper bound on performance?</strong> P ≤ min(F, I×BW), where P is the effective compute throughput, F is the peak compute throughput, and I×BW is the bandwidth-side bound (the kernel’s arithmetic intensity × bandwidth); the latency lower bound is T ≥ max(W/F, Q/BW). Once measurements hug this line, stop; only when they are far from it is there room to optimize. It also lets you budget latency before writing a single line of code — for example, “given this compute throughput and bandwidth, how long does this model need at minimum to generate one token” can be worked out on paper, which feeds directly into setting the service-level objective (SLO, the committed latency target).</p>
+
+<p><strong>② Which lever should you pull?</strong> The effective techniques on the two sides are completely different; pull the wrong one and the gain is zero. On the bandwidth-bound side, adding compute throughput does nothing; what works is reducing memory traffic Q (operator fusion), lowering the bytes per value bpp (quantization), and batching (merging multiple requests into one computation to raise I). The compute-bound side is the reverse: quantizing only the weights without changing the compute precision brings no gain; what works is switching to lower-precision compute units to raise F. Roofline translates “I think it’s slow” into “here is exactly what to do”.</p>
+
+<p><strong>③ Which metric do you use for acceptance?</strong> For a bandwidth-bound kernel, the acceptance metric is “measured transfer rate ÷ peak bandwidth”, and its <strong>compute utilization is supposed to be low</strong> (3% compute utilization for the attention kernel in the decode phase is not a fault); only compute-bound kernels are judged on compute utilization (MFU, model FLOPs utilization: the fraction of peak compute throughput spent on useful operations). Looking at utilization without triaging first makes you mistake normal behavior for a fault, and a fault for normal behavior.</p>
+
+<h2 id="theoretical-model">Theoretical model</h2>
+
+<p>The following uses the public specifications of the H20-96GB to illustrate the Roofline model; for the source of the specifications, see <a href="https://www.lmsys.org/blog/2025-09-26-sglang-ant-group/">SGLang’s public technical article</a>. The curve illustrates how compute and bandwidth constrain each other.</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801113507384.svg" alt="Roofline model and arithmetic-intensity ridge point based on public H20 specifications" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p>The figure above is based on the following definitions:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Definition</th>
+      <th>Unit</th>
+      <th>Key point</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">W</code></td>
+      <td>Number of floating-point operations (a multiply-add counts as 2)</td>
+      <td>FLOP</td>
+      <td>An <strong>algorithmic</strong> quantity; basically fixed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Q</code></td>
+      <td>Actual bytes moved to and from HBM</td>
+      <td>Byte</td>
+      <td>An <strong>implementation</strong> quantity, not the algorithm’s data volume; changes with tiling/fusion</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">F</code></td>
+      <td>Peak compute throughput</td>
+      <td>FLOP/s</td>
+      <td>Rated hardware value; depends on numeric precision</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">BW</code></td>
+      <td>GPU memory bandwidth</td>
+      <td>Byte/s</td>
+      <td>Models should distinguish rated bandwidth from effective bandwidth; e.g. the measured 3.33 TB/s is about 83–85% of the corresponding rated value</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">I = W/Q</code></td>
+      <td>Arithmetic intensity</td>
+      <td>FLOP/Byte</td>
+      <td>A <strong>workload</strong> property; contains no time; depends on the kernel implementation</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">R = F/BW</code></td>
+      <td>Ridge point</td>
+      <td>FLOP/Byte</td>
+      <td>A <strong>hardware</strong> property; the ratio of two rates, so time cancels out</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>So the execution efficiency of a kernel can be described along different dimensions:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Form</th>
+      <th>Formula</th>
+      <th>When to use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Time</td>
+      <td><code class="language-plaintext highlighter-rouge">T ≥ max(W/F, Q/BW)</code></td>
+      <td>Latency budgets, setting SLOs</td>
+    </tr>
+    <tr>
+      <td>Performance</td>
+      <td><code class="language-plaintext highlighter-rouge">P = W/T ≤ min(F, I×BW)</code></td>
+      <td>Effective compute throughput as plotted on the Roofline chart</td>
+    </tr>
+    <tr>
+      <td><strong>Utilization</strong></td>
+      <td><code class="language-plaintext highlighter-rouge">compute utilization ≤ min(1, I/R)</code>,<code class="language-plaintext highlighter-rouge">bandwidth utilization ≤ min(1, R/I)</code></td>
+      <td><strong>Day-to-day judgment of whether a kernel is doing its job well</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>So overall optimization can revolve around two goals:</p>
+
+<ol>
+  <li>Lower T: since W is an algorithmic quantity and basically fixed, you can usually only lower Q or raise F (lower precision, or a different execution unit)</li>
+  <li>Raise performance W/T: usually by batching to increase throughput, which raises I</li>
+</ol>
+
+<h2 id="from-parameter-count-to-compute-and-capacity">From parameter count to compute and capacity</h2>
+
+<p>The forward compute of the weight matrix multiplications is about <code class="language-plaintext highlighter-rouge">2·N_active</code> FLOPs/token. For MoE, estimate compute from the activated parameters, capacity from the total weights, and weight-read traffic from the union of experts hit in the current step; the three must not be mixed. Non-weight matrix multiplications, such as attention’s QKᵀ/PV and GDN state updates, must be counted separately.</p>
+
+<p>For a single standard multi-head attention (MHA) layer with sequence length s: the Q/K/V/O projections are about <code class="language-plaintext highlighter-rouge">8sd²</code>, the three SwiGLU matrices about <code class="language-plaintext highlighter-rouge">6sd·d_ff</code>, and dense QKᵀ/PV about <code class="language-plaintext highlighter-rouge">4s²d</code> (without subtracting the causal triangle). The classic <code class="language-plaintext highlighter-rouge">24sd²</code> weight term corresponds to a two-matrix FFN with <code class="language-plaintext highlighter-rouge">d_ff=4d</code>, or a three-matrix SwiGLU with <code class="language-plaintext highlighter-rouge">d_ff≈8d/3</code>; do not combine three matrices with <code class="language-plaintext highlighter-rouge">d_ff=4d</code>.</p>
+
+<p>For MHA and grouped-query attention (GQA), <code class="language-plaintext highlighter-rouge">KV bytes/token = 2·L·n_kv·h_d·bpp</code>. Multi-head latent attention (MLA) stores a shared latent, and hybrid linear attention adds a fixed-size state on top; capacity accounting must also include TP replication of the KV, the graph pool, peak activations, and communication buffers.</p>
+
+<h2 id="practical-evaluation">Practical evaluation</h2>
+
+<p>The theoretical evaluation assumes that compute and memory access overlap completely:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>T <span class="o">=</span> t_compute + t_mem − t_overlap ,  0 ≤ t_overlap ≤ min<span class="o">(</span>t_c, t_m<span class="o">)</span>
+  perfect overlap  → T <span class="o">=</span> max<span class="o">(</span>t_c, t_m<span class="o">)</span>     ← Roofline assumption
+  no overlap       → T <span class="o">=</span> t_c + t_m         ← worst <span class="k">case</span>, 2× slower
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>If measurements come in slow, check double buffering/prefetching first; don’t rush to blame the algorithm.
+For example, the 910B has no hardware cache coherence and moves data with explicit MTE instructions; without orchestration it degrades straight to t_c + t_m — this is the mathematical origin of “fusion and pipelining are requirements, not optimizations”.</p>
+
+<p><code class="language-plaintext highlighter-rouge">Q</code> is variable — this is the entire mathematical content of operator fusion: FlashAttention compresses the <code class="language-plaintext highlighter-rouge">O(s²)</code> round trips of the <code class="language-plaintext highlighter-rouge">[s,s]</code> matrix back to <code class="language-plaintext highlighter-rouge">O(s)</code>, which amounts to moving right along this line segment.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>Q_min    <span class="o">=</span> <span class="o">(</span>inputs and outputs each <span class="nb">read </span>or written once<span class="p">;</span> theoretical minimum<span class="o">)</span>
+Q_actual <span class="o">=</span> Q_min + intermediate round trips + repeated reads <span class="o">(</span>poor tile reuse, cache misses<span class="o">)</span>
+⟹ I_actual <span class="o">=</span> W/Q_actual ≤ W/Q_min <span class="o">=</span> I_max
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Actual kernel execution also has to account for launch time, so the full time can be summarized as:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>T_step <span class="o">=</span> Σᵢ max<span class="o">(</span>Wᵢ/F, Qᵢ/BW<span class="o">)</span>     classify each kernel, <span class="k">then </span><span class="nb">sum
+
+</span>A full step also adds three terms Roofline does not see:
+       + N_kernel × t_launch        launch tax <span class="o">(</span>measured Qwen3.5 decode ~1770 kernels/step<span class="p">;</span> eager TPOT 143 ms vs CUDA Graph 5.6 ms<span class="o">)</span>
+       + <span class="o">(</span>communication <span class="nb">time</span> − the part hidden by overlap<span class="o">)</span>
+       + t_sync                     intra-layer <span class="nb">sync </span>points and CPU-GPU round trips
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The effect of numeric precision, comparing the same kernel ([B,7168]×[7168,2048]):</p>
+
+<ul>
+  <li>
+    <p>W8A8 — halving Q makes the bandwidth side 2× faster, and doubling F makes the compute side 2× faster as well. Regardless of batch size, prefill or decode, the gain is 2×, and there is no need to determine which side you are on. This is the core reason it is the default path — the gain is predictable and there is no range where it fails. The precondition is that kernel time is much larger than the fixed overhead (in this test a single GEMM had 2–4 μs of splitK/tail-wave overhead): at N=18432 the measured ratio is 0.48–0.53× throughout, but at the N=2048 used here, small batches get only 1.2–1.4×.</p>
+  </li>
+  <li>
+    <p>W4A16 — theoretically 4×, but it falls off a cliff. B* = 9.3; beyond that it drops back to BF16 level (the 1.0× in the B=64 row of the table). It shrinks the free range to less than a quarter of BF16’s, in exchange for a speedup inside that range (an advantage at small batch). The measured small-batch speedup is only about 2×: the W4 kernel reaches only ~1.7 TB/s (the dequantization + memory-access pipeline cannot saturate bandwidth); past the ridge point Humming ≈ BF16, while Marlin is actually 1.5× slower (an Ampere-era design that does not use WGMMA).</p>
+  </li>
+  <li>
+    <p>W4A8 — in an idealized model with the same effective bandwidth, doubled compute throughput, and no extra overhead, it can reach 4× over BF16 at small batch and 2× at compute-dominated large batch. Compared with W4A16, weight traffic at small batch is the same, so performance is comparable; at large batch it can be about 2× faster. This raises the compute-side performance ceiling; it is not a strict improvement for every shape.</p>
+  </li>
+</ul>
+
+<p>Let C denote the GEMM compute and Q₄ the INT4 weight bytes; ignoring activation, output, and quantization-metadata traffic:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>T_W4A16,ideal = max(Q₄ / BW, C / F₁₆)
+T_W4A8,ideal  = max(Q₄ / BW, C / F₈), F₈ ≈ 2F₁₆
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Measurements on the wide matrix (N=18432) follow this trend: at B=1, W4A16/W4A8 take 39.2/39.0 μs, and at B=256 they take 488.5/255.2 μs, the latter being 1.91× faster. But the 4× small-batch speedup over BF16 does not materialize: the W4 path’s effective bandwidth, computed from weight bytes, is about 1.7 TB/s, below BF16’s roughly 3.3 TB/s, so in practice it is only about 2× faster. On the small matrix (N=2048) at B=1, W4A8 is actually slower (12.7 vs 11.3 μs); at B=256 it is 1.63× faster (38.1 vs 62.1 μs). Actual time is also affected by effective compute throughput, effective bandwidth, activation quantization, and other kernel overheads; total-time data cannot attribute the whole difference to activation quantization. On wide matrices W4A8 takes about the same time as W8A8; its main benefit over W8A8 is halving the weight memory.</p>
+
+<p>The table below is an idealized Roofline estimate and does not include the implementation overheads above:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>F</th>
+      <th>bpp</th>
+      <th>B*</th>
+      <th>Time at B=8</th>
+      <th>Time at B=64</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BF16 storage + BF16 compute</td>
+      <td>148 T</td>
+      <td>2</td>
+      <td>37</td>
+      <td>7.38 μs(1.00×)</td>
+      <td>12.70 μs(1.00×)</td>
+    </tr>
+    <tr>
+      <td><strong>FP8 storage + FP8 compute (W8A8)</strong></td>
+      <td>296 T</td>
+      <td>1</td>
+      <td>37</td>
+      <td><strong>3.69 μs(0.50×)</strong></td>
+      <td><strong>6.35 μs(0.50×)</strong></td>
+    </tr>
+    <tr>
+      <td>INT4 weights (W4A16)</td>
+      <td>148 T</td>
+      <td>0.5</td>
+      <td>9.3</td>
+      <td>1.87 μs(0.25×)</td>
+      <td>12.70 μs(<strong>1.00×</strong>)</td>
+    </tr>
+    <tr>
+      <td><strong>INT4 weights + FP8 compute (W4A8)</strong></td>
+      <td>296 T</td>
+      <td>0.5</td>
+      <td>18.5</td>
+      <td><strong>1.85 μs(0.25×)</strong></td>
+      <td><strong>6.35 μs(0.50×)</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Measured (widened to [B,7168]×[7168,18432] so the fixed overhead is amortized; kernel time, with the ratio to BF16 in parentheses):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Path</th>
+      <th>B=1</th>
+      <th>B=8</th>
+      <th>B=64</th>
+      <th>B=256</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BF16 cuBLAS</td>
+      <td>81 μs</td>
+      <td>84 μs</td>
+      <td>135 μs</td>
+      <td>519 μs</td>
+    </tr>
+    <tr>
+      <td>W8A8 FP8 cuBLASLt</td>
+      <td>41(0.50×)</td>
+      <td>41(0.49×)</td>
+      <td>69(0.51×)</td>
+      <td>247(0.48×)</td>
+    </tr>
+    <tr>
+      <td>W4A16 Marlin g128</td>
+      <td>44(0.54×)</td>
+      <td>44(0.53×)</td>
+      <td>200(1.49×)</td>
+      <td>776(1.49×)</td>
+    </tr>
+    <tr>
+      <td>W4A16 Humming g128</td>
+      <td>39(0.48×)</td>
+      <td>39(0.47×)</td>
+      <td>136(1.01×)</td>
+      <td>489(0.94×)</td>
+    </tr>
+    <tr>
+      <td>W4A8 Humming g128</td>
+      <td>39(0.48×)</td>
+      <td>39(0.46×)</td>
+      <td>71(0.53×)</td>
+      <td>255(0.49×)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Choices for different workloads:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre>prefill / large batch <span class="o">(</span>compute-bound side<span class="o">)</span>
+  the gain comes only from F ⟹ W8A8 and W4A8 are both 2×, W4A16 gains nothing <span class="o">(</span>0%<span class="o">)</span>
+  ★ weight-only quantization does not <span class="nb">help </span>prefill<span class="p">;</span> on this side only lower-precision compute helps
+
+decode / MoE <span class="o">(</span>bandwidth-bound side<span class="o">)</span>
+  the gain comes only from bpp ⟹ <span class="k">in </span>theory W4A16 ≈ W4A8 ≈ 4×, and W8A8 is 2× <span class="o">(</span>measured W4 is only ~2×<span class="o">)</span>
+  ★ MoE <span class="k">in </span>particular: M per expert <span class="o">=</span> B·k/E is only a few rows, always <span class="k">in </span>the bandwidth region, so the B<span class="k">*</span> constraint is never reached
+     the 2× of W4 over W8 on MoE decode is therefore actually realized
+
+mixed traffic <span class="o">(</span>chunked prefill, prefill and decode not disaggregated<span class="o">)</span>
+  the batch straddles both sides of B<span class="k">*</span> ⟹ W4A16 is the least stable<span class="p">;</span> W4A8 or W8A8 is more predictable
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>To judge in the end whether a kernel implementation is good, you can follow this procedure:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>① Compute I <span class="o">=</span> W/Q. Q is the actual HBM round trip, not the algorithm<span class="s1">'s data volume
+② Compute R_eff = F(of the compute path)×MFU_max / (BW×0.85)    measured: BF16 138T, FP8 282T, BW 3.33 TB/s ⟹ R_eff ≈ 42 / 85
+③ I &lt; R → accept on measured GB/s ÷ peak. Levers: batching, lower bpp, fusion to cut Q
+   I &gt; R → accept on compute utilization, and whether tensor-core utilization can still rise. Levers: tiling, pipelining, tensor-core occupancy
+④ Measured ≫ max(t_c, t_m)? Check in order: no overlap (≤2×) → host-bound (up to 10×) → communication not hidden
+⑤ Only two ways to move which side the bottleneck is on:
+   cut Q (fusion) — helps every workload
+   raise W (batching) — helps only workloads whose bytes are shared across the batch
+       weight GEMM ✅ (weight bytes do not depend on B; one read serves B tokens)
+       attention ❌ (KV is private to each request, so numerator and denominator grow together; I ≈ 2g/bpp, where g is the number of Q heads sharing one KV)
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="kernel-case-studies">Kernel case studies</h2>
+
+<p>Taking GEMM as an example, estimate from the M/N/K shape:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>W <span class="o">=</span> 2·M·N·K
+Q <span class="o">=</span> <span class="o">(</span>M·K + K·N + M·N<span class="o">)</span> · bpp        ← this is Q_min <span class="o">(</span>each block <span class="nb">read </span>or written once<span class="o">)</span><span class="p">;</span> measurements can be larger
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The theoretical estimates below use the public FP8 specifications of the H20: F=296T, BW=4TB/s, R=F/BW=74, bpp=1. Actual runs still need the effective compute throughput and bandwidth plugged in.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shape (example)</th>
+      <th>What dominates traffic → approximate I</th>
+      <th>P / saturation point</th>
+      <th>Does batching help?</th>
+      <th>Bottleneck</th>
+      <th>Typical scenario</th>
+      <th>Optimization techniques</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Square</strong> [4096,7168]×[7168,2048]</td>
+      <td>All three terms are the same order of magnitude; none can be dropped <strong>I = (2/3)·n/bpp</strong>, example ≈2340</td>
+      <td>P ≈ F (always saturated); saturation point long since passed</td>
+      <td>Doesn’t matter (already in the compute region)</td>
+      <td>Compute</td>
+      <td>Prefill projection layers, training</td>
+      <td>① Compute at lower precision to raise F (FP8/FP4) ② Tiling + double-buffered pipelining to hide memory traffic ③ Tune tile size / striped scheduling to avoid idle tail waves (wave quantization) ❌ Weight quantization</td>
+    </tr>
+    <tr>
+      <td><strong>Tall-skinny</strong> [8,7168]×[7168,2048]</td>
+      <td><strong>Reading weights</strong>: K·N is 99% <strong>I = 2M/bpp = 2M</strong>, M=8 → 16</td>
+      <td>P = min(296, 8M); M=8: 64T, 22% utilization <strong>M* = R·bpp/2 = 37</strong></td>
+      <td>✅ <strong>Primary technique</strong>: weight bytes are shared across the batch, so I grows linearly with M with no ceiling</td>
+      <td>Bandwidth</td>
+      <td>Decode weight GEMM (M=batch), lm_head</td>
+      <td>① Batch up to M* (throughput is free until then) ② Weight quantization to lower bpp (W4/W8) ③ Mark weight reads as “evict after use” so streaming data does not pollute L2 ❌ Splitting N/K (not in I), raising F, chasing MFU</td>
+    </tr>
+    <tr>
+      <td><strong>Flat (thin K)</strong> [4096,32]×[32,4096]</td>
+      <td><strong>Writing output</strong>: M·N dominates <strong>I = 2K/bpp = 2K</strong>, K=32 → 64</td>
+      <td>P = min(296, 8K); K=32: I=64&lt;R, bandwidth side; K=128: I=256, back to the compute side <strong>K* = 37</strong></td>
+      <td>❌ M is not in I: adding a batch row = one more row computed + one more row written, so numerator and denominator grow together</td>
+      <td>Determined by K; K&lt;37 is bandwidth-bound</td>
+      <td>QKᵀ of unfused attention (K=h_d, output s×s)</td>
+      <td>① Fuse into FlashAttention: the output stays in registers and the kernel disappears entirely ② If it cannot be eliminated, lower bpp ❌ Batching, enlarging K (locked by SMEM capacity)</td>
+    </tr>
+    <tr>
+      <td><strong>Both small</strong> [8,16]×[16,7168]</td>
+      <td>M·K and K·N are comparable <strong>I = 2MK/((M+K)·bpp)</strong>, M=8,K=16 → 10.7</td>
+      <td>P = 8MK/(M+K) = 42.7T, 14% utilization <strong>saturation point unreachable</strong></td>
+      <td>⚠️ Helps, but has a ceiling: as M→∞, I → 2K/bpp = 32 &lt; R, so it never leaves the bandwidth region</td>
+      <td>Bandwidth + fixed overhead (theoretical T≈0.04μs; measured, a single kernel takes ~2μs)</td>
+      <td>LoRA decode, small-rank adapters</td>
+      <td>① Merge weights offline (W′=W+BA) so the kernel disappears ② Grouped batching across multiple adapters ③ Use CUDA Graph to absorb launch overhead ⚠️ Batching is possible but don’t count on it; in-kernel optimization is pointless</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Measured (FP8 / BF16, cuBLASLt): square 264T (89%) / 135T; tall-skinny 35T — at the measured 3.33 TB/s the theory gives 53T, and the gap is ~2μs of fixed overhead such as the splitK reduce; flat 46T / 52T — the real kernel writes BF16 output, so I is only 31.8, the measurement reaches only 43% of theory, and FP8 is no faster than BF16; both-small 0.72T, with a single kernel itself taking 2.1–2.5μs. The P in the table is the roofline bound; on small shapes, fixed overhead is the dominant term.</p>
+
+<p>Taking attention as an example:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>O <span class="o">=</span> softmax<span class="o">(</span>Q·Kᵀ / scale<span class="o">)</span> · V
+    └─GEMM<span class="o">(</span>cube<span class="o">)</span>─┘ └vector┘ └─GEMM<span class="o">(</span>cube<span class="o">)</span>─┘
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Attention is computed in three steps: two matrix multiplications sandwiching a softmax.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>S = Q·Kᵀ / scale     [s,h_d]×[h_d,s] → [s,s]      runs on cube/tensor core
+P = softmax(S)        element-wise normalization      runs on vector units
+O = P·V              [s,s]×[s,h_d] → [s,h_d]      runs on cube/tensor core
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Notation: s = sequence length; h_d = the vector dimension of each attention head (128 in this article); bpp = bytes per value. Everything below is computed per head (I is an intensity, so multiplying numerator and denominator by the number of heads leaves it unchanged; per head is the cleanest).</p>
+
+<p>The difference between the two phases:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Phase</th>
+      <th>FLOPs (per head)</th>
+      <th>HBM bytes (per head, fused implementation)</th>
+      <th>I = W/Q</th>
+      <th>Bottleneck</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>prefill (q_len=s)</td>
+      <td>4·s²·h_d = 2×(QKᵀ) + 2×(PV)</td>
+      <td>4·s·h_d·bpp (read QKV + write O)</td>
+      <td>s/bpp</td>
+      <td>Compute when s is large</td>
+    </tr>
+    <tr>
+      <td>decode (q_len=1)</td>
+      <td>4·s·h_d·g (g Q heads share one set of KV)</td>
+      <td>2·s·h_d·bpp (read K and V once each)</td>
+      <td>2g/bpp (MHA g=1, BF16≈1)</td>
+      <td>MHA is always bandwidth-bound; for GQA/MLA see below</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Where the FLOPs come from: a matrix multiplication [m,k]×[k,n] counts as 2·m·k·n (k multiplies + k adds per output element). Each of the two matrix multiplications contributes 2·s·s·h_d (prefill) or 2·s·h_d (decode, where q_len=1 degrades the matrix multiplication to a matrix-vector product); the element-wise softmax is about 5s², roughly 50× smaller than the matrix multiplications, and is ignored. The coefficient 4 in the table = 2 (a multiply-add counts as 2) × 2 (two matrix multiplications).</p>
+
+<p>The most important fact in the decode row is that <strong>s cancels out of I</strong>: each byte of the KV cache that is read in takes part in exactly 2 operations (one multiply and one add) and is never used again — zero reuse. So neither longer context nor batching (each request’s KV is private, so numerator and denominator grow together) can change I; the only things that can change it are “how many Q heads share the same KV” (g) and the number of queries per step (q_len in speculative decoding).</p>
+
+<p><strong>MHA decode attention: there is only one thing to do</strong></p>
+
+<p>With the hardware parameters used here, I≈1, far below the ridge point of 37, so the model predicts that this workload is bandwidth-bound. There is only one optimization goal: <strong>push the rate of “reading KV from GPU memory” up to the hardware limit</strong>. That is exactly what FlashDecoding does: decode processes only 1 query at a time, so under the default parallelization only a few SMs have work; FlashDecoding splits the KV into segments distributed to all SMs to read simultaneously, each SM computes a partial result, and the partials are merged — with more hands moving data together, bandwidth gets saturated. Beyond that, the remaining technique is to reduce Q itself (KV quantization lowers bpp).</p>
+
+<p><strong>GQA / MLA: sharing KV also raises I</strong></p>
+
+<p>Sharing KV does not just save memory: each KV byte is reused by g heads, so I is multiplied by g. With MLA after absorption, 128 heads share one 576-dimensional latent, so I ≈ 2·128·(576+512)/(576·bpp) ≈ 242 (BF16), already above the ridge point of this test configuration. Measured (FlashInfer 0.7.1, BF16 KV, single layer):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Structure</th>
+      <th>I</th>
+      <th>Measured</th>
+      <th>Bottleneck</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MHA (32/32)</td>
+      <td>1</td>
+      <td>3.5–3.6 TB/s</td>
+      <td>Bandwidth</td>
+    </tr>
+    <tr>
+      <td>GQA-8, CUDA core decode kernel (default)</td>
+      <td>8</td>
+      <td>0.9 TB/s, 7 TFLOPS</td>
+      <td>CUDA core compute</td>
+    </tr>
+    <tr>
+      <td>GQA-8, tensor core kernel</td>
+      <td>8</td>
+      <td>3.0 TB/s, 24 TFLOPS</td>
+      <td>Bandwidth</td>
+    </tr>
+    <tr>
+      <td>MLA absorbed, 128 heads</td>
+      <td>242</td>
+      <td>85–106 TFLOPS, using only 0.4 TB/s</td>
+      <td><strong>Compute</strong></td>
+    </tr>
+    <tr>
+      <td>MLA 128 heads, q_len=2 (MTP)</td>
+      <td>484</td>
+      <td>Time ×2.0–2.2</td>
+      <td>Compute</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Two corollaries: in this GQA experiment, only the tensor core decode kernel brings it back to being bandwidth-bound; the MLA configuration with 128 heads per GPU is mainly compute-bound in these measurements, and verification with q_len=2 measurably raises attention time to 2.0–2.2×. Once TP8 splits it down to 16 heads per GPU, neither compute nor bandwidth is saturated, and you have to re-evaluate based on heads per GPU and kernel utilization; KV compression still brings a capacity benefit, but latency does not necessarily drop in proportion to the byte reduction (see <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Chapter 4</a>).</p>
+
+<p><strong>Why it must be fused into one kernel</strong></p>
+
+<p>If the three steps are written as three separate kernels, every intermediate result between steps has to be “written back to GPU memory and read out again”:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>QKᵀ produces the [s,s] score matrix → write to GPU memory
+softmax                  → read once, write once
+PV                       → read once more
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>This intermediate matrix is s×s: at s=4K it holds 16 million values, <strong>hundreds of times larger than the inputs Q/K/V combined (on the order of s×h_d)</strong> — without fusion, most of the memory traffic is not the data itself but these “passing-through” intermediate results. Plug them into the formula to see the intensity collapse:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>I_unfused ≈ 4s²·h_d / 4s²·bpp = h_d/bpp = 64      ← constant, does not grow with s
+I_fused   = s/bpp                                  ← grows without bound as s grows
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Measuring DRAM bytes with ncu: unfused, I≈42 (the same at s=4K and 16K; the separate scale adds one more s² read and write, so it is h_d/3 rather than h_d/2); fused, I=2612 / 8359. But I≈42 is close to the ridge point of this test configuration, so the unfused version is only 1.25–1.4× slower. In this configuration, the main benefit of fusion is avoiding materializing the s² intermediate matrix, which lowers the memory footprint (about 4.3GB per 8 heads at 16K); the latency benefit is relatively limited.</p>
+
+<p>FlashAttention’s solution comes down to two tricks: <strong>tiling</strong> — cut the matrices into blocks small enough to fit in on-chip memory, so intermediate results are computed and consumed on chip without touching GPU memory; and <strong>online softmax</strong> — softmax normally has to see an entire row before it can normalize, and this trick lets it compute block by block, correcting as it goes, which is what makes tiling possible. The effect: memory traffic drops from O(s²) back to O(s).</p>
+
+<p><strong>What “on chip” means concretely: the two kinds of hardware implement it differently</strong></p>
+
+<p><strong>NVIDIA GPUs: on chip = the shared memory private to each SM (SMEM, 228KB/SM, at most 227KB per block; see the table in <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Chapter 3</a>) + registers.</strong> The block size is not a rule of thumb; it is derived backward from SMEM capacity:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>Take block sizes Br (row tile) = Bc (column tile) = 128, h_d=128, BF16 as an example; one SM must hold at the same time:
+  Q block / K block / V block    each 128×128×2B = 32 KB ×3
+  second copy of K/V for double buffering    32 KB ×2
+  ────────────────────────────────────────
+  ≈ 160 KB, close to the 227KB limit → blocks can only be 64~128
+  S/P blocks (FP32 accumulation) and the O accumulator live in registers in FA2/FA3 (the WGMMA accumulator is in registers) and take no SMEM
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Once data moves from HBM into SMEM, the hardware maintains coherence across the cache hierarchy, and keeping intermediate results on chip is the default state.</p>
+
+<p><strong>910B: on chip means several separate levels of buffers, and “staying on chip” must be orchestrated by hand.</strong> In the DaVinci architecture, cube and vector are physically separate execution units, each with its own buffers — the cube has L0A/L0B (inputs) and L0C (accumulated output), the vector uses the Unified Buffer (UB), and L1 sits above them; <strong>there is no hardware cache coherence between the levels, and all data movement relies on explicit MTE (Memory Transfer Engine) instructions</strong>. So the QKᵀ result lands in L0C; for softmax to use it, it must be explicitly moved into the UB, and after the computation it must be moved out again to feed PV — the intermediate results indeed never touch HBM (consistent with the NVIDIA conclusion), but even on chip they have to “cross a bridge”, and the bridge is MTE transfers.</p>
+
+<p>Comparison of the two hardware paths:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>NVIDIA: tiling + online softmax → intermediate results stay in SMEM, hardware manages coherence → done
+910B:   tiling + online softmax → intermediate results shuttle between L0C ⇄ UB (explicit MTE moves)
+        ├→ shuttling and compute must be double-buffered and pipelined, otherwise it degrades to t_c + t_m (see "Practical evaluation" in this chapter)
+        └→ cube/vector are physically separate → naturally pipelineable, and must be pipelined
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The shape of the pipeline: while the cube computes QKᵀ for block i+1, the vector simultaneously does the online softmax for block i. Without orchestration they sit waiting on each other; and since the 910B’s vector compute throughput is much weaker than its cube’s, once they wait, the weaker side becomes the global bottleneck. Overlapping tensor cores and CUDA cores holds on H-series GPUs too, but the 910B’s weak vector unit turns this from “nice to have” into “must do”. (Ascend 950 raises the cube:vector ratio to 8:1 and adds a fused cube-vector datapath.)</p>
+
+<h2 id="series-navigation">Series navigation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Chapter</th>
+      <th>Article</th>
+      <th>Scheduled date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td><strong>Roofline: Performance Budgets from Compute and Bandwidth (this post)</strong></td>
+      <td>2026-01-01</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a></td>
+      <td>2026-02-13</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a></td>
+      <td>2026-03-29</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a></td>
+      <td>2026-05-11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a></td>
+      <td>2026-06-24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a></td>
+      <td>2026-08-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-06-pd-epd/">PD and EPD: Disaggregation, State Transfer, and Resource Allocation</a></td>
+      <td>2026-09-19</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></td>
+      <td>2026-11-01</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Next: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a></p>

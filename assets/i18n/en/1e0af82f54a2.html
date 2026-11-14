@@ -1,0 +1,334 @@
+<h2 id="overview">Overview</h2>
+
+<p><code class="language-plaintext highlighter-rouge">RLHF</code> (Reinforcement Learning from Human Feedback) is a new training paradigm in the field of Large Language Model (LLM) generation. It optimizes a language model with reinforcement learning, guided by human feedback.</p>
+
+<p>The significance of <code class="language-plaintext highlighter-rouge">RLHF</code> is that it combines human preferences with reinforcement learning techniques to optimize the model’s output, so that the model better matches human expectations and avoids problems of traditional training methods. For example, the output may only consider grammatical correctness and coherence without considering whether it makes sense, which leads to meaningless answers that are completely off the point, and the output cannot satisfy the constraints of various rules and values.</p>
+
+<p><code class="language-plaintext highlighter-rouge">RLHF</code> brings human feedback into the training process through a <code class="language-plaintext highlighter-rouge">reward model</code>, and optimizes the policy with a reinforcement learning strategy, so that the trained result better matches user needs and can also adapt to new scenarios faster.</p>
+
+<p>Reinforcement learning (RL) consists of several components:</p>
+
+<ol>
+  <li>State space: the state space is all the information available for the current task that is relevant to the decisions an AI agent may make, including known and unknown variables. The state space usually changes with each decision the agent makes.</li>
+  <li>Action space: the action space contains all the decisions an AI agent may make. In a board game, for example, the action space is discrete and well defined: it consists of all the legal moves the AI player can make at a given moment. In a text generation task, the action space is enormous, covering the entire <code class="language-plaintext highlighter-rouge">token</code> vocabulary available to the LLM.</li>
+  <li>Reward function: a reward is a measure that motivates the AI agent’s success or progress. In some cases, such as board games, the definition of success (here, winning the game) is objective and direct. But when the definition of “success” is vague, designing an effective reward function can be a significant challenge. In a mathematical framework, this feedback must be converted into a reward signal: a scalar quantification of positive (or negative) feedback.</li>
+  <li>Constraints: the reward function can be supplemented with penalties (negative rewards), that is, penalties for behavior considered counterproductive to the current task. For example, a company may want to prohibit a chatbot from using profanity or other vulgar language; a self-driving car model may be penalized for collisions or for leaving its lane.</li>
+  <li>Policy: in essence, the <em>policy</em> is the strategy or “thought process” that drives the AI agent’s behavior. In simple mathematical terms, a policy (“<em>π</em>”) is a function that takes a state (“<em>s</em>”) as input and returns an action (“<em>a</em>”): <em>π(s)→a.</em></li>
+</ol>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//-/image-20241210131545009.png" alt="image-20241210131545009" /></p>
+
+<h2 id="algorithm-framework">Algorithm Framework</h2>
+
+<p>The framework for training an LLM with <code class="language-plaintext highlighter-rouge">RLHF</code> consists mainly of the following parts:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//-/image-20241210113840483.png" alt="image-20241210113840483" /></p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Actor Model</code></p>
+
+    <p><strong>Needs training.</strong> The <code class="language-plaintext highlighter-rouge">Actor Model</code> (the policy model) is the target language model that training should finally produce. It is continually updated through the reward signal (provided by the <code class="language-plaintext highlighter-rouge">Reward Model</code>) and a policy optimization algorithm (such as PPO). It is usually initialized from a pretrained LLM.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Critic Model</code></p>
+
+    <p><strong>Needs training.</strong> The <code class="language-plaintext highlighter-rouge">Critic Model</code> estimates the value of a given state (the Value Function). In the <code class="language-plaintext highlighter-rouge">Actor-Critic</code> reinforcement learning framework, the <code class="language-plaintext highlighter-rouge">Critic Model</code> assists the <code class="language-plaintext highlighter-rouge">Actor Model</code> by computing the advantage function to guide policy updates.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Reward Model</code></p>
+
+    <p><strong>Does not need training; it is trained in advance.</strong></p>
+
+    <p>The reward model evaluates generated results, quantifies their quality, and guides policy optimization. It is the core of RLHF and directly determines the optimization objective of reinforcement learning. It has to be trained in advance, and usually covers different dimensions: safety, evaluation of values, reasonableness, and so on.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Reference Model</code></p>
+
+    <p><strong>Does not need training; it is trained in advance.</strong> The <code class="language-plaintext highlighter-rouge">Reference Model</code> is the baseline for comparison during training, used to keep the behavior of the <code class="language-plaintext highlighter-rouge">Actor Model</code> from drifting too far from the pretrained model. It provides a comparison between the new and old policies, and is usually used to compute the KL divergence constraint.</p>
+
+\[D_{\text{KL}}(P \| Q) = \sum_x P(x) \log \frac{P(x)}{Q(x)}\]
+
+    <ul>
+      <li>
+        <p>P is usually the distribution of the current policy $\pi_\theta$ (the <code class="language-plaintext highlighter-rouge">Actor Model</code>).</p>
+      </li>
+      <li>
+        <p>Q is usually the distribution of the baseline policy $\pi_{\text{reference}}$ (the <code class="language-plaintext highlighter-rouge">Reference Model</code>).</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>Training an LLM with RLHF usually involves the following stages:</p>
+
+<ol>
+  <li>
+    <p>Pretrained model training</p>
+
+    <p>This usually uses the traditional <code class="language-plaintext highlighter-rouge">LLM Pretrain</code> and <code class="language-plaintext highlighter-rouge">SFT</code> (optional). The process produces the initialization model for the subsequent RLHF training.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//-/image-20241210131004029.png" alt="image-20241210131004029" /></p>
+  </li>
+  <li>
+    <p>Reward Model training</p>
+
+    <p>The RM is usually a fine-tuned LLM, and the fine-tuning data comes from human annotation. There are generally two annotation methods:</p>
+
+    <ol>
+      <li><strong>Ranking data</strong> (<code class="language-plaintext highlighter-rouge">Pairwise Preference</code>): annotators choose the better output, for example “output y_1 is better than y_2”.</li>
+      <li><strong>Absolute scores</strong> (Optional): assign a score to each output y, for example “output y_1 scores 4 and y_2 scores 2”.</li>
+    </ol>
+
+    <p>Absolute scores are usually quite noisy because of “standards that are hard to unify” and “differences in personal values”. Therefore, ranking data is usually used, and the reward model is trained and optimized with a <code class="language-plaintext highlighter-rouge">pair wiss loss</code>: the model is given two answers to the same question at the same time, and learns which of the two sentences should score higher and which lower.</p>
+
+    <p>Structurally, the <code class="language-plaintext highlighter-rouge">Reward Model</code> extends the original LLM, usually by adding a linear regression head:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>Pre-trained LM (Transformer)
+          ↓
+Pooling / Last Hidden State
+          ↓
+Linear Layer (Reward Head)
+          ↓
+Softmax: Scalar Reward Score R(y|x)
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <p><img src="/assets/img/recovered/5f2988507db17bc6.png" alt="image-20241210131259175" /></p>
+  </li>
+  <li>
+    <p>Policy optimization</p>
+
+    <p>Once the pretrained model and the Reward Model are available, the model can be trained with an RL strategy. The SFT task is turned into an RL problem: the policy’s action space (<code class="language-plaintext highlighter-rouge">action space</code>) is all the raw tokens of the LM, the observation space (<code class="language-plaintext highlighter-rouge">observation space</code>) is the possible input token sequences, and the reward function is a combination of the Reward Model and a constraint on how far the policy shifts.</p>
+
+    <p>The core RL strategy is Proximal Policy Optimization (<code class="language-plaintext highlighter-rouge">PPO</code>). Its reward function combines the difference between the output texts of the initial LLM and the fine-tuned LLM (for example the KL divergence) with the scalar reward obtained by feeding the fine-tuned LLM’s text into the RM.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//-/image-20241217153708856.png" alt="image-20241217153708856" /></p>
+  </li>
+</ol>
+
+<h2 id="rl-algorithms">RL Algorithms</h2>
+
+<p>As mentioned above, the core of an RL algorithm is the process of obtaining the best $a_t$ from $s_t$, where $s_t$ comes from the state space, $a_t$ comes from the action space, the mapping from $s_t$ to $a_t$ is given by the policy function, and $r_t$ comes from the reward function (including the negative rewards of penalty terms) and is used to update the policy function. The core steps are as follows:</p>
+
+<ol>
+  <li>The agent observes the environment state $s_t$ .</li>
+  <li>According to the current policy $\pi$ , it selects an action $a_t$ .</li>
+  <li>The environment receives the action $a_t$ and returns a reward $r_t$ and the next state $s_{t+1}$ .</li>
+  <li>The agent learns from the reward $r_t$ and $s_{t+1}$ and updates the policy $\pi$ .</li>
+  <li>Repeat the above process until the task is complete or a termination condition is reached.</li>
+</ol>
+
+<p>The core logic of policy learning is to guide the agent toward the optimal policy through value functions (<code class="language-plaintext highlighter-rouge">Value Function</code>). Value functions usually fall into two kinds:</p>
+
+<ol>
+  <li>
+    <p>On-Policy Value Function</p>
+
+    <p>The value function $V^{\pi}(s)$ based on the state value $s$</p>
+
+\[V^{\pi}(s) = \mathop{E}\limits_{\tau \sim \pi}[{R(\tau)\left| s_0 = s\right.}]\]
+
+    <p>Here $\pi$ is the policy function, and $\tau$ is the corresponding trajectory, a collection of states and actions:</p>
+
+\[\tau = (s_0, a_0, s_1, a_1, ...).\]
+
+    <p>$R(\tau)$ is the cumulative <code class="language-plaintext highlighter-rouge">Reward</code> of the corresponding $\tau$:</p>
+
+\[R(\tau) = \sum_{t=0}^{\infty} \gamma^t r_t.\]
+
+\[r_t = R(s_t, a_t, s_{t+1})\]
+  </li>
+  <li>
+    <p>On-Policy Action-Value Function</p>
+
+    <p>The state-action value function $Q^{\pi}(s,a)$</p>
+
+\[Q^{\pi}(s,a) = \mathop{E}\limits_{\tau \sim \pi}[{R(\tau)\left| s_0 = s, a_0 = a\right.}]\]
+  </li>
+  <li></li>
+</ol>
+
+<p>​	Ideally, the value function should be maximized:</p>
+
+\[Q^*(s,a) = \max_{\pi} \mathop{E}\limits_{\tau \sim \pi}{[R(\tau)\left| s_0 = s, a_0 = a\right.}]\]
+
+<p>​	If $Q^*$ is known, the optimal $a^*(s)$ can be obtained directly:</p>
+
+\[a^*(s) = \arg \max_a Q^* (s,a)\]
+
+<p>In some scenarios, you also need to look at the relative advantage of a specific action ($Advantage\ Function$):</p>
+
+\[A^{\pi}(s,a) = Q^{\pi}(s,a) - V^{\pi}(s)\]
+
+<p>Value functions follow the <code class="language-plaintext highlighter-rouge">Bellman equations</code>, which describe the recursive relationship between the values of states and of state-action pairs:</p>
+
+<blockquote>
+  <p>The value of your starting point is the reward you expect to get from being there, plus the value of wherever you land next.</p>
+</blockquote>
+
+<p>The <code class="language-plaintext highlighter-rouge">Bellman equations</code> of the value functions are:</p>
+
+\[\begin{align*}
+V^a{\pi}(s) &amp;= \mathop{E}\limits_{a \sim \pi , \\ s'\sim P}{[r(s,a) + \gamma V^{\pi}(s')}], \\
+Q^{\pi}(s,a) &amp;= \mathop{E}\limits_{s'\sim P}[{r(s,a) + \gamma \mathop{E}\limits_{a'\sim \pi}{Q^{\pi}(s',a')}}],
+\end{align*}\]
+
+<p>Here $r$ is the current immediate reward, $ \gamma \in [0,1] $ is the discount factor that controls the trade-off between short-term and long-term rewards, and $P$ describes the generation probability of $\tau$. A policy trajectory over T steps can be expressed as:</p>
+
+\[P(\tau|\pi) = \rho_0 (s_0) \prod_{t=0}^{T-1} P(s_{t+1} | s_t, a_t) \pi(a_t | s_t).\]
+
+<p>This means that each policy choice $a_t$ needs to achieve as high a $Q^\pi$ as possible.</p>
+
+<p>The whole process is in essence a <code class="language-plaintext highlighter-rouge">Markov Decision Process (MDP)</code>. A single <code class="language-plaintext highlighter-rouge">MDP</code> is a 5-tuple, $\langle S, A, R, P, \rho_0 \rangle$, where:</p>
+
+<ul>
+  <li>$S$ is the set of all valid states,</li>
+  <li>$A$ is the set of all actions,</li>
+  <li>$R : S \times A \times S \to \mathbb{R} $ is the <code class="language-plaintext highlighter-rouge">Reward Function</code>, that is: $r_t = R(s_t, a_t, s_{t+1})$,</li>
+  <li>$P:S \times A \to \mathcal{P}(S)$ is the transition probability function, where $P(s’|s,a)]$ is the probability of transitioning to $s’$ given $s$ and $a$,</li>
+  <li>$\rho_0$ is the initial state distribution.</li>
+</ul>
+
+<h2 id="the-ppo-algorithm">The PPO Algorithm</h2>
+
+<p><a href="https://arxiv.org/pdf/1707.06347">PPO</a> (``Proximal Policy Optimization<code class="language-plaintext highlighter-rouge">) was proposed by OpenAI in 2017 as an optimization of the TRPO algorithm. Both belong to the family of policy optimization (</code>Policy Optimization`) algorithms, which generally include two kinds of methods:</p>
+
+<ul>
+  <li>
+    <p>Policy Gradient Methods</p>
+
+    <p>These optimize an objective function using the policy gradient. The most commonly used form of the objective function ($Loss$) is:</p>
+  </li>
+</ul>
+
+\[L^\text{PG}(\theta) = \mathbb{E}log{\pi}_{\theta}(a_t | s_t) A_t].\]
+
+<ul>
+  <li>
+    <p>Trust Region Methods</p>
+
+    <p>The core idea is to control the size of policy updates by limiting the difference between the new and old policies, such as the KL divergence constraint in <code class="language-plaintext highlighter-rouge">TRPO</code>:</p>
+  </li>
+</ul>
+
+\[\max_\theta \mathbb{E}_{t} \left[ \frac{\pi\theta(a_t|s_t)}{\pi_{\text{old}}(a_t|s_t)} A_t \right]\]
+
+\[\text{subject to } E_{t}[\text{KL}[\pi_{\theta_\text{old}}(\cdot|s_t),\pi_\theta(\cdot|s_t)]] \leq \delta\]
+
+<p>On top of the above, the core optimization ideas PPO proposes are:</p>
+
+<ul>
+  <li>
+    <p>PPO-Clip</p>
+
+    <p>It clips the range of $r_t(\theta)$​ to avoid overly large updates. The objective function is:</p>
+
+\[L^\text{CLIP}(\theta) = \mathbb{E}_t \left[ \min \left( r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) A_t \right) \right]\]
+
+    <p>where:</p>
+
+    <ul>
+      <li>$r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\text{old}}(a_t | s_t)}$ is the probability ratio.</li>
+      <li>$ \epsilon$ is the clipping range (generally 0.1 or 0.2).</li>
+    </ul>
+
+    <p>How clipping works:</p>
+
+    <ul>
+      <li>When $r_t(\theta) $ moves outside $ [1-\epsilon, 1+\epsilon] $, it is restricted to the clipping range, which avoids overly large updates.</li>
+      <li>It ensures that during optimization the new policy does not deviate too far from the old policy, which improves training stability.</li>
+    </ul>
+  </li>
+  <li>
+    <p>PPO-KL</p>
+
+    <p>It adds the KL divergence to the objective function as a regularization term. The objective function is:</p>
+
+\[L^\text{KL}(\theta) = \mathbb{E}t \left[ L^\text{PG}(\theta) - \beta {\text{KL}} \left[ \pi_{\text{old}}(\cdot | s_t),\pi_\theta(\cdot | s_t) \right] \right]\]
+
+    <p>where:</p>
+
+    <ul>
+      <li>$D_{\text{KL}}$ is the KL divergence between the new and old policies.</li>
+      <li>$\beta$ is the regularization coefficient that controls the influence of the KL divergence, and it needs to be adjusted dynamically:
+        <ul>
+          <li>$d=E_t\left[{\text{KL}} \left[ \pi_{\text{old}}(\cdot | s_t), \pi_\theta(\cdot | s_t) \right] \right]$</li>
+          <li>$If\ d &lt; d_{targ}/1.5, \beta \leftarrow \beta/2$</li>
+          <li>$If\ d &gt; d_{targ}/1.5, \beta \leftarrow \beta \times2$</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>PPO policy iteration is still based on the policy gradient optimization process. Each iteration includes the following steps:</p>
+
+<p><strong>Step 1: Sampling</strong></p>
+
+<p>Use the current policy $\pi_\theta$ to interact with the environment and generate a batch of trajectories $\tau$ :</p>
+
+\[\tau = \{(s_1, a_1, r_1), (s_2, a_2, r_2), \dots\}\]
+
+<p><strong>Step 2: Compute the advantage function</strong></p>
+
+<p>Compute the advantage function $A_t$ with the following formula:</p>
+
+\[A_t = \delta_t + \gamma \delta_{t+1} + \gamma^2 \delta_{t+2} + \dots\]
+
+<p>where $\delta_t$ is the TD error at time step t:</p>
+
+\[\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)\]
+
+<p><strong>Step 3: Policy update</strong></p>
+
+<p>Optimize the objective function (PPO-Clip or PPO-KL) to update the policy parameters $\theta$ :</p>
+
+\[\theta \leftarrow \arg\max_\theta L^\text{CLIP}(\theta) \quad \text{or} \quad L^\text{KL}(\theta)\]
+
+<p><strong>Step 4: Value function update</strong></p>
+
+<p>Optimize the mean squared error (MSE) objective function to update the value function parameters $\phi$ :</p>
+
+\[L^\text{VF}(\phi) = \mathbb{E}t \left[ \left( V\phi(s_t) - \hat{R}_t \right)^2 \right]\]
+
+<p>where $\hat{R}_t$ is the return estimated from the sampled trajectories.</p>
+
+<p><strong>Step 5: Repeat</strong></p>
+
+<p>Repeat the sampling and update process until the convergence condition is reached.</p>
+
+<h2 id="engineering-details">Engineering Details</h2>
+
+<p>Take the implementation of <a href="https://github.com/OpenRLHF/OpenRLHF">OpenRLHF</a> as an example. In this implementation, the training framework is based on DeepSpeed, the model library is based on</p>
+
+<p>HuggingFace, distributed scaling is based on ray, and the inference framework is boosted by vLLM. The overall framework is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//-/image-20241218155040980.png" alt="image-20241218155040980" /></p>
+
+<p>The data flow is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//-/image-20241218165329028.png" alt="image-20241218165329028" /></p>
+
+<h2 id="references">References</h2>
+
+<p><a href="https://zhuanlan.zhihu.com/p/599016986">The “Unsung Hero” Behind ChatGPT: RLHF Explained in Detail</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/635757674">Reinforcement Learning from Zero to RLHF (8): One Diagram Breaking Down PPO in RLHF</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/614115887">Understanding the Proximal Policy Optimization (PPO) Algorithm: Starting from Policy Gradients</a></p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>[OpenRLHF</td>
+      <td>A Lightweight, High-Performance RLHF Framework](https://hub.baai.ac.cn/view/35434)</td>
+    </tr>
+  </tbody>
+</table>

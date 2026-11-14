@@ -1,0 +1,374 @@
+<p>Follow batch size through expert coverage, communication volume, tile fill, and load imbalance, and check the analytical budget against end-to-end measurements.</p>
+
+<h2 id="how-shapes-and-sparsity-have-evolved">How shapes and sparsity have evolved</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>E (routed)</th>
+      <th>k</th>
+      <th>Expert intermediate size</th>
+      <th>Sparsity</th>
+      <th>Form</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dense FFN (Llama-70B)</td>
+      <td>—</td>
+      <td>—</td>
+      <td>28672</td>
+      <td>100%</td>
+      <td>one large GEMM</td>
+    </tr>
+    <tr>
+      <td>DeepSeek-V3 (2024)</td>
+      <td>256</td>
+      <td>8+1s</td>
+      <td>2048</td>
+      <td>5.5%</td>
+      <td>fine-grained + shared</td>
+    </tr>
+    <tr>
+      <td>Qwen3.5 (2026)</td>
+      <td>512</td>
+      <td>10+1s</td>
+      <td>smaller</td>
+      <td>4.3%</td>
+      <td>ultra-fine-grained (shared expert removed, then brought back)</td>
+    </tr>
+    <tr>
+      <td>DS-V4-Pro (2026)</td>
+      <td>384</td>
+      <td>6+1s</td>
+      <td>2048</td>
+      <td>3.1%</td>
+      <td>+ native FP4</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Trend: E up 64×, each expert 14× smaller, sparsity 25%→3%.</p>
+
+<p>Consequence: per-expert GEMMs went from “large and dense” to “small and fragmented” — every MoE systems problem (padding, EP, EPLB) stems from this change in shape.</p>
+
+<h2 id="moe-through-the-roofline-lens-how-batch-size-communication-and-compute-interact">MoE through the Roofline lens: how batch size, communication, and compute interact</h2>
+
+<p>How batch size affects compute efficiency:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>┌─→ AI ↑ → throughput ↑ (nearly free before B* for dense models; MoE also multiplies by C(B), see below)
+                    │
+                    ├─→ M_e ↑ → GEMM pushed from the padding region toward saturation
+        B ↑ ────────┤
+                    ├─→ all2all bytes ∝ B → communication time ↑ (becomes the new bottleneck across nodes)
+                    │
+                    └─→ KV pool demand ∝ B → capped by GPU memory (EP unlocks it)
+
+Actual operating point = min( B*, B_SLA, B_max_mem )
+                              ↑best throughput  ↑TPOT cap  ↑memory cap
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>B is the only variable that appears on all four chains at once. Every MoE system optimization is, in essence, engineering between “pushing B up” and “removing the side effects of pushing B up” — EP unlocks GPU memory so B can go up, and each side effect (more communication, padding, imbalance) has its own library that treats it.</p>
+
+<p>For MoE, “free before B*” comes with a discount: the fraction of experts hit within one step, <code class="language-plaintext highlighter-rouge">C(B)=1−(1−k/E)^B</code>, grows with B, and so do the weights read. Let W_routed be the number of routed-expert parameters and W_shared the number of other parameters that must be read every step; weight traffic is then roughly <code class="language-plaintext highlighter-rouge">[C(B)·W_routed+W_shared]·bpp</code>. An approximately flat region can form only when C(B) is close to 1 and no other limit, such as compute, has been hit yet.</p>
+
+<p>Under ideal conditions — all experts covered, other operators ignored, the same sharding scheme — setting the weight-read time equal to <code class="language-plaintext highlighter-rouge">2·N_active·B/F</code> gives <code class="language-plaintext highlighter-rouge">B*≈Ridge·W_total·bpp/(2·N_active)</code>. This is a ridge-point estimate for the weight GEMMs and cannot be equated directly with the throughput-optimal serving batch; the real operating point is also constrained by KV, attention, communication, and the SLO.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Chain</th>
+      <th>Symptom</th>
+      <th>Who treats it</th>
+      <th>Mechanism</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>all2all bytes ∝ B</td>
+      <td>cross-node communication becomes the new bottleneck</td>
+      <td>DeepEP</td>
+      <td>turns communication from an “additive term” into “a term that compute can hide”</td>
+    </tr>
+    <tr>
+      <td>M_e falls in the padding region</td>
+      <td>compute is spent on pad rows, a 10× waste</td>
+      <td>DeepGEMM</td>
+      <td>lets static shapes hold dynamic loads, cutting the pad granularity down to the real M_e</td>
+    </tr>
+    <tr>
+      <td>Uneven expert load</td>
+      <td>the all2all synchronization barrier → the slowest GPU determines the whole layer</td>
+      <td>EPLB</td>
+      <td>spreads out hot experts, pushing max/mean back to 1</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="end-to-end-measurements-keep-the-theoretical-lower-bound-separate-from-serving-capacity">End-to-end measurements: keep the theoretical lower bound separate from serving capacity</h3>
+
+<p>Qwen3.5-397B-A17B-FP8, 8 GPUs, TP8; input 1024/output 128, radix cache disabled, static memory fraction 0.85, maximum decode graph batch 256. The table below records single-batch samples from <code class="language-plaintext highlighter-rouge">bench_one_batch_server</code>.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>batch</th>
+      <th style="text-align: right">Graph decode tok/s</th>
+      <th style="text-align: right">TPOT</th>
+      <th style="text-align: right">eager TPOT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td style="text-align: right">177</td>
+      <td style="text-align: right">5.6 ms</td>
+      <td style="text-align: right">144 ms</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td style="text-align: right">896</td>
+      <td style="text-align: right">8.9 ms</td>
+      <td style="text-align: right">141 ms</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td style="text-align: right">1948</td>
+      <td style="text-align: right">16.4 ms</td>
+      <td style="text-align: right">146 ms</td>
+    </tr>
+    <tr>
+      <td>64</td>
+      <td style="text-align: right">2828</td>
+      <td style="text-align: right">22.6 ms</td>
+      <td style="text-align: right">143 ms</td>
+    </tr>
+    <tr>
+      <td>128</td>
+      <td style="text-align: right">4136</td>
+      <td style="text-align: right">30.9 ms</td>
+      <td style="text-align: right">—</td>
+    </tr>
+    <tr>
+      <td>256</td>
+      <td style="text-align: right">5626</td>
+      <td style="text-align: right">45.5 ms</td>
+      <td style="text-align: right">—</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Under a strict 30ms TPOT cap, B=128 at 30.9ms misses the target; among the existing samples, B=64 at 22.6ms meets it, but the maximum throughput that still meets the cap has not been located.</p>
+
+<p>Prefill throughput is about 26K tok/s, with a B=1 TTFT of 74ms. With natural-language prompts, the MTP-3 acceptance length is 3.07–3.11, and TPOT at B=1/8/32 is 2.45/5.1/7.6ms; the acceptance length of 3.64 with random-token prompts is inflated and is not used for conclusions about the gain. Without MTP, B≤8 is already below 10ms, so the claim that “10ms requires 16 GPUs + MTP” does not hold.</p>
+
+<p>The full-weight-read lower bound <code class="language-plaintext highlighter-rouge">397GB / 8 / 3.33TB/s = 14.9ms</code> assumes the step reads all of the weights; for small batches, use the union of experts hit instead. B=256 at 45.5ms is about 3.1× this ideal lower bound, and the gap may simultaneously include insufficient effective bandwidth, compute, communication, and more, so you cannot subtract to conclude that “other overheads account for 2/3”.</p>
+
+<h3 id="deepep">DeepEP</h3>
+
+<p>The essence of the communication volume: <code class="language-plaintext highlighter-rouge">dispatch = B·C·d·1B(FP8) + combine = B·k·d·2B(BF16)</code>, where <code class="language-plaintext highlighter-rouge">C = P[1−(1−1/P)^k]</code> is the number of distinct destination GPUs after deduplication (7.18 at EP32, not k=8). The bytes grow linearly with B; this term cannot be eliminated, so only three things can be done:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>① Cut bytes: dispatch in FP8 (halved); multiple experts on the same rank share one copy of the token data (deduplication, C&lt;k)
+② Cut α: IBGDA lets the GPU's SMs write NIC WQEs and ring the doorbell directly, bypassing the CPU proxy
+        —— cross-node all2all is high-frequency small messages, so α rather than bandwidth is the dominant term
+③ ★ Turn the sum into a max: the hook mechanism. Once send is issued, RDMA is executed by the NIC and occupies no SMs;
+   compute kernels queue as usual, and the recv hook is called only when the data is needed
+   ⟹ TBO (two-batch overlap) builds on this mechanism, turning layer time from t_comm + t_comp into max(·,·)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>“Occupies no SMs” holds only for cross-node RDMA. Within a node over NVLink, the SMs move the data themselves: measured on EP4 (E=256, k=8, d=7168), low-latency dispatch takes 32–50 μs and combine takes 30–76 μs, and hook overlap hides only 20–27% of the communication time. The measured number of distinct destination GPUs is 3.44–3.61, matching the formula’s 3.60.</p>
+
+<p>Two sets of kernels match the two phases: <code class="language-plaintext highlighter-rouge">normal</code> (prefill, asymmetric-domain forwarding NVLink→RDMA, bandwidth-heavy) / <code class="language-plaintext highlighter-rouge">low-latency</code> (decode, pure single-hop RDMA + fixed preallocated buffers → capturable by CUDA Graph).</p>
+
+<p>Where its value lies: DeepEP does not reduce communication volume; it takes communication off the critical path. So its maximum gain = communication’s share of step time, which can reach 40-60% in cross-node large-EP deployments.</p>
+
+<h3 id="deepgemm">DeepGEMM</h3>
+
+<p>The core tension in MoE decode is two conflicting constraints:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Constraint A (CUDA Graph):  shapes must be static —— fixed at capture, cannot change at replay
+Constraint B (MoE reality): the real row count per expert, masked_m[e], changes every step and is small
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Of three approaches, only one satisfies both at once:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Approach</th>
+      <th>Graph support</th>
+      <th>Waste at M_e=5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Dense batched GEMM padded to M_max</td>
+      <td>✅</td>
+      <td>12.8× (computes all of M_max)</td>
+    </tr>
+    <tr>
+      <td>CUTLASS grouped (by the real M)</td>
+      <td>❌ the shape changes every step</td>
+      <td>12.8× (tiles too large)</td>
+    </tr>
+    <tr>
+      <td>DeepGEMM masked</td>
+      <td>✅</td>
+      <td>3.2× (BM=16) → 1.6× (BM=8); this is FLOP waste</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The core trick: static memory, dynamic compute. The buffer shape is fixed at <code class="language-plaintext highlighter-rouge">[E_loc, M_max, K]</code> (meeting the graph requirement), while <code class="language-plaintext highlighter-rouge">masked_m</code> is a GPU tensor — a fixed address whose contents can change every step — which the kernel reads at runtime to decide how many blocks to actually compute:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>m_size = __ldg(&amp;masked_m[tile.e]);        // 运行时读该专家真实行数
+if (tile.m_blk * BM &gt;= m_size) continue;  // 纯 pad 块:一条 MMA 都不发
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Two supporting pieces: two-level accumulation solves FP8 precision for deep K (Tensor Cores accumulate only 128 K at a time, then CUDA cores multiply by the scale and promote to FP32; measured with all-positive data at K=16K, the error without promotion is about 25%, versus about 0.17% with two-level accumulation, which equals BF16 output rounding); full JIT specialization can choose the tile by shape. Whether a particular version uses expected_m to change BM has to be measured; here, changing expected_m on the SM90 masked path did not change the actual BM=64. Prefill uses the contiguous layout and larger tiles to amortize weight re-reads.</p>
+
+<p>Why there is still waste even though “pure pad blocks issue no MMA”: skipping applies to whole tiles, so as long as a block contains one row of real data, all BM rows are computed, and the FLOP waste = ⌈M_e/BM⌉·BM / M_e. While the tile is still memory-bandwidth-bound, this waste is only FLOPs and costs no time.</p>
+
+<blockquote>
+  <p>The critical BM is also a Roofline question: a single tile’s arithmetic intensity = 2·BM/bpp, independent of the real M_e. BM* = Ridge×bpp/2; with reference FP8 parameters it is about 37, and about 42 once the measured effective throughput is plugged in. Below it, the tile is still bandwidth-bound and pad rows hide inside the weight reads almost for free; above it, the tile flips to compute-bound and pad rows start burning real time. Measured (sglang Triton fused_moe, W8A8 block-128, 8 experts gate_up+down totaling 352 MB, M_e ≤ 16): BM=16/32/64/128 take 118/159/202/445 μs, i.e. 3.0/2.2/1.7/0.8 TB/s, so going from BM 128 to 16 is 3.8× faster; the real kernel starts slowing down at BM≈16–24, earlier than the theoretical ridge point. The SM90 masked path in DeepGEMM 0.2.2 actually uses BM=64 and reaches only 1.8 TB/s at small M_e.</p>
+</blockquote>
+
+<p>★ The two libraries interlock: DeepEP’s recv_count[num_local_experts] is exactly DeepGEMM’s masked_m, and the receive buffer serves directly as the GEMM input, with zero copies and zero reordering.</p>
+
+<h2 id="eplb">EPLB</h2>
+
+<p>all2all is a synchronization barrier → MoE layer time = the time of the busiest GPU → slower by a factor of <code class="language-plaintext highlighter-rouge">S₀ = max_load/mean_load</code>. Imbalance has two <strong>independent sources</strong>, and only one of them can be treated:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>① Statistical fluctuation: S₀ ≈ 1 + √(2lnP) · CV_gpu, where CV_gpu = CV_e/√e (self-averaging over the e experts on a GPU)
+   a floor of about ±13% at B_local=48 —— ★ EPLB cannot fix this; only a larger batch helps
+② Routing hot spots: S₀ ≈ the hot-to-cold ratio r (with a bad placement)
+   ⟹ EPLB replicates hot experts + LPT bin packing spreads them out, pushing S₀ back to ~1.1
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Converting to gains</strong> (note the two levels of dilution):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>MoE layer speedup = S₀/S₁
+End to end        = 1 / ( f/(S₀/S₁) + (1−f) )        f = balanceable fraction
+             ↑ EPLB balances both the GEMMs and each GPU's a2a receive volume (both ∝ expert load)
+               What it cannot fix: total bytes, the α floor, attention
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>e (experts per GPU)</th>
+      <th>CV_e</th>
+      <th>S₀/S₁</th>
+      <th>f</th>
+      <th>End to end</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>EP32, B=48, cross-node</td>
+      <td>8</td>
+      <td>~0.35</td>
+      <td>1.18</td>
+      <td>0.6</td>
+      <td><strong>1.10×</strong></td>
+    </tr>
+    <tr>
+      <td>SGLang EP72 decode</td>
+      <td>4</td>
+      <td>≥1.3</td>
+      <td>~2.6</td>
+      <td>0.85</td>
+      <td><strong>2.54×</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p><strong>★ EPLB’s gain is determined by three factors, and all three are required</strong>: how hot the hot spots are (CV_e), the number of experts per GPU (the smaller e is, the less self-averaging there is), and the balanceable fraction (f). <strong>With e=8 + a large batch + uniform routing, 10% is the ceiling, not an implementation problem</strong>; to see gains on the order of 2×, you need EP64+/e≤4 + real heavy-tailed routing + redundant experts.</p>
+</blockquote>
+
+<h2 id="series-navigation">Series navigation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Part</th>
+      <th>Article</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-00-roofline/">Roofline: Performance Budgets from Compute and Bandwidth</a></td>
+      <td>2026-01-01</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a></td>
+      <td>2026-02-13</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a></td>
+      <td>2026-03-29</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a></td>
+      <td>2026-05-11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a></td>
+      <td>2026-06-24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><strong>MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing (this post)</strong></td>
+      <td>2026-08-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-06-pd-epd/">PD and EPD: Disaggregation, State Transfer, and Resource Allocation</a></td>
+      <td>2026-09-19</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></td>
+      <td>2026-11-01</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Previous: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a> · Next: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-06-pd-epd/">PD and EPD: Disaggregation, State Transfer, and Resource Allocation</a></p>

@@ -1,0 +1,39 @@
+<h2 id="long-context-optimization-strategies-for-llms">Long-Context Optimization Strategies for LLMs</h2>
+
+<p>The challenge long context poses for LLMs is mainly about GPU memory. The core reason is:</p>
+
+<p>In the original attention computation, the size of the intermediate variables grows as $O(N^2)$. FlashAttention’s tiling design can reduce the intermediate-variable memory to $O(\frac {N ^ 2}{M})$, while the $KV_Cache$ and the FFN-layer activations are both $O(N)$, so the core idea is to reduce the $sequence\ length$ per GPU, and there are two main methods:</p>
+
+<p>SP (sequence parallelism, <code class="language-plaintext highlighter-rouge">Sequence Parallelism</code>). The most typical sequence parallelism approaches are <a href="https://arxiv.org/pdf/2309.14509">ULYSSES</a> and <a href="https://arxiv.org/pdf/2310.01889">Ring Attention</a>.</p>
+
+<ul>
+  <li>
+    <p>Ulysses</p>
+
+    <p>The core idea: the Q/K/V matrices are split along the N dimension, and the workers then convert them into a split along the d dimension through All2All (background: All2All is equivalent to a distributed transpose). Then $Softmax(QK^T)$ can be computed, and another All2All transposes the result back. The communication volume of a single All2All is $O(N \times d)$, independent of the number of GPUs, and the total communication volume is $3 \times O(N \times d)$. The constraint is that $d/P$ must divide evenly, and it is unfriendly to GQA/MQA.</p>
+
+    <p><img src="/assets/img/recovered/af69da2d98b55099.png" alt="img" class="img-mid" /></p>
+  </li>
+  <li>
+    <p>RingAttention</p>
+
+    <p>It can be seen as a distributed FlashAttention. Its core change is that, when looping over K and V in the inner loop, the K and V intermediate results on different devices are obtained through P2P communication. The communication volume of a single RingAttention step is $O(N<em>d)</em>P$, which depends on the number of GPUs, and the total communication volume is $N/P/c<em>(P-1)</em>O(N*d)$, where P is the number of GPUs and c is the block size of a single computation. In theory, though, computation and communication can be pipelined, and when the computation time exceeds the communication time they can overlap.</p>
+
+    <p>The advantages of Ring-Attention are good generality and drop-in use, and P2P places low demands on communication. But it has a larger communication volume and a load balancing problem: the later a position is in the sequence, the more computation it actually requires.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-04-LLM%25E9%2595%25BF%25E6%2596%2587%25E6%259C%25AC%25E4%25BC%2598%25E5%258C%2596%25E7%25AD%2596%25E7%2595%25A5/v2-fe6a996dda4943fca33d7a275e496ef0_b.gif" alt="animation" /></p>
+
+    <p>From a load perspective, the prefill phase has high computational intensity and relatively low communication volume, while the decode phase has low computational intensity and high communication volume, so different exchange strategies can usually be used:</p>
+
+    <ul>
+      <li>
+        <p>Prefill: Exchange KV based on RingAttention. After the KV exchange, each GPU holds the full KV, and each GPU has a partial q and a partial o, which must be merged to obtain the full attention. RingAttention also has to consider load balancing: different ranks have different chunks and therefore different amounts of computation. A simple load balancing strategy is for $rank_0$ to take on $chunk_0/chunk_{n}$.</p>
+
+        <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-04-LLM%25E9%2595%25BF%25E6%2596%2587%25E6%259C%25AC%25E4%25BC%2598%25E5%258C%2596%25E7%25AD%2596%25E7%2595%25A5/image-20241222215047499.png" alt="image-20241222215047499" /></p>
+      </li>
+      <li>
+        <p>Decode: Only q is exchanged, because the prefill phase has already saved the full KV, and each GPU stores only a partial q.</p>
+      </li>
+    </ul>
+  </li>
+</ul>

@@ -1,0 +1,137 @@
+<h2 id="an-overview-of-llm-quantization-algorithms">An Overview of LLM Quantization Algorithms</h2>
+
+<h3 id="quantization-basics">Quantization Basics</h3>
+
+<p>INT8 quantization converts a model’s weights and activations from FP16/FP32 to the INT8 format. The simplest approach is to use a <code class="language-plaintext highlighter-rouge">linear mapping</code> to map the floating-point range onto the integer range:</p>
+
+\[x_{int8} = \text clip\left(\text{round}\left(\frac{x_{float} - z}{s}\right), qmin, qmax\right)\]
+
+<ul>
+  <li>$z$ : the zero point, used for the offset.</li>
+  <li>$s$ : the scaling factor, which controls the mapping between the floating-point and integer ranges.</li>
+  <li>$qmin,qmax$: the minimum/maximum quantized values.</li>
+</ul>
+
+<p>Depending on whether retraining is required, there are two approaches:</p>
+
+<ul>
+  <li>
+    <p><strong>Post-training Quantization (PTQ)</strong>:</p>
+
+    <ul>
+      <li>
+        <p>Quantizes the weights of an already trained model offline.</p>
+      </li>
+      <li>
+        <p>Commonly uses symmetric or asymmetric quantization.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Quantization-aware Training (QAT)</strong>:</p>
+    <ul>
+      <li>Simulates the effect of quantization during training so that the model adapts to the quantized weights and activations.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>Quantization granularity</strong></p>
+
+<p>In terms of granularity, quantization can be distinguished along the following dimensions:</p>
+
+<ul>
+  <li>Per-tensor: a single layer or tensor has only one scaling factor.</li>
+  <li>Per-channel: each channel has its own scaling factor. For example, if $W$ has shape $d \times h$, the scaling factor has shape $d \times 1$.</li>
+  <li>Per-token: usually used for activation quantization, quantizing along the token dimension, with shape $L \times 1$.</li>
+  <li>Per-group / group-wise: quantizes in groups, for example combined with channel-wise.</li>
+</ul>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-10-25-LLMs%25E9%2587%258F%25E5%258C%2596%25E7%25AE%2597%25E6%25B3%2595%25E6%25A6%2582%25E8%25BF%25B0/image-20241220153012169.png" alt="Quantization strategies at different granularities: d is the hidden state, h is the number of heads" /></p>
+
+<p><strong>What to quantize</strong></p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Weight</code>: Weight quantization is the most common target. Quantizing weights reduces the model’s memory footprint. Weights are fixed after training and their value range is independent of the input, so they can be quantized offline and are usually relatively easy to quantize. Typical schemes are W8A16 (MinMax) and W4A16 (AWQ, GPTQ).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Activation</code>: In practice, activations often account for most of the memory use, so quantizing them can substantially reduce memory use. More importantly, combined with weight quantization it can make full use of integer arithmetic to improve inference performance. But activation outputs vary with the input, so their dynamic range has to be gathered from data, and they are usually harder to quantize. Typical schemes are W8A8 (LLM.int8, SmoothQuant).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">KV Cache</code>: Besides weights and activations, the KV cache in LLMs also consumes a lot of memory. Quantizing the KV cache is therefore essential for improving the throughput of long-sequence generation. Typical schemes are KV8 (INT8 in TensorRT-LLM, FP8 in vLLM) and KV4 (Atom).</p>
+  </li>
+</ul>
+
+<h3 id="main-algorithms">Main Algorithms</h3>
+
+<p><strong><a href="https://arxiv.org/abs/2208.07339">LLM.int8</a></strong></p>
+
+<p><code class="language-plaintext highlighter-rouge">LLM.int8</code> is a quantization method based on mixed-precision decomposition. It first decomposes the matrix and quantizes the vast majority of weights and activations to 8 bits (vector-wise). For the few dimensions that carry outlier features, it keeps 16 bits and performs the matrix multiplication at higher precision.</p>
+
+<p><code class="language-plaintext highlighter-rouge">LLM.int8</code> completes a matrix multiplication in three steps:</p>
+
+<ul>
+  <li>From the input hidden states, extract outliers by column (outlier features, i.e., values above some threshold).</li>
+  <li>Perform FP16 matrix multiplication on the outlier features, and quantize the non-outlier features and perform INT8 matrix multiplication on them.</li>
+  <li>Dequantize the matrix multiplication result for the non-outliers and add it to the outlier matrix multiplication result to obtain the final FP16 result.</li>
+</ul>
+
+<p><img src="/assets/img/recovered/e26682e8e1364063.png" alt="image-20241220155911239" /></p>
+
+<p><strong><a href="https://arxiv.org/abs/2210.17323">GPTQ</a></strong></p>
+
+<p><code class="language-plaintext highlighter-rouge">GPTQ</code> generally comes in two schemes, W4A16 and W8A16, and generally requires a calibration dataset:</p>
+
+<p>By decomposing the Hessian matrix and quantizing iteratively, GPTQ groups the weights (for example, 128 columns per group) into multiple sub-matrices (blocks). It quantizes all parameters within a block one by one, and after each parameter is quantized, the other not-yet-quantized parameters in the block must be adjusted appropriately to compensate for the accuracy loss caused by quantization. This is why GPTQ quantization requires a calibration dataset.</p>
+
+<p>The GPTQ quantization process is shown in the figure below. First, a <code class="language-plaintext highlighter-rouge">Cholesky</code> decomposition is used to solve for the inverse of the <code class="language-plaintext highlighter-rouge">Hessian</code> matrix. Then, in a given step, a block of consecutive columns is quantized, and at the end of that step the remaining weights (blue) are updated. The quantization process is applied recursively within each block, and the white middle columns indicate the ones currently being quantized.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-10-25-LLMs%25E9%2587%258F%25E5%258C%2596%25E7%25AE%2597%25E6%25B3%2595%25E6%25A6%2582%25E8%25BF%25B0/image-20241220160417230.png" alt="image-20241220160417230" class="img-small" /></p>
+
+<p>The pseudocode for updating the weights is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-10-25-LLMs%25E9%2587%258F%25E5%258C%2596%25E7%25AE%2597%25E6%25B3%2595%25E6%25A6%2582%25E8%25BF%25B0/image-20241220160626001.png" alt="image-20241220160626001" /></p>
+
+<p><strong><a href="https://arxiv.org/pdf/2306.00978">AWQ</a></strong></p>
+
+<p>Supports W4A16 and W8A16. It is activation-aware quantization and performs fully INT4/INT8 weight quantization.</p>
+
+<p><strong>Core idea</strong>: It stems from the observation that “weights are not equally important to an LLM’s performance.” About 0.1%-1% of the weights are salient and have an outsized effect on the model’s performance, so skipping quantization for this 1% of important weights (salient weights) can greatly reduce quantization error.</p>
+
+<p><strong>Algorithm steps</strong>:</p>
+
+<ol>
+  <li>Salient weights are identified by analyzing the activation distribution. The top 1% is taken as the salient weights. Keeping those channels in FP16 (mixed precision) would be inefficient to implement in hardware.</li>
+  <li>After a salient weight is multiplied by a scaling factor, its quantization error becomes smaller than before, and different salient weights also receive different degrees of protection: the paper searches the search space for the optimal scaling by minimizing the difference of the layer’s output before and after quantization.</li>
+</ol>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-10-25-LLMs%25E9%2587%258F%25E5%258C%2596%25E7%25AE%2597%25E6%25B3%2595%25E6%25A6%2582%25E8%25BF%25B0/image-20241220162037599.png" alt="image-20241220162037599" /></p>
+
+<p><strong><a href="https://arxiv.org/abs/2211.10438">SmoothQuant</a></strong></p>
+
+<p>Supports W8A8 and joint weight/activation quantization (per-tensor or per-channel for weights, and per-token or per-tensor for activations).</p>
+
+<p>Its motivation is the finding that activations need channel-wise quantization to retain accuracy, but channel-wise activation quantization is very inefficient, so it instead:</p>
+
+<p>smoothly shifts the difficulty of activation quantization onto weight quantization. <code class="language-plaintext highlighter-rouge">SmoothQuant</code> proposes a mathematically equivalent per-channel scaling transformation (<code class="language-plaintext highlighter-rouge">per-channel scaling transformation</code>) that significantly smooths out the magnitudes across channels, making the model easy to quantize.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2023-10-25-LLMs%25E9%2587%258F%25E5%258C%2596%25E7%25AE%2597%25E6%25B3%2595%25E6%25A6%2582%25E8%25BF%25B0/image-20241220161915436.png" alt="image-20241220161915436" class="img-mid" /></p>
+
+<p><strong><a href="https://arxiv.org/pdf/2401.18079">KV_Quant</a></strong></p>
+
+<p>KVQuant mitigates the accuracy loss of KV cache quantization by combining several novel methods. The specific optimization techniques are as follows:</p>
+
+<ol>
+  <li>Per-channel quantization of Keys (<code class="language-plaintext highlighter-rouge">Per-Channel</code>): by adjusting the quantization dimension of Key activations to better match their distribution. Per-channel quantization of Keys was also explored in the concurrent work KIVI, which groups large-magnitude values in the same channel together to minimize quantization error. Their per-channel approach needs fine-grained grouping while keeping part of the KV cache in FP16 precision. This work instead shows that, by using an offline calibration set, per-channel quantization can be performed accurately without grouping.</li>
+  <li>Quantizing Keys before the <code class="language-plaintext highlighter-rouge">Position Embedding</code>: Key activations are quantized before the rotary positional embedding is applied, to mitigate the embedding’s effect on quantization.</li>
+  <li>Non-uniform KV cache quantization: a per-layer, sensitivity-weighted non-uniform data type is derived to represent the distribution better.</li>
+  <li>Per-vector dense-and-sparse quantization: the outliers of each vector are isolated separately to minimize the skew in the quantization range.</li>
+  <li>Attention Sink-aware quantization: because of the Attention Sink phenomenon, the model is unusually sensitive to quantization error in some tokens. Keeping only those tokens in FP16 preserves the model’s accuracy.</li>
+  <li>With per-channel quantization, updating the scaling factors online is challenging, because the scaling factor for each incoming channel may need to be updated whenever a new token is added to the KV cache. The statistics are therefore computed offline (that is, using calibration data before inference runs). Per-channel quantization makes offline calibration effective, which avoids the need to update scaling factors online. For per-token quantization, calibrating scaling factors offline is challenging because of outlier Value tokens. Each incoming token therefore has its scaling factor and outlier threshold computed online. The per-token outlier threshold is computed efficiently online by offloading to the CPU. With a custom quantization function implementation to compress activations, per-token Value quantization can be performed online without hurting performance.</li>
+</ol>
+
+<h2 id="references">References</h2>
+
+<p><a href="https://zhuanlan.zhihu.com/p/11886909512">Principles of LLM quantization: a summary</a></p>
+
+<p><a href="https://lilianweng.github.io/posts/2023-01-10-inference-optimization/">Large Transformer Model Inference Optimization</a></p>

@@ -1,0 +1,184 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">MathJax Support</a></li>
+  <li><a href="#sec-3">Image Host Migration</a>
+    <ul>
+      <li><a href="#sec-3-1">Create the GitHub Repository</a></li>
+      <li><a href="#sec-3-2">Get the CDN Conversion Rule</a></li>
+      <li><a href="#sec-3-3">Upload Images with PicGo</a></li>
+      <li><a href="#sec-3-4">Upload Automatically with git</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>This extends the setup from the earlier post: <a href="https://johneyzheng.top//posts/%E5%9F%BA%E4%BA%8EJekyll%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2/">Building a Blog with Jekyll</a></p>
+
+<h1 id="mathjax-support">MathJax Support<a id="sec-2"></a></h1>
+
+<p>Adding <code class="language-plaintext highlighter-rouge">mathjax</code> support has two parts: adding the <code class="language-plaintext highlighter-rouge">mathjax</code> dependency, and adding a <code class="language-plaintext highlighter-rouge">mathjax</code> switch. Add <code class="language-plaintext highlighter-rouge">_includes/mathjax_support.html</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="o">&lt;</span><span class="n">div</span> <span class="n">id</span><span class="o">=</span><span class="s">"mathjax"</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
+     <span class="o">&lt;</span><span class="n">script</span> <span class="n">type</span><span class="o">=</span><span class="s">"text/x-mathjax-config"</span><span class="o">&gt;</span>
+     <span class="nc">MathJax</span><span class="o">.</span><span class="na">Hub</span><span class="o">.</span><span class="na">Config</span><span class="o">({</span>
+         <span class="nl">tex2jax:</span> <span class="o">{</span>
+             <span class="nl">inlineMath:</span> <span class="o">[</span> <span class="o">[</span><span class="s">"$"</span><span class="o">,</span><span class="s">"$"</span><span class="o">]],</span>
+                     <span class="nl">skipTags:</span> <span class="o">[</span><span class="err">'</span><span class="n">script</span><span class="err">'</span><span class="o">,</span> <span class="err">'</span><span class="n">noscript</span><span class="err">'</span><span class="o">,</span> <span class="err">'</span><span class="n">style</span><span class="err">'</span><span class="o">,</span> <span class="err">'</span><span class="n">textarea</span><span class="err">'</span><span class="o">,</span> <span class="err">'</span><span class="n">pre</span><span class="err">'</span><span class="o">,</span> <span class="err">'</span><span class="n">code</span><span class="err">'</span><span class="o">],</span>
+                     <span class="nl">processEscapes:</span> <span class="kc">true</span>
+                     <span class="o">}</span>
+         <span class="o">});</span>
+<span class="nc">MathJax</span><span class="o">.</span><span class="na">Hub</span><span class="o">.</span><span class="na">Queue</span><span class="o">(</span><span class="n">function</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kt">var</span> <span class="n">all</span> <span class="o">=</span> <span class="nc">MathJax</span><span class="o">.</span><span class="na">Hub</span><span class="o">.</span><span class="na">getAllJax</span><span class="o">();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">var</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">all</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="o">++</span><span class="n">i</span><span class="o">)</span>
+            <span class="n">all</span><span class="o">[</span><span class="n">i</span><span class="o">].</span><span class="na">SourceElement</span><span class="o">().</span><span class="na">parentNode</span><span class="o">.</span><span class="na">className</span> <span class="o">+=</span> <span class="err">'</span> <span class="n">has</span><span class="o">-</span><span class="n">jax</span><span class="err">'</span><span class="o">;</span>
+    <span class="o">});</span>
+<span class="o">&lt;/</span><span class="n">script</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">script</span> <span class="n">src</span><span class="o">=</span><span class="s">"https://cdn.bootcdn.net/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"</span><span class="o">&gt;&lt;/</span><span class="n">script</span><span class="o">&gt;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Add the <code class="language-plaintext highlighter-rouge">mathjax</code> switch by adding the following to <code class="language-plaintext highlighter-rouge">_layouts/post.html</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="o">{/%</span> <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="na">mathjax</span> <span class="o">%}</span>
+<span class="o">&lt;</span><span class="n">span</span><span class="o">&gt;</span>
+  <span class="o">{/%</span> <span class="n">include</span> <span class="n">mathjax_support</span><span class="o">.</span><span class="na">html</span> <span class="o">%}</span>
+<span class="o">&lt;/</span><span class="n">span</span><span class="o">&gt;</span>
+<span class="o">{/%</span> <span class="n">endif</span> <span class="o">%}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>With the configuration above, adding the <code class="language-plaintext highlighter-rouge">mathjax: true</code> switch to a page enables markdown-style inline and display math. The rendered results are as follows:</p>
+
+<p>Test of an inline formula: $\frac{N*C}{G*K*K}$</p>
+
+<p>Test of a display (multi-line) formula:</p>
+
+\[\frac{N*C}{G*K*K}\]
+
+<h1 id="image-host-migration">Image Host Migration<a id="sec-3"></a></h1>
+
+<p>Image host options that can be used: <a href="https://segmentfault.com/a/1190000039185826">Extending a GitHub-based image host</a> <a href="https://masantu.com/blog/2020-12-06/images-hosting/">Other popular image host options</a> <a href="https://post.smzdm.com/p/a5kledr3/">Building a personal image host</a></p>
+
+<p>The image host currently in use is based on GitHub. The main steps are:</p>
+
+<ul>
+  <li>Create a GitHub repository to store the images</li>
+  <li>Use <a href="https://www.jsdelivr.com/?docs=gh">jsdelivr</a> for CDN acceleration</li>
+  <li>Upload images with <a href="https://github.com/Molunerfinn/PicGo">PicGo</a></li>
+</ul>
+
+<h2 id="create-the-github-repository">Create the GitHub Repository<a id="sec-3-1"></a></h2>
+
+<p>Create a public repository on <code class="language-plaintext highlighter-rouge">Github</code> to store the images the blog needs. The directory structure I use is as follows:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>├── Imgs_blog
+│   ├ Blog1
+│   │   ├── 1.png
+│   │   ├── 2.png
+│   │   ├── 3.png
+│   │   └── 4.png
+│   ├ Blog2
+│   │   ├── 1.jpg
+│   │   ├── 2.jpg
+│   │   ├── 3.jpg
+│   │   ├── 4.jpg
+│   │   ├── 5.jpg
+│   │   ├── 6.jpg
+│   │   ├── 7.jpg
+│   │   └── 8.png
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Create a token: <code class="language-plaintext highlighter-rouge">Setting--&gt;Developer settings--&gt;Personal access tokens--&gt;New personal access token--&gt;copy token</code>: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-21-Jekyll%25E5%258D%259A%25E5%25AE%25A2%25E6%258B%2593%25E5%25B1%2595--%25E6%2594%25AF%25E6%258C%2581Latex&amp;&amp;%25E5%259B%25BE%25E7%2589%2587%25E5%258A%25A0%25E9%2580%259F/blog_mathjax_pic_20210821_125031.png" alt="img" /></p>
+
+<h2 id="get-the-cdn-conversion-rule">Get the CDN Conversion Rule<a id="sec-3-2"></a></h2>
+
+<p>Use <a href="https://www.jsdelivr.com/?docs=gh">jsdelivr</a> for CDN acceleration:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-21-Jekyll%25E5%258D%259A%25E5%25AE%25A2%25E6%258B%2593%25E5%25B1%2595--%25E6%2594%25AF%25E6%258C%2581Latex&amp;&amp;%25E5%259B%25BE%25E7%2589%2587%25E5%258A%25A0%25E9%2580%259F/blog_mathjax_pic_20210821_125247.png" alt="img" /></p>
+
+<p>One of the images in my repo is: <code class="language-plaintext highlighter-rouge">https://github.com/ZhengWG/Imgs_blog/Blog1/1.png</code></p>
+
+<p>So the converted url is: <code class="language-plaintext highlighter-rouge">https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Blog1/1.png</code></p>
+
+<h2 id="upload-images-with-picgo">Upload Images with PicGo<a id="sec-3-3"></a></h2>
+
+<p><a href="https://github.com/Molunerfinn/PicGo">PicGo</a> can upload images to the image host (you can of course also automate the upload directly with a git python tool). First it needs to be configured; the github configuration:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-21-Jekyll%25E5%258D%259A%25E5%25AE%25A2%25E6%258B%2593%25E5%25B1%2595--%25E6%2594%25AF%25E6%258C%2581Latex&amp;&amp;%25E5%259B%25BE%25E7%2589%2587%25E5%258A%25A0%25E9%2580%259F/blog_mathjax_pic_20210821_125836.png" alt="img" /></p>
+
+<p>Create the corresponding folder and then upload the images (it currently does not seem to support Chinese encoding):</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-08-21-Jekyll%25E5%258D%259A%25E5%25AE%25A2%25E6%258B%2593%25E5%25B1%2595--%25E6%2594%25AF%25E6%258C%2581Latex&amp;&amp;%25E5%259B%25BE%25E7%2589%2587%25E5%258A%25A0%25E9%2580%259F/blog_mathjax_pic_20210821_125931.png" alt="img" /></p>
+
+<p>After uploading, just insert the converted image URL: <code class="language-plaintext highlighter-rouge">https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/Blog1/1.png</code></p>
+
+<h2 id="upload-automatically-with-git">Upload Automatically with git<a id="sec-3-4"></a></h2>
+
+<p>I use an automated upload scheme, which can be done with the git module of python:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">git</span> <span class="kn">import</span> <span class="n">Repo</span>
+
+<span class="n">local_repo</span> <span class="o">=</span> <span class="s">'https://github.com/ZhengWG/Imgs_blog/raw/master/'</span>
+<span class="n">repo</span> <span class="o">=</span> <span class="n">Repo</span><span class="p">(</span><span class="n">local_repo</span><span class="p">)</span>
+
+<span class="c1"># upload files
+</span><span class="k">if</span> <span class="n">repo</span><span class="p">.</span><span class="n">untracker_files</span><span class="p">:</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">repo</span><span class="p">.</span><span class="n">index</span>
+    <span class="n">index</span><span class="p">.</span><span class="n">add</span><span class="p">([</span><span class="s">'*'</span><span class="p">])</span>
+    <span class="n">upload_filename</span> <span class="o">=</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">basename</span><span class="p">(</span><span class="n">local_dir</span><span class="p">)</span>
+    <span class="n">mes_commit</span> <span class="o">=</span> <span class="s">'add imgs for {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">upload_filename</span><span class="p">)</span>
+    <span class="n">index</span><span class="p">.</span><span class="n">commit</span><span class="p">(</span><span class="n">mes_commit</span><span class="p">)</span>
+    <span class="n">remote</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">repo</span><span class="p">.</span><span class="n">remote</span><span class="p">()</span>
+    <span class="n">remote</span><span class="p">.</span><span class="n">push</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

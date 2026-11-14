@@ -1,0 +1,182 @@
+
+<ul>
+  <li><a href="#sec-1">Background</a></li>
+  <li><a href="#sec-2">Sequence Containers</a></li>
+  <li><a href="#sec-3">Associative Containers</a></li>
+</ul>
+
+<h1 id="background">Background<a id="sec-1"></a></h1>
+
+<p>The C++ <code class="language-plaintext highlighter-rouge">STL (Standard Template Library)</code> is an important part of the C++ standard library and provides implementations of a rich set of data structures and algorithms. The <code class="language-plaintext highlighter-rouge">STL</code> is based on generic programming and is designed to be efficient, flexible, and easy to use. It contains general-purpose containers, algorithms, iterators, and function objects.</p>
+
+<p>STL containers store and manage data. They come in several kinds suited to different application scenarios, and can be divided into sequence containers, associative containers, and unordered containers. All containers share one basic property: they store elements with “value” semantics, which means that <strong>a container stores copies of its elements, not references</strong>. So when elements are large and numerous, the copying cost can be very high. One solution: <strong>implement move constructors and move assignment operators for your elements as far as possible, and use std::move() to “move” them in when adding them to a container, which reduces the cost of copying elements</strong>. You can also use the <code class="language-plaintext highlighter-rouge">emplace_back</code> function to construct in place:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">Point</span> <span class="n">p</span><span class="p">;</span>
+
+<span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">p</span><span class="p">);</span>  <span class="c1">// 拷贝成本很高</span>
+<span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">p</span><span class="p">));</span> <span class="c1">// 定义转移构造后可以转移存储</span>
+<span class="n">v</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(...)</span> <span class="c1">// 直接在容器内构造</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="sequence-containers">Sequence Containers<a id="sec-2"></a></h1>
+
+<p>Sequence containers store elements in insertion order. There are five of them: <code class="language-plaintext highlighter-rouge">array</code>, <code class="language-plaintext highlighter-rouge">vector</code>, <code class="language-plaintext highlighter-rouge">deque</code>, <code class="language-plaintext highlighter-rouge">list</code>, and <code class="language-plaintext highlighter-rouge">forward_list</code>. Of these, the contiguously stored arrays are <code class="language-plaintext highlighter-rouge">array</code>, <code class="language-plaintext highlighter-rouge">vector</code>, and <code class="language-plaintext highlighter-rouge">deque</code>; the pointer-based linked lists are <code class="language-plaintext highlighter-rouge">list</code> and <code class="language-plaintext highlighter-rouge">forward_list</code>.</p>
+
+<p><code class="language-plaintext highlighter-rouge">array</code> and <code class="language-plaintext highlighter-rouge">vector</code> are built-in C arrays, with the lowest overhead and the highest speed. <code class="language-plaintext highlighter-rouge">array</code> is a static array whose size is fixed at initialization, while <code class="language-plaintext highlighter-rouge">vecor</code> is a dynamic array that can grow later as needed. <code class="language-plaintext highlighter-rouge">deque</code> is also a dynamically growing array; the difference is that it inserts and deletes elements efficiently at both ends.</p>
+
+<p>In terms of efficiency, the elements of <code class="language-plaintext highlighter-rouge">vector</code> and <code class="language-plaintext highlighter-rouge">deque</code> are stored contiguously and support random access, so insertion is inefficient and lookup is efficient. list/forward_list are linked structures, where insertion and deletion only need to adjust pointers, which is more efficient. Their drawback is slow lookup, and the storage cost of a linked list is also slightly higher, because every element needs extra pointers to the previous and next nodes.</p>
+
+<p>As for capacity growth, when a <code class="language-plaintext highlighter-rouge">vector</code> reaches its capacity limit, it allocates new memory of twice the size and then copies or moves the old elements over. It is recommended to call reserve first to allocate space in advance and reduce the cost of dynamic growth. The growth strategies of <code class="language-plaintext highlighter-rouge">deque</code> and <code class="language-plaintext highlighter-rouge">list</code> are more conservative: they only increase capacity by a fixed step. A simple traversal example:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">vec</span> <span class="o">=</span> <span class="p">{</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">};</span>
+    <span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span> <span class="c1">// 在末尾插入</span>
+
+    <span class="c1">// 按顺序遍历</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">x</span> <span class="o">:</span> <span class="n">vec</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span> <span class="c1">// 输出: 3 1 4 2</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="associative-containers">Associative Containers<a id="sec-3"></a></h1>
+
+<p>Associative containers store data as <code class="language-plaintext highlighter-rouge">key-value pairs</code>. Depending on whether they are ordered, they divide into ordered containers and unordered containers.</p>
+
+<p>Ordered containers store elements in insertion order, store elements based on key-value pairs, and sort automatically. C++ ordered containers use a tree structure, generally a binary tree with the best lookup performance (a red-black tree).</p>
+
+<p>The standard library has four ordered containers: <code class="language-plaintext highlighter-rouge">set/multiset</code> and <code class="language-plaintext highlighter-rouge">map/multimap</code>. Here <code class="language-plaintext highlighter-rouge">set</code> is a set, <code class="language-plaintext highlighter-rouge">map</code> is an associative array, and <code class="language-plaintext highlighter-rouge">multi</code> supports duplicate elements/keys. Characteristics:</p>
+
+<ol>
+  <li>
+    <p>Elements are stored in a certain order (usually ascending).</p>
+  </li>
+  <li>
+    <p>Insertion, deletion, and lookup have time complexity <code class="language-plaintext highlighter-rouge">O(log n)</code>.</p>
+  </li>
+  <li>
+    <p>They support ordered traversal (such as std::map sorted by key or std::set sorted by element).</p>
+  </li>
+</ol>
+
+<p>Unordered containers are implemented on a hash table, and elements are stored without order. There are also four unordered containers: <code class="language-plaintext highlighter-rouge">unordered_set/unordered_multiset</code> and <code class="language-plaintext highlighter-rouge">unordered_map/unordered_multimap</code>. Their data structure is not a red-black tree but a hash table.</p>
+
+<p>Although unordered containers do not require ordering, their requirements on the key are in fact somewhat “stricter” than those of ordered containers: the key must satisfy two conditions, first that a hash value can be computed for it, and second that equality comparison can be performed on it.</p>
+
+<p>Unordered containers compared with ordered containers:</p>
+
+<ol>
+  <li>
+    <p>Elements are stored by hashing, with no particular order.</p>
+  </li>
+  <li>
+    <p>Insertion, deletion, and lookup are cheap, all <code class="language-plaintext highlighter-rouge">O(1)</code>, and the worst case is <code class="language-plaintext highlighter-rouge">O(n)</code> (for example when hash collisions are severe).</p>
+  </li>
+  <li>
+    <p>Elements cannot be traversed in order.</p>
+  </li>
+  <li>
+    <p>Ordered containers have higher memory overhead because the balanced binary search tree needs extra storage for parent and child node pointers. For unordered containers, the hash table needs extra storage for hash values and for the linked lists or buckets that handle collisions, and the memory overhead depends on the load factor of the hash table.</p>
+  </li>
+</ol>
+
+<p>A simple usage example:</p>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="cp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;map&gt;
+</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">m</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span><span class="mi">2</span><span class="p">,</span> <span class="sc">'B'</span><span class="p">}</span> <span class="p">};</span>
+    <span class="c1">// std::unordered_map&lt;int, std::string&gt; m = { {2, 'B'} };</span>
+
+    <span class="c1">// 按键顺序遍历</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="p">[</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">]</span> <span class="o">:</span> <span class="n">m</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">key</span> <span class="o">&lt;&lt;</span> <span class="s">": "</span> <span class="o">&lt;&lt;</span> <span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The comparison is as follows:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Feature</td>
+      <td>Ordered containers</td>
+      <td>Unordered containers</td>
+    </tr>
+    <tr>
+      <td>Underlying implementation</td>
+      <td>Balanced binary search tree (such as a red-black tree)</td>
+      <td>Hash table</td>
+    </tr>
+    <tr>
+      <td>Data storage order</td>
+      <td>Stored sorted by key or value</td>
+      <td>Stored unordered</td>
+    </tr>
+    <tr>
+      <td>Lookup efficiency</td>
+      <td>O(log n)</td>
+      <td>Average O(1), worst case O(n)</td>
+    </tr>
+    <tr>
+      <td>Insertion and deletion efficiency</td>
+      <td>O(log n)</td>
+      <td>Average O(1), worst case O(n)</td>
+    </tr>
+    <tr>
+      <td>Traversal efficiency</td>
+      <td>Supports ordered traversal, with efficiency O(n)</td>
+      <td>Traversal is unordered, with efficiency O(n)</td>
+    </tr>
+    <tr>
+      <td>Memory overhead</td>
+      <td>Higher</td>
+      <td>Lower, depends on the load factor</td>
+    </tr>
+    <tr>
+      <td>Applicable scenarios</td>
+      <td>Need for sorting, range queries, or small data sizes</td>
+      <td>Fast lookup, efficient insertion, and large data sizes</td>
+    </tr>
+  </tbody>
+</table>

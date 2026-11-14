@@ -1,0 +1,52 @@
+<h1 id="contents">Contents</h1>
+
+<ol>
+  <li><a href="#orgfb1210b">Background and Core Idea</a></li>
+  <li><a href="#org64f782d">Algorithm Pipeline</a></li>
+  <li><a href="#org29edd93">Algorithm Details</a></li>
+</ol>
+
+<p><a href="http://www.cs.toronto.edu/~byang/papers/mmf.pdf">Multi-Task Multi-Sensor Fusion for 3D Object Detection</a></p>
+
+<p><a id="orgfb1210b"></a></p>
+
+<h1 id="background-and-core-idea">Background and Core Idea</h1>
+
+<p>Motivation: this paper improves on the authors’ earlier work, ContFuse. Although ContFuse fuses image and BEV information, its effect is limited for very sparse point clouds. In addition, the detector head of ContFuse is too simple,</p>
+
+<p><a id="org64f782d"></a></p>
+
+<h1 id="algorithm-pipeline">Algorithm Pipeline</h1>
+
+<ul>
+  <li>Core:
+    <ul>
+      <li>A detector head based on ROI-wise fusion is designed, following AVOD</li>
+      <li>An auxiliary ground plane network is added: a Unet structure predicts the ground height of every voxel in the point cloud voxel space as the ground plane information (BEV). The corresponding height is subtracted from the BEV point cloud information, and the final prediction has the height added back accordingly</li>
+      <li>A depth completion branch is added to complete the depth and generate a pseudo lidar, which supplements the data where real point cloud information is missing</li>
+    </ul>
+  </li>
+  <li>Algorithm framework:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-16-MMF%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_MMF_20210710_003618.png" alt="img" />
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-16-MMF%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_MMF_20210710_003646.png" alt="img" />
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-16-MMF%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_MMF_20210710_003709.png" alt="img" /></li>
+</ul>
+
+<p><a id="org29edd93"></a></p>
+
+<h1 id="algorithm-details">Algorithm Details</h1>
+
+<ul>
+  <li>Key points:
+    <ul>
+      <li>The authors argue that extracting proposals from the 2D image is not optimal, and that extracting proposals directly from the BEV map is simpler (consistent sizes and less occlusion)</li>
+      <li>An online mapping branch</li>
+      <li>Pseudo lidar can supplement the missing long-range lidar data, and simply adding the depth completion branch for multi-task training also helps</li>
+    </ul>
+  </li>
+  <li>Ablation Study:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-16-MMF%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_MMF_20210710_003802.png" alt="img" />
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-16-MMF%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_MMF_20210710_003826.png" alt="img" /></li>
+  <li>Evaluation Results:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-16-MMF%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_MMF_20210710_003905.png" alt="img" /></li>
+</ul>

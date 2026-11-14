@@ -1,0 +1,645 @@
+<p>Decompose collective communication into step count, launch latency, and bytes per GPU, then use NVLink, RDMA, NUMA, and PCIe topology to explain measured differences.</p>
+
+<h2 id="common-communication-algorithms">Common communication algorithms</h2>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/eight_collective_primitives_full_reference.svg" alt="Data distribution and communication semantics of the eight collective communication primitives" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>Primitive / algorithm</th>
+      <th>Semantics or mechanism</th>
+      <th>Bytes per GPU</th>
+      <th>Steps</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Many-to-many</strong></td>
+      <td>★ ReduceScatter</td>
+      <td>Each GPU gets 1/P of the reduced result</td>
+      <td>(P−1)/P·S ✓lower bound</td>
+      <td>P−1 (ring)</td>
+      <td>Every GPU sends; P NICs work in parallel</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>★ AllGather</td>
+      <td>Each GPU gets the full concatenation</td>
+      <td>(P−1)/P·S ✓lower bound</td>
+      <td>P−1 (ring)</td>
+      <td>= the reverse of ReduceScatter</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>★ AllReduce</td>
+      <td>Each GPU gets the full reduction</td>
+      <td>2(P−1)/P·S ✓lower bound</td>
+      <td>2(P−1) (ring)</td>
+      <td>= RS + AG; see the variants below</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>★ AllToAll</td>
+      <td>Each GPU sends different data to every GPU (block transpose)</td>
+      <td>(P−1)/P·S ✓lower bound</td>
+      <td>1 (all pairs concurrently)</td>
+      <td>Bytes are fixed by the semantics and cannot be saved</td>
+    </tr>
+    <tr>
+      <td><strong>Single endpoint</strong></td>
+      <td>Broadcast</td>
+      <td>root sends the same content to all GPUs</td>
+      <td>root sends (P−1)·S (naive); each GPU receives S</td>
+      <td>log₂P (tree)</td>
+      <td>The naive implementation bottlenecks on root egress</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>Scatter</td>
+      <td>root sends a different slice to each GPU</td>
+      <td>root sends (P−1)/P·S; each GPU receives S/P</td>
+      <td>1</td>
+      <td>Same bytes as RS, but all squeezed through one NIC</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>Gather</td>
+      <td>Each GPU’s data is collected and concatenated at root</td>
+      <td>root receives (P−1)/P·S; each GPU sends S/P</td>
+      <td>1</td>
+      <td>incast: P−1 GPUs hit root at the same time</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>Reduce</td>
+      <td>Each GPU’s data is collected and reduced at root</td>
+      <td>each GPU sends ≈S</td>
+      <td>log₂P (tree)</td>
+      <td>The reduction compute is concentrated at root</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>AllReduce variants:</p>
+
+<ul>
+  <li>
+    <p>Ring: 2(P−1) steps, each exchanging S/P with a fixed neighbor. Byte-optimal; each GPU always keeps 2 connections, and the reduction is spread over small chunks in every step → the easiest to overlap with compute and the easiest to pipeline. It has only one weakness: the step count is O(P), so α accumulates for small messages (14 α at P=8).</p>
+
+    <p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260901062208502.svg" alt="Step-by-step reduction and gather in Ring AllReduce" width="720" style="display:block;margin:0 auto;" />
+</p>
+  </li>
+  <li>
+    <p>Halving-Doubling: 2·log₂P steps, with the same bytes as ring. The mechanism: the pairing distance doubles each step while the exchange volume halves each step (S/2→S/4→S/8, then back the same way) — larger chunks make up for the saved steps, and the load is perfectly balanced across GPUs. It requires P to be a power of 2; otherwise, after the padding steps are added, it often loses to ring.</p>
+  </li>
+  <li>
+    <p>two-shot: 2 steps (each GPU pulls and reduces the 1/P slice it owns → broadcasts it back); the bytes are still at the lower bound. This is the step-count limit without redundant transfer — the reduced result cannot be spread before it has been computed. Cost: P−1 connections per GPU (O(P²) resources), the reduction compute concentrated in one step, and it is only truly efficient with hardware multicast such as NVLS/multimem.</p>
+  </li>
+  <li>
+    <p>one-shot: 1 step; each GPU sends the full S to every peer, and each performs the full reduction locally (this needs more compute resources). The only way to go below 2 steps is to transfer redundantly: the bytes are (P−1)·S, P/2 times the lower bound. Applicable domain = small messages and small P (crossover point S* = α·BW/(P−1−lower-bound coefficient), about 130 KB within an 8-GPU node).</p>
+  </li>
+</ul>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260802084745948.svg" alt="Communication flow of different AllReduce algorithms" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<h2 id="public-topology-example-numa-and-pcie-relationships-with-8-gpus--4-nics">Public topology example: NUMA and PCIe relationships with 8 GPUs / 4 NICs</h2>
+
+<p><strong>8 GPUs + 4×400G NICs: NUMA / PCIe switch architecture sketch</strong></p>
+
+<p>The figure below is redrawn from <a href="https://github.com/sgl-project/sglang/issues/5186">the real 8×H20 machine topology published in SGLang #5186</a> to illustrate topological distance: GPU0–3 and NIC0–1 belong to NUMA0; GPU4–7 and NIC2–3 belong to NUMA1. The device numbering and PIX pairings in the figure follow the public example. NIC0–3 correspond to <code class="language-plaintext highlighter-rouge">mlx5_bond_0</code> through <code class="language-plaintext highlighter-rouge">mlx5_bond_3</code>; the 400G in the figure follows this article’s aggregate convention (2×200G).</p>
+
+<p>The figure highlights NUMA affinity and the shared PCIe switches; dashed lines indicate topological distance, and the internal levels of the Host Bridge and the NVLink interconnect between GPUs are omitted.</p>
+
+<pre><code class="language-mermaid">graph TB
+  subgraph N0["NUMA 0 · GPU0–3 / NIC0–1"]
+    G0["GPU0"]
+    G2["GPU2"]
+    subgraph P0["PIX domain A"]
+      S0["PCIe switch"]
+      G1["GPU1"]
+      NIC0["NIC0 · 400G bond"]
+      G1 --- S0
+      S0 --- NIC0
+    end
+    subgraph P1["PIX domain B"]
+      S1["PCIe switch"]
+      G3["GPU3"]
+      NIC1["NIC1 · 400G bond"]
+      G3 --- S1
+      S1 --- NIC1
+    end
+    G0 -.-&gt;|NODE| NIC0
+    G2 -.-&gt;|NODE| NIC1
+    NIC0 -.-&gt;|"NODE: same NUMA, across Host Bridges"| NIC1
+  end
+
+  subgraph N1["NUMA 1 · GPU4–7 / NIC2–3"]
+    G5["GPU5"]
+    G7["GPU7"]
+    subgraph P2["PIX domain C"]
+      S2["PCIe switch"]
+      G4["GPU4"]
+      NIC2["NIC2 · 400G bond"]
+      G4 --- S2
+      S2 --- NIC2
+    end
+    subgraph P3["PIX domain D"]
+      S3["PCIe switch"]
+      G6["GPU6"]
+      NIC3["NIC3 · 400G bond"]
+      G6 --- S3
+      S3 --- NIC3
+    end
+    G5 -.-&gt;|NODE| NIC2
+    G7 -.-&gt;|NODE| NIC3
+    NIC2 -.-&gt;|"NODE: same NUMA, across Host Bridges"| NIC3
+  end
+
+  G4 -.-&gt;|"SYS: cross-NUMA system interconnect"| NIC0
+  NIC0 --- NET["RDMA network / remote nodes"]
+  NIC1 --- NET
+  NIC2 --- NET
+  NIC3 --- NET
+
+  classDef gpu fill:#e7f1ff,stroke:#3975b9;
+  classDef nic fill:#fff2cc,stroke:#a77a13;
+  classDef sw fill:#e5f4e3,stroke:#50864b;
+  class G0,G1,G2,G3,G4,G5,G6,G7 gpu;
+  class NIC0,NIC1,NIC2,NIC3 nic;
+  class S0,S1,S2,S3 sw;
+</code></pre>
+
+<p>The full GPU–NIC distances are as follows (consistent with the public real-machine matrix above):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>GPU</th>
+      <th>NUMA</th>
+      <th>NIC0</th>
+      <th>NIC1</th>
+      <th>NIC2</th>
+      <th>NIC3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>GPU0</td>
+      <td>0</td>
+      <td>NODE</td>
+      <td>NODE</td>
+      <td>SYS</td>
+      <td>SYS</td>
+    </tr>
+    <tr>
+      <td>GPU1</td>
+      <td>0</td>
+      <td>PIX</td>
+      <td>NODE</td>
+      <td>SYS</td>
+      <td>SYS</td>
+    </tr>
+    <tr>
+      <td>GPU2</td>
+      <td>0</td>
+      <td>NODE</td>
+      <td>NODE</td>
+      <td>SYS</td>
+      <td>SYS</td>
+    </tr>
+    <tr>
+      <td>GPU3</td>
+      <td>0</td>
+      <td>NODE</td>
+      <td>PIX</td>
+      <td>SYS</td>
+      <td>SYS</td>
+    </tr>
+    <tr>
+      <td>GPU4</td>
+      <td>1</td>
+      <td>SYS</td>
+      <td>SYS</td>
+      <td>PIX</td>
+      <td>NODE</td>
+    </tr>
+    <tr>
+      <td>GPU5</td>
+      <td>1</td>
+      <td>SYS</td>
+      <td>SYS</td>
+      <td>NODE</td>
+      <td>NODE</td>
+    </tr>
+    <tr>
+      <td>GPU6</td>
+      <td>1</td>
+      <td>SYS</td>
+      <td>SYS</td>
+      <td>NODE</td>
+      <td>PIX</td>
+    </tr>
+    <tr>
+      <td>GPU7</td>
+      <td>1</td>
+      <td>SYS</td>
+      <td>SYS</td>
+      <td>NODE</td>
+      <td>NODE</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Taking <strong>NIC0</strong> as the reference, the three kinds of path differ as follows:</p>
+
+<ul>
+  <li><strong>PIX</strong>: GPU1 → shared PCIe switch → NIC0.</li>
+  <li><strong>NODE</strong>: GPU0 → Host Bridge A → inter-bridge interconnect within the same NUMA node → Host Bridge B → the branch where NIC0 sits. The key is crossing Host Bridges; “different switch” alone is not enough to call it NODE.</li>
+  <li><strong>SYS</strong>: GPU4’s PCIe branch → cross-NUMA system interconnect → NIC0’s PCIe branch.</li>
+</ul>
+
+<p>For the definitions, see <a href="https://docs.nvidia.com/deploy/nvidia-smi/index.html#topology">NVIDIA’s topo documentation</a>. Passing through the CPU-side I/O interconnect does not mean the CPU has to memcpy the data or stage it through host memory. The four switch nodes in the figure represent four PIX sharing groups and are not meant to count every PCIe switch in the machine; the table below gives this article’s measured performance comparison.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Protocol</th>
+      <th>Source/destination GPU relative to NIC0</th>
+      <th>16 KB chunks</th>
+      <th>256 KB chunks</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>RDMA</td>
+      <td>GPU1 (same PCIe switch, PIX)</td>
+      <td>41.9 GB/s</td>
+      <td><strong>48.9 GB/s</strong> (saturates a single NIC)</td>
+    </tr>
+    <tr>
+      <td>RDMA</td>
+      <td>GPU0 (same NUMA, different switch, NODE)</td>
+      <td>46.0 GB/s</td>
+      <td>48.9 GB/s</td>
+    </tr>
+    <tr>
+      <td>RDMA</td>
+      <td>GPU4 (cross-NUMA, SYS)</td>
+      <td>23.9 GB/s</td>
+      <td><strong>24.0 GB/s (halved)</strong></td>
+    </tr>
+    <tr>
+      <td>TCP</td>
+      <td>GPU1</td>
+      <td><strong>0.39 GB/s</strong></td>
+      <td><strong>1.65 GB/s</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="communication-latency-model">Communication latency model</h2>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre>T <span class="o">=</span> steps × α + bytes per GPU / busBW
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>GPU-side modeling parameters and measured reference</th>
+      <th>910B</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Intra-node busBW</td>
+      <td>NVLink ~350-400 GB/s effective (measured AllReduce 128 MB busBW 336 GB/s, P2P copy 395 GB/s)</td>
+      <td>HCCS 56×7 = 392 GB/s (full-mesh)</td>
+    </tr>
+    <tr>
+      <td>Inter-node busBW per GPU</td>
+      <td>20 GB/s (4×400G NICs, 2 GPUs share 1 NIC; measured raw RDMA with NUMA binding 24.5, NCCL 8-pair cross-node P2P 15.1)</td>
+      <td>25 GB/s (200G RoCE, 1:1)</td>
+    </tr>
+    <tr>
+      <td>Intra-node α</td>
+      <td>~2 μs (a single NVLink write; measured floor for one complete collective is ~10 μs with a custom kernel / ~20 μs with NCCL)</td>
+      <td>~2 μs</td>
+    </tr>
+    <tr>
+      <td>Inter-node α</td>
+      <td>~15 μs (measured RDMA verbs one-way 9 μs; NCCL cross-node 64 KB AllReduce 74 μs)</td>
+      <td>~20 μs</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Latency of the different AllReduce algorithms:</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260802083343907.svg" alt="AllReduce algorithm latency across message sizes" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p>For the cross-node case, since intra-node bandwidth is higher than inter-node bandwidth, the communication scheme is:</p>
+
+<ol>
+  <li>
+    <p>Intra-node ReduceScatter first: inside each node the data is reduced and split into P_intra parts, and each GPU keeps only the 1/P slice it owns — the data slims down before it enters the expensive channel.</p>
+  </li>
+  <li>
+    <p>Cross-node AllReduce on the slices only: same-index GPUs across nodes are paired (each communication group runs reduce_scatter+all_gather) and exchange only this 1/P slice — the only bytes that cross the network in the whole process, about 1/P_intra of the flat algorithm.</p>
+  </li>
+  <li>
+    <p>Intra-node AllGather last: the completed slices are broadcast back within the node, and each GPU collects the full result — more intra-node bytes, but intra-node bandwidth is much higher.</p>
+
+    <p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260811042529058.svg" alt="Hierarchical communication: intra-node reduction, cross-node slice reduction, and intra-node gather" width="720" style="display:block;margin:0 auto;" />
+</p>
+  </li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>S</th>
+      <th>Ring intra-node</th>
+      <th>HD intra-node</th>
+      <th>two-shot intra-node</th>
+      <th>one-shot intra-node</th>
+      <th>Ring cross-node</th>
+      <th>HD cross-node</th>
+      <th>two-shot cross-node</th>
+      <th>one-shot cross-node</th>
+      <th><strong>Hierarchical cross-node</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>64 KB</td>
+      <td>28.3</td>
+      <td>12.3</td>
+      <td>4.3</td>
+      <td><strong>3.3</strong></td>
+      <td>213</td>
+      <td>93</td>
+      <td>33</td>
+      <td><strong>31</strong></td>
+      <td>~40</td>
+    </tr>
+    <tr>
+      <td>1 MB</td>
+      <td>33</td>
+      <td>17</td>
+      <td><strong>9</strong></td>
+      <td>22</td>
+      <td>297</td>
+      <td>178</td>
+      <td>118</td>
+      <td>365</td>
+      <td><strong>63</strong></td>
+    </tr>
+    <tr>
+      <td>16 MB</td>
+      <td>108</td>
+      <td>92</td>
+      <td><strong>84</strong></td>
+      <td>322</td>
+      <td>1610</td>
+      <td>1490</td>
+      <td>1430</td>
+      <td>5615</td>
+      <td><strong>480</strong></td>
+    </tr>
+    <tr>
+      <td>128 MB</td>
+      <td>668</td>
+      <td>652</td>
+      <td><strong>644</strong></td>
+      <td>2562</td>
+      <td>11400</td>
+      <td>11290</td>
+      <td>11210</td>
+      <td>44815</td>
+      <td><strong>2100</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The table above shows model values. Measured (μs; intra-node with 8 GPUs, averaged over back-to-back launches inside a CUDA Graph; cross-node with 2×8 GPUs, NCCL + GDR):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>S</th>
+      <th>NCCL intra-node</th>
+      <th>two-shot intra-node (symm-mem)</th>
+      <th>one-shot intra-node (symm-mem)</th>
+      <th>NCCL cross-node (hierarchical)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>64 KB</td>
+      <td>23.2</td>
+      <td>10.5</td>
+      <td>10.6</td>
+      <td>74</td>
+    </tr>
+    <tr>
+      <td>1 MB</td>
+      <td>29.0</td>
+      <td>13.9</td>
+      <td>34.1</td>
+      <td>128</td>
+    </tr>
+    <tr>
+      <td>16 MB</td>
+      <td>117</td>
+      <td>106</td>
+      <td>395</td>
+      <td>421</td>
+    </tr>
+    <tr>
+      <td>128 MB</td>
+      <td>700 (nccl-tests)</td>
+      <td>~790 (395 at 64 MB)</td>
+      <td>—</td>
+      <td>2068</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Three conclusions:</p>
+
+<ul>
+  <li>Small messages (≲1 MB) compete on step count: α accumulation dominates (ring’s 14 steps = 28 μs, while transferring 1 MB takes only 5 μs). two-shot’s 2 steps is the lower bound without redundancy; one-shot’s 1 step is one notch faster but only holds up to ≈130 KB. Typical workload: TP’s per-layer AllReduce is ~56 KB, run more than a hundred times per decode step — exactly this regime. The measured ordering holds (the custom kernels take about half the time of NCCL), but the absolute values are 2.5–3× higher: flag synchronization and barriers put the floor at ~10 μs; one-shot and two-shot tie below 64 KB, and from 256 KB on two-shot is clearly faster</li>
+  <li>Large messages have nothing to compete on: Ring/HD/two-shot move the same bytes → their times converge (measured difference &lt;10%) — on a switched topology the bottleneck is each GPU’s egress (which cannot be parallelized), not the number of links. Choose by the costs outside the chart: if you need overlap / large P / heterogeneous topology → ring has the advantage; when NVLS is supported, two-shot-style algorithms are worth evaluating; if NVLS initialization fails, first confirm hardware and software support, then evaluate the <code class="language-plaintext highlighter-rouge">NCCL_NVLS_ENABLE=0</code> fallback path. Note that the 910B’s HCCS is a point-to-point full-mesh rather than a switched fabric: ring uses only 1 of the 7 links, so even large messages are 7× slower.</li>
+  <li>Cross-node competes on bytes: egress ÷17.5, α ×7.5 → the only effective cross-node optimization is to cut inter-node traffic — the hierarchical scheme reduces inter-node traffic to 1/P_intra, and the extra intra-node traffic is nearly free because of the 17.5× bandwidth gap.</li>
+</ul>
+
+<p>Cross-node transfers must use RDMA; TCP is suitable only for the control plane. Measured two-node comparison:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>RDMA (RoCE, GPUDirect)</th>
+      <th>TCP (container network eth0, 200 Gb/s)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bandwidth</td>
+      <td>392 Gb/s per NIC; 4 NICs bound by NUMA give 196 GB/s/node (74% without binding)</td>
+      <td>iperf3 with 32 streams 16.4 GB/s/node; 16 streams consume more than 3 CPU cores</td>
+    </tr>
+    <tr>
+      <td>Small-message one-way latency</td>
+      <td>9 μs</td>
+      <td>56 μs</td>
+    </tr>
+    <tr>
+      <td>NCCL cross-node (2×8 GPUs)</td>
+      <td>AllReduce 128 MB 2.07 ms; 8-pair P2P 15.1 GB/s/GPU</td>
+      <td>12–28× slower (requires <code class="language-plaintext highlighter-rouge">NCCL_NET_PLUGIN=none NCCL_NET=Socket</code> to actually go over TCP; <code class="language-plaintext highlighter-rouge">NCCL_IB_DISABLE</code> is ignored by external plugins)</td>
+    </tr>
+    <tr>
+      <td>Affinity</td>
+      <td>Cross-NUMA GPU→NIC pairing halves bandwidth (49→24 GB/s); disabling GDR drops P2P from 15.1→7.3 GB/s</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>AllToAll likewise has several algorithms:</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/all2all_four_algorithms_all_cards_distribution.svg" alt="Per-GPU data distribution for four AllToAll algorithms" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p><strong>① Direct send</strong>: each GPU sends its 3 blocks to their respective destinations at the same time, done in one step. Optimal in both steps and bytes; the weakness is that P−1 messages hit one NIC at once, which easily causes incast across nodes (congestion, many-to-one).</p>
+
+<p><strong>② Pairwise exchange</strong>: in round t, a GPU exchanges one block only with GPU i⊕t, for P−1 rounds in total. The bytes are still at the lower bound, and only 1 message is in flight at any moment, so there is no incast; the cost is slow serial execution, with α accumulated P−1 times.</p>
+
+<p><strong>③ Bruck</strong>: blocks take detours by binary distance, hitching rides with other blocks along the way and being relayed by neighboring GPUs, so all transfers finish in log₂P steps — the fewest steps; but the extra relayed blocks are bytes <strong>on the network</strong>, and a local reordering is needed at the end, so it pays off only for very small messages × very large P.</p>
+
+<p><strong>④ Two-level hierarchical</strong>: first, within the node, blocks are grouped by rail (over NVLink); then same-rail GPUs send one large packet across nodes, and after the large packet lands, NVLink splits it and forwards the pieces to each destination GPU. The number of cross-node messages drops from P_intra² to P_intra (8-GPU node: 64 → 8), and the bytes on the network do not change at all; the cost is extra <strong>intra-node</strong> bytes, an overhead that does not amortize as messages grow, so for large messages (≥16 MB) it is actually worse than direct send.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>S</th>
+      <th>Direct intra-node</th>
+      <th>pairwise intra-node</th>
+      <th>Bruck intra-node</th>
+      <th>Direct cross-node</th>
+      <th>pairwise cross-node</th>
+      <th><strong>Hierarchical cross-node</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>64 KB</td>
+      <td><strong>2.2</strong></td>
+      <td>16.2</td>
+      <td>6.3</td>
+      <td>62</td>
+      <td>68</td>
+      <td><strong>17</strong></td>
+    </tr>
+    <tr>
+      <td>1 MB</td>
+      <td><strong>4.5</strong></td>
+      <td>18.5</td>
+      <td>10.3</td>
+      <td>86</td>
+      <td>92</td>
+      <td><strong>44</strong></td>
+    </tr>
+    <tr>
+      <td>16 MB</td>
+      <td><strong>42</strong></td>
+      <td>56</td>
+      <td>75</td>
+      <td>477</td>
+      <td>484</td>
+      <td>484</td>
+    </tr>
+    <tr>
+      <td>128 MB</td>
+      <td><strong>322</strong></td>
+      <td>336</td>
+      <td>555</td>
+      <td><strong>3397</strong></td>
+      <td>3403</td>
+      <td>3764</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Measured NCCL AllToAll (μs): intra-node with 8 GPUs, 64 KB 9.5, 1 MB 14.8, 16 MB 72, 64 MB 216 (busBW 272 GB/s); cross-node with 2×8 GPUs, 1 MB 173, 16 MB 733, 128 MB 4409. This is 1.3–4× slower than the model values; recomputing with α≈10 μs (intra-node) and BW≈280 GB/s gets closer.</p>
+
+<h2 id="series-navigation">Series navigation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Chapter</th>
+      <th>Article</th>
+      <th>Scheduled date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-00-roofline/">Roofline: Performance Budgets from Compute and Bandwidth</a></td>
+      <td>2026-01-01</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><strong>Communication: From Collective Primitives to Cross-Node Topology (this post)</strong></td>
+      <td>2026-02-13</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a></td>
+      <td>2026-03-29</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a></td>
+      <td>2026-05-11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a></td>
+      <td>2026-06-24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a></td>
+      <td>2026-08-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-06-pd-epd/">PD and EPD: Disaggregation, State Transfer, and Resource Allocation</a></td>
+      <td>2026-09-19</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></td>
+      <td>2026-11-01</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Previous: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-00-roofline/">Roofline: Performance Budgets from Compute and Bandwidth</a> · Next: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a></p>

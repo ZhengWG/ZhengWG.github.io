@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-02",
+  "language": "zh-Hans",
+  "sections": [
+    {
+      "id": "overview",
+      "title": {
+        "zh": "今日速览",
+        "en": "Overview"
+      },
+      "blocks": [
+        "周日 225 条、合入的少，但三条线很清楚。kernel 侧：FlashInfer 给 RTX 50 / DGX Spark 补上 DSA indexer 一体化后端，tokenspeed 把 Kimi-K3 的 decode MoE 层整段做成 mailbox kernel 链；投机解码三家开始在「采样温度下的接受长度」上互相对齐，而不是各报各的倍数。控制面上 Dynamo / vLLM / Mooncake / TRT-LLM / 3FS 五个仓同日把「掉线 / 失败」从静默降级改成显式迁移或报错。消费级这边 tandem.cpp 把 Strata 式专家卸载以精确模式回流 llama.cpp，会话级 KV splice 和 rank-64 key sketch 两个用户态补丁分别解决 agent 首 token 和多 agent 长上下文，「速度 vs 精度」之争第一次有了同一张对照表。"
+      ]
+    },
+    {
+      "id": "highlights",
+      "title": {
+        "zh": "今日要点",
+        "en": "Highlights"
+      },
+      "blocks": [
+        "FlashInfer 合入 SM120 DSA indexer 一体化后端（RTX 50 / DGX Spark 上 DeepSeek V3.2–V4.1 / GLM-5.x 的稀疏索引在同一 CTA 打分 + 选出、不落 logits 矩阵）和 Gemma 4 H512 NVFP4-KV decode（比 FP8 KV 快 1.26x） — [#7085](https://github.com/flashinfer-ai/flashinfer/pull/7085) / [#5720](https://github.com/flashinfer-ai/flashinfer/pull/5720)",
+        "tokenspeed 把 Kimi-K3 TP8 decode 的整个 MoE 层做成一条 Lamport mailbox kernel 链（+7.8k 行），同日两条 PR 让 DSpark / DFlash2 在采样温度下与 vLLM / SGLang 同接受长度可比 — [#2915](https://github.com/lightseekorg/tokenspeed/pull/2915) / [#2914](https://github.com/lightseekorg/tokenspeed/pull/2914) / [#2892](https://github.com/lightseekorg/tokenspeed/pull/2892)",
+        "vLLM ROCm 三连：Qwen3.8-Flash-Next `--monokernel` 低并发 TPOT −23–37%，DSv4.1 Engram gate 分片 TTFT −5.1%，Qwen3-Next 系预量化 FP8 注意力 128K 吞吐 +60% — [#63032](https://github.com/vllm-project/vllm/pull/63032) / [#63367](https://github.com/vllm-project/vllm/pull/63367) / [#53823](https://github.com/vllm-project/vllm/pull/53823)",
+        "Dynamo 三条 PR 让 worker 在引擎死亡时自撤、恢复、迁移请求（SIGTERM 原来被报成正常结束）；vLLM KV 卸载六连修跨 TP 复用和重置阻塞 — [#17727](https://github.com/ai-dynamo/dynamo/pull/17727) / [#17710](https://github.com/ai-dynamo/dynamo/pull/17710) / [#55191](https://github.com/vllm-project/vllm/pull/55191)",
+        "消费级三帖：tandem.cpp 把精确的 Strata 式卸载做成 llama.cpp 补丁（4090 + 64GB 97 tok/s、3.3x），Strata 补丁用会话级 KV splice 让 agent 首 token 100 s → 5 s，rank-64 key sketch 让两张 3090 跑 8×250K — [tandem.cpp](https://github.com/ewhacc/tandem.cpp) / [splice](https://www.reddit.com/r/LocalLLaMA/comments/1xljdnj/sorry_sam_my_quite_terrible_home_dram_is_at_100/) / [sketch](https://www.reddit.com/r/LocalLLaMA/comments/1xlk43x/8_agents_250k_context_concurrently_on_two_3090s/)"
+      ]
+    },
+    {
+      "id": "prs",
+      "title": {
+        "zh": "GitHub PR 动态",
+        "en": "GitHub pull requests"
+      },
+      "blocks": [
+        "今天 225 条（周日；tokenspeed 64 条独占近三成，FlashInfer 37 条里 25 条是 yyihuang 的 cake_* 流水）。展开 6 个仓，其余折叠。",
+        "**lightseekorg/tokenspeed（64 条）**",
+        "[perf(kimi-k3): run the TP8 decode MoE as one mailbox chain](https://github.com/lightseekorg/tokenspeed/pull/2915) — Blackwell TP8（无 attention DP / EP / PP）下 Kimi-K3 的 1–64 行 decode，每个 MoE 层整段跑成一条 CuTe DSL kernel 链：路由 GEMM → top-16 选择 → 持久化 MXFP4 专家 → all-reduce+RMSNorm+上投影 → 残差环，kernel 之间通过 multicast 对称内存里的 Lamport mailbox 递行，把 TRT-LLM MoE 路径的路由 / 专家 / finalize / 集合通信多次 launch 全部吃掉（+7.8k 行，kernel 以 Apache-2.0 vendored）。@nperrin-fr 【Open】",
+        "[feat(moe): support Qwen3.5 NVFP4 MegaMoE](https://github.com/lightseekorg/tokenspeed/pull/2825) + [perf(moe): optimize small-token MegaMoE on SM100 and SM103](https://github.com/lightseekorg/tokenspeed/pull/2764) — Qwen3.5 MoE 接上 NVFP4 MegaMoE（gated SiLU 与 SiTU 并存、跳过冗余 all-reduce）；K3 EP16 小批次把 combine 完成与接收计数清零合成一次 NVLink tail barrier、容量 1–64 用实测默认 tactic。@minedec @Njuapp 【Merged】",
+        "缓存层：[refresh Host copies on Device prefix hits](https://github.com/lightseekorg/tokenspeed/pull/2876)（`write_through` 下 GPU 命中从不刷新 Host L2 时间戳，热对话最早的页先被踢）· [unify host and device eviction planning](https://github.com/lightseekorg/tokenspeed/pull/2922) · [opt-in State checkpoints at chunk ends](https://github.com/lightseekorg/tokenspeed/pull/2929)（混合模型只能从 checkpoint 续前缀）· [radix-sort candidates](https://github.com/lightseekorg/tokenspeed/pull/2919) · [prefix-cache hit counters](https://github.com/lightseekorg/tokenspeed/pull/2878)；[do not wait on a capacity victim the round just scheduled](https://github.com/lightseekorg/tokenspeed/pull/2833)（已合）修了 KV 池打满时 decode 批次塌成几个请求、20+ 请求干等几分钟的死锁。@dongjiyingdjy @syuoni @fanyang-real @LYMDLUT 【Open｜1 Merged】",
+        "[feat(spec): DSpark probabilistic drafting with block verification](https://github.com/lightseekorg/tokenspeed/pull/2914) + [feat(spec): verify sampled DFlash2 drafts by rejection sampling on triton](https://github.com/lightseekorg/tokenspeed/pull/2892) + [feat(muse): serve Muse Spark with a DFlash2 draft](https://github.com/lightseekorg/tokenspeed/pull/2891) — 两条投机线都在补「带温度采样下的接受率」：DSpark 原来贪心起草 + 精确匹配，K4 接受长度 3.22，照 vLLM 的概率起草 + block verifier（Sun et al. 2024）补到 3.36；AMD 上 DFlash2 原来只认 argmax，Muse Spark 推荐采样下每步 2.75 token，SGLang 同一 draft 用拒绝采样是 3.31。@Xiangyi1996 @efric 【Open】",
+        "gfx950 Muse Spark 线 @efric 一天 10 条：[fuse the Muse expert TP8 decode route all-reduce and norm](https://github.com/lightseekorg/tokenspeed/pull/2903)（两跳 Lamport 完成 all-reduce + 逆 RMS + 加权和）· [cut copies and RCCL fallbacks](https://github.com/lightseekorg/tokenspeed/pull/2900) · [make gfx950 mha attention over fp8 caches accurate and faster](https://github.com/lightseekorg/tokenspeed/pull/2897)（FP8 概率 ≤2^-10 被舍零仍计入分母，极端输出误差 50% → <0.2%）· [recipe: Muse Spark on MI355X with DFlash2](https://github.com/lightseekorg/tokenspeed/pull/2907)。【Open】",
+        "Qwen3.8-Flash-Next 三连 @fanyang-real：[capture Qwen4-Exp GDN layers inside prefill graphs](https://github.com/lightseekorg/tokenspeed/pull/2926)（8192-token prefill 的主机 CPU 时间 152 → 27 ms，GB300 c56 +3.5%）· [share K across ragged prefill rows in block scoring](https://github.com/lightseekorg/tokenspeed/pull/2927)（QSA 块打分不规则长批次 5.1–6.6x，2793 行 85k 上下文 1.43 → 0.23 ms）· [end FP8 QSA prefix loops at the last valid tile](https://github.com/lightseekorg/tokenspeed/pull/2925)；加 [Qwen FP8 attention projections](https://github.com/lightseekorg/tokenspeed/pull/2916)。【Open】",
+        "DSv4.1 四条：[rotate the decode query tail in place](https://github.com/lightseekorg/tokenspeed/pull/2918)（256 token 的 RoPE 9.9 → 2.35 µs）· [enable prefill graphs with attention DP](https://github.com/lightseekorg/tokenspeed/pull/2884)（多模态 + decoder narrowing）· [accelerate visual MoE routing](https://github.com/lightseekorg/tokenspeed/pull/2887)（177 → 17.6 µs）· [reuse idle MLA history chunk capacity](https://github.com/lightseekorg/tokenspeed/pull/2913)。@nperrin-fr @chenht2022 @byshiue 【Open】",
+        "已合四条：[Beam's fused kernels and BF16x3 router on SM90](https://github.com/lightseekorg/tokenspeed/pull/2470) + [SM90 tiles by routes per expert](https://github.com/lightseekorg/tokenspeed/pull/2516)（原 tile 在 B300 调的，H200 只读到带宽上限的 47–65%）· [tree attention cascade in the mha backend](https://github.com/lightseekorg/tokenspeed/pull/2755)（AMD 能验 EAGLE-4 树）· [cumulative probability diagnostics](https://github.com/lightseekorg/tokenspeed/pull/2802)。@ischencheng @zhentaocc @sjqgogogogo 【Merged】",
+        "**flashinfer-ai/flashinfer（37 条）**",
+        "[feat(dsa_indexer): experimental SM120 backend for FP8 / MXFP4 prefill and decode](https://github.com/flashinfer-ai/flashinfer/pull/7085) — DeepSeek 稀疏注意力的 lightning indexer 在 RTX 50 / DGX Spark 上原来是两步（DeepGEMM 写 `[rows, context]` fp32 logits 矩阵，再单独 top-k）；新后端在同一 CTA 里把 ≤48K key 的行打分进 L2 驻留行并就地选出，不落 score 矩阵，更长的行走采样阈值扫描 + 精确复扫，分数与 DeepGEMM 位级一致。覆盖 V3.2 / V4 / V4.1 / GLM-5.x（+6.4k 行）。@lucifer1004 【Merged】",
+        "[feat(prim_ts): Add H512 FP8-Q/NVFP4-KV decode support](https://github.com/flashinfer-ai/flashinfer/pull/5720) — Gemma 4 的 512 维 head 拿到 FP8 Q + 物理 NVFP4 KV 的 decode kernel，B200 上 8×32K 比 trtllm-gen FP8 KV 快 1.26x、比 BF16 KV 快 2.4x。@xuanzic 【Merged】",
+        "MoE 路由元数据三条：[run the FP4 routed MoE expert body from caller-populated routing metadata](https://github.com/flashinfer-ai/flashinfer/pull/8050)（已合；路由元数据只依赖 `topk_ids`，可提前在另一条 stream 算好）· [precompile the kernels of untuned routed FP4 MoE calls](https://github.com/flashinfer-ai/flashinfer/pull/8015)（服务中首次编译卡顿）· [resample concentrated live routes when autotuning](https://github.com/flashinfer-ai/flashinfer/pull/8035)（SGLang 全零 warm-up 让每行路由到同几个专家，tactic 给错误负载调的）。@wookjeHan @jdebache @rohithrr9 【Merged｜Open】",
+        "[feat(megamoe): dynamic expert load balancing for the SM90 MXFP4 fused MegaMoE](https://github.com/flashinfer-ai/flashinfer/pull/7698) — 每 rank 留几个冗余专家槽，热专家运行时复制过去分走一部分 token 块；规划器在 kernel 内跑（各 rank 对同一份计数跑同一个确定性贪心，无集合通信、无主机往返，EP8 每层 23 µs），权重拷贝也在 kernel 内。对标 TRT-LLM #19646 的逐层 DynamicEPLB 和 MegaFlux。@liz-badada 【Open】",
+        "[perf(prims-ts): unroll runtime-split MLA reduction in dispatched windows](https://github.com/flashinfer-ai/flashinfer/pull/8103) — #6925 的运行时 split-KV 让 reducer 只对恰好 32 个 split 保留全展开，GLM 风格 bs1 decode 的 36 split 从 2.66 退化到 4.57 µs；改成 8/16/32/48/64/96/128 固定窗口按活跃数选，编译签名不变、JIT cache 不膨胀。@PerkzZheng 【Merged】",
+        "[feat(attn_scores): experimental FP8/UE8M0 paged MQA logits kernels](https://github.com/flashinfer-ai/flashinfer/pull/8017) — 直接读 vLLM 在 SM100 系列上写的 FP8 + UE8M0 indexer 分页缓存出 logits（+12k 行，CAKE 生成）；[Fix/fa2 online softmax fma contraction](https://github.com/flashinfer-ai/flashinfer/pull/7191) 修编译器把 rescale 乘减融合成 FMA 后分母被推到 0 的 NaN。@jdebache @Gregory-Pereira 【Open】",
+        "cake_* 今日 25 条：[Kimi-K3 AttnRes token-queue persistent programs（cluster launch control）](https://github.com/flashinfer-ai/flashinfer/pull/8291) · [MSA ICP indexer 候选合并换 bitonic 网络](https://github.com/flashinfer-ai/flashinfer/pull/8286) · [KDA indexed state pool（64 位 stride）](https://github.com/flashinfer-ai/flashinfer/pull/8287) · [GDN 确定性 KCP 训练包（已合，+18k 行）](https://github.com/flashinfer-ai/flashinfer/pull/8252)。训练侧 \"with grad\" 继续占一半。【Merged｜Open】",
+        "**sgl-project/sglang（28 条）**",
+        "[[Perf] [NVIDIA] moe: One-warp-per-token CUDA MoE router for sigmoid, sqrtsoftplus and softmax routing](https://github.com/sgl-project/sglang/pull/47641) — JIT CUDA 路由器：一 warp 一 token，每 lane 持 E/32 个专家做成保序 u32 key 排一次（编译期 Batcher 网络），每轮 top-k 只归约 32 个 lane 头；128–512 专家的 sigmoid / sqrtsoftplus / softmax 全接管，Kimi-K3 的 896 专家仍走 Triton。PR 自述由 MyGO（Make your GPU-kernel Optimal）agent 自动生成。@DarkSharpness 【Open】",
+        "[[Fix] scheduler/MiniMax-M3.1-Flash: Bound a chunked prefill continuation by the allocatable KV](https://github.com/sgl-project/sglang/pull/47593) — GB300 上跑 SemiAnalysis AgentX 回放，48 / 56 并发时调度器在 9 分和 20 分钟处死于 `Prefill out of memory`：DP0 在分块 prefill 一个 134 万 token 的请求，同 rank 12 个 decode 在长，token 占用到 1.00 且无可逐出，下一块要 16384 对着 13824 可用。续块预算原来按 `remaining_total` 算，没扣本轮已发出的页。@thanhhao98 【Open】",
+        "[[Perf] [AMD] dsv4: Token-parallel prefill on ROCm (opt-in)](https://github.com/sgl-project/sglang/pull/47888) + [[Fix] [AMD] w8a8_fp8: Load and run per-channel FP8 DeepSeek-V4 checkpoints on ROCm](https://github.com/sgl-project/sglang/pull/47886) — 纯 TP 下每个 rank 对全部 T 个 prefill token 重复做 mHC 混合、norm、输入投影、C4 indexer 打分（O(T×L)）和路由，8×MI308X 跑 V4-Pro 63K prompt 时这部分占 rank prefill 时间 31%；`SGLANG_DSV4_TOKEN_PARALLEL_PREFILL=1` 让各 rank 只留 1/tp 的 token。@bobofang11235 【Open】",
+        "[[Perf] DeepSeek-V4: Fuse inverse RoPE into wo_a FP8 quantization](https://github.com/sgl-project/sglang/pull/43786) — CUDA UE8M0 路径的逆 RoPE 原来单独 launch、写 BF16 再读回量化；折进 `wo_a` 量化 kernel 留在寄存器里，把 ROCm/aiter 已有的 `SGLANG_OPT_FP8_WO_A_FUSED_INVROPE` 扩到 CUDA。@Phoenix3334 【Open】",
+        "[[Feat] RL: Publish runner weights over MoRI-IO for peer weight writes](https://github.com/sgl-project/sglang/pull/47890) — miles 在 AMD 上用 MoRI-IO RDMA 让 trainer 直接把新权重写进 rollout 引擎显存，引擎侧要发布 MoRI engine 和已注册的权重内存；与 Mooncake / NIXL seed 并列第三种传输。@lixiufei-leo 【Open】",
+        "[[Perf] sgl-router: Encode tiktoken models with fastokens under --tokenizer-backend fast](https://github.com/sgl-project/sglang/pull/46251) — Kimi-K3 的 `tiktoken.model` 之前静默留在 tiktoken-rs（每核 8–9 MB/s），128k 字符 prompt 在 TTFT 路径上吃 15 ms 路由器 CPU；换 fastokens，全 BMP 码点 57 万输入扫描只有 U+017F 一处分歧。@ShangmingCai 【Merged】",
+        "非 NVIDIA 三家同日补 HiCache / DCP：[[NPU] kimi-k3: Support DCP with shared compact communication](https://github.com/sgl-project/sglang/pull/40825)（Ascend，含 DSpark）· [[NPU] HiCache: DeepSeek V4 L3 with MemCache](https://github.com/sgl-project/sglang/pull/39784) · [[Intel] HiCache Mamba host pool on XPU](https://github.com/sgl-project/sglang/pull/46610)（Arc Pro B60）。@qybnb @cocoa-liu @kpjeeja 【Open】",
+        "[qwen4_exp: Support the MXFP8 PLE table](https://github.com/sgl-project/sglang/pull/47882)（intel-ai AutoRound 版 Flash-Next 把 PLE n-gram 表量成 MXFP8）· [scheduler: Hold a launched prefill in one list](https://github.com/sgl-project/sglang/pull/43903) · [diffusion: Fuse MiniMax-H3 encoder SiLU and padding](https://github.com/sgl-project/sglang/pull/47852)（视觉编码 10.9 → 8.0 s）。@Xia-Weiwen @hnyls2002 @kevin-mii 【Open】",
+        "**vllm-project/vllm（21 条）**",
+        "KV Offload 六连（全 Open）：[Prevent incompatible cross-TP cache reuse](https://github.com/vllm-project/vllm/pull/55191)（direct 布局的 KV 页在不同 TP 下各层字节偏移不同，跨拓扑命中会恢复出错的 KV → 按拓扑分命名空间）· [Bound staged loads by primary tier capacity](https://github.com/vllm-project/vllm/pull/62932)（二级命中比 CPU 层还大时原来一个都不加载、整段重算，改成加载放得下的前缀）· [Drain unfetched P2P stores before cache reset](https://github.com/vllm-project/vllm/pull/63988) + [Abort inbound loads when draining for a cache reset](https://github.com/vllm-project/vllm/pull/65124)（decoder 等一个永不写的 prefiller，`reset_prefix_cache` 阻塞引擎线程约 35 s）· [Count each key once per request toward store_threshold](https://github.com/vllm-project/vllm/pull/64558) · [calculate gpu pointers and introduce fs ABC](https://github.com/vllm-project/vllm/pull/56076)（为 GDS/cuFile 后端铺路）。@bvolpato @javieratomic @maithilijoshi20 @liranschour @sohom-cs @effi-ofer 【Open】",
+        "[[ROCm][Perf] Qwen3.8-Flash-Next specialized decode on MI355X (--monokernel)](https://github.com/vllm-project/vllm/pull/63032) + [[ROCm][Perf][Kimi-K3] Specialized decode on MI355X: K1/K2 + MLA M1a/M1b](https://github.com/vllm-project/vllm/pull/61435) — 按 RFC #60904 的 specialized-decode 布局，1–16 行 decode 每层四次持久化 FlyDSL launch，其余交回 vLLM：TP2 下 1–8 并发 TPOT 低 23–37%、12–16 并发低 9–12%，GSM8K / GPQA / NIAH 持平。@mjkvaak-amd @seungrokj 【Open】",
+        "[[ROCm][DSv4.1] Shard the Engram gate so TP ranks gather only the value slice](https://github.com/vllm-project/vllm/pull/63367) — Engram 层原来 all-gather 整个 `wkv` 输出（TP4 每 rank [T, 6400]），gate 只需要逐 token 的和；改成交换 value 切片 + 8 个 FP32 部分和，字节数 1/5，16384 token 每层 4.69 → 1.13 ms，MI355X TP4 平均 TTFT −5.1%。@cpersson-amd 【Open · ready】",
+        "gfx950 DSv4 两条：[Fuse DeepSeek V4 MXFP4 indexer K production and cache insertion](https://github.com/vllm-project/vllm/pull/56834)（五个步骤合成一次 launch，打分走 AITER FlyDSL，opt-in）· [Fuse DeepSeek V4.1 decode metadata and final norm](https://github.com/vllm-project/vllm/pull/57756)。@LiuYinfeng01 【Open】",
+        "[[ROCm][Perf] Prequantized FP8 attention for Qwen3NextAttention with an FP8 KV cache](https://github.com/vllm-project/vllm/pull/53823) — 一个 AITER kernel 做 Q/K norm + RoPE + gate 提取 + FP8 量化，prefill 直接吃 FP8 Q/K/V；128K/1K、并发 4 时输出吞吐 Qwen3.5-35B-A3B +62%、Qwen3.6-35B-A3B +60%、Qwen3.5-397B +39%，无开关自动走。@nholmber 【Open】",
+        "[[BI][DSv4.1] Add opt-in Mega kernels under batch invariance](https://github.com/vllm-project/vllm/pull/65069)（批不变模式下也能用 Mega mHC / mega attention / 确定性 Mega Gate，+11k 行）· [Muse Spark DSpark: initialize _context_kv_proj so the draft loads](https://github.com/vllm-project/vllm/pull/65125)（#64357 回归让 Muse Spark + DSpark 在 main 上起不来）。@0z5a @fanxingran 【Open】",
+        "**kvcache-ai/Mooncake（18 条）**",
+        "[[Store][TENT] Back Mooncake Store with strict MNNVL EGM host memory](https://github.com/kvcache-ai/Mooncake/pull/5161) — Store 直接用 NVLink fabric 上的主机 DRAM（EGM）做介质，不再依赖 fork-egm 分支：自动选离 GPU 最近的 NUMA、`egm_strict` 模式下分配或 Fabric 导出失败直接报错而不是静默退回对端寻址不到的普通内存，拷贝按请求级 CUDA event 排序（+5.7k 行）。@voidxb 【Open】",
+        "TENT 可观测性三连 @zxpdemonio：[transport selection and admission](https://github.com/kvcache-ai/Mooncake/pull/5158)（策略未命中 / 回退选择 / 准入拒绝 / deadline 丢弃 / 队列等待）· [TCP and HP-TCP](https://github.com/kvcache-ai/Mooncake/pull/5159) · [SHM and segment metadata](https://github.com/kvcache-ai/Mooncake/pull/5162)，都是 RFC #4940 的切片。【Open】",
+        "Store 容量三条：[Enable KVCS watermark eviction with OpLog](https://github.com/kvcache-ai/Mooncake/pull/5157) · [Bound offload queues by bytes](https://github.com/kvcache-ai/Mooncake/pull/5076)（小对象把计数上限占满、SSD 写回带宽却闲着，加 100 GB 默认的字节上限）· [Register the offload buffer as <=1GiB iovecs](https://github.com/kvcache-ai/Mooncake/pull/4862)（Linux 5.4 的 io_uring 单 iovec 封顶 1 GiB，注册失败后全进程静默退回拷贝 I/O）。【Open】",
+        "[[EP] Allow opt-in P2P probing across logical nodes](https://github.com/kvcache-ai/Mooncake/pull/5063)（已合；一台 NVLink 主机多个逻辑 rank 组时 EP 误判不可达）· [Fix MemFabric SDMA for Ascend](https://github.com/kvcache-ai/Mooncake/pull/4834)（已合）· [Pin Store segments on Intel XPU](https://github.com/kvcache-ai/Mooncake/pull/5160)（Level Zero 可分页拷贝只有 PCIe 三分之一速度）。@UNIDY2002 @jamesjxliu @slokesha 【Merged｜Open】",
+        "**ai-dynamo/dynamo（15 条）**",
+        "引擎掉线三连 @JulienDarve @alec-flowers：[withdraw and recover workers on engine loss](https://github.com/ai-dynamo/dynamo/pull/17727)（`availability()` 返回 Ready / NotReady / Lost 的 watch，NotReady 撤端点留模型卡，Lost 连卡一起撤再 `recover()`）· [withdraw and reconnect vLLM workers on engine loss](https://github.com/ai-dynamo/dynamo/pull/17728)（今天 sidecar 只在启动时查一次健康，vLLM 崩了 worker 仍注册着、新请求全失败）· [migrate requests after engine death or drain](https://github.com/ai-dynamo/dynamo/pull/17710)（SIGTERM 原来静默截断流还报 `finish_reason: \"stop\"` 当成功）。【Open】",
+        "[add format-owned migration hooks for native generate](https://github.com/ai-dynamo/dynamo/pull/17802)（后端无关迁移钩子）· [log the upcoming two-tier default for --router-mode kv](https://github.com/ai-dynamo/dynamo/pull/17792)（Dynamo 1.8 换默认成本函数）。@Aphoh @ishandhanani 【Open】",
+        "**vllm-project/vllm-omni**（15 条）：[#9294 CosyVoice3 Flow hop 前缀缓存 + HiFT 批处理](https://github.com/vllm-project/vllm-omni/pull/9294) · [#9081 packed flow 扩到 FA2 / FlashInfer](https://github.com/vllm-project/vllm-omni/pull/9081) · [#8335 块稀疏注意力适配器 + FlashAttention-4](https://github.com/vllm-project/vllm-omni/pull/8335) · [#9744 MiniMax-H3 DiT 子模块级权重卸载](https://github.com/vllm-project/vllm-omni/pull/9744) · [#9583 MiniCPM-o 容量 32 + 默认 MRv2](https://github.com/vllm-project/vllm-omni/pull/9583)",
+        "**NVIDIA/TensorRT-LLM**（9 条）：[#21319 去掉 DSv4 元数据 recompile 和不确定的 mHC split-K（8×B300 DSpark 吞吐跨度 14.3%，上限 5%）](https://github.com/NVIDIA/TensorRT-LLM/pull/21319) · [#20853 启动失败分六类进遥测](https://github.com/NVIDIA/TensorRT-LLM/pull/20853) · [#21199 encoder 输入超长在准入时拒绝](https://github.com/NVIDIA/TensorRT-LLM/pull/21199) · [#21426 Muse Spark Open NVFP4 性能覆盖](https://github.com/NVIDIA/TensorRT-LLM/pull/21426)",
+        "**sgl-project/sglang-omni**（6 条）：[#2986 MiniCPM-o HiFT 带 padding 的 CUDA graph 桶](https://github.com/sgl-project/sglang-omni/pull/2986) · [#3434 Fun-CosyVoice3 DSpark 下尊重请求 seed（三处随机数走进程全局 RNG）](https://github.com/sgl-project/sglang-omni/pull/3434) · [#2793 请求事件异步写](https://github.com/sgl-project/sglang-omni/pull/2793) · [#3163 compact verify buffer 行归属](https://github.com/sgl-project/sglang-omni/pull/3163)",
+        "**llm-d/llm-d**（5 条）：[#2121 Kimi K3 recipe（wip）](https://github.com/llm-d/llm-d/pull/2121) · [#2879 Coordinator metrics 端点（已合）](https://github.com/llm-d/llm-d/pull/2879)",
+        "**其他**：tilelang [#3750 PPU PDL 门控（已合）](https://github.com/tile-ai/tilelang/pull/3750) · [#3702 sm_12x 共享内存预算（已合）](https://github.com/tile-ai/tilelang/pull/3702)；lmdeploy [#5082 Mooncake 前缀查询提前预取（准入平均 103 ms）](https://github.com/InternLM/lmdeploy/pull/5082)；3FS [#435 共享内存改 posix_fallocate（/dev/shm 不够时 SIGBUS 打死整机 FUSE 挂载，多实例 SGLang HiCache hf3fs 后端触发）](https://github.com/deepseek-ai/3FS/pull/435)；DeepInfer [#257 anyres 元数据按 ImageLayout 复用（省 270 MB）](https://github.com/deepseek-ai/DeepInfer/pull/257)"
+      ]
+    },
+    {
+      "id": "releases",
+      "title": {
+        "zh": "版本发布",
+        "en": "Releases"
+      },
+      "blocks": [
+        "**llama.cpp b12034**（11-02，周日仅此一个滚动构建）：[webgpu：scratch 分配大小对 batch 长度单调（#31422）](https://github.com/ggml-org/llama.cpp/releases/tag/b12034) — flash attention 向量路径和 MMVQ 路径在 dst 之后追加 scratch，但 `get_alloc_size` 只在当前 batch 走该路径时才计入，于是按 n_ubatch（分块路径、无 scratch）或单 token 预留的图覆盖不了 2–19 个 query 行的 batch，`GGML_SCHED_NO_REALLOC` 构建直接 abort。WebGPU 后端的图内存预留 bug，对 WebAI 那条线（浏览器内推理）是基础设施级修复。"
+      ]
+    },
+    {
+      "id": "papers",
+      "title": {
+        "zh": "论文",
+        "en": "Papers"
+      },
+      "blocks": [
+        "HF Daily Papers 今日 21 篇，推理强相关只有一篇，另两篇沾边：",
+        "[On the Origin and Evolution of Training-Inference Mismatch in LLM Reinforcement Learning](https://huggingface.co/papers/2610.40945) — 把 RL 里 rollout 引擎与 trainer 的分布错配拆成两个来源：**引擎数值**（kernel 精度 / 归约顺序）和**异步采样的陈旧权重**，并证明对一种有效的修正在另一种下会失效。提出 DLC（Discrepancy-Lag Correction）：按前缀中心化数值差、对采样器权重裁剪重要性比、有效样本数跌破 50% 就重同步采样器。对引擎方的意义：数值确定性（vLLM 的 batch-invariant 线、今天的 [#65069](https://github.com/vllm-project/vllm/pull/65069)）不只是可复现，而是训练稳定性变量。",
+        "[Does Scaling Toward AGI Depend on What System-1 Lets System-2 Execute?](https://huggingface.co/papers/2610.39497)（46⬆）— predict-gate-execute-update：轻量 System-1 先估每个候选交互的效用，昂贵的 System-2 只对值得的出手；推理视角就是请求级算力闸门。",
+        "[Apriel Voice 27B Preview](https://huggingface.co/papers/2610.40738)（13⬆）— Gemma 4 26B-A4B 后训练的开放语音语言模型，语音直接进共享骨干、输出回复和工具调用，不挂独立对话模型。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
+        "（今日无新文章：73 篇 RSS 条目全部为已报过的旧文）"
+      ]
+    },
+    {
+      "id": "community",
+      "title": {
+        "zh": "社区讨论",
+        "en": "Community"
+      },
+      "blocks": [
+        "HN 今日无推理相关讨论。r/LocalLLaMA（Reddit 今日拒绝返回分数，略去 ⬆/💬）：",
+        "[Sorry Sam, my \"quite terrible\" home DRAM is at 100% now: patched Strata to make DeepSeek V4.1 agent sessions start 20× faster](https://www.reddit.com/r/LocalLLaMA/comments/1xljdnj/sorry_sam_my_quite_terrible_home_dram_is_at_100/) — RX 9070 XT 16GB + 5800X3D + 64GB DDR4 + PCIe 3.0 NVMe 跑 DSv4.1 Flash 1M 上下文（IST-DAS 1.75 bpw），生成 7 tok/s 够用，但每个新 OpenCode 会话重读 37K token 系统提示要 100 s。两处补丁见 🆕；代价是 splice 近似、HIP only。",
+        "[8 agents × 250K context, concurrently, on two 3090s (~600+ tok/s total)](https://www.reddit.com/r/LocalLLaMA/comments/1xlk43x/8_agents_250k_context_concurrently_on_two_3090s/) — 作者先试了 TokenGate 式的前置剪 token，发现 agent 的后续提问要的恰好是被剪掉的符号；改成「全留在内存、每步只看 1%」（见 🆕）。Qwen3.8-27B W4A16 + MTP-7，3090 Ti + 3090 限 250 W：8×250K 总吞吐 545–790 tok/s，250K 召回 31/32，单长对话也比稠密快 15–41%。评论指它本质是给稠密模型外挂 DSA/QSA。",
+        "「专用引擎到底值不值」连续三帖：[Are bespoke inference engines overhyped? My Strata experience on 2× R9700](https://www.reddit.com/r/LocalLLaMA/comments/1xl0oqz/are_bespoke_inference_engines_overhyped_my_strata/)（Strata 专家卸载到内存就在长任务上挂，只能全进显存 → 3-bit；60 t/s 但 HumanEval+ 93.9% 对 27B Q8 的 95.1%、多花一倍 token；后记换 Radiance 引擎 iq4r 约 100 t/s、HumanEval+ 持平、1M 上下文可用）· [Do we really need all these \"speed\" posts?](https://www.reddit.com/r/LocalLLaMA/comments/1xljjf2/do_we_really_need_all_these_speed_posts/)（Q1 REAP 量化 + 贪心 + TAIL_SKIP 不给 KLD 就报纪录）· [Qwen 3.8 Flash Next NVFP4 on 64gb RAM and 5090, Basalt](https://www.reddit.com/r/LocalLLaMA/comments/1xlicia/qwen_38_flash_next_nvfp4_on_64gb_ram_and_5090/)（5090 上 200 tok/s / 9K prefill；评论引 Infernix 新版 README 指 Basalt 把稠密层跑在 6 bit、激活 8 bit、输出头 2-bit 筛选，Basalt 维护者进场回应）。",
+        "硬件两帖：[single RTX 3090ti and 128gb of ram](https://www.reddit.com/r/LocalLLaMA/comments/1xlec67/getting_incredible_results_with_a_single_rtx/)（Threadripper 3990X 四通道：DSv4.1-Flash-1017 XQ 量化 + FP4 KV + Engram 表放 NVMe、开 DSpark 35 tok/s，Flash-Next 138–140 tok/s；关键是 `gpu-unlock` 内核模块解掉消费级 Ampere 的 FP16/BF16 矩阵指令限速。评论：四张 24GB + 512GB 八通道也是 35 tok/s）· [Switching to EPYC: before/after numbers](https://www.reddit.com/r/LocalLLaMA/comments/1xl3cnv/switching_to_epyc_what_i_had_to_fix_and/)（双通道 DDR5 → 八通道 DDR4：Triad 88.6 → 102 GB/s、GLM decode +3–5%；`iommu=pt` prefill +3.5%；无 P2P 时 `-ub 1024` 把跨卡中继减半 +5–9%；CPU 专家线程 16 以上不再涨）。",
+        "[tandem.cpp: Qwen3.8-Flash-Next at 97 tok/s on a single 4090 + 64 GB RAM](https://www.reddit.com/r/LocalLLaMA/comments/1xldent/tandemcpp_qwen38flashnext_at_97_toks_on_a_single/) — 见 🆕；评论追问它比原生 `--moe-cache-mib` 多了什么。"
+      ]
+    },
+    {
+      "id": "discovery",
+      "title": {
+        "zh": "新兴方向",
+        "en": "Emerging directions"
+      },
+      "blocks": [
+        "**tandem.cpp：Strata 式专家卸载做成 llama.cpp 补丁集，而且默认精确** — 不是分叉，是叠在 llama.cpp `f5222f25c` 上的 patch（11-01 建仓，5★，CUDA sm_89 / sm_120）：专家常驻主机内存、模型 + KV 之外的显存全做专家缓存，未命中专家按实测 CPU / PCIe 速度在「CPU 现算」和「上传进缓存」间分配，每个路由专家都算。4090 + 64GB DDR4 跑 Flash-Next IQ3_S + MTP 97.3 tok/s（llama.cpp 29.8、Strata 精确模式 103.6 / 默认 tail-skip 127.1），任意放不进显存的 MoE 普遍 1.4–2.1x——单模型引擎的核心技巧第一次以「任意 MoE + 精确」形态回流 llama.cpp 生态。\n↳ [GitHub](https://github.com/ewhacc/tandem.cpp) · [Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1xldent/tandemcpp_qwen38flashnext_at_97_toks_on_a_single/) ｜ 发现于：Reddit",
+        "**会话级 KV splice：前缀缓存开始「改中间」** — Strata 的 DeepSeek 引擎补丁（HIP gfx1201）把新 prompt 与每份已存对话按行对齐，从缓存状态里剪掉过期行（下移缓存行、旋转窗口环、记一个 RoPE 间隙）只读变化行，再加「prompt 阶段只路由到已在 VRAM/RAM 的专家」（1.2K token 的 prompt 原来要从 SSD 流 58 GB），DSv4.1 Flash 的 agent 会话首 token 100 s → 约 5 s。新在它第一次把「系统提示 diff」做进消费级引擎的缓存层，代价是作者自认的近似（被剪行之后的 token 带着旧上下文算过）。\n↳ [Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1xljdnj/sorry_sam_my_quite_terrible_home_dram_is_at_100/) ｜ 发现于：Reddit",
+        "**给稠密模型外挂 DSA：rank-64 key sketch 让两张 3090 跑 8×250K** — 全量 KV（int4）留系统内存，每层每步用一个 rank-64「key sketch」给全部 token 打分、取前约 2K 行打包喂现成 int8 attention kernel，只有选中的行过 PCIe；Triton kernel + vLLM 按步切换稠密 / 稀疏的补丁 + 内存 KV 层（前缀缓存 + 循环状态 checkpoint）叠在 HyperQwen 上，Qwen3.8-27B W4A16 + MTP-7 跑出 8×250K 总 545–790 tok/s、250K 召回 31/32。新在不重训、不换模型，把 DSv4 / QSA 那套「索引 + 稀疏读」用用户态补丁套到稠密 27B 上。\n↳ [Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1xlk43x/8_agents_250k_context_concurrently_on_two_3090s/) ｜ 发现于：Reddit",
+        "**agent 写的 kernel 开始署名进主线** — SGLang 的 one-warp-per-token MoE 路由器 PR 正文自述「auto generated by MyGO（Make your GPU-kernel Optimal）agent」，要接管 128–512 专家的全部路由形态；同日 Infernix 新版 README 声明 fork 以来几乎全部代码由 AI 写成，FlashInfer 的 CAKE 生成 kernel 一天 25 条。新在核心仓的热路径 kernel 带着「机器生成」标签走正式评审，bit-identical 校验和形状覆盖表正在替代「作者懂 kernel」这个隐含前提。\n↳ [SGLang #47641](https://github.com/sgl-project/sglang/pull/47641) · [Infernix](https://github.com/wallawalla47/infernix) ｜ 发现于：PR 文本 + 新术语",
+        "（GitHub Trending 今日仅 FreeToken 为 infra 且已知（15.7k★）；rising 20 个全为已知老仓；awesome 清单无增量。）"
+      ]
+    },
+    {
+      "id": "insights",
+      "title": {
+        "zh": "跨源洞察",
+        "en": "Cross-source insights"
+      },
+      "blocks": [
+        "**投机解码的「采样温度下接受率」成了三家对齐的基准** — tokenspeed 今天两条 PR 都是为了和别家在同一接受长度上可比：DSpark 概率起草 + block verification 把 K4 从 3.22 补到 vLLM 的 3.36（[#2914](https://github.com/lightseekorg/tokenspeed/pull/2914)），AMD 上 DFlash2 拒绝采样从 2.75 追 SGLang 的 3.31（[#2892](https://github.com/lightseekorg/tokenspeed/pull/2892)）；sglang-omni 修 DSpark 下 seed 失效（[#3434](https://github.com/sgl-project/sglang-omni/pull/3434)），TRT-LLM 查出 8×B300 DSpark 吞吐跨度 14.3% 来自不确定的 mHC split-K（[#21319](https://github.com/NVIDIA/TensorRT-LLM/pull/21319)）。接受率、确定性、seed 一起进了投机解码的契约，不再只报「×倍」。",
+        "**「掉线」从报错变成迁移，五个仓同一天** — Dynamo 让 worker 在引擎 Lost 时自撤注册、恢复后重登，SIGTERM 不再被当成 `finish_reason: stop`（[#17727](https://github.com/ai-dynamo/dynamo/pull/17727) / [#17710](https://github.com/ai-dynamo/dynamo/pull/17710)）；vLLM 的 KV 卸载不再为一个永不写的对端阻塞 35 s（[#65124](https://github.com/vllm-project/vllm/pull/65124)）；Mooncake 的 `egm_strict` 让 EGM 分配失败直接报错而不是静默退回对端寻址不到的内存（[#5161](https://github.com/kvcache-ai/Mooncake/pull/5161)）；TRT-LLM 把启动失败分六类进遥测（[#20853](https://github.com/NVIDIA/TensorRT-LLM/pull/20853)）；3FS 把 SIGBUS 打死整机 FUSE 挂载变成一个 ENOSPC（[#435](https://github.com/deepseek-ai/3FS/pull/435)）。共同点：失败要显式、可归因、可迁移，不要静默降级。",
+        "**消费级 MoE 的「精确 vs 近似」终于有了同一张表** — 昨天 Basalt 用 KLD 量化 routing bias / tail skip 的代价；今天 tandem.cpp 的基准把 Strata 精确模式（103.6）和默认 tail-skip（127.1）分开列，Infernix README 以「每个路由专家都算、激活保 16 bit」为前提横比 Basalt（6-bit 稠密层 / 8-bit 激活 / 2-bit 输出头筛选），r/LocalLLaMA 同日出现「专用引擎是否过誉」（HumanEval+ 93.9 vs 95.1、多花一倍 token）和「还需要速度帖吗」。数据中心侧在做同一件事：FlashInfer 发现 SGLang 全零 warm-up 让 autotune 给错误负载调参（[#8035](https://github.com/flashinfer-ai/flashinfer/pull/8035)），tokenspeed 给采样加累计概率校准（[#2802](https://github.com/lightseekorg/tokenspeed/pull/2802)）。「快」要带着「对不对」一起报，两头都在收口。"
+      ]
+    }
+  ]
+}

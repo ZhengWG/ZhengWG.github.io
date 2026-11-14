@@ -1,0 +1,350 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Basic Usage (unittest)</a></li>
+  <li><a href="#sec-3">mock</a></li>
+  <li><a href="#sec-4">patch</a></li>
+  <li><a href="#sec-5">High-Quality Unit Tests</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>Unit tests are very important for disciplined program development, and especially for test-driven development (TDD). The core of a unit test is to write tests that verify that a module works correctly; typically you specify an input and check whether the output matches expectations. The commonly used testing libraries in Python include unittest, nose, and pytest. This article focuses on <a href="https://docs.python.org/3/library/unittest.html">unittest</a>, which is built into Python and modeled on PyUnit.</p>
+
+<h1 id="basic-usage-unittest">Basic Usage (unittest)<a id="sec-2"></a></h1>
+
+<p>Here is a simple example of using the <code class="language-plaintext highlighter-rouge">unittest</code> library:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">unittest</span>
+
+<span class="c1"># 将要被测试的排序函数
+</span><span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+
+
+<span class="c1"># 编写子类继承unittest.TestCase
+</span><span class="k">class</span> <span class="nc">TestSort</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
+
+   <span class="c1"># 以test开头的函数将会被测试
+</span>   <span class="k">def</span> <span class="nf">test_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+        <span class="n">sort</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+        <span class="c1"># assert 结果跟我们期待的一样
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="c1">## 如果在Jupyter下，请用如下方式运行单元测试
+</span>    <span class="n">unittest</span><span class="p">.</span><span class="n">main</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="s">'first-arg-is-ignored'</span><span class="p">],</span> <span class="nb">exit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="c1">## 如果是命令行下运行，则：
+</span>    <span class="c1">## unittest.main()
+</span>
+<span class="c1">## 输出
+</span><span class="p">..</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">2</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.002</span><span class="n">s</span>
+
+<span class="n">OK</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Let’s analyze the code above. The <code class="language-plaintext highlighter-rouge">TestSort</code> class inherits from <code class="language-plaintext highlighter-rouge">unittest.TestCase</code>, and functions whose names start with <code class="language-plaintext highlighter-rouge">test</code> are run as test functions. Inside a test function, the usual assertion functions are <code class="language-plaintext highlighter-rouge">assertEqual()/assertTrue()/assertFalse()/assertRaise()</code>.</p>
+
+<h1 id="mock">mock<a id="sec-3"></a></h1>
+
+<p><code class="language-plaintext highlighter-rouge">mock</code> is the most central part of unit testing. The core idea of <code class="language-plaintext highlighter-rouge">mock</code> is to use a fake object in place of an object that the function or module under test needs. It applies when the test of one module depends on other modules: with <code class="language-plaintext highlighter-rouge">mock</code> you can create fake objects so that the module under test can be tested. In <code class="language-plaintext highlighter-rouge">Python mock</code>, this is mainly done with the <code class="language-plaintext highlighter-rouge">mock/MagicMock</code> objects:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">MagicMock</span>
+
+<span class="k">class</span> <span class="nc">A</span><span class="p">(</span><span class="n">unittest</span><span class="p">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">m1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">m2</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">m3</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">m2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">m3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">test_m1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
+        <span class="n">a</span><span class="p">.</span><span class="n">m2</span> <span class="o">=</span> <span class="n">MagicMock</span><span class="p">(</span><span class="n">return_value</span><span class="o">=</span><span class="s">"custom_val"</span><span class="p">)</span>
+        <span class="n">a</span><span class="p">.</span><span class="n">m3</span> <span class="o">=</span> <span class="n">MagicMock</span><span class="p">()</span>
+        <span class="n">a</span><span class="p">.</span><span class="n">m1</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">m2</span><span class="p">.</span><span class="n">called</span><span class="p">)</span> <span class="c1">#验证m2被call过
+</span>        <span class="n">a</span><span class="p">.</span><span class="n">m3</span><span class="p">.</span><span class="n">assert_called_with</span><span class="p">(</span><span class="s">"custom_val"</span><span class="p">)</span> <span class="c1">#验证m3被指定参数call过
+</span>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="p">.</span><span class="n">main</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="s">'first-arg-is-ignored'</span><span class="p">],</span> <span class="nb">exit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="c1">## 输出
+</span><span class="p">..</span>
+<span class="o">----------------------------------------------------------------------</span>
+<span class="n">Ran</span> <span class="mi">2</span> <span class="n">tests</span> <span class="ow">in</span> <span class="mf">0.002</span><span class="n">s</span>
+
+<span class="n">OK</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>In the code above, <code class="language-plaintext highlighter-rouge">test_m1</code> tests the <code class="language-plaintext highlighter-rouge">m1()</code> function, and <code class="language-plaintext highlighter-rouge">m1()</code> calls the <code class="language-plaintext highlighter-rouge">m2/m3</code> functions. What <code class="language-plaintext highlighter-rouge">mock</code> does here is replace the <code class="language-plaintext highlighter-rouge">m2</code> function with one that returns the concrete value “custom_val”, and replace <code class="language-plaintext highlighter-rouge">m3</code> with an empty function. This use of <code class="language-plaintext highlighter-rouge">mock</code> is the simplest approach, and it can only specify the return value. In addition, you can use <code class="language-plaintext highlighter-rouge">Mock Side Effect</code> to design the input/output behavior of a <code class="language-plaintext highlighter-rouge">mock</code> function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre>
+<span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">MagicMock</span>
+<span class="k">def</span> <span class="nf">side_effect</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">arg</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span>
+<span class="n">mock</span> <span class="o">=</span> <span class="n">MagicMock</span><span class="p">()</span>
+<span class="n">mock</span><span class="p">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="n">side_effect</span>
+
+<span class="n">mock</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="mi">1</span>
+
+<span class="n">mock</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="mi">2</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">Mock Side Effect</code> above implements a simple function that returns different values depending on whether the input is less than 0.</p>
+
+<h1 id="patch">patch<a id="sec-4"></a></h1>
+
+<p><code class="language-plaintext highlighter-rouge">patch</code> provides a very convenient way to <code class="language-plaintext highlighter-rouge">mock</code>. Through the <code class="language-plaintext highlighter-rouge">decorator/context manager</code> pattern, you can quickly mock the function or module you need. For example, you can <code class="language-plaintext highlighter-rouge">mock</code> the default <code class="language-plaintext highlighter-rouge">sort</code> function and then design the corresponding <code class="language-plaintext highlighter-rouge">return_value/side_effect</code>:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">patch</span>
+
+<span class="o">@</span><span class="n">patch</span><span class="p">(</span><span class="s">'sort'</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_sort</span><span class="p">):</span>
+    <span class="p">...</span>
+    <span class="p">...</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">patch</code> can also <code class="language-plaintext highlighter-rouge">mock</code> a class member function. For example, a class’s complicated initialization function can be mocked as a function that returns <code class="language-plaintext highlighter-rouge">None</code>, which avoids the complicated initialization:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="k">with</span> <span class="n">patch</span><span class="p">.</span><span class="nb">object</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="s">'__init__'</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">None</span><span class="p">):</span>
+      <span class="err">…</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="high-quality-unit-tests">High-Quality Unit Tests<a id="sec-5"></a></h1>
+
+<p>How do you design high-quality unit tests? Some key factors are:</p>
+
+<ul>
+  <li>Coverage (<code class="language-plaintext highlighter-rouge">Test Coverage</code>): measures the percentage of statements in the code that are covered. It can be said that raising the coverage of a code module is, to a certain extent, equivalent to raising the correctness of the code.</li>
+  <li>Modularity: the core is to develop code from the testing perspective, and to think about how to modularize the code.</li>
+</ul>
+
+<p>For example, a piece of code with <code class="language-plaintext highlighter-rouge">pre-processing/sort/post-processing</code> can be described simply as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">work</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+    <span class="c1"># pre process
+</span>    <span class="p">...</span>
+    <span class="p">...</span>
+    <span class="c1"># sort
+</span>    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                <span class="n">tmp</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="n">arr</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+    <span class="c1"># post process
+</span>    <span class="p">...</span>
+    <span class="p">...</span>
+    <span class="n">Return</span> <span class="n">arr</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>However, the code above is clearly hard to test module by module. After modularizing the code, it can be designed as:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+    <span class="p">...</span>
+    <span class="p">...</span>
+    <span class="k">return</span> <span class="n">arr</span>
+
+<span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+    <span class="p">...</span>
+    <span class="p">...</span>
+    <span class="k">return</span> <span class="n">arr</span>
+
+<span class="k">def</span> <span class="nf">postprocess</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+    <span class="p">...</span>
+    <span class="k">return</span> <span class="n">arr</span>
+
+<span class="k">def</span> <span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">sort</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">postprocess</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">arr</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Based on the code above, the corresponding unit tests can be designed as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">unittest.mock</span> <span class="kn">import</span> <span class="n">patch</span>
+
+<span class="k">def</span> <span class="nf">test_preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="p">...</span>
+
+<span class="k">def</span> <span class="nf">test_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="p">...</span>
+
+<span class="k">def</span> <span class="nf">test_postprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="p">...</span>
+
+<span class="o">@</span><span class="n">patch</span><span class="p">(</span><span class="s">'%s.preprocess'</span><span class="p">)</span>
+<span class="o">@</span><span class="n">patch</span><span class="p">(</span><span class="s">'%s.sort'</span><span class="p">)</span>
+<span class="o">@</span><span class="n">patch</span><span class="p">(</span><span class="s">'%s.postprocess'</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">mock_post_process</span><span class="p">,</span> <span class="n">mock_sort</span><span class="p">,</span> <span class="n">mock_preprocess</span><span class="p">):</span>
+    <span class="n">work</span><span class="p">()</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">mock_post_process</span><span class="p">.</span><span class="n">called</span><span class="p">)</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">mock_sort</span><span class="p">.</span><span class="n">called</span><span class="p">)</span>
+    <span class="bp">self</span><span class="p">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">mock_preprocess</span><span class="p">.</span><span class="n">called</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

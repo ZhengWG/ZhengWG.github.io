@@ -1,0 +1,107 @@
+<h2 id="an-overview-of-graph-compilation-for-llms">An Overview of Graph Compilation for LLMs</h2>
+
+<p>Graph compilation optimization is built around AI compilers. For the overall framework, see <a href="https://arxiv.org/pdf/2002.03794">The Deep Learning Compiler: A Comprehensive Survey</a>:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-05-LLMs%25E5%259B%25BE%25E7%25BC%2596%25E8%25AF%2591%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240922_161233.png" alt="img" /></p>
+
+<h2 id="graph-optimization-for-llms">Graph Optimization for LLMs</h2>
+
+<p>The structure of LLM models themselves changes little, which means that graph-level optimization strategies are fairly general, such as:</p>
+
+<p>fusion of quantization operators, fusion of pointwise operators, and custom fused operators. A common strategy is therefore to reuse the compiler of a framework such as PyTorch and build a custom LLM compiler on top of it, as described in <a href="https://docs.google.com/document/d/1CvbJ0LOotlfTjR6RmlQKLO4zcEvN2deoDacSjQ31Xiw/edit?pli=1">[RFC] A Graph Optimization System in vLLM using torch.compile</a>:</p>
+
+<p>A <code class="language-plaintext highlighter-rouge">User-defined Compiler</code> is added on top of the <code class="language-plaintext highlighter-rouge">FX Graph</code> from <code class="language-plaintext highlighter-rouge">TorchDynamo</code> to implement custom compiler optimization for LLMs. Its advantage is that it can do high-level IR optimization without developing a dedicated compiler, while reusing TorchDynamo’s low-level IR optimization capabilities. The drawback is that its input graph is a <code class="language-plaintext highlighter-rouge">raw FX Graph</code>, so operations such as <code class="language-plaintext highlighter-rouge">code elimination/topo sort</code> are somewhat difficult to implement.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-05-LLMs%25E5%259B%25BE%25E7%25BC%2596%25E8%25AF%2591%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240922_170038.png" alt="img" /></p>
+
+<h3 id="implementing-a-custom-compiler-on-the-fx-graph">Implementing a Custom Compiler on the FX Graph</h3>
+
+<p>Here is an example implementation of a custom compiler:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.fx</span> <span class="kn">import</span> <span class="n">GraphModule</span>
+
+<span class="k">def</span> <span class="nf">my_custom_compiler</span><span class="p">(</span><span class="n">fx_graph</span><span class="p">:</span> <span class="n">GraphModule</span><span class="p">,</span> <span class="n">example_inputs</span><span class="p">):</span>
+    <span class="s">"""
+    自定义 Compiler 接收 FX Graph 并进行处理。
+    :param fx_graph: TorchDynamo 捕获的 FX GraphModule。
+    :param example_inputs: 示例输入张量，用于形状推导或优化。
+    :return: 返回优化后的 callable。
+    """</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Original FX Graph:"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">fx_graph</span><span class="p">.</span><span class="n">graph</span><span class="p">)</span>
+
+    <span class="c1"># 对 FX Graph 进行优化或修改，例如插入自定义算子。
+</span>    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">fx_graph</span><span class="p">.</span><span class="n">graph</span><span class="p">.</span><span class="n">nodes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span><span class="p">.</span><span class="n">op</span> <span class="o">==</span> <span class="s">'call_function'</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">"Optimizing node: </span><span class="si">{</span><span class="n">node</span><span class="p">.</span><span class="n">name</span><span class="si">}</span><span class="s">, function: </span><span class="si">{</span><span class="n">node</span><span class="p">.</span><span class="n">target</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
+    
+    <span class="c1"># 可以返回修改后的 GraphModule 或直接生成一个新的函数。
+</span>    <span class="n">fx_graph</span><span class="p">.</span><span class="n">graph</span><span class="p">.</span><span class="n">lint</span><span class="p">()</span>  <span class="c1"># 检查修改后的图是否有效
+</span>    <span class="n">fx_graph</span><span class="p">.</span><span class="n">recompile</span><span class="p">()</span>   <span class="c1"># 重新编译图以应用更改
+</span>    
+    <span class="c1"># 返回一个可调用的模块
+</span>    <span class="k">return</span> <span class="n">fx_graph</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>To register the custom compiler, use TorchDynamo’s torch._dynamo.optimize interface to bind it to the target model:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">torch._dynamo</span> <span class="k">as</span> <span class="n">dynamo</span>
+
+<span class="c1"># 注册自定义 Compiler
+</span><span class="n">optimized_model</span> <span class="o">=</span> <span class="n">dynamo</span><span class="p">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">my_custom_compiler</span><span class="p">)(</span><span class="n">model</span><span class="p">)</span>
+
+<span class="c1"># 运行优化后的模型
+</span><span class="n">example_inputs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">)</span>  <span class="c1"># 示例输入
+</span><span class="n">output</span> <span class="o">=</span> <span class="n">optimized_model</span><span class="p">(</span><span class="n">example_inputs</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The printed FX Graph is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="n">graph</span><span class="p">():</span>
+    <span class="o">%</span><span class="n">x</span> <span class="p">:</span> <span class="p">[</span><span class="c1">#users=1] = placeholder[target=x]  # 输入张量 x
+</span>    <span class="o">%</span><span class="n">linear_weight</span> <span class="p">:</span> <span class="p">[</span><span class="c1">#users=1] = get_attr[target=linear.weight]
+</span>    <span class="o">%</span><span class="n">linear_bias</span> <span class="p">:</span> <span class="p">[</span><span class="c1">#users=1] = get_attr[target=linear.bias]
+</span>    <span class="o">%</span><span class="n">linear_output</span> <span class="p">:</span> <span class="p">[</span><span class="c1">#users=1] = call_function[target=torch.nn.functional.linear](args = (%x, %linear_weight, %linear_bias), kwargs = {})
+</span>    <span class="o">%</span><span class="n">relu_output</span> <span class="p">:</span> <span class="p">[</span><span class="c1">#users=1] = call_function[target=torch.nn.functional.relu](args = (%linear_output,), kwargs = {})
+</span>    <span class="k">return</span> <span class="n">relu_output</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

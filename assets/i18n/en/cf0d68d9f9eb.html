@@ -1,0 +1,121 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Details</a>
+    <ul>
+      <li><a href="#sec-2-1">Network Acceleration</a>
+        <ul>
+          <li><a href="#sec-2-1-1">SqueezeNet</a></li>
+          <li><a href="#sec-2-1-2">MobileNet</a></li>
+          <li><a href="#sec-2-1-3">ShuffleNet</a></li>
+          <li><a href="#sec-2-1-4">OneNet</a></li>
+          <li><a href="#sec-2-1-5">Network Pruning</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>Accelerating a deep learning network has two parts: acceleration on the network-structure side and acceleration on the engineering side. Network-level acceleration mainly optimizes the network structure, and focuses on the network’s amount of computation and number of parameters.</p>
+
+<h1 id="details">Details<a id="sec-2"></a></h1>
+
+<h2 id="network-acceleration">Network Acceleration<a id="sec-2-1"></a></h2>
+
+<p>In image detection, the speed bottleneck on the network side lies mostly in the backbone, so many network acceleration tricks are built around the backbone. Below we introduce three commonly used lightweight networks: SqueezeNet, MobileNet, and ShuffleNet.</p>
+
+<p>From them we can learn some general strategies for designing lightweight networks. We also add one more network, OneNet, which mainly explores an <code class="language-plaintext highlighter-rouge">NMS-free</code> scheme for object detection. Finally, we add a plug-and-play network acceleration strategy: network pruning.</p>
+
+<h3 id="squeezenet">SqueezeNet<a id="sec-2-1-1"></a></h3>
+
+<p><a href="https://arxiv.org/pdf/1602.07360.pdf">SqueezeNet</a> was published at ICLR in 2017. When it was published it claimed performance similar to AlexNet with only 1/50 of AlexNet’s parameters. Its core structure is the <code class="language-plaintext highlighter-rouge">Fire module</code>, and the whole network is built by stacking this module: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-04-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E7%25BD%2591%25E7%25BB%259C%25E7%25AF%2587%2529/2d_detection-%E7%BD%91%E7%BB%9C%E5%8A%A0%E9%80%9F_20210904_140649.png" alt="img" /> The module has two parts, <code class="language-plaintext highlighter-rouge">squeeze</code> and <code class="language-plaintext highlighter-rouge">expand</code>:</p>
+
+<p>The squeeze layer uses 1x1 convolutions to reduce the channel dimension, which compresses the features. The expand layer then contains two kinds of convolutions in parallel, 3x3 and 1x1, in order to obtain receptive fields of different sizes. Finally, all the feature maps produced by the expand layer are concatenated into the output feature map. SqueezeNet’s key ideas fall into two aspects:</p>
+
+<ul>
+  <li>Smaller convolution kernels: going from AlexNet to SqueezeNet, we can see that large kernels are avoided as much as possible, or a large kernel can be replaced by several small kernels (the same receptive field, but fewer parameters and better results).</li>
+  <li>The squeeze-expand operation: squeeze reduces the amount of computation, and expand limits the loss of accuracy. Traces of this kind of operation can be seen in the later Inception networks (for the Inception series see <a href="https://johneyzheng.top/posts/2D_Detection-Backbone">2D_Detection-BackBone</a>).</li>
+</ul>
+
+<h3 id="mobilenet">MobileNet<a id="sec-2-1-2"></a></h3>
+
+<p><a href="https://arxiv.org/pdf/1704.04861.pdf">MobileNet</a> is a classic of lightweight networks. Its key contribution is <code class="language-plaintext highlighter-rouge">separable convolution</code>, which is introduced in <a href="https://johneyzheng.top/posts/2D_Detection-%E5%9F%BA%E6%9C%AC%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E5%8D%95%E5%85%83">2D_Detection-Basic Deep Learning Units</a>.</p>
+
+<p>Its core idea is to split an ordinary convolution into two parts: <code class="language-plaintext highlighter-rouge">depthwise convolution</code> and <code class="language-plaintext highlighter-rouge">pointwise convolution</code>. The convolution evolves as follows: first, each channel of the input feature map (assume M channels) is convolved separately, and the results are concatenated into an intermediate feature map; then a pointwise convolution (1x1xMxN) produces the final feature map with N channels. The ratio of the computation of a separable convolution to that of an ordinary convolution is $1/N + 1/(D_k*D_k)$, where $D_k$ is the kernel size used by the depthwise convolution (usually 3). Because N is usually large, the final ratio is close to 1/9. The core structure is illustrated below: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-04-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E7%25BD%2591%25E7%25BB%259C%25E7%25AF%2587%2529/2d_detection-%E7%BD%91%E7%BB%9C%E5%8A%A0%E9%80%9F_20210904_143655.png" alt="img" /></p>
+
+<p>Separable convolution does cost some accuracy. <a href="https://arxiv.org/abs/1801.04381">MobileNetV2</a> and <a href="https://arxiv.org/pdf/1905.02244.pdf">MobileNetV3</a> later made a series of optimizations on top of V1, aiming to improve accuracy while keeping the network lightweight. The improvements are as follows. MobileNetV2:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Inverted Residual Block</code>: its core has two parts, a residual structure and an hourglass structure. The residual structure follows ResNet. The key of the hourglass structure is again the use of 1x1 convolutions to raise and lower the dimension, in the order: 1x1 dimension increase -&gt; separable convolution -&gt; 1x1 dimension reduction.</li>
+  <li><code class="language-plaintext highlighter-rouge">ReLU6</code>: MobileNetV1 uses the ReLU6 function: $relu6(x)=min(max(x, 0), 6)$. The advantage of this activation function is that it limits the range of the ReLU output, so that numerical resolution stays good even in the low-precision FP16 mode on mobile devices. Its problem is the loss it brings to the feature output, because it truncates at both ends, and the loss is especially visible for low-dimensional features. Therefore MobileNetV2’s activation strategy is: high-dimensional feature outputs (the 1x1 dimension increase and the separable convolution output) still use the ReLU6 activation, but after the dimension reduction a linear activation is used directly.</li>
+</ul>
+
+<p>MobileNetV3:</p>
+
+<ul>
+  <li>
+    <p>Fine-tuned network structure: the authors mainly adjust the tail of the network. The core idea is still to change dimensions with 1x1 convolutions and to shrink the feature map, which lowers the amount of computation: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-04-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E7%25BD%2591%25E7%25BB%259C%25E7%25AF%2587%2529/2d_detection-%E7%BD%91%E7%BB%9C%E5%8A%A0%E9%80%9F_20210904_150443.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>Introducing the SE module: a plug-and-play module whose core is a channel attention module. The authors use a few tricks when introducing it to reduce its time cost: the SE module is placed after the depthwise convolution, the pooled channel features are first shrunk by 4x through an fc layer and then restored through another fc layer, and the result is then combined with the features after the depthwise convolution by element-wise addition: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-04-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E7%25BD%2591%25E7%25BB%259C%25E7%25AF%2587%2529/2d_detection-%E7%BD%91%E7%BB%9C%E5%8A%A0%E9%80%9F_20210904_151208.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>Activation function: the core point is that the <code class="language-plaintext highlighter-rouge">sigmoid</code> activation is slow, so the <code class="language-plaintext highlighter-rouge">h-swish</code> activation is used instead. It is implemented on top of ReLU, so it is faster and more compatible.</p>
+  </li>
+</ul>
+
+<h3 id="shufflenet">ShuffleNet<a id="sec-2-1-3"></a></h3>
+
+<p>The ShuffleNet series consists of two papers: <a href="https://arxiv.org/abs/1707.01083">ShuffleNetV1</a> and <a href="https://arxiv.org/abs/1807.11164">ShuffleNetV2</a>. In my opinion, the series offers two main insights:</p>
+
+<ol>
+  <li>It proposes the concept of <code class="language-plaintext highlighter-rouge">Channel shuffle</code>, which can be implemented with ordinary tensor operations. To some extent this provides a more lightweight way to fuse features across channels (compared with channel fusion based on 1x1 convolutions).</li>
+  <li>It discusses the basic rules of designing a high-performance network from the viewpoint of real hardware inference (GPU, presumably?), which is a useful reference.</li>
+</ol>
+
+<p>The core of ShuffleNetV1 is the concept of <code class="language-plaintext highlighter-rouge">Channel shuffle</code>. On top of separable convolution it designs a lighter network structure: 1x1 group convolution plus Channel shuffle replace the original pointwise convolution to fuse features between channels: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-04-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E7%25BD%2591%25E7%25BB%259C%25E7%25AF%2587%2529/2d_detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F%28%E7%BD%91%E7%BB%9C%E7%AF%87%29_20210904_154436.png" alt="img" /></p>
+
+<p>ShuffleNetV2 to some extent overturns the design of ShuffleNetV1 (my personal view). From the viewpoint of model inference, the authors found that networks with the same FLOPs (the number of computations in one inference) can still have different inference speeds. Two more key factors affect inference speed: memory access cost (MAC) and the degree of parallelism of the network. On this basis the authors propose 4 basic principles for building a high-performance network:</p>
+
+<ul>
+  <li>When the input and output features of a layer are the same, MAC is smallest and speed is fastest</li>
+  <li>Too many group convolutions increase MAC</li>
+  <li>Too much fragmentation in the network, such as too many branches, hurts speed</li>
+  <li>Element-wise operations have very low FLOPS but high MAC, and also hurt speed</li>
+</ul>
+
+<p>On this basis, the authors found some unreasonable designs in ShuffleNetV1 and designed the new ShuffleNetV2 structure: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-04-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E7%25BD%2591%25E7%25BB%259C%25E7%25AF%2587%2529/2d_detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F%28%E7%BD%91%E7%BB%9C%E7%AF%87%29_20210904_155230.png" alt="img" /></p>
+
+<h3 id="onenet">OneNet<a id="sec-2-1-4"></a></h3>
+
+<p>The sections above mostly introduced acceleration strategies at the backbone level. <a href="https://peizesun.github.io/OneNet.pdf">OneNet</a> instead designs an NMS-free detection scheme at the detection-network level. From the viewpoint of the overall scheme, its advantages are:</p>
+
+<ul>
+  <li>A fully convolutional network</li>
+  <li>No NMS or self-attention module</li>
+</ul>
+
+<p>The core of OneNet is the sample matching strategy used in training, that is, how to make the network learn a <code class="language-plaintext highlighter-rouge">one-to-one</code> matching strategy.</p>
+
+<p>OneNet’s sample matching is based on the <code class="language-plaintext highlighter-rouge">minimum cost</code> method. Concretely, during sample matching in training, it first computes each sample’s loss, then computes a cost from the loss, and finally selects the sample with the minimum cost as the matched object. The cost is defined as the sum of the classification loss and the location loss between the sample and the gt: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-04-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E7%25BD%2591%25E7%25BB%259C%25E7%25AF%2587%2529/2d_detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F%28%E7%BD%91%E7%BB%9C%E7%AF%87%29_20210904_160315.png" alt="img" /></p>
+
+<p>The authors state in the paper that the classification loss is the key to removing NMS, whereas methods such as Faster-RCNN/SSD/YOLO/FCOS, which rely on box IoU, point distance, object scale, and so on, only consider the location cost.</p>
+
+<h3 id="network-pruning">Network Pruning<a id="sec-2-1-5"></a></h3>
+
+<p>Network pruning can be regarded as a general network acceleration strategy, usually used to speed up a network after the network design has been fixed. Microsoft’s open-source <a href="https://github.com/microsoft/nni">NNI</a> toolkit provides a number of commonly used model pruning and quantization strategies.</p>
+
+<p>Pruning works because deep models are over-parameterized, which can also be seen as a form of overfitting. By principle, network pruning falls into two categories: structured pruning and unstructured pruning.</p>
+
+<p>Structured pruning is usually model trimming at a high level, such as channel-level, vector-level, and filter-level. In my opinion it depends to some extent on experience, and some of the network structure designs mentioned earlier can also be regarded as structured pruning to some degree. In addition, NAS (Neural Architecture Search) based model structure search can usually also be applied to search for pruned structures.</p>
+
+<p>Unstructured pruning trims model weights at a finer granularity: it turns a dense parameter matrix into a sparser one. The general procedure is:</p>
+
+<ul>
+  <li>First train a large model normally</li>
+  <li>Decide which layers to prune and design the parameters; based on those parameters, prune the weights with smaller values in the network</li>
+  <li>Fine-tune the pruned network</li>
+</ul>
+
+<p>In general, structured pruning brings a clear network speedup but may lose some accuracy (if resources allow, NAS-based search is usually more effective). Unstructured pruning does not necessarily lose accuracy, but because the sparse matrix is non-contiguous, it does not necessarily speed up inference in real deployment.</p>
