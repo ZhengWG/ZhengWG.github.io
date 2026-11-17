@@ -1,0 +1,16 @@
+assets/data/ai_infra/2026-11-17.json
+  h_f24678db55a76e 2,12,22-26,36-69,79-82,92-96,106-110,120-122,132-135,145-147
+assets/data/ai_infra/index.json
+  h_f24678db55a76e 3,6-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "6261f57c8baf03e3bd658eb63dd02c4bf8f6a566",
+  "prompts": {},
+  "humans": {
+    "h_f24678db55a76e": {
+      "author": "ZhengWG <zwg0606@gmail.com>"
+    }
+  }
+}
