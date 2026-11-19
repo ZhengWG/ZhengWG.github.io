@@ -1,8 +1,13 @@
 {
   "schema_version": 1,
-  "latest": "2026-11-18",
+  "latest": "2026-11-19",
   "language": "zh-Hans",
   "reports": [
+    {
+      "date": "2026-11-19",
+      "file": "2026-11-19.json",
+      "items": 68
+    },
     {
       "date": "2026-11-18",
       "file": "2026-11-18.json",
@@ -67,11 +72,6 @@
       "date": "2026-11-04",
       "file": "2026-11-04.json",
       "items": 77
-    },
-    {
-      "date": "2026-11-03",
-      "file": "2026-11-03.json",
-      "items": 79
     }
   ],
   "repos": [
