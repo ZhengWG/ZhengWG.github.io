@@ -1,0 +1,135 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Details</a>
+    <ul>
+      <li><a href="#sec-2-1">Sample Imbalance</a>
+        <ul>
+          <li><a href="#sec-2-1-1">Common Hard Example Strategies</a></li>
+          <li><a href="#sec-2-1-2">Focal Loss and Its Variants</a></li>
+        </ul>
+      </li>
+      <li><a href="#sec-2-2">Small Object Detection</a>
+        <ul>
+          <li><a href="#sec-2-2-1">How to Fuse Multi-Scale Features</a></li>
+          <li><a href="#sec-2-2-2">Looking at Detection Beyond the bbox</a></li>
+        </ul>
+      </li>
+      <li><a href="#sec-2-3">Dense and Occluded Scenes</a>
+        <ul>
+          <li><a href="#sec-2-3-1">Problems Caused by NMS</a></li>
+          <li><a href="#sec-2-3-2">How to Make Boxes More Accurate?</a></li>
+          <li><a href="#sec-2-3-3">How to Handle Highly Overlapping Scenes?</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>In general, a single detection model can rarely cover every scenario. Using different detection frameworks, training data, and training strategies for different scenarios is also very important. In this article I briefly summarize several common detection scenarios and introduce some general detection tricks for each of them:</p>
+
+<ul>
+  <li>The sample imbalance scenario</li>
+  <li>The small object detection scenario</li>
+  <li>The dense occlusion scenario</li>
+</ul>
+
+<h1 id="details">Details<a id="sec-2"></a></h1>
+
+<h2 id="sample-imbalance">Sample Imbalance<a id="sec-2-1"></a></h2>
+
+<h3 id="common-hard-example-strategies">Common Hard Example Strategies<a id="sec-2-1-1"></a></h3>
+
+<p><code class="language-plaintext highlighter-rouge">OHEM</code> (Online Hard Example Mining) was first proposed in <a href="https://arxiv.org/pdf/1604.03540.pdf">Training Region-based Object Detectors with Online Hard Example Mining</a>. Its core is to select <code class="language-plaintext highlighter-rouge">hard example</code>s as training samples to improve the network parameters. The <code class="language-plaintext highlighter-rouge">hard example</code>s are selected by the sample loss. Selecting directly by loss has the problem that there are many overlapping positive examples, so the authors use the result after <code class="language-plaintext highlighter-rouge">NMS</code>: an overlap above the threshold of 0.7 is considered a high overlap and is removed. Taking <code class="language-plaintext highlighter-rouge">Faster RCNN</code> as an example, the <code class="language-plaintext highlighter-rouge">ROI network</code> of <code class="language-plaintext highlighter-rouge">Fast RCNN</code> is split into two parts: one part is a read-only network that supports only forward inference; the other part supports both forward and backward passes. In actual training, the read-only network first runs a forward pass to get the loss of all ROIs, then a <code class="language-plaintext highlighter-rouge">hard ROI sampler</code> picks the <code class="language-plaintext highlighter-rouge">hard example</code>s according to the loss, and these <code class="language-plaintext highlighter-rouge">hard example</code>s are used as the input of the trained <code class="language-plaintext highlighter-rouge">ROI network</code>. The network structure is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-03-2D_Detection-%25E9%2580%259A%25E7%2594%25A8%25E6%25A3%2580%25E6%25B5%258BTricks/2d_detection-%E9%80%9A%E7%94%A8%E6%A3%80%E6%B5%8BTricks_20211003_150730.png" alt="img" /></p>
+
+<h3 id="focal-loss-and-its-variants">Focal Loss and Its Variants<a id="sec-2-1-2"></a></h3>
+
+<p>For <code class="language-plaintext highlighter-rouge">Focal Loss</code> and its variants, see <a href="https://johneyzheng.top/posts/2D_Detection-Loss/#sec-2-3-1">2D_Detection-Loss</a>. The core idea is to adjust the training tendency through losses that weight objects of different difficulty differently, so that <code class="language-plaintext highlighter-rouge">hard case</code>s receive more attention in the later stage of training and performance improves.</p>
+
+<h2 id="small-object-detection">Small Object Detection<a id="sec-2-2"></a></h2>
+
+<p>For the One-Stage detection framework, here is a brief analysis of why small object detection performs poorly:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Feature Map</code> size: downsampling in the <code class="language-plaintext highlighter-rouge">Feature Map</code> loses the features of small objects.</li>
+  <li><code class="language-plaintext highlighter-rouge">Anchor</code> assignment: under the same conditions, small objects match fewer positive examples in <code class="language-plaintext highlighter-rouge">Anchor</code> assignment.</li>
+</ul>
+
+<p>For reference: <a href="http://sjcj.nuaa.edu.cn/sjcjycl/article/html/202103001">A Survey of Recent Research on Small Object Detection in 2021</a>, which covers research on small object detection fairly comprehensively. <a href="https://github.com/kuanhungchen/awesome-tiny-object-detection">Awesome Tiny Object Detection</a> collects a comprehensive set of papers and dataset introductions.</p>
+
+<h3 id="how-to-fuse-multi-scale-features">How to Fuse Multi-Scale Features<a id="sec-2-2-1"></a></h3>
+
+<p>Fusing multi-scale features is a common way to improve small object detection, and the classic framework for it is <a href="https://arxiv.org/pdf/1612.03144.pdf">RetinaNet</a>. <code class="language-plaintext highlighter-rouge">RetinaNet</code> uses an FPN network design. The core of the design is to fuse high-semantic features with large-scale features by fusing the features of large and small <code class="language-plaintext highlighter-rouge">feature map</code>s. The network structure is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-03-2D_Detection-%25E9%2580%259A%25E7%2594%25A8%25E6%25A3%2580%25E6%25B5%258BTricks/2d_detection-%E9%80%9A%E7%94%A8%E6%A3%80%E6%B5%8BTricks_20211002_231923.png" alt="img" /></p>
+
+<p>In addition, the fusion of <code class="language-plaintext highlighter-rouge">feature map</code>s happens mainly at the <code class="language-plaintext highlighter-rouge">backbone</code> level, where <code class="language-plaintext highlighter-rouge">DetNet</code> optimizes on top of the traditional <code class="language-plaintext highlighter-rouge">FPN</code>. See <a href="https://johneyzheng.top//posts/2D_Detection-Backbone/#detnet">2D_Detection-Backbone(DetNet)</a></p>
+
+<h3 id="looking-at-detection-beyond-the-bbox">Looking at Detection Beyond the bbox<a id="sec-2-2-2"></a></h3>
+
+<p>Detection based on bboxes inevitably leads to the problem of <code class="language-plaintext highlighter-rouge">Anchor competition</code>, which can be eased by optimizing the <code class="language-plaintext highlighter-rouge">sample strategy</code> and by <code class="language-plaintext highlighter-rouge">data augmentation</code>. There are also schemes that set aside the basic bbox detection scheme and approach the problem from other angles: the engineering side, and non-bbox schemes.</p>
+
+<p>The engineering side (this wording may not be very rigorous) means looking at small object detection from the viewpoint of actual deployment. Small objects are small relative to a large input image, so the input image can be cropped to turn small objects into large ones, which addresses missed detections of small objects, and a final round of <code class="language-plaintext highlighter-rouge">nms</code> is then done on the full large image. Of course, this scheme inevitably slows things down. For an implementation, see <a href="https://arxiv.org/pdf/1805.09512.pdf">You only look twice</a>.</p>
+
+<p>Non-bbox schemes are designed mainly to avoid problems at the <code class="language-plaintext highlighter-rouge">Anchor</code> level. The most common idea is to detect <code class="language-plaintext highlighter-rouge">Key points</code> on a larger <code class="language-plaintext highlighter-rouge">Feature map</code> and obtain the final detection boxes from the key points. Typical frameworks include <a href="https://arxiv.org/pdf/1808.01244.pdf">CornerNet</a> and <a href="https://arxiv.org/pdf/1904.07850.pdf">CenterNet</a>.</p>
+
+<h2 id="dense-and-occluded-scenes">Dense and Occluded Scenes<a id="sec-2-3"></a></h2>
+
+<h3 id="problems-caused-by-nms">Problems Caused by NMS<a id="sec-2-3-1"></a></h3>
+
+<p>NMS mainly cleans up overlapping boxes and keeps the main box with the highest score. The implementation steps in code are:</p>
+
+<ul>
+  <li>Sort all boxes by score in ascending order</li>
+  <li>Check whether the box sequence is empty
+    <ul>
+      <li>Save the index of the current box</li>
+      <li>Compute the IoU between the box with the highest score and the remaining boxes</li>
+      <li>Remove the boxes whose IoU exceeds the threshold, which leaves the remaining box sequence</li>
+      <li>Update the box sequence</li>
+    </ul>
+  </li>
+</ul>
+
+<p>The drawback of simple NMS is that it may directly filter out boxes with a low score and a high overlap, which can cause missed detections, especially in crowded or occluded scenes. Improvements based on simple <code class="language-plaintext highlighter-rouge">NMS</code> include:</p>
+
+<ul>
+  <li><a href="https://johneyzheng.top//posts/nms_soft-nms/">soft_nms</a>: when several objects overlap, traditional nms filters out the low-scoring objects, which is too crude. <code class="language-plaintext highlighter-rouge">soft-nms</code> takes the computed <code class="language-plaintext highlighter-rouge">iou</code> and the box’s own score as inputs, recomputes the box’s confidence, and finally decides from the new confidence whether to remove the box.</li>
+  <li><a href="https://arxiv.org/abs/1809.08545">softer_nms</a>: introduces a branch that describes the accuracy of the box during training (constrained by the KL divergence between the predicted value and the GT value), and then uses the predicted box confidence as the weight in the nms decision. The box-confidence branch of <code class="language-plaintext highlighter-rouge">softer nms</code> is in fact similar in some ways to <code class="language-plaintext highlighter-rouge">QFocal loss</code> and the <code class="language-plaintext highlighter-rouge">IoU Branch</code> (both introduced below).</li>
+</ul>
+
+<h3 id="how-to-make-boxes-more-accurate">How to Make Boxes More Accurate?<a id="sec-2-3-2"></a></h3>
+
+<ol>
+  <li>
+    <p>IoU Branch &amp;&amp; Centerness</p>
+
+    <p><code class="language-plaintext highlighter-rouge">IoU Branch</code> and <code class="language-plaintext highlighter-rouge">Centerness</code> are both designed to evaluate box confidence (or box quality) through an extra branch, and to combine it with the classification and regression branches to obtain more accurate boxes. The <code class="language-plaintext highlighter-rouge">IoU Branch</code> was first proposed by <a href="https://link.zhihu.com/?target=https%3A//arxiv.org/abs/1807.11590">IoU Net</a>; the network structure of <code class="language-plaintext highlighter-rouge">IoU Net</code> is shown below. It can predict the <code class="language-plaintext highlighter-rouge">IoU</code> between a detected bounding box and its corresponding ground-truth box, so that the network, like its classification module, has a sense of how accurately a detection box is localized. During inference, the predicted <code class="language-plaintext highlighter-rouge">IoU</code> can be used as the filtering mechanism of the subsequent <code class="language-plaintext highlighter-rouge">NMS</code>.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-03-2D_Detection-%25E9%2580%259A%25E7%2594%25A8%25E6%25A3%2580%25E6%25B5%258BTricks/2d_detection-%E9%80%9A%E7%94%A8%E6%A3%80%E6%B5%8BTricks_20211001_205649.png" alt="img" /></p>
+
+    <p><code class="language-plaintext highlighter-rouge">Centerness</code> comes from <a href="https://arxiv.org/pdf/1904.01355.pdf">FCOS</a>, which is itself an <code class="language-plaintext highlighter-rouge">Anchor-Free</code> detection algorithm. It adds a <code class="language-plaintext highlighter-rouge">centerness</code> branch (parallel to the classification branch) to improve the quality of the predicted boxes. <code class="language-plaintext highlighter-rouge">centerness</code> is defined as follows:</p>
+
+\[centerness^{*} = \sqrt{\frac{min(l^*, r^*)}{max(l^*, r^*)}*\frac{min(t^*, b^*)}{max(t^*, b^*)}}\]
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-03-2D_Detection-%25E9%2580%259A%25E7%2594%25A8%25E6%25A3%2580%25E6%25B5%258BTricks/2d_detection-%E9%80%9A%E7%94%A8%E6%A3%80%E6%B5%8BTricks_20211002_215651.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>QFocal Loss</p>
+
+    <p><code class="language-plaintext highlighter-rouge">QFocal Loss</code> comes from <a href="https://arxiv.org/pdf/2006.04388.pdf">Generalized Focal Loss</a>. Its core is to combine the definition of <code class="language-plaintext highlighter-rouge">centerness</code> with <code class="language-plaintext highlighter-rouge">Focal Loss</code>, which is equivalent to optimizing the classification branch and the centerness branch of <code class="language-plaintext highlighter-rouge">FCOS</code> together. For details see <a href="https://johneyzheng.top/posts/2D_Detection-Loss/#sec-2-3-2">2D_Detection-Loss</a>.</p>
+  </li>
+</ol>
+
+<h3 id="how-to-handle-highly-overlapping-scenes">How to Handle Highly Overlapping Scenes?<a id="sec-2-3-3"></a></h3>
+
+<p>Detection performance drops on highly overlapping objects mainly because of the <code class="language-plaintext highlighter-rouge">Anchor</code> assignment problem:</p>
+
+<p>For <code class="language-plaintext highlighter-rouge">Anchor</code> assignment across multiple <code class="language-plaintext highlighter-rouge">Feature map</code> levels, the most basic approach matches objects by the <code class="language-plaintext highlighter-rouge">Anchor size</code> of each level. Another classic approach assigns by size and center-point position; see <a href="https://arxiv.org/pdf/1904.01355.pdf">FCOS</a>.</p>
+
+<p>For <code class="language-plaintext highlighter-rouge">Anchor</code> assignment within a single <code class="language-plaintext highlighter-rouge">Feature map</code> level (more common, and harder to solve), a classic solution is to change the <code class="language-plaintext highlighter-rouge">Anchor match</code> method at the same position so that a single <code class="language-plaintext highlighter-rouge">Anchor</code> can match multiple objects. In detail: instead of the original <code class="language-plaintext highlighter-rouge">max iou</code> matching, a <code class="language-plaintext highlighter-rouge">TopK</code> matching is used, so that in crowded scenes a single <code class="language-plaintext highlighter-rouge">Anchor</code> can predict multiple objects. See <a href="https://arxiv.org/pdf/2003.09163.pdf">One Proposal, Multiple Predictions</a>. The matching result:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-03-2D_Detection-%25E9%2580%259A%25E7%2594%25A8%25E6%25A3%2580%25E6%25B5%258BTricks/2d_detection-%E9%80%9A%E7%94%A8%E6%A3%80%E6%B5%8BTricks_20211003_002746.png" alt="img" /></p>

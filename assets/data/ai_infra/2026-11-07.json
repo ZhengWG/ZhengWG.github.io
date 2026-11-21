@@ -1,0 +1,171 @@
+{
+  "date": "2026-11-07",
+  "language": "zh-Hans",
+  "sections": [
+    {
+      "id": "overview",
+      "title": {
+        "zh": "今日速览",
+        "en": "Overview"
+      },
+      "blocks": [
+        "Kimi K3.1 的新部署路径正在进入 Dynamo 与 llama.cpp，但实验快照和 RC 中仍有明确的正确性、warmup 风险，适合按配置验收。另一条主线是把推理从“算得快”推进到“状态与数值可验证”：采样的 batch invariance、在线权重更新、PD 取消清理和 KV 访问检查同时出料。容量规划方面，新的实测锚点预测工具和 AFD 对比研究都指向保留可调部署边界。",
+        "采集窗口：2026-11-05 起更新的约两天增量，跨天去重；抓取于 2026-11-07 上午（UTC）。论文保留原始提交日，博客额外过滤旧文，未将旧内容冒充当日发布。"
+      ]
+    },
+    {
+      "id": "highlights",
+      "title": {
+        "zh": "今日要点",
+        "en": "Highlights"
+      },
+      "blocks": [
+        "**Kimi K3.1 从 day-0 支持走向更多部署形态** — [Dynamo dev.1](https://github.com/ai-dynamo/dynamo/releases/tag/v1.7.0-kimi-k3.1-pro-dev.1)明确非生产快照；[llama.cpp b12180](https://github.com/ggml-org/llama.cpp/releases/tag/b12180)已加文本路径；[SGLang DCP8 fused top-k](https://github.com/sgl-project/sglang/pull/48895)仍是受硬件条件限制的提案。",
+        "**异步 RL 要同时处理数值一致与权重更新成本** — [零 mismatch 博客](https://vllm.ai/blog/2026-11-06-zero-mismatch-async-rl)、[采样一致性 PR](https://github.com/flashinfer-ai/flashinfer/pull/8999)、[稀疏 patch 批量验证](https://github.com/vllm-project/vllm/pull/66021)各补一环；大模型的长期异步稳定性尚待验证。",
+        "**缓存正确性进入可观测工具层** — [KVGuard](https://compsec.snu.ac.kr/blog/kvguard)检查未初始化 KV 读取；[SGLang #48992](https://github.com/sgl-project/sglang/pull/48992)已补 PD/会话/PP 暂停退出路径。高缓存命中率之外，还要确认状态隔离与回收。",
+        "**先搜索配置，再实测少数候选** — [InferaSim](https://rocm.blogs.amd.com/software-tools-optimization/inferasim/README.html)用少量 anchor 预测 serving 性能；[SiliconForge](https://arxiv.org/abs/2611.08299)未发现 AFD 的稳健部署优势，提示勿提前锁定拆分粒度。",
+        "**本地引擎继续扩展，但速度需连同条件看** — [Strata 0.2.12](https://github.com/Niko1221/Strata/releases/tag/v0.2.12)有硬件/量化相关回退，[Basalt 0.3.0](https://github.com/jesdga95/basalt/releases/tag/v0.3.0)转多模型，[Saber](https://github.com/GGZ14/saber-engine)新公开；TP、功耗、上下文、量化与质量基准必须一起读。"
+      ]
+    },
+    {
+      "id": "prs",
+      "title": {
+        "zh": "GitHub PR 动态",
+        "en": "GitHub pull requests"
+      },
+      "blocks": [
+        "去重后 252 条候选；详列 6 个仓的 33 组高信号变化，其余压为 5 行。状态按本轮抓取快照，性能数字均为作者报告；纯文档、CI 与未合并即关闭的条目不详列。",
+        "### sglang（候选 37 条）",
+        "**请求退出路径补齐**（[#48992](https://github.com/sgl-project/sglang/pull/48992)）— 中止 PD 请求会清 bootstrap room，拒绝的 streaming turn 会释放 session，PP 也遵守暂停指令，避免资源泄漏与会话永久占用。 @hnyls2002 【Merged】",
+        "**Rust 前端补齐启动与安全约束**（[#48512](https://github.com/sgl-project/sglang/pull/48512) · [#48515](https://github.com/sgl-project/sglang/pull/48515) · [#48518](https://github.com/sgl-project/sglang/pull/48518)）— 强制 API key、warmup 失败退出、启动后冻结 GC，并隐藏日志及 server_info 中的访问密钥，降低替换 Python 前端的行为差异。 @metamergebot 【Merged】",
+        "**PP 转发多模态请求**（[#49032](https://github.com/sgl-project/sglang/pull/49032)）— 后续 pipeline stage 不再携带原始媒体特征，缩小跨阶段传递的请求负担。 @alphabetc1 【Merged】",
+        "**DCP8 稀疏 indexer 融合 top-k**（[#48895](https://github.com/sgl-project/sglang/pull/48895)）— 把局部选择、multicast 交换、精确性检查和槽位本地化收进一核；仅 SM100、8 rank 等条件下 opt-in，不能泛化成所有 DCP 配置均受益。 @DarkSharpness 【Open】",
+        "**PP 下先完成 prefill 再发 KV**（[#45524](https://github.com/sgl-project/sglang/pull/45524)）— 修正流水线与分块 KV 发送的先后顺序，保护 PD 交接正确性。 @eaglewangao-us 【Open】",
+        "**确定性计算继续压开销**（[#45599](https://github.com/sgl-project/sglang/pull/45599) · [#47410](https://github.com/sgl-project/sglang/pull/47410)）— AMD 分段 split-K 与固定 decode block 数，在保持 batch-invariant/确定性约束时优化执行形态。 @aarnetalman 【Open】",
+        "### vllm（候选 18 条）",
+        "**批量验证稀疏权重 patch**（[#66021](https://github.com/vllm-project/vllm/pull/66021)）— 把逐 tensor 的多次小 GPU 操作合并；作者在 Qwen3-30B、4×H20 负载下报告 pause/resume 停顿减少 40–48%，直接改善在线 refit。 @ShuoleiWang 【Merged】",
+        "**DeepGEMM warmup 对齐 SM100 启发式**（[#66080](https://github.com/vllm-project/vllm/pull/66080)）— 预热 M 值跟随 vendored 版本选择，减少启发式漂移引起的 warmup 问题。 @gau-nernst 【Merged】",
+        "**SM90 MegaMoE 去掉 TP prefill 重复 token**（[#66236](https://github.com/vllm-project/vllm/pull/66236)）— 4×H20 长 prompt TTFT 较父 PR 降约 31%，较主线默认后端降约 8–18%；短输入仍慢于主线，不能把父分支提升当成全场景收益。 @positive666 【Open】",
+        "**在线换权重的失败与分块语义**（[#57854](https://github.com/vllm-project/vllm/pull/57854) · [#60188](https://github.com/vllm-project/vllm/pull/60188)）— 更新失败时保住引擎、分块 patch 保持 tied embedding 有效，降低 RL refit 破坏后续服务的风险。 @twu3202 @YidaWeng 【Open】",
+        "**DSpark 草稿头补融合与权重映射**（[#65691](https://github.com/vllm-project/vllm/pull/65691) · [#65647](https://github.com/vllm-project/vllm/pull/65647)）— 融合 logits gather，并补 DeepSeek-V4 packed 模块映射；目标是缩短草稿阶段并修正模型装载路径。 @MrGeva @peterzhang987723 【Open】",
+        "### tokenspeed（候选 53 条）",
+        "**P 角色规划重叠与长 prompt 让步**（[#2717](https://github.com/lightseekorg/tokenspeed/pull/2717) · [#2961](https://github.com/lightseekorg/tokenspeed/pull/2961)）— prefill forward 同时规划下一步，并可给排队短 prompt 留 token 预算；让步默认关闭，PR 的性能数来自含其他改动的旧栈，本日报不归因为独立收益。 @fanyang-real 【Merged】",
+        "**循环状态 checkpoint 精简**（[#2981](https://github.com/lightseekorg/tokenspeed/pull/2981) · [#2982](https://github.com/lightseekorg/tokenspeed/pull/2982) · [#2985](https://github.com/lightseekorg/tokenspeed/pull/2985)）— 丢掉短 prompt 尾与被覆盖的中间状态，Host 父缓存按完整 KV page 计空间，减少不再有用的状态驻留。 @fanyang-real 【Merged】",
+        "**更多 prefill 进入 CUDA graph**（[#2980](https://github.com/lightseekorg/tokenspeed/pull/2980) · [#2926](https://github.com/lightseekorg/tokenspeed/pull/2926) · [#3111](https://github.com/lightseekorg/tokenspeed/pull/3111)）— 覆盖 Eagle drafter、Qwen4 GDN、Kimi K3.1 aggregated 路径，减少多步起草与 hybrid prefill 的 host launch 开销。 @fanyang-real @nperrin-fr 【Merged】",
+        "**Blackwell KDA 投机验证专用核**（[#2993](https://github.com/lightseekorg/tokenspeed/pull/2993)）— 用 CuTe DSL 处理验证窗口，给线性注意力模型补专门的 speculative 执行路径。 @nperrin-fr 【Merged】",
+        "**DFlash2 采样验证与 launch 精简**（[#2892](https://github.com/lightseekorg/tokenspeed/pull/2892) · [#2893](https://github.com/lightseekorg/tokenspeed/pull/2893)）— Triton 路径加入草稿分布的 rejection sampling；无过滤/top-k 等条件才走新规则，部分混合或 top-p 情况仍用原规则。 @efric 【Merged】",
+        "**gfx950 MXFP4 monokernel 已合**（[#2662](https://github.com/lightseekorg/tokenspeed/pull/2662)）— Qwen3.8-Flash-Next 每层 decode 可变成一个持久 Gluon launch，以 mailbox 串接阶段，减少小 batch 的约二十次 kernel 边界。 @raikonenfnu 【Merged】",
+        "**Muse Spark TP8 通信与算子一起收紧**（[#2900](https://github.com/lightseekorg/tokenspeed/pull/2900) · [#2901](https://github.com/lightseekorg/tokenspeed/pull/2901) · [#2902](https://github.com/lightseekorg/tokenspeed/pull/2902) · [#2903](https://github.com/lightseekorg/tokenspeed/pull/2903)）— 由 token owner 归并路由结果、融合 all-reduce 与 norm、调整 prefill down-projection，减少复制和 RCCL fallback。 @efric 【Merged】",
+        "**PD 取消与 AMD store 完成语义**（[#3105](https://github.com/lightseekorg/tokenspeed/pull/3105) · [#2957](https://github.com/lightseekorg/tokenspeed/pull/2957)）— 隔离传输注册、排空被取消传输，并确保所有 wave 的 store 到 L2 后才 release，补多卡服务难复现的通信正确性缺口。 @Patirck @efric 【Merged】",
+        "### flashinfer（候选 52 条）",
+        "**batch-invariant 延伸到采样概率**（[#8999](https://github.com/flashinfer-ai/flashinfer/pull/8999)）— softmax、log_softmax、log_probs 有独立一致性契约；保证同一行跨 batch/配置位一致，但没有承诺与 torch 或其他 softmax 算法逐位相等。 @bkryu 【Merged】",
+        "**Kimi K3 MLA decode 扩面**（[#9067](https://github.com/flashinfer-ai/flashinfer/pull/9067) · [#9066](https://github.com/flashinfer-ai/flashinfer/pull/9066)）— 加入 LSE、DCP、非因果变体和 B200 持久双 CTA 路径，服务并行与调用方式变化时有专门 kernel 可选。 @yyihuang 【Merged】",
+        "**KDA prefill 提前加载下一任务状态**（[#9075](https://github.com/flashinfer-ai/flashinfer/pull/9075) · [#9063](https://github.com/flashinfer-ai/flashinfer/pull/9063)）— B200/SM103 的 tensor-memory preload 把循环状态搬运放到计算间隙，优化线性注意力 prefill。 @yyihuang 【Merged】",
+        "**SM103 FP8 paged-context 执行形态**（[#9073](https://github.com/flashinfer-ai/flashinfer/pull/9073) · [#9062](https://github.com/flashinfer-ai/flashinfer/pull/9062)）— 单阶段与四阶段 K/V ring 程序继续细分，把分页缓存访问与 attention 流水线配套调优。 @yyihuang 【Merged】",
+        "**MegaMoE 跨代理读写补 fence**（[#9074](https://github.com/flashinfer-ai/flashinfer/pull/9074)）— 修正 carried 程序和同次 launch 数据的可见性，低精度融合算子的性能优化同步补正确性约束。 @yyihuang 【Merged】",
+        "**attention 数值与 TMEM 生命周期修复**（[#8855](https://github.com/flashinfer-ai/flashinfer/pull/8855) · [#9077](https://github.com/flashinfer-ai/flashinfer/pull/9077)）— 所有 math warp 读完才释放 TMEM；在线 softmax 先减 running maximum 再缩放，分别处理同步和数值稳定性。 @bastianhagedorn @BESzbing 【Open】",
+        "### dynamo（候选 23 条）",
+        "**硬会话亲和性固定到 DP rank**（[#17761](https://github.com/ai-dynamo/dynamo/pull/17761)）— 此前只固定 worker，多轮仍可能换 rank 丢前缀缓存；现在绑定 worker 与 rank 的组合。 @PyExtreme 【Open】",
+        "**保留 decoder 原生 KV 坐标**（[#18285](https://github.com/ai-dynamo/dynamo/pull/18285)）— 让 vLLM 双向 NIXL 在 P 缓存被逐出后复用 D 侧前缀；仅 opt-in Native Generate API，OpenAI 会话自动跟踪仍不在范围内。 @yifjiang 【Open】",
+        "**热点路由观察 decode 进度**（[#16758](https://github.com/ai-dynamo/dynamo/pull/16758)）— prefill 负载为零不等于 worker 空闲；实验策略用剩余输出预算决定是否让同组请求在别处付一次冷前缀成本，旧版本测试数不代表当前适配版。 @JasperChan929 【Open】",
+        "**网关保留后端请求语义**（[#18204](https://github.com/ai-dynamo/dynamo/pull/18204) · [#18205](https://github.com/ai-dynamo/dynamo/pull/18205) · [#18209](https://github.com/ai-dynamo/dynamo/pull/18209)）— 空 stop 数组、reasoning 结束后结构化输出、vLLM 400 原因透传一并补齐，减少被网关误改或遮蔽的客户端行为。 @nguyenthai-duong 【Open】",
+        "**operator 消费编译器给出的 LPX placement unit**（[#18362](https://github.com/ai-dynamo/dynamo/pull/18362)）— 把部署放置单位接到 operator，后续应关注编译、调度与实际部署约束能否一致。 @steved 【Open】",
+        "### TensorRT-LLM（候选 21 条）",
+        "**集中修复 cluster / TMEM 同步**（[#21843](https://github.com/NVIDIA/TensorRT-LLM/pull/21843) · [#21848](https://github.com/NVIDIA/TensorRT-LLM/pull/21848) · [#21855](https://github.com/NVIDIA/TensorRT-LLM/pull/21855)）— 一组 PR 分别处理 mailbox acquire scope、split-K 同步、TMEM load 后释放；是已提交的正确性修复，尚不能当成已发布版本的保证。 @bastianhagedorn 【Open】",
+        "**Rubin MXFP8 MoE 融合与 locality**（[#21589](https://github.com/NVIDIA/TensorRT-LLM/pull/21589) · [#21708](https://github.com/NVIDIA/TensorRT-LLM/pull/21708)）— FC1+FC2 CuTe DSL leaf 配合按 locality domain 拆分，继续缩减 MoE 通信和执行边界。 @hello-11 【Open】",
+        "**低精度模型路径扩展**（[#21335](https://github.com/NVIDIA/TensorRT-LLM/pull/21335) · [#19396](https://github.com/NVIDIA/TensorRT-LLM/pull/19396)）— GLM-5.3-Flash NVFP4 target 把 MTP 放进同一模型 forward；另为非 MLA PrimsTS attention 增加 FP8 KV，分别改善起草组织和缓存格式覆盖。 @zhaoyangwang-nvidia @yuxianq 【Open】",
+        "### 其余仓（仅列代表变化）",
+        "llm-d（22 条；已合工具调用/推理 parser 配置；提案新增 AMD GLM-5.3 MXFP4 P/D 与 SGLang Mooncake 分级缓存。）[llm-d #2856](https://github.com/llm-d/llm-d/pull/2856) · [llm-d #2905](https://github.com/llm-d/llm-d/pull/2905) · [llm-d #3034](https://github.com/llm-d/llm-d/pull/3034) · [llm-d #2150](https://github.com/llm-d/llm-d/pull/2150)",
+        "Mooncake（8 条；MACA DMA-BUF offset、重初始化保留 metadata 与共享 quota 锁健壮性仍在审。）[Mooncake #4789](https://github.com/kvcache-ai/Mooncake/pull/4789) · [Mooncake #5327](https://github.com/kvcache-ai/Mooncake/pull/5327) · [Mooncake #5297](https://github.com/kvcache-ai/Mooncake/pull/5297) · [Mooncake #5326](https://github.com/kvcache-ai/Mooncake/pull/5326)",
+        "Omni（8 条；rank 成对共享权重、昇腾 Qwen3-Omni V2/Code2Wav graph、duplex 静音竞态与 MOSS-TD 投机 overlap，均 Open。）[vllm-omni #9850](https://github.com/vllm-project/vllm-omni/pull/9850) · [vllm-omni #9910](https://github.com/vllm-project/vllm-omni/pull/9910) · [vllm-omni #7878](https://github.com/vllm-project/vllm-omni/pull/7878) · [sglang-omni #3619](https://github.com/sgl-project/sglang-omni/pull/3619)",
+        "DeepSeek 组件（9 条；DeepJIT 昇腾 AICPU 按需 bootstrap 已合；DeepInfer cache 清理保护、DeepSpec 任意前导维采样仍 Open。）[DeepJIT #48](https://github.com/deepseek-ai/DeepJIT/pull/48) · [DeepInfer #277](https://github.com/deepseek-ai/DeepInfer/pull/277) · [DeepSpec #96](https://github.com/deepseek-ai/DeepSpec/pull/96)",
+        "TileLang（1 条；比较性能前拒绝无效测量，避免调优数据误导，Open。）[tilelang #3828](https://github.com/tile-ai/tilelang/pull/3828)"
+      ]
+    },
+    {
+      "id": "releases",
+      "title": {
+        "zh": "版本发布",
+        "en": "Releases"
+      },
+      "blocks": [
+        "[TensorRT-LLM v1.4.0rc3](https://github.com/NVIDIA/TensorRT-LLM/releases/tag/v1.4.0rc3)（11-06，RC）— 加 Muse Spark Open、MiniMax-M3.1-Flash DSpark、DSv4.1-Flash SM120 等路径；发布说明明确列出 DSA+NVFP4 KV 可能错误输出、Kimi DSpark+TEP+CUDA graph 在 GB300 warmup 可能 hang，评估配置时先避开已知问题组合。",
+        "Dynamo：[v1.6.2](https://github.com/ai-dynamo/dynamo/releases/tag/v1.6.2)（11-05）修补镜像依赖、SGLang Python 升级，并将 TRT-LLM 超 token budget 改回 HTTP 400；[Kimi K3.1 Pro dev.1](https://github.com/ai-dynamo/dynamo/releases/tag/v1.7.0-kimi-k3.1-pro-dev.1)（11-06）提供 vLLM/SGLang、GB300/VR200 等 recipes，官方明确是未过 QA gate、非生产建议的实验快照。",
+        "llama.cpp 滚动构建：[b12180](https://github.com/ggml-org/llama.cpp/releases/tag/b12180)（11-06）支持 Kimi K3.1 Pro 文本模型，结合 KDA 状态、MLA K-only 与 indexer cache；[b12170](https://github.com/ggml-org/llama.cpp/releases/tag/b12170) 合入 ClassLRU MoE 缓存，以衰减使用频次替换 SLRU 的保护策略。",
+        "[Strata v0.2.12](https://github.com/Niko1221/Strata/releases/tag/v0.2.12)（11-07）— 作者报告 RTX 3060 档 2K prefill 87→264 tok/s、M5 Max decode +10–13%，并调优 DFlash2 drafter；收益依量化/硬件不同，Strix Halo 某配置的 tool-call 吞吐反降 9.5%，应按真实负载验收。",
+        "[Basalt v0.3.0](https://github.com/jesdga95/basalt/releases/tag/v0.3.0)（11-05）— 从 Qwen 单模型引擎扩到 DSv4.1-Flash，同一 server/router 按 model 字段切换，但一次只加载一个模型，切换期间请求等待；配置必须迁到 v2，权重 .basalt 格式仍为 v2。",
+        "🤗 模型 / 权重发布",
+        "（核心盘本轮 hf_models 为 0；未新增独立模型/权重条目，模型适配进展并入 PR 与版本节。）"
+      ]
+    },
+    {
+      "id": "papers",
+      "title": {
+        "zh": "论文",
+        "en": "Papers"
+      },
+      "blocks": [
+        "均为 11-05 新提交、进入本轮增量的预印本；以下按作者摘要和实验披露，不视为生产验证。",
+        "[StrataFlux：让 Host/SSD 补充低比特精度](https://arxiv.org/abs/2611.08363) — 基础权重与 KV 留低比特，按需流入精度增量并跨 decode 复用；RTX 5090 的 2-bit Llama-3.1-8B PPL 9.46→8.40，保留基础量化版 95.4% 吞吐。价值在把卸载层用于恢复精度，而非只容纳更多权重；与 Strata 引擎并非同一项目。",
+        "[SpecCTMC：扩散 LM 的精确投机采样](https://arxiv.org/abs/2611.08362) — 复用旧预测提出更新、并行验证中间状态，再精确接受/校正，无额外 draft model；LLaDA/Dream 的顺序模型评估次数减少 1.73–4.38 倍。这里是相对直接连续时间采样的评估次数，不能直接等同端到端加速倍数。",
+        "[Should You Split Decode? / SiliconForge](https://arxiv.org/abs/2611.08299) — 同功耗预算联合优化后，AFD 未呈现稳健的 SLO goodput/kW 优势，多数名义估计偏向 PD；结论依赖模型、互连和池粒度。部署含义是保留硬件映射/池大小可调能力，避免过早把 decode 拆分边界固定下来。",
+        "[Hybrid State Transfer：跨模型迁移不止 KV](https://arxiv.org/abs/2611.08133) — 同时映射 full-attention KV、循环状态和卷积历史；Qwen3.5 小模型→27B 的任务保留约 89.9%/94.1%。16K 合成输入约 21.7 倍仅为已有源缓存时的交接主体提速，有质量损失且非完整会话端到端数。",
+        "[DictLLM：共享字典加层特定稀疏系数](https://arxiv.org/abs/2611.08082) — 无需再训练，从现成权重构建跨层共享字典并分量量化；LLaMA-7B 压缩 5.1 倍、WikiText-2 PPL 增 2.9。面向移动端存储预算，摘要没有可直接外推的 serving 吞吐结论。",
+        "[PSI：22B 音视频模型的子块流式推理](https://arxiv.org/abs/2611.08023) — A6000 九个匹配案例中，采样到的 transformer 进程峰值 8578→360 MiB，11 次调用平均时间 247→349 秒；完整生成在可用显存 3 GiB 限制下成功。用时间换固定工作集，360 MiB 不代表整个音视频管线占用，完整 prompt 数值误差仍须单独验收。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
+        "[vLLM 的 LibTorch Stable ABI 迁移](https://vllm.ai/blog/2026-11-06-stable-abi-cuda)（11-06）— v0.33.0 起发布稳定 ABI 的 CUDA wheel，连同七个编译依赖完成迁移，用 torch-abi-audit 守住二进制边界；减少兼容 PyTorch 升级所需的重编译，Python API、CUDA 和第三方依赖约束仍要满足。",
+        "[Zero Mismatch, Simple Async RL](https://vllm.ai/blog/2026-11-06-zero-mismatch-async-rl)（11-06）— 把同权重的 kernel 数值差异与异步权重滞后分开；先逐位对齐，再用无裁剪 IS 修正后者。REINFORCE Zero 报告 2.40 倍训练步吞吐；DSv4.1/Kimi K3.1 的对齐已验证，但这些大模型的长期异步训练仍是后续工作。",
+        "[NCCL M2N Reshard 加速 RL refit](https://developer.nvidia.com/blog/accelerating-reinforcement-learning-weight-refit-with-the-reshard-collective/)（11-06）— 按源/目标 DTensor 分片交集直传，再利用 NVLink 域内复制，减少先 gather 再 broadcast 的冗余；NeMo RL 指定模型/布局报告 2.7–5.7 倍 refit 提速，适合关注训练与 rollout 并行布局不同的系统。",
+        "[XM-Sparse：X-Mem 接入 SGLang HiSparse](https://lmsys.org/blog/2026-11-04-xm-sparse)（正文日期 11-05）— GLM-5.3、4×B300 decode，加额外 4×B300 HBM 模拟外部内存银行；固定 miss rate、关闭 prefetch，24TB 容量按模型设预算。2.09–3.04 倍峰值吞吐同时包含容量与带宽作用，实际 X-Mem silicon 尚未上市。",
+        "[ZML llmd 20261106.0](https://zml.ai/posts/llmd-20261106.0/)（11-06）— Llama/Gemma 4 加异步调度 beta，Llama 加 DP beta；GDN prefill 换 NVIDIA CuTe/AMD Fly kernel。投机解码仍走同步路径；同一双 5090 示例 DP2 优化后 1600 tok/s，DP1 约 2000，说明不能仅凭“支持 DP”推断它更快。",
+        "[AMD Quark 在线量化](https://rocm.blogs.amd.com/artificial-intelligence/online_quantization/README.html)（11-05）— 在 vLLM/ATOM/SGLang 的加载钩子里逐层量化或重定量化，无需生成每份试验 checkpoint；适合动态 rollout 权重和混合精度搜索。当前在线路径只做 RTN、没有校准恢复，最终固定部署仍可离线导出精调版本。"
+      ]
+    },
+    {
+      "id": "community",
+      "title": {
+        "zh": "社区讨论",
+        "en": "Community"
+      },
+      "blocks": [
+        "[KVGuard：KV 缓存泄漏可在 attention 读取时被抓到](https://news.ycombinator.com/item?id=50377638) — 9⬆ / 0💬；[SNU 原文](https://compsec.snu.ac.kr/blog/kvguard)（11-05）复现 SGLang 0.5.19 未初始化读取，说明 HTTP 200、无 crash 并不能证明缓存隔离正确；新工具的机制见下节。",
+        "[llama.cpp ClassLRU 专家缓存讨论](https://www.reddit.com/r/LocalLLaMA/comments/1xpfvfz/moecache_lrfumqlike_hybrid_cache_classlru_by/) — Reddit RSS/可读页面未提供可靠分数和总评论数，记为未取得。发帖者引用 warm cache 下 QFN/GLM decode +6%/+7%、上传减少 8%；[上游 #31233](https://github.com/ggml-org/llama.cpp/pull/31233) 已于 11-06 合入，帖子“待合并”的文字不能代表当前 PR 状态。"
+      ]
+    },
+    {
+      "id": "discovery",
+      "title": {
+        "zh": "新兴方向",
+        "en": "Emerging directions"
+      },
+      "blocks": [
+        "**InferaSim：实测锚点驱动的 serving 预测** — 同一组 kernel 只测少量 anchor，再用解析迁移与离散事件仿真筛选并行、PD 和 KV 卸载配置；AMD 报告 11 个 anchor 用 9.1 GPU-hours，覆盖逐一实测需 204 GPU-hours 的 226 个配置，TPOT 中位误差 8.1%。适合缩小部署搜索范围，最终候选仍须在目标机器确认。\n↳ [AMD 原文（11-06）](https://rocm.blogs.amd.com/software-tools-optimization/inferasim/README.html) · [代码](https://github.com/AMD-AGI/Infera) ｜ 发现于：搜索",
+        "**XSE：把一次前向从 Python 请求链路中移走** — Google 11-05 开源的 XLA Serving Engine 将模型封装成 XLA SavedModel，在 C++ / PJRT 中执行；厂商称短请求比优化过的 Python server 吞吐高 2–5 倍，适合 embedding/推荐等负载，长上下文自回归仍建议用 vLLM/SGLang。\n↳ [Google 原文](https://opensource.googleblog.com/2026/11/supercharging-xla-inference-xla-serving-engine.html) · [代码](https://github.com/openxla/xla-serving) ｜ 发现于：搜索",
+        "**Saber：RDNA4 上的 Rust 专用推理引擎** — 新公开的 R9700 / Qwen3.8 实现把 host 调度放在 Rust，配 DFlash2 和预打包权重；README 双 R9700、210W/card 下称约 229 tok/s，当前明确只支持 TP1/2，社区帖的 TP4/316 tok/s 不能混为同一配置，质量与第三方复现仍待补齐。\n↳ [代码及运行约束](https://github.com/GGZ14/saber-engine) · [作者发布帖](https://www.reddit.com/r/LocalLLaMA/comments/1xpicjz/qwen38_27b_hitting_6645_toks_on_prefill_and_316/) ｜ 发现于：核心盘 Reddit → 原仓核验",
+        "**KVGuard：给 serving KV 缓存加读访问检查** — SNU 用 shadow 元数据追踪 block 归属与已写 entry，并在 attention kernel 检查读访问，作者在 SGLang 0.5.19 泄漏复现中捕获 4095 次未初始化读；将缓存隔离从“输出看起来正常”变成可检测属性，后续关注开销与多引擎覆盖。\n↳ [原文（11-05）](https://compsec.snu.ac.kr/blog/kvguard) · [代码](https://github.com/compsec-snu/kvguard/) ｜ 发现于：核心盘 HN → 新工具核验"
+      ]
+    },
+    {
+      "id": "insights",
+      "title": {
+        "zh": "跨源洞察",
+        "en": "Cross-source insights"
+      },
+      "blocks": [
+        "**确定性正成为异步 RL 的系统前提。** [vLLM 的零 mismatch 实验](https://vllm.ai/blog/2026-11-06-zero-mismatch-async-rl)与 [FlashInfer #8999 的采样契约](https://github.com/flashinfer-ai/flashinfer/pull/8999)形成机制上的呼应：仅 GEMM 一致还不够，softmax、indexer、EP 合并也影响 logprob。两项并不构成已验证的集成；建议分别检查 kernel 数值差异、换权重停顿和 refit 布局流量。",
+        "**分离不是越细越好，映射可调更重要。** [SiliconForge](https://arxiv.org/abs/2611.08299)显示 AFD 的胜负取决于硬件池与互连；[InferaSim](https://rocm.blogs.amd.com/software-tools-optimization/inferasim/README.html)提供少量 anchor 驱动配置搜索的另一种工程工具。推断：容量规划宜先保留可变池/映射，再用真实流量确认 Pareto 候选，两者的结果不能直接互相当作验证。",
+        "**缓存正在从 KV 块变成多类状态的生命周期。** [tokenspeed checkpoint 回收](https://github.com/lightseekorg/tokenspeed/pull/2982)、[Dynamo 的 DP-rank 亲和性](https://github.com/ai-dynamo/dynamo/pull/17761)、[HST 跨模型状态迁移](https://arxiv.org/abs/2611.08133)分别涉及回收、定位和转换；结合 [KVGuard](https://compsec.snu.ac.kr/blog/kvguard)，缓存指标应同时检查命中、状态保真与请求隔离。",
+        "采集与筛选记录：核心盘原始 580 条，跨天去重丢弃 164 条，保留 416 条：PR 252、版本 32、arXiv 84、HF 论文 0、HF 模型 0、HN 7、Reddit 25、博客 16。报告详列 PR 33 组并折叠 5 行；版本 5 条、论文 6 条、博客 6 条、社区 2 条、新兴方向 4 条、联动洞察 3 条，合计 64 个项目符号；TL;DR 5 条另计，同主题分组可含多个 PR。",
+        "拓源记录：Trending 5、topic/rising 20、awesome 增量 0、新术语候选 7；榜单应用层项目和成名老仓未充作新兴方向。结合主动搜索与核心盘交叉核验，本轮新增观察源 5 个、已查证术语条目 31 个，已立即写回 sources.md；ZML 是补齐既有源，未计作新项目。本轮无自动晋升，5 个新源均暂留候选观察。Reddit 分数/总评论数未取得，未作估计。"
+      ]
+    }
+  ]
+}

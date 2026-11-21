@@ -1,0 +1,301 @@
+<p>Put compute throughput, HBM, on-chip memory, and interconnect on one budget, and see why different hardware needs different kernels and deployment choices.</p>
+
+<p>Chip architecture comparison:</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801051101770.svg" alt="Comparison of compute units and memory architecture in GPUs and NPUs" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p>Memory hierarchy:</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801044145759.svg" alt="GPU memory hierarchy" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p>HBM stacking diagram:</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/image-20260801041738401.svg" alt="HBM stack structure" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p>HBM generations compared:</p>
+
+<ul>
+  <li>HBM2e: spec 3.6Gbps, 910B actually runs at 3.2 → 0.40TB/s per stack × 4 stacks = 64GB · 1.6TB/s</li>
+  <li>HBM3: spec 6.4Gbps, H100/H800 actually run at 5.2 → 0.67 per stack × 5 stacks = 80GB · 3.35TB/s
+      (the public H20-96GB spec is 96GB, 4.0TB/s, which can be used to compare capacity and bandwidth at different stack counts)</li>
+  <li>HBM3e: spec 8–9.6Gbps; working back from the H200’s public capacity and bandwidth, the data rate per stack is about 6.25 → 0.80 per stack × 6 stacks = 141GB · 4.8TB/s
+      B200 pushes it to 7.8 → 1.0 per stack × 8 stacks = 192GB · 8.0TB/s
+      B300 at the same rate, switched to 12-high die stacks → 288GB · 8.0TB/s (bandwidth unchanged)</li>
+  <li>HBM4: interface width doubles from 1024→2048-bit, Rubin generation, ~2TB/s class per stack</li>
+</ul>
+
+<p>Notes:</p>
+<blockquote>
+  <p>Capacity, bandwidth, and compute throughput should be compared separately. Taking public specs as an example, the H20-96GB has 96GB of GPU memory and 4.0TB/s of bandwidth, and the H200 has 141GB and 4.8TB/s; more capacity does not mean the peak of every compute path changes in the same proportion.
+B200→B300 only adds die layers: capacity +50%, bandwidth unchanged → the ridge point is unchanged; it exists purely for the KV pool / large models</p>
+</blockquote>
+
+<h2 id="gpu-public-specifications-compared">GPU: public specifications compared</h2>
+
+<p>For the capacity, bandwidth, and compute peaks of the H20-96GB and H800, see the <a href="https://www.lmsys.org/blog/2025-09-26-sglang-ant-group/">SGLang public report</a>; for the H200’s capacity and bandwidth, see <a href="https://www.nvidia.com/en-us/data-center/h200/">NVIDIA’s product page</a>. The models in the table are listed for specification comparison; interpret the measured results under the conditions given in each of the following sections.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Chip</th>
+      <th style="text-align: center">Memory type</th>
+      <th style="text-align: center">Stacks×per stack</th>
+      <th style="text-align: center">Capacity</th>
+      <th style="text-align: center">HBM bandwidth</th>
+      <th style="text-align: center">L2</th>
+      <th style="text-align: center">SMEM/SM (SM count)</th>
+      <th style="text-align: center">8-GPU node</th>
+      <th style="text-align: center">Derived per-stack bandwidth</th>
+      <th style="text-align: center">BF16 (dense)</th>
+      <th style="text-align: center">FP8</th>
+      <th style="text-align: center">FP4</th>
+      <th style="text-align: center">Ridge (BF16/FP8)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">H20-96GB</td>
+      <td style="text-align: center">HBM3</td>
+      <td style="text-align: center">6×16GB</td>
+      <td style="text-align: center">96 GB</td>
+      <td style="text-align: center">4.0 TB/s</td>
+      <td style="text-align: center">60 MB</td>
+      <td style="text-align: center">228KB(78)¹</td>
+      <td style="text-align: center">768 GB</td>
+      <td style="text-align: center">0.67 TB/s</td>
+      <td style="text-align: center">148 T</td>
+      <td style="text-align: center">296 T</td>
+      <td style="text-align: center">—</td>
+      <td style="text-align: center">37 / 74</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">H200</td>
+      <td style="text-align: center">HBM3e</td>
+      <td style="text-align: center">6×24GB</td>
+      <td style="text-align: center">141 GB</td>
+      <td style="text-align: center">4.8 TB/s</td>
+      <td style="text-align: center">50 MB</td>
+      <td style="text-align: center">228KB(132)</td>
+      <td style="text-align: center">1128 GB</td>
+      <td style="text-align: center">0.80 TB/s</td>
+      <td style="text-align: center">990 T²</td>
+      <td style="text-align: center">1979</td>
+      <td style="text-align: center">—</td>
+      <td style="text-align: center">206 / 412</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">H800/H100</td>
+      <td style="text-align: center">HBM3</td>
+      <td style="text-align: center">5×16GB</td>
+      <td style="text-align: center">80 GB</td>
+      <td style="text-align: center">3.35 TB/s</td>
+      <td style="text-align: center">50 MB</td>
+      <td style="text-align: center">228KB(132)</td>
+      <td style="text-align: center">640 GB</td>
+      <td style="text-align: center">0.67 TB/s</td>
+      <td style="text-align: center">990 T</td>
+      <td style="text-align: center">1979 T</td>
+      <td style="text-align: center">—</td>
+      <td style="text-align: center">296 / 591</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">B200</td>
+      <td style="text-align: center">HBM3e</td>
+      <td style="text-align: center">8×24GB</td>
+      <td style="text-align: center">192 GB</td>
+      <td style="text-align: center">8.0 TB/s</td>
+      <td style="text-align: center">126 MB</td>
+      <td style="text-align: center">228KB (dual die)³</td>
+      <td style="text-align: center">1536 GB</td>
+      <td style="text-align: center">1.00 TB/s</td>
+      <td style="text-align: center">2250 T</td>
+      <td style="text-align: center">4500 T</td>
+      <td style="text-align: center">9000 T</td>
+      <td style="text-align: center">281 / 562 (FP4 1125)</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">B300</td>
+      <td style="text-align: center">HBM3e 12-Hi</td>
+      <td style="text-align: center">8×36GB</td>
+      <td style="text-align: center">288 GB</td>
+      <td style="text-align: center">8.0 TB/s</td>
+      <td style="text-align: center">126 MB</td>
+      <td style="text-align: center">Same as above</td>
+      <td style="text-align: center">2304 GB</td>
+      <td style="text-align: center">1.00 TB/s</td>
+      <td style="text-align: center">2500 T</td>
+      <td style="text-align: center">5000 T</td>
+      <td style="text-align: center">15000 T</td>
+      <td style="text-align: center">312 / 625 (FP4 1875)</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>¹ Do not infer compute peaks from SM count alone: Tensor Core throughput configurations can differ between SKUs. The H20’s public BF16 peak is 148T and should be used directly in budgets at that precision.</p>
+
+  <p>² Devices with similar memory capacity and bandwidth can still have different compute peaks. When selecting hardware, evaluate capacity, effective bandwidth, and throughput at the target precision separately rather than ranking by a single metric.</p>
+
+  <p>³ How to read the compute columns for B300 vs B200: FP4 +67%, FP8/BF16 only +11% — a lopsided upgrade, an inference SKU specialized for FP4 (it also cuts FP64 to 1.2TF and doubles the attention units; these don’t fit in the table, so they are noted here).</p>
+</blockquote>
+
+<h2 id="measured-compute-memory-access-and-data-transfer">Measured: compute, memory access, and data transfer</h2>
+
+<p>The following records measurements from a single test configuration (96GB of GPU memory per GPU, driver 550, SM clock about 1980MHz, peak power about 300W). These results are for analyzing effective throughput and fixed overhead, and are not a performance commitment for every device.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Measured</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Compute throughput</td>
+      <td>BF16 138T (93%), FP8 282T (95%), DeepGEMM blockwise FP8 264–272T</td>
+    </tr>
+    <tr>
+      <td>HBM</td>
+      <td>copy 3.33 TB/s, read-only 3.2–3.3, write-only 3.4 (83–85%) ⟹ R_eff ≈ 42 / 85</td>
+    </tr>
+    <tr>
+      <td>On-chip</td>
+      <td>78 SMs, L2 60 MB, SMEM 228 KB/SM (227 KB per block)</td>
+    </tr>
+    <tr>
+      <td>NVLink</td>
+      <td>18 × 26.56 GB/s = 478 GB/s per direction; P2P copy 395 GB/s</td>
+    </tr>
+    <tr>
+      <td>PCIe</td>
+      <td>Gen5 ×16, pinned H2D/D2H 54–55 GB/s, preallocated pageable 13–16 GB/s</td>
+    </tr>
+    <tr>
+      <td>NIC</td>
+      <td>4 × 400G RoCE bond (NIC0–3 share a PCIe switch with GPU1/3/4/6 respectively), single-NIC RDMA 392 Gb/s</td>
+    </tr>
+    <tr>
+      <td>Kernel launch</td>
+      <td>raw <code class="language-plaintext highlighter-rouge">cudaLaunchKernel</code> 1.9 μs; PyTorch eager 4.5–12 μs/op; <code class="language-plaintext highlighter-rouge">cudaGraphLaunch</code> 2.9 μs on the host side, 0.76 μs per node on the GPU side</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="npu">NPU</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Chip</th>
+      <th style="text-align: center">Dies per package</th>
+      <th style="text-align: center">Per die (usable compute units)</th>
+      <th style="text-align: center">Per-card aggregate (sum of the two dies working independently)</th>
+      <th style="text-align: center">Ridge (per die)</th>
+      <th style="text-align: center">Intra-node interconnect / scale-up domain</th>
+      <th style="text-align: center">Inter-node</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">910B</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">64 GB / 1.6 TB/s / 376T¹</td>
+      <td style="text-align: center">= per die</td>
+      <td style="text-align: center">235</td>
+      <td style="text-align: center">HCCS 392 GB/s (56×7 full-mesh)</td>
+      <td style="text-align: center">8 cards<br />200G RoCE, 1:1 (25 GB/s)</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">910C</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">64 GB / 1.6 TB/s / ~376T</td>
+      <td style="text-align: center">128 GB / 3.2 TB/s / ~800T</td>
+      <td style="text-align: center">235</td>
+      <td style="text-align: center">Inter-die bandwidth not disclosed<br />384 cards (CloudMatrix, UB optical interconnect)</td>
+      <td style="text-align: center">Not disclosed</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">950PR (26Q1)</td>
+      <td style="text-align: center">Not disclosed</td>
+      <td style="text-align: center">—</td>
+      <td style="text-align: center">112 GB / 1.4 TB/s / FP4 1.56P</td>
+      <td style="text-align: center">—</td>
+      <td style="text-align: center">8192 cards (Atlas 950 SuperPoD)</td>
+      <td style="text-align: center">UnifiedBus (Lingqu) ~2TB/s</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">950DT (26Q4)</td>
+      <td style="text-align: center">Not disclosed</td>
+      <td style="text-align: center">—</td>
+      <td style="text-align: center">Not disclosed (HiZQ memory, in-house)</td>
+      <td style="text-align: center">—</td>
+      <td style="text-align: center">Not disclosed<br />Same as above</td>
+      <td style="text-align: center">Same as above</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>NPU deployments should still be diagnosed separately for compute, memory access, and kernel launch: matrix operations go to the Cube, while fragmented vector/scalar operations can limit the pipeline; graph mode reduces host-side launches, and fusion reduces intermediate tensors and fragmented operations, but it cannot turn arbitrary Vector operations into Cube operations. HCCS within a node and RoCE across nodes must be modeled separately, and with 8-card nodes, EP16 already crosses nodes; confirm the actual topology and available links first, then choose the collective communication algorithm, and do not carry over the fixed 7× speedup from the simulated table.</p>
+
+<h2 id="series-navigation">Series navigation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Chapter</th>
+      <th>Article</th>
+      <th>Scheduled date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-00-roofline/">Roofline: Performance Budgets from Compute and Bandwidth</a></td>
+      <td>2026-01-01</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a></td>
+      <td>2026-02-13</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a></td>
+      <td>2026-03-29</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><strong>Inference Hardware: GPUs, NPUs, and the Memory Hierarchy (this post)</strong></td>
+      <td>2026-05-11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a></td>
+      <td>2026-06-24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a></td>
+      <td>2026-08-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-06-pd-epd/">PD and EPD: Disaggregation, State Transfer, and Resource Allocation</a></td>
+      <td>2026-09-19</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></td>
+      <td>2026-11-01</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Previous: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a> · Next: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a></p>

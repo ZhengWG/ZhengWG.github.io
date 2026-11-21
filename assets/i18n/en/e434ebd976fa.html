@@ -1,0 +1,306 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Closures</a></li>
+  <li><a href="#sec-3">Decorators</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>This article introduces <strong>closures</strong> and <strong>decorators</strong>. Using a <strong>closure</strong> sensibly can reduce a program’s complexity and improve its readability. Closures are often used together with <strong>decorators</strong>, which greatly improves the readability and reusability of a program.</p>
+
+<h1 id="closures">Closures<a id="sec-2"></a></h1>
+
+<p>A closure is the case where a function definition contains a “nested function” and the outer function returns a function. The returned function can be assigned to a variable and called later. The following example computes powers:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">nth_power</span><span class="p">(</span><span class="n">exponent</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">exponent_of</span><span class="p">(</span><span class="n">base</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">base</span> <span class="o">**</span> <span class="n">exponent</span>
+    <span class="k">return</span> <span class="n">exponent_of</span> <span class="c1"># 返回值是exponent_of函数
+</span>
+<span class="n">square</span> <span class="o">=</span> <span class="n">nth_power</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># 计算一个数的平方
+</span><span class="n">cube</span> <span class="o">=</span> <span class="n">nth_power</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="c1"># 计算一个数的立方 
+</span><span class="n">square</span>
+<span class="c1"># 输出
+</span><span class="o">&lt;</span><span class="n">function</span> <span class="n">__main__</span><span class="p">.</span><span class="n">nth_power</span><span class="p">.</span><span class="o">&lt;</span><span class="nb">locals</span><span class="o">&gt;</span><span class="p">.</span><span class="n">exponent</span><span class="p">(</span><span class="n">base</span><span class="p">)</span><span class="o">&gt;</span>
+
+<span class="n">cube</span>
+<span class="c1"># 输出
+</span><span class="o">&lt;</span><span class="n">function</span> <span class="n">__main__</span><span class="p">.</span><span class="n">nth_power</span><span class="p">.</span><span class="o">&lt;</span><span class="nb">locals</span><span class="o">&gt;</span><span class="p">.</span><span class="n">exponent</span><span class="p">(</span><span class="n">base</span><span class="p">)</span><span class="o">&gt;</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">square</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>  <span class="c1"># 计算2的平方
+</span><span class="k">print</span><span class="p">(</span><span class="n">cube</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="c1"># 计算2的立方
+# 输出
+</span><span class="mi">4</span> <span class="c1"># 2^2
+</span><span class="mi">8</span> <span class="c1"># 2^3
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>As you can see, in the closure scenario above, where the function is called many times (for example square/cube are used frequently), the extra work can be placed in the outer function (the exponent parameter is passed in when the outer function is defined). This reduces the unnecessary overhead of repeated calls and improves the program’s efficiency.</p>
+
+<h1 id="decorators">Decorators<a id="sec-3"></a></h1>
+
+<p>A <strong>decorator</strong> is somewhat similar to a <strong>closure</strong>. The difference is that a decorator takes a function as its input and returns an inner function <code class="language-plaintext highlighter-rouge">wrapper()</code>. The <code class="language-plaintext highlighter-rouge">wrapper()</code> function does not change the function passed in; it only adds some extra behavior. The most common use cases are input validation (validation_check) and caching decorators (LRU cache). A basic example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre>
+<span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'wrapper of decorator'</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="k">def</span> <span class="nf">greet</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'hello world'</span><span class="p">)</span>
+
+<span class="n">greet</span> <span class="o">=</span> <span class="n">my_decorator</span><span class="p">(</span><span class="n">greet</span><span class="p">)</span>
+<span class="n">greet</span><span class="p">()</span>
+
+<span class="c1"># 输出
+</span><span class="n">wrapper</span> <span class="n">of</span> <span class="n">decorator</span>
+<span class="n">hello</span> <span class="n">world</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Python</strong> provides the <code class="language-plaintext highlighter-rouge">@</code> “syntactic sugar”, so the example above can be rewritten as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre>
+<span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'wrapper of decorator'</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="o">@</span><span class="n">my_decorator</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'hello world'</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The usage above is the most basic form of a decorator, and it has some problems:</p>
+
+<ol>
+  <li>This decorator cannot take arguments: in real scenarios, a variable number of arguments is usually passed in.</li>
+  <li>After decoration, the metadata of the original function changes: <code class="language-plaintext highlighter-rouge">func.__name</code> becomes <code class="language-plaintext highlighter-rouge">wrapper</code>.</li>
+</ol>
+
+<p>Problem 1 can be solved by passing in <code class="language-plaintext highlighter-rouge">*args, **kwargs</code>, and problem 2 can be solved with the built-in decorator <code class="language-plaintext highlighter-rouge">@functools.wrap</code>, which protects the metadata (by copying the metadata of the original function to the decorator function). The modified code is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="k">def</span> <span class="nf">my_decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="o">@</span><span class="n">functools</span><span class="p">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'wrapper of decorator'</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="o">@</span><span class="n">my_decorator</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">.</span><span class="n">__name__</span>
+
+<span class="c1"># 输出
+</span><span class="s">'greet'</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The examples above use a function as the decorator. A class can also be used as a decorator, which relies on the built-in <code class="language-plaintext highlighter-rouge">__call()</code> function:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre>
+<span class="k">class</span> <span class="nc">Count</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_calls</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_calls</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'num of calls is: {}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_calls</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="o">@</span><span class="n">Count</span>
+<span class="k">def</span> <span class="nf">example</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"hello world"</span><span class="p">)</span>
+
+<span class="n">example</span><span class="p">()</span>
+<span class="c1"># 输出
+</span><span class="n">num</span> <span class="n">of</span> <span class="n">calls</span> <span class="ow">is</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">hello</span> <span class="n">world</span>
+
+<span class="n">example</span><span class="p">()</span>
+<span class="c1"># 输出
+</span><span class="n">num</span> <span class="n">of</span> <span class="n">calls</span> <span class="ow">is</span><span class="p">:</span> <span class="mi">2</span>
+<span class="n">hello</span> <span class="n">world</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Decorators are often “nested”. Here we discuss the order in which they are called. For the following nested case:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="o">@</span><span class="n">decorator1</span>
+<span class="o">@</span><span class="n">decorator2</span>
+<span class="o">@</span><span class="n">decorator3</span>
+<span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="p">...</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>it is equivalent to:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="n">decorator1</span><span class="p">(</span><span class="n">decorator2</span><span class="p">(</span><span class="n">decorator3</span><span class="p">()))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>An example of the calling order:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="k">def</span> <span class="nf">my_decorator1</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'enter decorator1'</span><span class="p">)</span>
+    <span class="o">@</span><span class="n">functools</span><span class="p">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'execute decorator1'</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="k">def</span> <span class="nf">my_decorator2</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'enter decorator2'</span><span class="p">)</span>
+    <span class="o">@</span><span class="n">functools</span><span class="p">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'execute decorator2'</span><span class="p">)</span>
+        <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="o">@</span><span class="n">my_decorator1</span>
+<span class="o">@</span><span class="n">my_decorator2</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">(</span><span class="s">'hello world'</span><span class="p">)</span>
+
+<span class="c1"># 输出
+</span><span class="n">enter</span> <span class="n">decorator2</span>
+<span class="n">enter</span> <span class="n">decorator1</span>
+<span class="n">execute</span> <span class="n">decorator1</span>
+<span class="n">execute</span> <span class="n">decorator2</span>
+<span class="n">hello</span> <span class="n">world</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

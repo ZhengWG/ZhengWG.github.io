@@ -1,0 +1,162 @@
+<ul>
+  <li><a href="#sec-1">Basic Data Structures</a></li>
+  <li><a href="#sec-2">Lists and Tuples</a></li>
+  <li><a href="#sec-3">Dictionaries and Sets</a></li>
+</ul>
+
+<p>Python’s basic data structures are the list, tuple, dict (dictionary), and set.</p>
+
+<h1 id="basic-data-structures">Basic Data Structures<a id="sec-1"></a></h1>
+
+<ul>
+  <li>A list is dynamic: its length is not fixed, and elements can be freely added, removed, or modified</li>
+  <li>A tuple is static: its length is fixed, and elements cannot be added, removed, or modified</li>
+  <li>Compared with lists and tuples, dictionaries perform better; in particular, lookup, insertion, and deletion all complete in constant time</li>
+  <li>A set is essentially the same as a dictionary, except that a set has no key-value pairs; it is an unordered collection of unique elements</li>
+</ul>
+
+<h1 id="lists-and-tuples">Lists and Tuples<a id="sec-2"></a></h1>
+
+<ul>
+  <li>
+    <p>Difference in storage between lists and tuples: a list takes more space than a tuple (16 bytes more), made up of two parts: a pointer to the corresponding element (8 bytes), and the allocated length (8 bytes), which lets Python track the list’s space usage in real time and allocate extra space promptly when it runs out.</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre>  <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+  <span class="n">t</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">__sizeof__</span><span class="p">())</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">__sizeof__</span><span class="p">())</span>
+<span class="c1">#+RESULTS:
+</span><span class="p">:</span> <span class="mi">48</span>
+<span class="p">:</span> <span class="mi">64</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The over-allocating mechanism of lists: when <code class="language-plaintext highlighter-rouge">append</code> grows a list, Python allocates some extra space each time to reduce the cost of resizing on every insertion or deletion, which keeps these operations efficient: the time complexity of both insertion and deletion is O(1).</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="rouge-code"><pre>  <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">__sizeof__</span><span class="p">())</span> <span class="c1"># 空列表的存储空间为40字节
+</span>  <span class="n">l</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">__sizeof__</span><span class="p">())</span> <span class="c1"># 加入元素1,列表额外分配了4个元素的空间: size为72
+</span>  <span class="n">l1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">l1</span><span class="p">.</span><span class="n">__sizeof__</span><span class="p">())</span> <span class="c1"># 初始化的列表不会额外分配：size为48
+</span>  <span class="n">l</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="n">l</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+  <span class="n">l</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">__sizeof__</span><span class="p">())</span> <span class="c1"># 存储空间没有超出，size为72
+</span>  <span class="n">l</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+  <span class="k">print</span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">__sizeof__</span><span class="p">())</span> <span class="c1"># 存储空间超出，再次分配4个元素的空间：size为104
+#+RESULTS:
+</span><span class="p">:</span> <span class="mi">40</span>
+<span class="p">:</span> <span class="mi">72</span>
+<span class="p">:</span> <span class="mi">48</span>
+<span class="p">:</span> <span class="mi">72</span>
+<span class="p">:</span> <span class="mi">104</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Performance of lists versus tuples: a tuple is a lighter-weight data structure than a list and is faster. In addition, Python’s garbage collection mechanism (covered later) temporarily caches the memory of some static objects, such as tuples, when they are no longer used and are small. So the next time Python needs a tuple of the same size, it does not have to send a request to find memory, which speeds up the program. For indexing, the difference between the two is very small.</p>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre>  python3 <span class="nt">-m</span> timeit <span class="s1">'x = (1,2,3,4,5,6)'</span>
+  python3 <span class="nt">-m</span> timeit <span class="s1">'x = [1,2,3,4,5,6]'</span>
+  python3 <span class="nt">-m</span> timeit <span class="s1">'x = (1,2,3,4,5,6)'</span> <span class="s1">'y=x[3]'</span> <span class="s1">'x = [1,2,3,4,5,6]'</span>
+  python3 <span class="nt">-m</span> timeit <span class="s1">'x = [1,2,3,4,5,6]'</span> <span class="s1">'y=x[3]'</span> <span class="s1">'x = (1,2,3,4,5,6)'</span>
+<span class="c">#+RESULTS:</span>
+: 20000000 loops, best of 5: 14.6 nsec per loop
+: 5000000 loops, best of 5: 57.9 nsec per loop
+: 5000000 loops, best of 5: 79.9 nsec per loop
+: 5000000 loops, best of 5: 80.1 nsec per loop
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>
+
+<h1 id="dictionaries-and-sets">Dictionaries and Sets<a id="sec-3"></a></h1>
+
+<ul>
+  <li>How dictionaries and sets work:
+    <ul>
+      <li>
+        <p>Initialization: the internal structure of both a dictionary and a set is a hash table; a dictionary just adds a value to each key. To use space better, the hash table keeps the indices separate from the hash values, keys, and values:</p>
+
+        <p>Indices (sparse):</p>
+
+        <table>
+          <tbody>
+            <tr>
+              <td>None</td>
+              <td>index</td>
+              <td>None</td>
+              <td>None</td>
+              <td>index</td>
+              <td>None</td>
+              <td>…</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>Entries (dense):</p>
+
+        <table>
+          <tbody>
+            <tr>
+              <td>hash0</td>
+              <td>key0</td>
+              <td>value0</td>
+            </tr>
+            <tr>
+              <td>hash1</td>
+              <td>key1</td>
+              <td>value1</td>
+            </tr>
+            <tr>
+              <td>hash2</td>
+              <td>key2</td>
+              <td>value2</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>Insertion: when an element is inserted into a dictionary or set, Python first computes the key’s hash value and then ANDs it with the mask value (mask = PyDicMinSize - 1): index = hash(key) &amp; mask. The index value is a position in the hash table. If that position in the Indices table is empty, the element is inserted there. If it is occupied, Python compares the hash values and the keys of the two elements:
+        <ul>
+          <li>If both are equal, the element already exists; if the values differ, the value is updated.</li>
+          <li>If either is not equal, a “hash collision” occurs: the keys are different but the hash values are the same. The simplest remedy is linear probing or quadratic probing to find an empty slot (the real implementation is of course optimized, which we do not cover here).</li>
+        </ul>
+      </li>
+      <li>Lookup: use the hash value to find the position in the Indices table directly, and from it the position of the data. Then compare the hash value and key of the element at that position; if they are equal, return it; otherwise keep probing until the element is found or an exception is raised.</li>
+      <li>Deletion: on deletion, Python temporarily assigns a special value (a marker) to the element at that position, and removes it only when the hash table is next resized. This is done mainly to save operation time. To keep it efficient, the hash table inside a dictionary or set normally keeps at least 1/3 of its space free. As elements keep being inserted, when the free space drops below 1/3, Python obtains a larger block of memory and expands the hash table. In that case all elements in the table are rearranged.</li>
+    </ul>
+  </li>
+</ul>

@@ -1,0 +1,198 @@
+<ul>
+  <li><a href="#sec-1">Hardware</a>
+    <ul>
+      <li><a href="#sec-1-1">GPU</a>
+        <ul>
+          <li><a href="#sec-1-1-1">NVIDIA</a></li>
+          <li><a href="#sec-1-1-2">Biren Technology</a></li>
+        </ul>
+      </li>
+      <li><a href="#sec-1-2">XPU</a>
+        <ul>
+          <li><a href="#sec-1-2-1">Google TPU</a></li>
+          <li><a href="#sec-1-2-2">Ascend</a></li>
+          <li><a href="#sec-1-2-3">Kunlun</a></li>
+          <li><a href="#sec-1-2-4">Cambricon</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#sec-2">Software</a>
+    <ul>
+      <li><a href="#sec-2-1">Core topics</a></li>
+    </ul>
+  </li>
+  <li><a href="#sec-3">References</a></li>
+</ul>
+
+<h1 id="hardware">Hardware<a id="sec-1"></a></h1>
+
+<h2 id="gpu">GPU<a id="sec-1-1"></a></h2>
+
+<p>A GPU (Graphics Processing Unit) is a microprocessor that performs image and graphics computation on personal computers, workstations, and some mobile devices. The concept was first introduced by NVIDIA in August 1999 with the release of the GeForce 256 chip. Early GPUs were used mostly for image computation (especially 3D graphics), such as hardware coordinate transformation and texture mapping for 3D environments. By how they connect to the system, GPUs fall into discrete GPUs and integrated GPUs. A discrete GPU is usually packaged on its own graphics card and has dedicated GPU memory, whereas an integrated GPU usually shares resources with the CPU, such as system memory. By target platform, GPUs can be divided into PC, server, and mobile GPUs.</p>
+
+<p>The traditional GPU market (PC and server) is currently almost monopolized by foreign vendors. The revenue of the top three vendors, Nvidia, AMD, and Intel, makes up nearly the whole GPU industry’s revenue, and Intel’s revenue comes mainly from integrated graphics. In mobile GPUs, such as those in phones and tablets, the leading vendors are ARM, Qualcomm, and Apple. For most of the past 20-plus years, demand for GPUs came from video acceleration and 2D/3D games, but with the GPU’s advantages in parallel processing and general-purpose computing, demand in artificial intelligence and edge computing is gradually taking off. For NVIDIA, 2021 revenue was 16.7 billion US dollars, of which gaming accounted for 47%, data centers for 40%, and professional visualization and autonomous driving for 9%. For the computing industry, GPUs are measured along three dimensions: generality, ease of use, and high performance. That is, the hardware architecture must be flexible enough, the barrier to development must be low so it is easy to get started, and the chip must offer high baseline performance and good price-performance. Domestic Chinese GPUs developed relatively late; the earliest GPU chip, the JM5400, was developed by Jingjiawei in 2014. Other relatively well-known vendors include Biren Technology, VeriSilicon, Denglin Technology, and HiSilicon.</p>
+
+<h3 id="nvidia">NVIDIA<a id="sec-1-1-1"></a></h3>
+
+<p>In large data centers, artificial intelligence, and supercomputing, high-end GPUs are gradually becoming a necessity for compute throughput. NVIDIA holds more than 90% of the high-end GPU market. So far, NVIDIA has released the Volta, Ampere, and Hopper architectures for high-performance computing and AI training, with the corresponding GPUs V100, A100, and H100; their double-precision vector floating-point throughput ranges from 7.8TFLOPS to 30TFLOPS. The rest of this section focuses on NVIDIA’s latest Hopper architecture. NVIDIA’s GPU microarchitectures over the past decade evolved as follows: Tesla-&gt;Fermi-&gt;Kepler-&gt;Maxwell-&gt;Pascal-&gt;Volta-&gt;Turing-&gt;Ampere-&gt;Hopper.</p>
+
+<p>Before introducing Hopper, here is a brief look at the basic unit of an NVIDIA GPU, the SM (streaming multiprocessor). Its basic structure is shown below (the composition of the SM differs somewhat between architectures):</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221005_164310.png" alt="img" /></p>
+
+<p>The SM is regarded as the heart of the GPU. Its core units include:</p>
+
+<ul>
+  <li>CUDA Core: Before the Fermi architecture it was also called an SP (scalar processor core). It is the general-purpose compute unit and can perform a multiply-add with a single instruction. Depending on the supported data type, there are INT32, FP32, and FP64 CUDA Core units.</li>
+  <li>Tensor Core: Introduced after the Volta architecture and used mainly for matrix operations (MMA). It supports FP16/FP32 mixed precision.</li>
+  <li>LD/ST: short for Load/Store Unit, the memory access unit.</li>
+  <li>SFU: short for Special Function Unit, which handles special math functions such as sin/cos.</li>
+  <li>Warp Scheduler: The warp is NVIDIA’s basic unit of thread scheduling, and every SM has warp schedulers to schedule warps.</li>
+  <li>Dispatch Unit: Sends the instructions issued by the warp scheduler to the cores (CUDA core, Tensor Core, LD/ST, SFU) for execution.</li>
+  <li>L0 Instruction Cache: The cache built into the SM.</li>
+  <li>Register File: The register resources, which are partitioned across the SMs.</li>
+</ul>
+
+<p>Outside the SM are the Tensor Memory Accelerator (TMA), the L1 cache, and shared memory. The TMA can efficiently transfer large blocks of data between global memory and shared memory, copy data asynchronously, and so on.</p>
+
+<p>The Hopper architecture is described in more detail in the <a href="https://www.nvidia.cn/lp/data-center/resources/download-hopper-arch-whitepaper/">NVIDIA architecture whitepaper</a>; the key points are summarized here.</p>
+
+<ol>
+  <li>4nm process. For the H100 in the SXM4 form factor, power is 700W and memory bandwidth is 3TB/s. Compared with the A100, the H100’s clock speed is 30% higher and its number of SMs is 1.2x higher.</li>
+  <li>Key SM features: Each SM is organized into 4 quadrants. Each quadrant contains 16 INT32 units, which support mixed-precision INT32/INT8/INT4 processing; 32 FP32 units, which support FP16/FP32 mixed precision; 16 FP64 units; 384 32-bit registers; 8 LD/ST units; 4 SFU units; and 1 Tensor Core.</li>
+  <li>
+    <p>Key Tensor Core features: It uses the fourth-generation Tensor Core architecture, which doubles the computational throughput. The Tensor Core supports the FP8, FP16, BF16, TF32, FP64, and INT8 MMA data types. FP8 is a newly added data type, and the FP8 Tensor Core supports multiple accumulator data types and output types (see the figures below). The Transformer Engine can also choose between FP8 and FP16 precision, which raises throughput (~2x) while maintaining accuracy.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221006_231604.png" alt="img" /></p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221006_231829.png" alt="img" /></p>
+  </li>
+  <li>Shared memory/L1 cache: The H100 has 256KB of L1 cache per SM versus 192KB per SM on the A100, and shared memory can go up to 228KB.</li>
+  <li>Overall performance comparison: Combining the clock speed and SM count from item 1 with the Tensor Core throughput gain and the Transformer Engine from item 3, the H100’s compute throughput is about 6x that of the A100.</li>
+</ol>
+
+<h3 id="biren-technology">Biren Technology<a id="sec-1-1-2"></a></h3>
+
+<p>Relatively little public information exists on domestic Chinese GPUs. Taking <a href="https://www.birentech.com/BR100.html">Biren Technology</a> as an example, the current BR100 series includes two chips, the BR100 and the BR104. The core specifications of the BR100 are:</p>
+
+<ul>
+  <li>2048 TOPS INT8 / 1024 TOPS BF16 / 512 TOPS TF32+ / 256 TOPS FP32</li>
+  <li>PCIe 5.0 interface at 128GB/s, and BLink (the counterpart of NvLink)</li>
+  <li>300+MB of cache, 2.3TB/s of external I/O bandwidth, 64 channels of encoding and 512 channels of decoding, 2.5D CoWoS packaging, 7nm process, 550W power</li>
+</ul>
+
+<p>The overall chip architecture is shown below. It has several main parts: the compute units, a 2D-mesh on-chip network, the HBM2e memory system, the media engine, the PCIe 5.0 interface, and the BLink interconnect interface:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221008_225402.png" alt="img" /></p>
+
+<p>The chip’s core compute unit, the SPC, is analogous to the GPU’s SM. Each SPC contains 16 EUs (Execution Units), and each EU has 16 general-purpose compute cores (V-cores) and one Tensor core. At the instruction-set level it uses SIMT, together with an NVIDIA-like C-Warp cooperative concurrency scheme, so it is compatible with CUDA. It uses a distributed shared L2 cache connected through the on-chip network.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221008_230952.png" alt="img" /></p>
+
+<h2 id="xpu">XPU<a id="sec-1-2"></a></h2>
+
+<h3 id="google-tpu">Google TPU<a id="sec-1-2-1"></a></h3>
+
+<p>Google first proposed the first-generation TPU (Tensor Processing Unit) in 2016, positioning it as an AI accelerator application-specific integrated circuit (ASIC). As of 2022 the TPU has reached TPUv4: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221113_163930.png" alt="img" /></p>
+
+<p>Google’s TPU was first released in 2017; see <a href="https://johneyzheng.top/posts/Goolge-TPU%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/">A reading of the Google TPU paper</a> for details. Its structure is as follows. The main compute unit is the Matrix Multiply unit, whose inputs come from two parts: the FIFO (weight matrix) and the UB (input data), and whose output goes to the accumulators (Accumulators). There are also dedicated nonlinear, Normalize, and Pool units. The design philosophy of the TPU architecture: <code class="language-plaintext highlighter-rouge">The philosophy of the TPU microarchitecture is to keep the matrix unit busy.</code></p>
+
+<p>The design framework of <a href="https://cloud.google.com/tpu/docs/system-architecture-tpu-vm">TPU v4</a> is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221113_220729.png" alt="img" /></p>
+
+<p>Each v4 TPU chip contains two TensorCores. Each TensorCore has four MXUs, one vector unit, and one scalar unit.</p>
+
+<h3 id="ascend">Ascend<a id="sec-1-2-2"></a></h3>
+
+<p><a href="https://www.hiascend.com/zh/">Ascend</a> AI accelerator cards currently come in three main types: Atlas 300I Duo, Atlas 300I Pro, and Atlas 300V Pro. Taking the 300I Duo as an example:</p>
+
+<ul>
+  <li>7nm process, 280 TOPS INT8, 140 TFLOPS FP16, 48GB of LPDDR4x with 408GB/s total bandwidth, ECC support, <strong>very strong</strong> encoding and decoding capability, PCIe Gen4.0, compatible with 3.0/2.0/1.0</li>
+</ul>
+
+<p>At the architecture level it uses the in-house Da Vinci architecture. The key points are the compute unit design (Cube/Vector/Scalar Unit) and the multi-level cache design (UB/L1/L2), which “happen to coincide” with the TPU’s design approach:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221113_221926.png" alt="img" /></p>
+
+<h3 id="kunlun">Kunlun<a id="sec-1-2-3"></a></h3>
+
+<p><a href="https://www.kunlunxin.com.cn">Kunlun</a> chips currently have two architectures, XPU-K and XPU-R (for reference material, see <a href="https://ieeexplore.ieee.org/document/9220641/metrics#metrics">Baidu Kunlun An AI processor for diversified workloads</a>):</p>
+
+<ul>
+  <li>First-generation architecture, XPU-K, taking the K200 as an example: 14nm process, 256 TOPS@INT8 compute throughput, 64TFLOPS@FP16, PCIe 4.0x8, HBM high-speed memory, 512GB/s memory bandwidth</li>
+  <li>
+    <p>Second-generation architecture, XPU-R, taking the R200 as an example: 7nm process, 256 TOPS@INT8 compute throughput, 128TFLOPS@FP16, GDDR6 high-performance memory, PCIe 4.0x16. The <a href="https://www.kunlunxin.com.cn/122.html">XPU-R architecture</a> is as follows:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221015_175351.png" alt="img" /></p>
+  </li>
+</ul>
+
+<h3 id="cambricon">Cambricon<a id="sec-1-2-4"></a></h3>
+
+<p>As of this writing (2022/11), the <a href="https://www.cambricon.com/">Cambricon</a> website lists three generations of accelerator cards: MLU 1xx, MLU 2xx, and MLU 3xx. The parameters of the latest chip, the MLU370, are as follows:</p>
+
+<ul>
+  <li>MLU370: 7nm process, 256 TOPS@INT8 compute throughput, MLUarch3 architecture, LPDDR5 support, MLU-Link interconnect</li>
+</ul>
+
+<p>Little material is available on the MLUarch3 architecture. Its evolution is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221113_153514.png" alt="img" /></p>
+
+<p>Chiplet technology is a chip design and manufacturing technique: functionality is split into small pieces with reusable IP blocks that can be combined modularly. It can raise yield and lower production cost, and some vendors regard it as the key to extending Moore’s Law. Many chip vendors have proposed their own chiplet technologies, such as TSMC’s bumpless System on Integrated Chip, AMD’s Zen2 architecture, and Intel’s Foveros 3D-stacking heterogeneous system integration scheme.</p>
+
+<p>At the architecture design level, Cambricon has released several architectures since 2014:</p>
+
+<ul>
+  <li>
+    <p>DianNao: A Small-Footprint High-Throughput Accelerator for Ubiquitous Machine-Learning. It first proposed the NFU (Neural Function Units) structure, which has three parts: NFU-1, the multiplier array; NFU-2, the adder tree; and NFU-3, the activation unit. There are also three buffers, which store the input data, the weights, and the computed results. <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221113_160240.png" alt="img" /></p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-11-13-AI%25E6%25A8%25A1%25E5%259E%258B%25E9%2583%25A8%25E7%25BD%25B2%25E7%25A1%25AC%25E4%25BB%25B6%25E7%25BB%25BC%25E8%25BF%25B0/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E8%BD%AF%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0_20221113_160259.png" alt="img" /></p>
+  </li>
+  <li>DaDianNao: A Machine-Learning Supercomputer. A multi-core version of DianNao that uses a multi-chip design to run large models out of on-chip memory.</li>
+  <li>ShiDianNao: Shifting Vision Processing Closer to the Sensor. It integrates operations such as video encoding and decoding.</li>
+  <li>PuDianNao: A Polyvalent Machine Learning Accelerator. The last work in the DianNao line, it supports 7 machine learning algorithms: neural networks, linear models, support vector machines, decision trees, naive Bayes, K-nearest neighbors, and K-means clustering.</li>
+  <li>Cambricon-X: An Accelerator for Sparse Neural Networks. It adds support for sparse networks.</li>
+</ul>
+
+<h1 id="software">Software<a id="sec-2"></a></h1>
+
+<p>NPU scheduling differs greatly from traditional CPU scheduling strategies, and the goal of high-performance NPU computing is to get the maximum speedup from an NPU-specific strategy. The topics involved include operating-system knowledge such as kernel drivers, memory management, system calls, and context switching. Many of the problems encountered are similar too, such as cache utilization and DDR latency.</p>
+
+<h2 id="todo-core-topics">TODO Core topics<a id="sec-2-1"></a></h2>
+
+<h1 id="references">References<a id="sec-3"></a></h1>
+
+<p><a href="https://zhuanlan.zhihu.com/p/491295891">Hopper architecture and the Transformer Engine</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/380317994">A survey of mainstream mobile-phone NPU software stacks (2021 Q2)</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/61735898">Zhihu: A look at AI cloud chips in 2018</a></p>
+
+<p><a href="https://cloud.tencent.com/developer/article/1005802">Heterogeneous hardware acceleration for deep learning: TPU characteristics and ASIC applications in data centers</a></p>
+
+<p><a href="https://cloud.tencent.com/developer/article/1006018">Heterogeneous acceleration for deep learning (1): efficiency suffers from generality, architecture is born for AI</a></p>
+
+<p><a href="https://www.ancii.com/aqfl4pud/#:~:text=%E5%9C%A8%E2%80%9C%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BC%82,%E6%98%AF%E8%A7%A3%E5%86%B3%E5%B8%A6%E5%AE%BD%E9%97%AE%E9%A2%98%E3%80%82">Heterogeneous acceleration for deep learning (2): doing the work inside a snail shell</a></p>
+
+<p><a href="https://cloud.tencent.com/developer/article/1006375">Heterogeneous acceleration for deep learning (3): the AI computing platforms favored by internet giants</a></p>
+
+<p><a href="https://github.com/basicmi/AI-Chip">Github: AI Chip List</a></p>
+
+<p><a href="https://xueqiu.com/6027869421/231306251">Why can NVIDIA hold an unbeatable position in high-performance computing GPUs?</a></p>
+
+<p><a href="https://www.thepaper.cn/newsDetail_forward_11705617">An in-depth GPU report: the three giants and fourteen domestic players at a glance</a></p>
+
+<p><a href="https://icspec.com/news/article-details/1976568">An in-depth look at NVIDIA’s “HOPPER” GPU architecture</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/33518322">GPU basics</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/423550197">Nearly ten years of NVIDIA GPU architecture evolution, from Fermi to Ampere</a></p>
+
+<p><a href="http://science.china.com.cn/2022-08/15/content_42070515.htm">A detailed look at the GPU Biren just released: how does a single chip reach PFLOPS-level compute throughput?</a></p>
+
+<p><a href="https://picture.iczhiku.com/weixin/message1589764286036.html">The magic of chiplets through the solutions of three semiconductor companies</a></p>
+
+<p><a href="https://www.jianshu.com/p/01e2d91f260f">A summary of the DianNao-series accelerators: architecture and compute units</a></p>

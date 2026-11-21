@@ -1,0 +1,169 @@
+<h1 id="contents">Contents</h1>
+
+<ol>
+  <li><a href="#org2bf16eb">Preface</a></li>
+  <li><a href="#org985bb71">Basic Paper Information</a></li>
+  <li><a href="#orgd5f326c">Motivation and Ideas</a></li>
+  <li><a href="#org989a304">Algorithm Pipeline</a></li>
+  <li><a href="#orgf1dde18">Experimental Analysis</a></li>
+  <li><a href="#org961c653">Personal Summary</a></li>
+</ol>
+
+<p><a id="org2bf16eb"></a></p>
+
+<h1 id="preface">Preface</h1>
+
+<p>AVOD is a 3D detection algorithm based on fusing camera and lidar information, and it is one of the few open-source state-of-the-art (SOTA) algorithms available today. Related resources:</p>
+
+<p><a href="http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=bev">KITTI leaderboard</a></p>
+
+<p><a href="https://arxiv.org/pdf/1712.02294.pdf">AVOD paper</a></p>
+
+<p><a href="https://github.com/kujason/avod">AVOD source code</a></p>
+
+<p><a href="https://blog.csdn.net/sunny0660/article/details/104078746">AVOD source code walkthrough</a></p>
+
+<p><a id="org985bb71"></a></p>
+
+<h1 id="basic-paper-information">Basic Paper Information</h1>
+
+<p>First author:</p>
+
+<p>Jason Ku, a graduate student at the University of Toronto, working on perception algorithms for autonomous driving</p>
+
+<p>Other related work:</p>
+
+<p><code class="language-plaintext highlighter-rouge">IROS 2019</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">Improving 3D Object Detection for Pedestrians with Virtual Multi-View Synthesis Orientation Estimation</code></p>
+
+<p>Ranked 5th on KITTI pedestrian detection; a lidar + camera early-fusion approach</p>
+
+<p><code class="language-plaintext highlighter-rouge">CVPR 2019</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">Monocular 3D Object Detection Leveraging Accurate Proposals and Shape Reconstruction</code></p>
+
+<p>Monocular 3D object detection
+Current KITTI SOTA:  <code class="language-plaintext highlighter-rouge">Car</code> ranked 112, <code class="language-plaintext highlighter-rouge">Pedestrian</code> ranked 44, <code class="language-plaintext highlighter-rouge">Cyclist</code> ranked 38</p>
+
+<p>Citations: 175</p>
+
+<p>Corresponding author:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Steven L. Waslander</code>
+Associate professor at the University of Toronto; research areas: <code class="language-plaintext highlighter-rouge">Unmanned Aerial Vehicles</code>, <code class="language-plaintext highlighter-rouge">SLAM</code>, <code class="language-plaintext highlighter-rouge">Object Detection</code>, <code class="language-plaintext highlighter-rouge">Motion Planning</code></p>
+
+<p>Citations: 4741</p>
+
+<p><a id="orgd5f326c"></a></p>
+
+<h1 id="motivation-and-ideas">Motivation and Ideas</h1>
+
+<ul>
+  <li>Three current approaches to fusion in autonomous-driving perception:
+    <ul>
+      <li>Image based:
+Represented by <code class="language-plaintext highlighter-rouge">Frustum PointNets</code>: first run 2D detection on the camera image, then project into 3D space, extract features from the frustum, and then detect. The features are cascaded, so performance is limited by the 2D detector. <code class="language-plaintext highlighter-rouge">Deep Manta</code> predicts depth from the camera, and its 3D localization performance is poor.</li>
+      <li><code class="language-plaintext highlighter-rouge">BEV</code> (Bird’s eye view) based: represented by <code class="language-plaintext highlighter-rouge">MV3D</code>, which projects the point cloud onto the <code class="language-plaintext highlighter-rouge">BEV</code> to generate <code class="language-plaintext highlighter-rouge">proposal</code>s, and then uses <code class="language-plaintext highlighter-rouge">ROI crop</code> to extract the corresponding camera regions for fusion in order to correct the predicted boxes. It makes little use of height information, so it may lose some 3D information.</li>
+      <li>3D based: fuse directly in 3D space. Fusion in this direction is difficult, so there are currently few papers on it. It is computationally expensive.</li>
+    </ul>
+  </li>
+  <li>
+    <p>The representative <code class="language-plaintext highlighter-rouge">BEV</code>-based work, <code class="language-plaintext highlighter-rouge">MV3D</code>: the basic idea of <code class="language-plaintext highlighter-rouge">MV3D</code> is to first obtain a <code class="language-plaintext highlighter-rouge">3D Proposal</code> from the <code class="language-plaintext highlighter-rouge">BEV</code> view, project it onto the FV view and the camera view to obtain the <code class="language-plaintext highlighter-rouge">ROI</code> on each image, fuse the three kinds of features, and finally perform the final box classification and regression on the fused features.
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_000608.png" alt="img" /></p>
+  </li>
+  <li>Shortcomings:
+    <ul>
+      <li>During <code class="language-plaintext highlighter-rouge">backbone</code> feature extraction, downsampling makes the information of small objects unrecoverable: for example, a pedestrian is <code class="language-plaintext highlighter-rouge">8\*6pixel</code> on the <code class="language-plaintext highlighter-rouge">BEV</code> map, and after three rounds of <code class="language-plaintext highlighter-rouge">downsampling</code> it is less than 1 pixel, so the information is lost and small objects are detected poorly</li>
+      <li>The eight-vertex <code class="language-plaintext highlighter-rouge">Encoding</code> lacks <code class="language-plaintext highlighter-rouge">Constraint</code>s of a cuboid, and the regression of <code class="language-plaintext highlighter-rouge">orientation</code> is not specified (<code class="language-plaintext highlighter-rouge">AVOD</code> notes that <code class="language-plaintext highlighter-rouge">MV3D</code> takes the orientation to be the direction of the long side of the cuboid’s plane), so a box can easily be flipped upside down:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_000638.png" alt="img" /></li>
+    </ul>
+  </li>
+</ul>
+
+<p><a id="org989a304"></a></p>
+
+<h1 id="algorithm-pipeline">Algorithm Pipeline</h1>
+
+<ul>
+  <li>
+    <p>Pipeline diagram:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_000707.png" alt="img" /></p>
+  </li>
+  <li>Main improvements:
+    <ul>
+      <li>The <code class="language-plaintext highlighter-rouge">feature extractor</code> borrows the <code class="language-plaintext highlighter-rouge">FPN</code> structure and fuses shallow and deep features to form a <code class="language-plaintext highlighter-rouge">high-resolution feature map</code></li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">crop and resize</code>: the generated <code class="language-plaintext highlighter-rouge">3D proposal</code>s are projected onto their respective <code class="language-plaintext highlighter-rouge">plane</code>s and then <code class="language-plaintext highlighter-rouge">bilinearly resized</code> to an <code class="language-plaintext highlighter-rouge">n\*n feature map</code>:
+<img src="/assets/img/recovered/5d97db1577e7b609.png" alt="img" /></p>
+      </li>
+      <li>A constrained <code class="language-plaintext highlighter-rouge">box coding</code> is used, which reduces the parameter dimension from <code class="language-plaintext highlighter-rouge">24d-&gt;10d</code> and regresses the plane rotation vector:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_000935.png" alt="img" /></li>
+    </ul>
+  </li>
+  <li>Other details:
+    <ul>
+      <li>The <code class="language-plaintext highlighter-rouge">BEV</code> is a 6-channel feature: 5 heights (5 equal slices on the Z axis) + <code class="language-plaintext highlighter-rouge">density information</code></li>
+      <li><code class="language-plaintext highlighter-rouge">1\*1Conv</code>: the <code class="language-plaintext highlighter-rouge">RPN</code> outputs a large number of <code class="language-plaintext highlighter-rouge">anchors</code>, so the output feature map has too many dimensions and needs a lot of GPU memory; a 1x1 convolution is used to reduce the dimension</li>
+      <li><code class="language-plaintext highlighter-rouge">3D Proposal Generation</code>: the <code class="language-plaintext highlighter-rouge">background box</code> is not included in the regression loss. The IoU threshold for car is slightly higher than for the other two classes (0.5→0.45). The NMS threshold is 0.8. The number of training proposals is 1024, and 300 at inference</li>
+      <li><code class="language-plaintext highlighter-rouge">Second Stage Detection Network</code>: the orientation is taken to be the candidate closest to the regressed vector (four directions are selected in advance, based on the corner positions)</li>
+    </ul>
+  </li>
+</ul>
+
+<p><a id="orgf1dde18"></a></p>
+
+<h1 id="experimental-analysis">Experimental Analysis</h1>
+
+<ul>
+  <li>Evaluation metrics:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">3D AP</code>: <code class="language-plaintext highlighter-rouge">3D IOU</code>: the ratio of the intersection volume of two 3D cuboids in the camera coordinate system to the total volume of the two cuboids</li>
+      <li><code class="language-plaintext highlighter-rouge">BEV AP</code>: <code class="language-plaintext highlighter-rouge">2D IOU</code>: the <code class="language-plaintext highlighter-rouge">overlap</code> of the objects projected onto the ground in the camera coordinate system, that is, the ratio of the intersection of the two boxes to the total area of the two boxes in the <code class="language-plaintext highlighter-rouge">bird eye view</code></li>
+      <li><code class="language-plaintext highlighter-rouge">AHS</code> (Average Heading Similarity): <code class="language-plaintext highlighter-rouge">3D IOU and global orientation angle</code></li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">KITTI</code>: on test-set performance (which could not be reproduced), <code class="language-plaintext highlighter-rouge">AVOD</code> is slightly worse than <code class="language-plaintext highlighter-rouge">Frustum PointNets</code> on Cyclist, wins some and loses some on Pedestrian, and is better on car, while also being faster:</li>
+</ul>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_001325.png" alt="img" /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">RPN Recall</code>: on the validation set, RPN recall is higher than that of other comparable algorithms. The improvement for car is not obvious, possibly because cars are large and their features are fairly distinct, so performance is already at a high level. In addition, there is no comparison data for MV3D:</li>
+</ul>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_001548.png" alt="img" /></p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">AHS</code>: validation-set performance (3D AP); orientation performance is clearly better:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_001235.png" alt="img" /></p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Ablation Study</code>: the Base Network is the reference network, a VOD network that uses vgg-net as the backbone. On validation-set performance (3D AP), <code class="language-plaintext highlighter-rouge">BEV Image</code> fusion and the <code class="language-plaintext highlighter-rouge">Feature Pyramid Extractor</code> give no obvious improvement on car, but clearly improve Pedestrian and Cyclist. However, in my reproduction I could only use the small sample of the train-split set (Pedestrian and Cyclist are already scarce) and also used path drop, which may cause large fluctuations. The paper also mentions that no paper has so far published Pedestrian and Cyclist performance on the validation set.</p>
+  </li>
+</ul>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2019-10-13-AVOD%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2019_10_13_Joint_3D_Proposal_Generation_and_Object_Detection_from_View_Aggregation_20210710_001157.png" alt="img" /></p>
+
+<p><a id="org961c653"></a></p>
+
+<h1 id="personal-summary">Personal Summary</h1>
+
+<ul>
+  <li>Strengths: compared with the earlier MV3D, it is more refined, mainly in:
+    <ul>
+      <li>The fusion of multi-level features with <code class="language-plaintext highlighter-rouge">FPN</code></li>
+      <li>The regression strategy for <code class="language-plaintext highlighter-rouge">3D Box orientation</code></li>
+      <li>The use of <code class="language-plaintext highlighter-rouge">Crop and Resize</code></li>
+    </ul>
+  </li>
+  <li>Shortcomings:
+    <ul>
+      <li>Plane extraction (used to generate the BEV map) depends on how dense the point cloud is</li>
+      <li>During proposal generation, the image and lidar data are kept separate, and <code class="language-plaintext highlighter-rouge">ROI Fusion</code> is already fusion of high-level features. <code class="language-plaintext highlighter-rouge">MMF</code> (<code class="language-plaintext highlighter-rouge">Multi-Task Multi-Sensor Fusion for 3D Object Detection</code>) implements fusion at both the <code class="language-plaintext highlighter-rouge">roi-wise</code> and <code class="language-plaintext highlighter-rouge">point-wise</code> levels and performs better (the code is not open-sourced)</li>
+      <li><code class="language-plaintext highlighter-rouge">ROI-Fusion</code> has the problem that the <code class="language-plaintext highlighter-rouge">Image feature</code> and the <code class="language-plaintext highlighter-rouge">BEV feature</code> are not aligned</li>
+      <li>The BEV view gives a high recall in the first stage, but refining the 3D position later is more accurate using the original 3D point cloud (this requires dealing with the sparse distribution of the raw point cloud, for example by fusing key areas through sampling or clustering)</li>
+    </ul>
+  </li>
+</ul>

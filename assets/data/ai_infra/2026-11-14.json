@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-14",
+  "language": "zh-Hans",
+  "sections": [
+    {
+      "id": "overview",
+      "title": {
+        "zh": "今日速览",
+        "en": "Overview"
+      },
+      "blocks": [
+        "今天最强信号是推理栈开始补齐可长期依赖的工程契约：llama.cpp 1.0 明确兼容性边界，SGLang/NIM 提供限定配置验证。另一条主线是混合模型缓存与传输的正确性，KDA checkpoint、MXFP8 scale 随页传输和 MNNVL 完成语义均有已合入进展；异构协同的 Maya 则仍需按实验性配方验证。"
+      ]
+    },
+    {
+      "id": "highlights",
+      "title": {
+        "zh": "今日要点",
+        "en": "Highlights"
+      },
+      "blocks": [
+        "**llama.cpp / ggml 1.0 明确 API/ABI 破坏性变更的 major 边界。** 对依赖原生库的下游产品，这是比单次 kernel 加速更长期的工程信号。— [官方说明](https://huggingface.co/blog/ggml-org/llama-cpp-v1)",
+        "**KDA 首次重发可复用长 prefix，已合入但默认关闭。** 约 29k 提示单流重发 1.3s→0.1s，代价是首发变慢；按实际多轮流量决定是否启用。— [tokenspeed #3400](https://github.com/lightseekorg/tokenspeed/pull/3400)",
+        "**量化 KV 的传输正确性补齐。** SGLang external linker 连同 MXFP8 scale 搬页，Mooncake 修正 MNNVL 完成与注册语义；两项已合入。— [SGLang](https://github.com/sgl-project/sglang/pull/50324) · [Mooncake](https://github.com/kvcache-ai/Mooncake/pull/5225)",
+        "**跨硬件协同出现可试用产物。** Maya 的 Linux 实验版让 AMD APU + NVIDIA 同跑一个模型，紧随修复版后再试；公开收益仍属作者配方。— [1.1.63](https://github.com/mw00/project-maya/releases/tag/v1.1.63)",
+        "**吞吐峰值并发未必是部署最优点。** 双 DGX Station 的 GLM 服务 C16 输出吞吐最高，C32 已回落且平均请求耗时明显增大，容量应结合延迟预算。— [NVIDIA 实测](https://developer.nvidia.com/blog/when-one-gpu-isnt-enough-serving-glm-5-3-across-two-nvidia-dgx-stations-with-vllm/)"
+      ]
+    },
+    {
+      "id": "prs",
+      "title": {
+        "zh": "GitHub PR 动态",
+        "en": "GitHub pull requests"
+      },
+      "blocks": [
+        "### SGLang：量化缓存可完整外存",
+        "**MXFP8 KV 的 scale 与 payload 整页传输**（[#50324](https://github.com/sgl-project/sglang/pull/50324)）— 修复 Inkling 长上下文配方开启 direct external linker 时启动失败；L3 回读自测与冷 prefill 的 KL 为 0，未传 scale 的负对照为 0.15。FP4 池仍不支持。 @alphabetc1 【Merged】",
+        "### tokenspeed：缓存命中与服务尾延迟",
+        "**动态 batch 不再触发三类 KDA Triton 重编译**（[#3399](https://github.com/lightseekorg/tokenspeed/pull/3399)）— 把 batch 计数移出编译键，消除新形状导致的运行时编译停顿；形状扫描测试从 25/6/2 次编译变成 0，稳态 decode 基本不变。 @nperrin-fr 【Merged】",
+        "**KDA 在前向期间保存边界 state**（[#3400](https://github.com/lightseekorg/tokenspeed/pull/3400)）— 可选开关让约 29k prompt 的第一次重发命中 28,928 token；TP8/两台 GB300 自测单流重发约 1.3s→0.1s，但首发 1.3s→1.52s，默认关闭。 @nperrin-fr 【Merged】",
+        "**满 prefix cache 时减少 CPU 元数据工作**（[#3325](https://github.com/lightseekorg/tokenspeed/pull/3325)）— 合并哈希、索引、驱逐和输入复制开销，保持准入策略、物理页和 KV 事件格式；优化的是控制线程成本，不能直接等同 GPU 吞吐倍数。 @FC-Li 【Merged】",
+        "**BF16 Engram 路径每个 host row 只 gather 一次**（[#3161](https://github.com/lightseekorg/tokenspeed/pull/3161)）— 将 packed codes/scales 一起取回，减少随机 host 读；GB300 微基准有改善，尚无端到端结果，MXFP8 快路不受影响。 @fanyang-real 【Merged】",
+        "**量化权重可按能力声明选择 discard**（[#3391](https://github.com/lightseekorg/tokenspeed/pull/3391)）— 为完整原位更新留下省内存接口；模型和量化配置必须同时显式支持，当前没有默认开启的生产量化实现。 @Patirck 【Merged】",
+        "**memory-saver 睡眠释放 persistent buffers**（[#3407](https://github.com/lightseekorg/tokenspeed/pull/3407)）— 减少暂停实例仍占用的持久缓冲，为共卡/恢复留出内存；具体释放覆盖和恢复验证以补丁为准。 @lipanpan03 【Merged】",
+        "**长 DSA prefill 从 head 分片改为 row 分片**（[#3412](https://github.com/lightseekorg/tokenspeed/pull/3412)）— 两次 all-to-all 换取每 rank 少读重复 KV；约 29k prompt、TP8 GB300 自测主要改善 3.5%–5.2%，受 NVIDIA、无 KVP/QCP 等条件限制。 @nperrin-fr 【Open】",
+        "### vLLM：混合缓存、DCP 与长上下文正确性",
+        "**本地命中不能超出 draft attention 的覆盖**（[#66132](https://github.com/vllm-project/vllm/pull/66132)）— 在连接器匹配前协调较短草稿缓存，避免截断时缺块；保留 Mamba-only 恢复快路，CPU 回归通过，真实 NIXL P/D 与模型评测未验证。 @ygr9237 【Open】",
+        "**Mooncake Store 可间隔保存精确 Mamba state**（[#66948](https://github.com/vllm-project/vllm/pull/66948)）— 多 writer/多 group 确认共同 checkpoint 后才跳过后续写入，失败仍允许下一边界补写；默认间隔 1，真实 RDMA、多 GPU 生命周期和 serving 收益待测。 @ygr9237 【Open】",
+        "**按 replicated draft 页重新搜索 packed KV 分组**（[#66503](https://github.com/vllm-project/vllm/pull/66503)）— 减少 DCP 对齐造成的单请求预留浪费；8×B300 镜像回植报告容量 2.38M→6.98M token，但这是特定配方/镜像 A/B，不能当所有主线部署的普遍收益。 @ygr9237 【Open】",
+        "**ROCm 非顺序 batch 保留 continuation 的历史 KV**（[#59098](https://github.com/vllm-project/vllm/pull/59098)）— 修复 MRv2 把分块续算误判成新 prefill 的上下文丢失；MI300X、Phi-4-mini 30k 并发检索自测 0.626→1.000，短上下文吞吐基本不变。 @phambinhfin 【Open】",
+        "**Hy4 ShardQ prefill 按 TP head 顺序收集 attention sink**（[#67490](https://github.com/vllm-project/vllm/pull/67490)）— 复用已有 token 分片与 kernel；8×H200 的饱和 prefill-only 自测 +59%–63%，OSL=1，不代表完整生成吞吐同幅提高。 @qianlihuang 【Open】",
+        "### Mooncake：传输完成语义与 Store 路由",
+        "**原生 MNNVL 保住注册与异步完成所有权**（[#5225](https://github.com/kvcache-ai/Mooncake/pull/5225)）— 区分逻辑 VMM 范围和导出 extent，回滚保留 host pin，错误/关闭时排空已接收工作，减少重放或过早释放风险。 @voidxb 【Merged】",
+        "**HyLink 部分提交失败不再整组重放**（[#5512](https://github.com/kvcache-ai/Mooncake/pull/5512)）— 先校验请求，保留已被 HIP 接收的 copy/task；后续失败按 task 结算，避免把实际已执行的拷贝再次 failover。 @jfeng18 【Open】",
+        "**读写前刷新陈旧 membership**（[#5496](https://github.com/kvcache-ai/Mooncake/pull/5496)）— 删除权威路由前刷新成员视图，刷新失败则不删；单对象预留失败在既有上限内回滚并重试，避免误剪仍健康副本。 @ninja-cc 【Open】",
+        "**NVLink 多层小 buffer 可聚合传输**（[#5439](https://github.com/kvcache-ai/Mooncake/pull/5439)）— 可选 staging gather/scatter 将大量小 copy 合并；get/put 各有默认 256MB 缓冲，限满足条件的 NVLink 副本，需把额外设备内存和 kernel 成本一起评估。 @wolfcomos 【Open】",
+        "### Dynamo：路由状态和取消收尾",
+        "**混合路由把 recurrent checkpoint 作为命中边界**（[#16876](https://github.com/ai-dynamo/dynamo/pull/16876) · [#16875](https://github.com/ai-dynamo/dynamo/pull/16875)）— WIP 栈将 state presence 与 attention 索引分离，再按可复用 checkpoint 截断匹配/提示链；单看 attention blocks 不足以保证混合模型能恢复。 @luckyq 【Open】",
+        "**滚动更新等 frontend 真正接纳替代 worker**（[#13769](https://github.com/ai-dynamo/dynamo/pull/13769)）— 本地 Ready 之后还要确认每个 ready frontend 已提交模型卡，才允许缩掉旧实例；针对受限 rollout 的短暂 404，旧 frontend 保留兼容路径。 @cpakkamisaac-sae 【Open】",
+        "**取消 decode 的 drain 等待设置总截止**（[#18768](https://github.com/ai-dynamo/dynamo/pull/18768)）— 为 vLLM/TRT-LLM sidecar 的响应头和首 token 等待共用期限，超时发 abort；故障测试可复现无限等待，真实正常 A100 部署未复现该故障。 @glamr-agent 【Open】",
+        "### vLLM-Omni：语音请求隔离与多轮恢复",
+        "**显式参考音频优先于已注册 voice 缓存**（[#10361](https://github.com/vllm-project/vllm-omni/pull/10361)）— 请求同时给 voice 与 ref_audio 时不挂旧 voice 的缓存身份，防止新音频被旧 conditioning 覆盖。 @dongbo910220 【Open】",
+        "**在入口拒绝音频时间参数 NaN/Infinity**（[#9935](https://github.com/vllm-project/vllm-omni/pull/9935)）— 同时检查有限输入相加后的 end time 溢出，让无效请求在进引擎前返回 400，避免无穷时长流入 pipeline。 @ProvenceLavanda 【Open】",
+        "**Ascend 双工新语音段重置 sampler finished**（[#10319](https://github.com/vllm-project/vllm-omni/pull/10319)）— 只在新的 condition sequence 开始时清完成位，同段重复 prefill 保留状态，修复 MiniCPM-o 4.5 第二轮无音频/超时。 @heyew 【Open】",
+        "### 其余仓库精选（折叠）",
+        "FlashInfer（精选 3 条）：[#7288](https://github.com/flashinfer-ai/flashinfer/pull/7288) · [#9432](https://github.com/flashinfer-ai/flashinfer/pull/9432) · [#4901](https://github.com/flashinfer-ai/flashinfer/pull/4901) — PDL 读前等待、JIT 替换失败保留旧 kernel、避免 import 初始化 CUDA；均 Open。",
+        "TensorRT-LLM（精选 3 条）：[#21997](https://github.com/NVIDIA/TensorRT-LLM/pull/21997) · [#21250](https://github.com/NVIDIA/TensorRT-LLM/pull/21250) · [#22274](https://github.com/NVIDIA/TensorRT-LLM/pull/22274) — Qwen3.5 GB300、Hopper 小 batch MoE 与预编译移入 warmup；均 Open。",
+        "DeepInfer（精选 3 条）：[#284](https://github.com/deepseek-ai/DeepInfer/pull/284) · [#286](https://github.com/deepseek-ai/DeepInfer/pull/286) · [#285](https://github.com/deepseek-ai/DeepInfer/pull/285) — 单 pinned VL 输入少拷贝、host 生成图像元数据、910C W4A8；均 Open。",
+        "lmdeploy（精选 1 条）：[#5124](https://github.com/InternLM/lmdeploy/pull/5124) — completions usage 报 cached_tokens；Merged。"
+      ]
+    },
+    {
+      "id": "releases",
+      "title": {
+        "zh": "版本发布",
+        "en": "Releases"
+      },
+      "blocks": [
+        "**llama.cpp / ggml 1.0.0（11-13）** — 正式强调公共 C API/ABI 兼容性边界，破坏性变更升 major，兼容新增升 minor，纯修复升 patch；下游绑定、打包和嵌入式产品有了明确版本契约，不能把 1.0 解读成推理速度突增。— [官方公告](https://huggingface.co/blog/ggml-org/llama-cpp-v1) · [llama.cpp 版本](https://github.com/ggml-org/llama.cpp/releases/tag/v1.0.0)",
+        "**llama.cpp Hexagon：b12373 / b12376（11-13 至 11-14）** — 前者补 SSM_SCAN，后者把 IQ2_XXS 与 NVFP4 的重排、HVX/HMX 矩阵路径接起来，扩大高通端侧混合架构/低比特算子覆盖；未给整模型端到端加速结果。— [SSM_SCAN](https://github.com/ggml-org/llama.cpp/releases/tag/b12373) · [低比特格式](https://github.com/ggml-org/llama.cpp/releases/tag/b12376)",
+        "**llama.cpp b12374 / b12364（11-13 至 11-14）** — Metal 修正 mul_mv 目标偏移溢出；概率投机采样下使用 draft p_min 新增警告，提示草稿 top probability 不能代表目标接受率，参数仍保留、并未自动禁用。— [Metal](https://github.com/ggml-org/llama.cpp/releases/tag/b12374) · [投机警告](https://github.com/ggml-org/llama.cpp/releases/tag/b12364)",
+        "**Transformers 5.23.0（11-13）** — 加入 Inkling2 多模态 MoE 模型定义，方便 checkpoint、处理器和生态工具对接；模型层支持与高效 serving 后端是不同验收层，不能仅据此推断吞吐。— [Release](https://github.com/huggingface/transformers/releases/tag/v5.23.0)",
+        "**Maya 1.1.62 → 1.1.63（11-13 至 11-14）** — Linux 实验性让 AMD Halo APU 与 NVIDIA GPU 协同执行同一模型，只搬激活、权重共享主机副本，按实测超过 3% 才采用混合路径；作者称 GLM prefill 最高 3×、DSV4.1 decode 最高 +18%。1.1.63 随即修复 Windows 编译和混卡 GLM 每请求重启，答案可与 APU 单跑略有差异。— [混合执行](https://github.com/mw00/project-maya/releases/tag/v1.1.62) · [修复版](https://github.com/mw00/project-maya/releases/tag/v1.1.63)",
+        "🤗 模型 / 权重发布",
+        "（本轮监控组织没有新增模型/权重。）"
+      ]
+    },
+    {
+      "id": "papers",
+      "title": {
+        "zh": "论文",
+        "en": "Papers"
+      },
+      "blocks": [
+        "（本轮无去重后的新增论文；arXiv 抓到 81 篇均已处理，HF Daily Papers 今日返回 0。沿用增量口径，不重发旧论文。）"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
+        "**llama.cpp 1.0 的重点是下游契约**（2026-11-13）— 官方解释语义版本、发行渠道和多硬件 CI 的投入；部署者应固定库版本与后端构建，区分稳定库版本与日常 b 编号产物。— [ggml-org](https://huggingface.co/blog/ggml-org/llama-cpp-v1)",
+        "**两台 DGX Station 运行 GLM-5.3 NVFP4**（2026-11-12）— vLLM TP2 经 ConnectX-8 RDMA 分权重，MTP4、FP8 KV 与 prefix cache 配套；Coding workload 输出吞吐在 C16 达 607.8 tok/s，C32 降到 385.0 tok/s、平均请求 453.5s。证明“能装下”之后仍要按延迟约束挑并发。— [NVIDIA 技术文](https://developer.nvidia.com/blog/when-one-gpu-isnt-enough-serving-glm-5-3-across-two-nvidia-dgx-stations-with-vllm/)",
+        "**SGLang 成为 NIM Certified 微服务底座**（2026-11-13）— NIM 在选定模型/硬件上提供验证容器、配置 profile 与企业支持；文中 30+ 硬件 SKU、37+ 模型是整个 NIM 项目的验证范围，不能全算成此次 SGLang 组合矩阵。— [LMSYS / NIM 团队](https://www.lmsys.org/blog/2026-11-13-sglang-nvidia-nim)",
+        "**OpenShift 5 的 DRA：按 GPU 属性、容量与状态调度**（2026-11-13）— 展示 H100 动态 MIG 和内存份额分配；容量记账不等于显存强制隔离，健康/绑定条件两段仍用参考驱动演示，NVIDIA DRA v0.5.1 尚不支持，部署前需核对驱动能力。— [Red Hat](https://developers.redhat.com/articles/2026/11/13/day-life-nvidia-h100-red-hat-openshift-5)",
+        "**Ray Serve 并行化 JEPA 规划搜索**（2026-11-12）— 先做 KV/bf16/编译优化，再把候选分给 8×A100：同机规划从单卡 21.4s 到 2.86s；相对未优化基线的 29× 还包含单卡优化，机器人到云网络与实体机械臂尚未实测。— [Anyscale](https://anyscale.com/blog/real-time-inference-for-jepa-world-models-ray-anyscale)"
+      ]
+    },
+    {
+      "id": "community",
+      "title": {
+        "zh": "社区讨论",
+        "en": "Community"
+      },
+      "blocks": [
+        "**llama.cpp 1.0 与 Llama 桌面应用** — HF 团队社区公告将稳定库与 macOS/Windows 桌面分发连起来；讨论也提出维护者与积压 PR 的持续投入问题。票数/评论数：RSS 未提供，本轮不填估计值。— [r/LocalLLaMA](https://www.reddit.com/r/LocalLLaMA/comments/1xv8t2e/llamacpp_v10_is_here/)",
+        "**不改运行时的 Hessian refined GGUF** — 作者对 Qwen3.8-27B UD_4_XL 报告小样本 KL 降 13.23%，保持原 GGUF 使用方式；单张 5090、有限测试，不能读成任务能力普遍提升 13%。票数/评论数：源未提供。— [作者讨论](https://www.reddit.com/r/LocalLLaMA/comments/1xvbqqa/i_noticed_the_2_hessian_refinement_of_macaq_can/)",
+        "**Langfuse Rust AI Gateway** — 开源网关把调用 tracing 接到请求入口，适合关注服务可观测性；当前 HN 仅 9⬆ / 1💬，没有引擎侧吞吐证据。— [HN](https://news.ycombinator.com/item?id=50484682) · [源码](https://github.com/langfuse/langfuse/tree/main/ai-gateway)"
+      ]
+    },
+    {
+      "id": "discovery",
+      "title": {
+        "zh": "新兴方向",
+        "en": "Emerging directions"
+      },
+      "blocks": [
+        "**inferlab：把量化质量与 serving 性能一起记录** — 11-12 新建的单 GPU Blackwell 跨引擎评测工具，统一配置、并发和原始 JSON，追踪 TTFT/显存/PPL 与任务回归；当前硬件表待首跑，只有合成服务自检，26 道选择题也只适合回归门槛。\n↳ [仓库与限制](https://github.com/oren40/inferlab) ｜ 发现于：novelty 搜索（11-13 作者社区发布），本轮新增观察源 1 个。",
+        "拓源核查：Trending 3 个、rising 20 个、awesome 增量 0；排除应用工具与已知老项目。脚本新词 HMX 是高通既有矩阵扩展、APU 是既有集成处理器术语，都已记入基线，不包装成新推理方向。"
+      ]
+    },
+    {
+      "id": "insights",
+      "title": {
+        "zh": "跨源洞察",
+        "en": "Cross-source insights"
+      },
+      "blocks": [
+        "**混合模型的缓存路由必须与 state checkpoint 对齐。** tokenspeed 的 KDA 前向 checkpoint 让首轮重发即可命中；vLLM 正协调草稿覆盖和 Mamba 外存边界，Dynamo 则把 state presence 纳入路由。这是不同层的互补实现，尚不能拼成已经打通的联合部署。— [已合入 checkpoint](https://github.com/lightseekorg/tokenspeed/pull/3400) · [vLLM 提案](https://github.com/vllm-project/vllm/pull/66132) · [Dynamo WIP](https://github.com/ai-dynamo/dynamo/pull/16875)",
+        "**KV 传得快之前，先保证传得全、完成得准。** SGLang 的 MXFP8 scale 随页传输解决数值完整性，Mooncake 的 MNNVL 完成/注册修复解决资源生命周期，聚合传输提案再处理百余小 copy 的提交开销；三种问题不能用单一带宽指标代替。— [MXFP8](https://github.com/sgl-project/sglang/pull/50324) · [MNNVL](https://github.com/kvcache-ai/Mooncake/pull/5225) · [聚合提案](https://github.com/kvcache-ai/Mooncake/pull/5439)",
+        "**部署成熟度从“跑起来”转向可维护与可比较。** llama.cpp 明确 API/ABI 版本，NIM 做限定矩阵验证，而 inferlab 尝试补齐质量—速度对照；分别减少升级、选型与基准解释的风险，后者仍待真实 GPU 数据。— [版本契约](https://huggingface.co/blog/ggml-org/llama-cpp-v1) · [NIM](https://www.lmsys.org/blog/2026-11-13-sglang-nvidia-nim) · [inferlab](https://github.com/oren40/inferlab)"
+      ]
+    }
+  ]
+}

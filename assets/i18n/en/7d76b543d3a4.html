@@ -1,0 +1,311 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Design Template</a></li>
+  <li><a href="#sec-3">Worked Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>The Iterator pattern is built around implementing an iterator, which has two basic methods:</p>
+
+<ul>
+  <li>Get the element currently pointed to: current()</li>
+  <li>Move the pointer to the next element: next()</li>
+</ul>
+
+<p>The point of an iterator is that it provides a way to access the elements of a container object in order without exposing the object’s internal implementation. Python itself implements iterators. The key points of the design are:</p>
+
+<ul>
+  <li>You need to understand the data structure and its possible hierarchy</li>
+  <li>You need to implement the specific functions required by the access you want to support, such as next()/previous()/current()</li>
+</ul>
+
+<p>Its advantages are:</p>
+
+<ul>
+  <li>The Iterator pattern separates the two responsibilities of storing data and traversing data</li>
+  <li>It simplifies access to aggregate data</li>
+  <li>It can support several different ways of accessing the data</li>
+</ul>
+
+<p>Its drawback is:</p>
+
+<ul>
+  <li>Extra iterator functionality has to be implemented. When a new aggregate class is added, a new iterator and new methods may also be needed.</li>
+</ul>
+
+<h1 id="design-template">Design Template<a id="sec-2"></a></h1>
+
+<p>The design template is the implementation of the iterator. Python itself already has iterable objects such as list, so here is a brief description of a concrete implementation:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">BaseIterator</span><span class="p">():</span>
+    <span class="s">"""迭代器"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">to_begin</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">to_begin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""将指针移至起始位置"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">to_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""将指针移至结尾位置"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""移动至下一个元素"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">previous</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""移动至上一个元素"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""获取当前元素"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__data</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__data</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="worked-example">Worked Example<a id="sec-3"></a></h1>
+
+<p>Scenario: a hospital queuing system with two parties, patients and doctors. The doctor does not need to care about the patients, and only needs to tell the queuing system to call the next number. The patient does not need to care which doctor it is, and simply follows the arrangement of the queuing system:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Customer</span><span class="p">():</span>
+    <span class="s">"""客户"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__clinics</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__name</span>
+
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system</span><span class="p">):</span>
+        <span class="n">system</span><span class="p">.</span><span class="n">pushCustomer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_num</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__num</span> <span class="o">=</span> <span class="n">num</span>
+
+    <span class="k">def</span> <span class="nf">get_num</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__num</span>
+
+    <span class="k">def</span> <span class="nf">set_clinic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clinic</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__clinics</span> <span class="o">=</span> <span class="n">clinic</span>
+
+    <span class="k">def</span> <span class="nf">get_clinic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__clinics</span>
+
+
+<span class="k">class</span> <span class="nc">NumerlIterator</span><span class="p">:</span>
+    <span class="s">"""迭代器"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""移动至下一个元素"""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">def</span> <span class="nf">current</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""获取当前元素"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__data</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__data</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="p">.</span><span class="n">__cur_idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span>
+
+
+<span class="k">class</span> <span class="nc">NumeralSystem</span><span class="p">():</span>
+    <span class="s">"""排号系统"""</span>
+    <span class="n">__clinics</span> <span class="o">=</span> <span class="p">(</span><span class="s">"1号诊室"</span><span class="p">,</span> <span class="s">"二号诊室"</span><span class="p">,</span> <span class="s">"三号诊室"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__customers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__cur_name</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">push_customer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">customer</span><span class="p">):</span>
+        <span class="n">customer</span><span class="p">.</span><span class="n">set_num</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__cus_num</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">click</span> <span class="o">=</span> <span class="n">NumeralSystem</span><span class="p">.</span><span class="n">__clinics</span><span class="p">[</span><span class="bp">self</span><span class="p">.</span><span class="n">_curNum</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">NumeralSystem</span><span class="p">.</span><span class="n">__clinics</span><span class="p">)]</span>
+        <span class="n">customer</span><span class="p">.</span><span class="n">set_clinic</span><span class="p">(</span><span class="n">click</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__cur_num</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__customer</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">customer</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"%s 您好！您已在%s成功挂号，序号：%04d,请耐心等待！"</span>  <span class="o">%</span>
+              <span class="p">(</span><span class="n">customer</span><span class="p">.</span><span class="n">get_name</span><span class="p">(),</span> <span class="bp">self</span><span class="p">.</span><span class="n">__name</span><span class="p">,</span> <span class="n">customer</span><span class="p">.</span><span class="n">get_name</span><span class="p">()))</span>
+
+    <span class="k">def</span> <span class="nf">get_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">NumeralIterator</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__curtomers</span><span class="p">)</span>
+
+
+<span class="c1"># 测试代码
+</span><span class="k">def</span> <span class="nf">testHospital</span><span class="p">():</span>
+    <span class="n">numeralSystem</span> <span class="o">=</span> <span class="n">NumeralSystem</span><span class="p">(</span><span class="s">"挂号台"</span><span class="p">)</span>
+    <span class="n">lily</span> <span class="o">=</span> <span class="n">Customer</span><span class="p">(</span><span class="s">"Lily"</span><span class="p">)</span>
+    <span class="n">lily</span><span class="p">.</span><span class="n">register</span><span class="p">(</span><span class="n">numeralSystem</span><span class="p">)</span>
+    <span class="n">pony</span> <span class="o">=</span> <span class="n">Customer</span><span class="p">(</span><span class="s">"Pony"</span><span class="p">)</span>
+    <span class="n">pony</span><span class="p">.</span><span class="n">register</span><span class="p">(</span><span class="n">numeralSystem</span><span class="p">)</span>
+    <span class="n">nick</span> <span class="o">=</span> <span class="n">Customer</span><span class="p">(</span><span class="s">"Nick"</span><span class="p">)</span>
+    <span class="n">nick</span><span class="p">.</span><span class="n">register</span><span class="p">(</span><span class="n">numeralSystem</span><span class="p">)</span>
+    <span class="n">tony</span> <span class="o">=</span> <span class="n">Customer</span><span class="p">(</span><span class="s">"Tony"</span><span class="p">)</span>
+    <span class="n">tony</span><span class="p">.</span><span class="n">register</span><span class="p">(</span><span class="n">numeralSystem</span><span class="p">)</span>
+
+    <span class="n">iterator</span> <span class="o">=</span> <span class="n">numeralSystem</span><span class="p">.</span><span class="n">get_iterator</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">iterator</span><span class="p">.</span><span class="nb">next</span><span class="p">():</span>
+        <span class="n">customer</span> <span class="o">=</span> <span class="n">iterator</span><span class="p">.</span><span class="n">current</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span>
+            <span class="s">"下一位病人 %04d(%s) 请到 %s 就诊。"</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">customer</span><span class="p">.</span><span class="n">get_num</span><span class="p">(),</span> <span class="n">customer</span><span class="p">.</span><span class="n">get_name</span><span class="p">(),</span> <span class="n">customer</span><span class="p">.</span><span class="n">get_clinic</span><span class="p">())</span>
+        <span class="p">)</span>
+
+    <span class="s">"""
+    测试结果：
+    Lily 您好！您已在挂号台成功挂号，序号：0001，请耐心等待！
+    Pony 您好！您已在挂号台成功挂号，序号：0002，请耐心等待！
+    Nick 您好！您已在挂号台成功挂号，序号：0003，请耐心等待！
+    Tony 您好！您已在挂号台成功挂号，序号：0004，请耐心等待！
+
+    下一位病人0001（Lily）请到1号诊室就诊。
+    下一位病人0002（Pony）请到2号诊室就诊。
+    下一位病人0003（Nick）请到3号诊室就诊。
+    下一位病人0001（Tony）请到1号诊室就诊。
+    """</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

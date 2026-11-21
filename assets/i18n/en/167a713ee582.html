@@ -1,0 +1,196 @@
+<h1 id="onnx-model-optimization-and-quantization-details">ONNX Model Optimization and Quantization Details</h1>
+
+<h2 id="onnx-basics">ONNX Basics</h2>
+
+<ul>
+  <li>
+    <p>What is ONNX?</p>
+
+    <p><a href="https://github.com/onnx/onnx">ONNX</a> stands for Open Neural Network Exchange, a framework-independent model representation. The ONNX specification and code are developed mainly by Microsoft, Amazon, Facebook, IBM, and other companies, and are hosted on GitHub as open source. The deep learning frameworks that officially support loading ONNX models and running inference are currently Caffe2, PyTorch, MXNet, ML.NET, TensorRT, and Microsoft CNTK, and TensorFlow also supports ONNX unofficially.</p>
+  </li>
+  <li>
+    <p>What does the ONNX data format look like?</p>
+
+    <p>ONNX is essentially a file format that stores the neural network structure and weights in Protobuf data structures. Its organization is defined mainly in <a href="https://github.com/onnx/onnx/blob/master/onnx/onnx.proto">onnx.proto</a>, which defines data structures at the Model/Graph/Node/ValueInfo/Tensor/Attribute level. The whole graph builds the model’s topology through the input/output references between nodes (Node).</p>
+  </li>
+  <li>
+    <p>What does ONNX support?</p>
+
+    <p>Based on ONNX models, the official project provides a series of tools: model conversion, model optimization (<a href="https://github.com/daquexian/onnx-simplifier">simplifier</a> and others), model deployment (<a href="https://github.com/microsoft/onnxruntime">Runtime</a>), model visualization (<a href="https://github.com/onnx/onnx/blob/master/onnx/onnx.proto">Netron</a> and others), and so on.</p>
+  </li>
+</ul>
+
+<p>ONNX comes with a Runtime library that can deploy an ONNX Model to different hardware devices for inference, with support for various backends (such as TensorRT/OpenVINO).</p>
+
+<p>The system architecture of the Runtime for an ONNX Model is shown below. The Runtime converts the ONNX Model into an In-Memory Graph format, then turns it into a number of executable subgraphs, and finally assigns the subgraphs to different backends (execution providers) through the GetCapability() API.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-21-ONNX%25E7%259A%2584%25E6%25A8%25A1%25E5%259E%258B%25E4%25BC%2598%25E5%258C%2596%25E4%25B8%258E%25E9%2587%258F%25E5%258C%2596%25E7%25BB%2586%25E8%258A%2582/228d22d3-6e3e-48b1-811c-1d48353f031c.png" alt="ONNXRuntime high level system architecture" /></p>
+
+<h2 id="onnx-model-optimization">ONNX Model Optimization</h2>
+
+<p>The core function of <a href="https://github.com/daquexian/onnx-simplifier">onnx_simplifier</a> is as follows:</p>
+
+<blockquote>
+  <p>ONNX Simplifier is presented to simplify the ONNX model. It infers the whole computation graph and then replaces the redundant operators with their constant outputs.</p>
+</blockquote>
+
+<p>The basic simplify procedure is:</p>
+
+<ol>
+  <li>Use onnxruntime to run inference on the computation graph and obtain the inferred input and output shapes of every node</li>
+  <li>Optimize the ONNX model with the optimization methods that ONNX supports (such as <code class="language-plaintext highlighter-rouge">fuse_bn_into_conv</code>)</li>
+  <li>Fold the constant OPs of the ONNX model:
+    <ol>
+      <li>Obtain the constant OPs with <code class="language-plaintext highlighter-rouge">get_constant_nodes</code></li>
+      <li>Use <code class="language-plaintext highlighter-rouge">add_features_to_output</code> to extend the outputs of all static nodes into the output node list of the ONNX graph (mainly so that the outputs of the constant nodes are easy to retrieve in later steps)</li>
+      <li>Remove the constant OPs obtained in step 1 from the graph (disconnect their edges), and build their node parameters into input parameters of other nodes</li>
+      <li>Clean up the isolated nodes in the graph (the nodes disconnected in step 3)</li>
+    </ol>
+  </li>
+</ol>
+
+<p>Its optimize function is defined as follows (you can take a quick look at the optimization methods currently supported):</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">onnx</span><span class="p">.</span><span class="n">ModelProto</span><span class="p">,</span> <span class="n">skip_fuse_bn</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">skipped_optimizers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">onnx</span><span class="p">.</span><span class="n">ModelProto</span><span class="p">:</span>
+    <span class="s">"""
+    :model参数: 待优化的ONXX模型.
+    :return: 优化之后的ONNX模型.
+    简化之前, 使用这个方法产生会在'forward_all'用到的ValueInfo
+    简化之后，使用这个方法去折叠前一步产生的常量到initializer中并且消除没被使用的常量
+    """</span>
+    <span class="n">onnx</span><span class="p">.</span><span class="n">checker</span><span class="p">.</span><span class="n">check_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">onnx</span><span class="p">.</span><span class="n">helper</span><span class="p">.</span><span class="n">strip_doc_string</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">optimizers_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">'eliminate_deadend'</span><span class="p">,</span>
+        <span class="s">'eliminate_nop_dropout'</span><span class="p">,</span>
+        <span class="s">'eliminate_nop_cast'</span><span class="p">,</span>
+        <span class="s">'eliminate_nop_monotone_argmax'</span><span class="p">,</span> <span class="s">'eliminate_nop_pad'</span><span class="p">,</span>
+        <span class="s">'extract_constant_to_initializer'</span><span class="p">,</span> <span class="s">'eliminate_unused_initializer'</span><span class="p">,</span>
+        <span class="s">'eliminate_nop_transpose'</span><span class="p">,</span>
+        <span class="s">'eliminate_nop_flatten'</span><span class="p">,</span> <span class="s">'eliminate_identity'</span><span class="p">,</span>
+        <span class="s">'fuse_add_bias_into_conv'</span><span class="p">,</span>
+        <span class="s">'fuse_consecutive_concats'</span><span class="p">,</span>
+        <span class="s">'fuse_consecutive_log_softmax'</span><span class="p">,</span>
+        <span class="s">'fuse_consecutive_reduce_unsqueeze'</span><span class="p">,</span> <span class="s">'fuse_consecutive_squeezes'</span><span class="p">,</span>
+        <span class="s">'fuse_consecutive_transposes'</span><span class="p">,</span> <span class="s">'fuse_matmul_add_bias_into_gemm'</span><span class="p">,</span>
+        <span class="s">'fuse_pad_into_conv'</span><span class="p">,</span> <span class="s">'fuse_transpose_into_gemm'</span><span class="p">,</span> <span class="s">'eliminate_duplicate_initializer'</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_fuse_bn</span><span class="p">:</span>
+        <span class="n">optimizers_list</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">'fuse_bn_into_conv'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">skipped_optimizers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">skipped_optimizers</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">optimizers_list</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+            <span class="k">except</span> <span class="nb">ValueError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">onnxoptimizer</span><span class="p">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optimizers_list</span><span class="p">,</span> <span class="n">fixed_point</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">onnx</span><span class="p">.</span><span class="n">checker</span><span class="p">.</span><span class="n">check_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="converting-onnx-to-fp16">Converting ONNX to FP16</h2>
+
+<p>ONNX supports converting an FP32 model to an FP16 model. The interface is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">onnxmltools</span>
+<span class="kn">from</span> <span class="nn">onnxmltools.utils.float16_converter</span> <span class="kn">import</span> <span class="n">convert_float_to_float16</span>
+
+<span class="c1"># Update the input name and path for your ONNX model
+</span><span class="n">input_onnx_model</span> <span class="o">=</span> <span class="s">'model.onnx'</span>
+<span class="c1"># Change this path to the output name and path for your float16 ONNX model
+</span><span class="n">output_onnx_model</span> <span class="o">=</span> <span class="s">'model_f16.onnx'</span>
+<span class="c1"># Load your model
+</span><span class="n">onnx_model</span> <span class="o">=</span> <span class="n">onnxmltools</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">input_onnx_model</span><span class="p">)</span>
+<span class="c1"># Convert tensor float type from your input ONNX model to tensor float16
+</span><span class="n">onnx_model</span> <span class="o">=</span> <span class="n">convert_float_to_float16</span><span class="p">(</span><span class="n">onnx_model</span><span class="p">)</span>
+<span class="c1"># Save as protobuf
+</span><span class="n">onnxmltools</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">onnx_model</span><span class="p">,</span> <span class="n">output_onnx_model</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The implementation is in <a href="https://github.com/microsoft/onnxconverter-common/blob/master/onnxconverter_common/float16.py">float16.py</a>. The truncation logic is:</p>
+
+<ul>
+  <li>Values below the minimum precision (default 1e-7) are mapped to the minimum precision</li>
+  <li>Values above the maximum range (default 1e4) are mapped to the maximum value</li>
+  <li>NaN/0/inf/-inf keep their original values</li>
+</ul>
+
+<p>Core code:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">def</span> <span class="nf">convert_np_to_float16</span><span class="p">(</span><span class="n">np_array</span><span class="p">,</span> <span class="n">min_positive_val</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">max_finite_val</span><span class="o">=</span><span class="mf">1e4</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">between</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">a</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">,</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="n">c</span><span class="p">)</span>
+    <span class="n">np_array</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np_array</span><span class="p">,</span> <span class="n">min_positive_val</span><span class="p">),</span> <span class="n">min_positive_val</span><span class="p">,</span> <span class="n">np_array</span><span class="p">)</span>
+    <span class="n">np_array</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="o">-</span><span class="n">min_positive_val</span><span class="p">,</span> <span class="n">np_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="n">min_positive_val</span><span class="p">,</span> <span class="n">np_array</span><span class="p">)</span>
+    <span class="n">np_array</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="n">max_finite_val</span><span class="p">,</span> <span class="n">np_array</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s">'inf'</span><span class="p">)),</span> <span class="n">max_finite_val</span><span class="p">,</span> <span class="n">np_array</span><span class="p">)</span>
+    <span class="n">np_array</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">between</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s">'-inf'</span><span class="p">),</span> <span class="n">np_array</span><span class="p">,</span> <span class="o">-</span><span class="n">max_finite_val</span><span class="p">),</span> <span class="o">-</span><span class="n">max_finite_val</span><span class="p">,</span> <span class="n">np_array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">float16</span><span class="p">(</span><span class="n">np_array</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="references">References</h1>
+
+<p><a href="https://onnxruntime.ai/docs/resources/high-level-design.html">Official onnxruntime documentation</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/346511883">A good introduction to ONNX on Zhihu</a></p>
+
+<p><a href="https://www.cxyzjd.com/article/irving512/109725625">Some research materials on ONNX</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/346511883">Introduction to onnx_simplifier constant folding</a></p>

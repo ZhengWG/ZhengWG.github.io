@@ -1,0 +1,65 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Details</a>
+    <ul>
+      <li><a href="#sec-2-1">Engineering Acceleration</a>
+        <ul>
+          <li><a href="#sec-2-1-1">Distillation</a></li>
+          <li><a href="#sec-2-1-2">MultiTask</a></li>
+          <li><a href="#sec-2-1-3">Quantization</a></li>
+          <li><a href="#sec-2-1-4">Operator / Graph Fusion</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>Accelerating a deep learning network has two parts: acceleration on the network-structure side and acceleration on the engineering side. In engineering-side acceleration the network structure stays basically unchanged. The question is how, from the viewpoint of network inference, to raise the model’s inference speed (throughput) without losing accuracy, or while losing very little.</p>
+
+<h1 id="details">Details<a id="sec-2"></a></h1>
+
+<h2 id="engineering-acceleration">Engineering Acceleration<a id="sec-2-1"></a></h2>
+
+<h3 id="distillation">Distillation<a id="sec-2-1-1"></a></h3>
+
+<p>Distillation is a technique commonly used for model acceleration. Distillation usually involves two models: a Teacher Model and a Student Model, where the Student Model usually has a simpler structure and runs faster. With distillation, the intermediate outputs of the Teacher Model can “guide” the training of the Student Model, so that the Student Model keeps accuracy basically on par with the Teacher Model while retaining its high speed.</p>
+
+<p>The basic principle of distillation is to take the high-level outputs of the Teacher Model as training inputs for the Student Model, so that the Student Model can learn better. These high-level outputs include the logits (soft labels) and hint features (the features before softmax). The smoothness of the distribution can also be controlled through T (divide by T before softmax). The seminal work on distillation is <a href="https://arxiv.org/pdf/1503.02531.pdf">Distilling the Knowledge in a Neural Network</a>, which defined distillation for the first time and proposed a neural-network-based training method. A typical distillation framework looks like this:</p>
+
+<p><img src="/assets/img/recovered/82382e4adc39549c.png" alt="img" /></p>
+
+<p>Distillation usually works well on simple tasks such as classification, but it does not necessarily work on more complex tasks such as detection. The core of distillation is to use the intermediate features of the Teacher Model to guide the training of the Student Model so that it can learn some high-level features more easily. Detection, however, focuses on local target objects (bbox/class), whose features are harder to learn.</p>
+
+<h3 id="multitask">MultiTask<a id="sec-2-1-2"></a></h3>
+
+<p>As the name suggests, MultiTask merges several tasks into one. It is a technique commonly used in practice. For closely related tasks (such as detecting multiple parts of the human body), the tasks can be merged with a MultiTask scheme. The basic network design is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-20-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E5%25B7%25A5%25E7%25A8%258B%25E7%25AF%2587%2529/2d_detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F%28%E5%B7%A5%E7%A8%8B%E7%AF%87%29_20210920_174419.png" alt="img" /></p>
+
+<p>In my understanding, the core of MultiTask is to share the basic features of the early layers and to implement different tasks through different branches (the tasks should be fairly close to one another). For classification tasks, the simplest approach is to separate the tasks with different fc layers. For detection, since only the backbone parameters are shared, the anchor generator and the Det-head that follow need to be configured differently. In terms of details, training has to ensure that data of each type sends gradients back only to the parameters of its own branch. In general, the more tasks there are, the more performance drops, so tasks often need to be combined (that is, reduce the total number of branches and increase the number of tasks per branch).</p>
+
+<h3 id="quantization">Quantization<a id="sec-2-1-3"></a></h3>
+
+<p>Model quantization is generally an indispensable step in real model deployment. To reduce accuracy loss, models are usually trained in FP32 precision (or mixed precision), but FP32 models take up a lot of storage and run inefficiently, which makes them hard to deploy on mobile devices. Quantization emerged from this need. Its purpose is to convert FP32 data into lower-precision data (commonly INT8). During inference the model weights are fixed, and for a well-converged model the INT8 data type can usually represent most of the output range of FP32 data, so accuracy stays fairly good. The most widely used scheme in industry is NVIDIA TensorRT’s quantization: <a href="https://on-demand.gputechconf.com/gtc/2017/presentation/s7310-8-bit-inference-with-tensorrt.pdf">8-bit Inference with TensorRT</a>. Its core principle is to represent the activations of each original FP32 layer with INT8, which is turned into an optimization problem based on <code class="language-plaintext highlighter-rouge">KL-divergence</code>. Of course, in most cases the mapping cannot be lossless, and some accuracy is usually lost (especially at boundary values).</p>
+
+<p><img src="/assets/img/recovered/c52cd94febf3d87f.png" alt="img" /></p>
+
+<p>TensorRT optimizes the step above with a calibration set. The calibration set can be seen as a subset of the real scenario, so that accuracy in the real scenario stays as high as possible. The basic procedure is:</p>
+
+<ul>
+  <li>Collect histograms of each layer’s activations on the calibration set data</li>
+  <li>Generate different quantized distributions based on different thresholds</li>
+  <li>Compute the relative entropy between each distribution and the original distribution, and choose the quantization threshold with the smallest entropy</li>
+</ul>
+
+<h3 id="operator--graph-fusion">Operator / Graph Fusion<a id="sec-2-1-4"></a></h3>
+
+<p>Deep model inference usually expresses the network structure through a computation graph; that is, operators and the network structure are expressed through the nodes and edges of the graph. In general, the degree of operator composition is positively correlated with the model’s computational performance: the more composite the operators, the higher the performance. But the more composite the operators, the weaker their expressive power. Simply put, many small operators can be combined in different ways to build complex and varied network structures, but once those small operators are merged into a few large ones, their expressive power drops.</p>
+
+<p>So, in general, models are built and trained from operators with a low degree of composition in order to realize diverse models. During actual inference, however, the model’s structure and weights are fixed, so performance can be improved by raising the degree of operator composition, which is operator/graph fusion. Operator/graph fusion usually depends on the underlying hardware. For example, the CUDA kernel libraries on GPUs integrate a great deal of graph-and-operator fusion logic to accelerate inference, and other hardware such as NPUs (for example HUAWEI’s Ascend series) also develop their own fusion algorithms. The core of graph-and-operator fusion is to fuse operators that can be computed consecutively or in parallel into fused operators, or to optimize the underlying computation logic, in order to gain performance. The most common example of operator fusion is merging Conv+BN. The reasoning is that the BN parameters are fixed after training, so BN is equivalent to a linear operation on the output data, and that linear operation can be carried out inside the convolution.</p>
+
+<p>Some popular AI compilers today, such as TVM, generate optimization rules for various hardware backends and use them to optimize the model. TVM mainly implements operator fusion through a dominator tree. Its basic strategy is to start from each node and check whether it and its dominator node match a fusion rule (pattern); if they do, these nodes are replaced with a fused operator.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-09-20-2D_Detection-%25E6%25A8%25A1%25E5%259E%258B%25E5%258A%25A0%25E9%2580%259F%2528%25E5%25B7%25A5%25E7%25A8%258B%25E7%25AF%2587%2529/2d_detection-%E6%A8%A1%E5%9E%8B%E5%8A%A0%E9%80%9F%28%E5%B7%A5%E7%A8%8B%E7%AF%87%29_20210920_180258.png" alt="img" /></p>

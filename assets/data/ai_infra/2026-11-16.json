@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-16",
+  "language": "zh-Hans",
+  "sections": [
+    {
+      "id": "overview",
+      "title": {
+        "zh": "今日速览",
+        "en": "Overview"
+      },
+      "blocks": [
+        "今天的主线是把推理优化落实到状态与搬运：混合模型精确保存会话末端、恢复权重时检查完整性、异步缓存写回时保持正确顺序。AMD/昇腾继续补索引和投机路径，消费级部署则同时推进专用 kernel 与 pageable copy 调参；本期最值得复核的是收益适用条件，而非单个最大加速倍数。"
+      ]
+    },
+    {
+      "id": "highlights",
+      "title": {
+        "zh": "今日要点",
+        "en": "Highlights"
+      },
+      "blocks": [
+        "**缓存进入状态与生命周期细节竞争。** [精确结束点 checkpoint](https://github.com/vllm-project/vllm/pull/66881) 仍 Open；[ModelExpress 完整恢复检查](https://github.com/ai-dynamo/dynamo/pull/18781) 已合入。收益要连同配置边界评估。",
+        "**AMD Kimi 投机采样补齐验证规则。** [Triton block verification](https://github.com/lightseekorg/tokenspeed/pull/3395) 已合入，MI355X 接受长度对齐参考曲线；[MXFP4 调优](https://github.com/lightseekorg/tokenspeed/pull/3420) 整机收益为小幅改善。",
+        "**昇腾索引量化已落地。** [SGLang INT8 LightningIndexer](https://github.com/sgl-project/sglang/pull/42224) 为 A2/A3 长上下文减负，需 opt-in，暂不兼容 HiCache；2× 指索引算子。",
+        "**offload 还有主机传输可挖。** [11-15 cudamemcpy-tuner](https://maknee.github.io/blog/2026/CudaMemcpy/) 用线程/缓冲调参提升 pageable copy，但启动和完整 serving 收益远小于拷贝峰值。",
+        "**多模态投机的瓶颈有别于纯文本。** [MMFlash](https://arxiv.org/abs/2611.18482) 发现高视觉依赖 token 草稿更易被拒，针对训练和长视频 attention 处理；当前是论文结果。"
+      ]
+    },
+    {
+      "id": "prs",
+      "title": {
+        "zh": "GitHub PR 动态",
+        "en": "GitHub pull requests"
+      },
+      "blocks": [
+        "### tokenspeed：AMD 能力补齐与短请求延迟",
+        "**ROCm 支持抽样草稿的 block verification**（[#3395](https://github.com/lightseekorg/tokenspeed/pull/3395)）— Triton 后端补齐按 seed/位置取随机数和残差采样；8×MI355X、Kimi-K3.1 作者测接受长度 2.877，对照曲线 2.88，避免用不同验证规则比较性能。 @Yu-Zhewen 【Merged】",
+        "**gfx950 Kimi MXFP4 MoE 调优**（[#3420](https://github.com/lightseekorg/tokenspeed/pull/3420)）— 减少 W2 缓存污染、调整 tile 与 scale 加载；8×MI355X AgentX 自测整机吞吐 +0.4%–2.5%，小并发部分仅一轮，不能用单 kernel 最大值替代。 @Yu-Zhewen 【Merged】",
+        "**Muse Spark 接通 attention DP8 + EP8**（[#3404](https://github.com/lightseekorg/tokenspeed/pull/3404)）— 让每路专家先独立归一化再加权合并，压缩行跨 rank 通信；支持 gfx950 的 Petit 路径，含空 rank 和图回放验证，尚无通用吞吐结论。 @efric 【Merged】",
+        "**屏蔽 DSA logits 中未写的 padding**（[#3489](https://github.com/lightseekorg/tokenspeed/pull/3489)）— DeepGEMM 升级后 top-k 可能读到有限的陈旧值，导致 TP 切分改变选择；填为负无穷，修复的是推理选择正确性。 @lightseek-bot 【Merged】",
+        "**短 prompt 跨 DSA 层复用全候选选择**（[#3474](https://github.com/lightseekorg/tokenspeed/pull/3474)）— 候选不超过 top-k 时无需每层再建相同索引；两节点 GB300、单请求短 prompt 自测首 token 约 72–77→66–67ms，超过 2048 候选保持原路径。 @nperrin-fr 【Merged】",
+        "**prefill 中的 block draft 改为图回放**（[#3463](https://github.com/lightseekorg/tokenspeed/pull/3463)）— 减少短 prompt 的主机发射开销；同类 Kimi 配方自测约省 10ms，限 MLA draft、无 attention DP/PP 等条件，与其他 PR 的数字不可直接相加。 @nperrin-fr 【Merged】",
+        "**每个 prefill chunk 后保底留 decode 轮次**（[#3355](https://github.com/lightseekorg/tokenspeed/pull/3355)）— 新增默认关闭的 min-interval，避免长 prompt 后续块连续阻塞解码；代价是更长 TTFT，c24 有收益，其他并发部分仍在噪声内。 @Yu-Zhewen 【Merged】",
+        "### SGLang：索引量化、缓存恢复与调度边界",
+        "**昇腾 A2/A3 使用 INT8 LightningIndexer**（[#42224](https://github.com/sgl-project/sglang/pull/42224)）— 在没有 FP8 indexer 的硬件上降低索引成本；作者称 indexer 约 2×，属算子指标，需显式配置，且拒绝与 HiCache 组合。 @konst42r 【Merged】",
+        "**KV resume 后恢复图 padding 行**（[#50731](https://github.com/sgl-project/sglang/pull/50731)）— memory saver 重映射后 dummy 请求行可能未初始化并读错 KV 页；H20 sanitizer 定向验证 20 次未初始化读→0，整模型未观察到错误输出。 @chenxb002 【Open】",
+        "**HiCache write-back 用 stream fence 替代主机阻塞**（[#50469](https://github.com/sgl-project/sglang/pull/50469)）— 让调度器与 D2H 备份重叠；对存在 L3、linker、unified memory 或 PD decode 等额外写入路径仍保留阻塞，不能视为所有模式都异步。 @weireweire 【Open】",
+        "**显式输出预算超 KV 容量时返回错误**（[#50630](https://github.com/sgl-project/sglang/pull/50630)）— 过去会静默缩短 max_new_tokens；现在早期返回 HTTP 400 并给可用上限，默认/未指定预算保留原行为，调用方需处理这一兼容性变化。 @koppx 【Open】",
+        "### vLLM：混合缓存与消费级 MoE 后端",
+        "**混合模型精确结束点 checkpoint + 成本驱逐**（[#66881](https://github.com/vllm-project/vllm/pull/66881)）— 请求结束时保留精确 Mamba 状态与尾页，并按省下的 prefill 成本管理缓存；默认关闭，48 会话 2.74× 来自较早分支测量，当前版本未重测，且不支持投机、CP 等多种组合。 @ischencheng 【Open】",
+        "**Triton KDA prefill 直接导出 checkpoint**（[#67866](https://github.com/vllm-project/vllm/pull/67866)）— 复用 FlashKDA exporter 把 recurrent state 与 conv 窗口写到检查点，避免最后一个块边界把 prompt 拆成两轮；GB300 做了输出/状态一致性验证。 @JaredforReal 【Open】",
+        "**SM120 接 HPC-Ops FP8/MXFP4 MoE**（[#64464](https://github.com/vllm-project/vllm/pull/64464)）— 通过 opt-in 后端扩展 RTX PRO Blackwell；4×RTX PRO 5000 作者自测 DSv4 长输入吞吐比默认 +11%–28%，prefix cache 关闭，不能外推到所有卡型。 @rynwang 【Open】",
+        "**共享前缀不再误触发 offload flush**（[#67486](https://github.com/vllm-project/vllm/pull/67486)）— 区分缓存块被引用与物理块被重新分配，减少共享 Full Attention 前缀的无谓等待，同时保留真正复用块的写入栅栏。 @Alex-ai-future 【Open】",
+        "### FlashInfer：已落地 Hopper MLA，开放消费级路径",
+        "**SM90 DOTS3 MLA 滑窗 decode 调优**（[#9511](https://github.com/flashinfer-ai/flashinfer/pull/9511)）— 按每个 query 的因果窗口读取页，容量允许时合并 split reduction；保持 FP32 归约，限 BF16、特定头维、Page64 和窗口 513 等已验证形状。 @DylanChen-NV 【Merged】",
+        "**SM120 纯 RDMA MoE AlltoAll**（[#9449](https://github.com/flashinfer-ai/flashinfer/pull/9449)）— 让缺少 NVLink 的卡用 NCCL GIN/GDAKI 做专家派发与合并，支持 NVFP4 通信；要求匹配 NCCL 2.30.7 和 RDMA NIC，实卡验证仅 EP4/8，代码的 EP16/32 尚待硬件验证。 @yilin-void 【Open】",
+        "**FP8 KV 在 paged prefill 前只扩宽一次**（[#9515](https://github.com/flashinfer-ai/flashinfer/pull/9515)）— 避免每个 query CTA 重复解包同一 KV；默认关闭，额外持有紧凑 16 位 shadow cache，换显存与转换成本来改善 BF16-Q/FP8-KV 路径，支持组合受限。 @sysuTobo 【Open】",
+        "### Mooncake：进程退出与注册内存生命周期",
+        "**修复共享配额 mutex 导致的退出 hang**（[#5326](https://github.com/kvcache-ai/Mooncake/pull/5326)）— Linux robust mutex 在原宏判断下未启用，持锁进程被杀可拖死其他发布者；补 owner-death 恢复和可中断退出，升级仍需停止用户并重建旧共享对象。 @feichai0017 【Merged】",
+        "**已注册 CUDA/MLU Tensor 写入绕过 host staging**（[#5507](https://github.com/kvcache-ai/Mooncake/pull/5507)）— TENT/RDMA 保留设备源指针并验证全范围注册与 route；实测在双 MLU580 主机，取消后须等传输不再访问缓冲，等待可超过超时，CUDA 完整路径仍需验证。 @lhzds 【Open】",
+        "**Redis Cluster HA 按 slot 路由并确认副本**（[#5489](https://github.com/kvcache-ai/Mooncake/pull/5489)）— WAIT 必须在同连接完成，未知确认不能冒充成功或重放写入；要求显式副本数，旧 OpLog transaction 路径仍可能把 unknown 弱化为 bool，需继续审查。 @edragain2nd 【Open】",
+        "### Dynamo：恢复权重完整性与容量路由",
+        "**ModelExpress 恢复要求完整 allocation catalog**（[#18781](https://github.com/ai-dynamo/dynamo/pull/18781)）— 避免只拷双方交集后把缺失权重当作恢复成功；现有测试核对 adapter flag，当前头部尚非完整实机故障验证。 @glamr-agent 【Merged】",
+        "**decode worker 选择纳入每 rank KV 容量**（[#18224](https://github.com/ai-dynamo/dynamo/pull/18224)）— opt-in 策略优先选请求放得下的 rank，再比较活跃请求和成本；无 rank 能容纳时仍选最小 footprint，而非等待，GPU 性能评估尚未做。 @john-liu-dev 【Open】",
+        "### 其余仓库精选（折叠）",
+        "vLLM-Omni（1 条）：[#10184](https://github.com/vllm-project/vllm-omni/pull/10184) — MiniMax-H3-Image 默认启用兼容的 NPU VAE tile graph；保持单 tile 解码和原生 FP32 encoder，显式近似配置另选。",
+        "TensorRT-LLM（3 条）：[#22223](https://github.com/NVIDIA/TensorRT-LLM/pull/22223) · [#22220](https://github.com/NVIDIA/TensorRT-LLM/pull/22220) · [#22095](https://github.com/NVIDIA/TensorRT-LLM/pull/22095) — B200 融合稀疏 decode、TP/CP 取消一致性防 hang、TurboQuant 冷页压缩均为 Open；后两项仍有通信开销或精度/布局验证门槛。",
+        "TileLang（1 条）：[#3809](https://github.com/tile-ai/tilelang/pull/3809) — 共享内存 8/16-bit transpose 尝试 SM90+ warp-matrix lowering，不能接受的区域回落原 SIMT；不含 CuTeDSL。"
+      ]
+    },
+    {
+      "id": "releases",
+      "title": {
+        "zh": "版本发布",
+        "en": "Releases"
+      },
+      "blocks": [
+        "**llama.cpp 连续构建，合并看一组** — [b12430，11-16](https://github.com/ggml-org/llama.cpp/releases/tag/b12430) 修 HIP MoE 回归；[b12418，11-15](https://github.com/ggml-org/llama.cpp/releases/tag/b12418) 为 Q2_0 加 VNNI dot product 和支持 CPU 上的 VBMI unpack；[b12416](https://github.com/ggml-org/llama.cpp/releases/tag/b12416) 接 Ripple-65B 的 DFlash2；[b12426](https://github.com/ggml-org/llama.cpp/releases/tag/b12426) 接 Higgs v3 STT / VibeVoice-ASR。均是滚动构建，非四个大版本。",
+        "**Strata 0.2.14 / Terminal 0.2.14.1** — [11-15 notes](https://github.com/Niko1221/Strata/releases/tag/v0.2.14)。NVIDIA/AMD prompt 路径转自有 kernel；Terminal 修复 drafting off 仍下载 5.2GB MTP 层、无网时静默缺 drafter 的体验。Intel Arc 与 DGX Spark 引擎仍停 0.1.59，不能按应用版本推断所有硬件都升级。",
+        "**Maya 1.1.65：启动和混合显卡稳定性** — [11-16 release](https://github.com/mw00/project-maya/releases/tag/v1.1.65)。Linux HIP 等显存释放后再分 expert pool；Windows pin RAM 导致 GPU 几乎无可用显存时回滚；AMD+NVIDIA 共享专家导入减少内存搬迁停顿，GLM 大模型混卡仍须显式开启。",
+        "**FlashInfer 0.7.5rc2** — [11-16 release](https://github.com/flashinfer-ai/flashinfer/releases/tag/v0.7.5rc2) 目前只提供 [rc1→rc2 changelog](https://github.com/flashinfer-ai/flashinfer/compare/v0.7.5rc1...v0.7.5rc2)，保留候选版标记，不把当天所有 main PR 直接当作此 wheel 的内容。"
+      ]
+    },
+    {
+      "id": "papers",
+      "title": {
+        "zh": "论文",
+        "en": "Papers"
+      },
+      "blocks": [
+        "**MMFlash：把视觉依赖纳入草稿训练** — [论文](https://arxiv.org/abs/2611.18482) · [HF，25 票](https://huggingface.co/papers/2611.18482)。11-13 提交、11-16 HF 浮出；视觉依赖最高一档 token 的接受率明显更低，方法提高难视觉 token 的训练权重，长视频再用稀疏 attention。作者报告无损解码最高 3.58×、相对 DFlash 最高 +17.1%；这不是主流引擎已落地的吞吐承诺。其余高票多为训练、机器人或应用评测，本期不凑数。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
+        "**pageable CPU↔GPU 拷贝也能系统调参** — [Henry Zhu，11-15](https://maknee.github.io/blog/2026/CudaMemcpy/)。通过更多 staging buffer 和线程提升复制与 DMA 的重叠；作者 B300 的 1GB 拷贝约 10→52GB/s，接近 pinned 的约 56GB/s。实际推理启动仅约 1.01–1.05×，不要把“5× 拷贝”写成“5× 推理”；本条由社区拓源补入，固定 RSS 中唯一新出现的 KubeRay 旧文未入选。"
+      ]
+    },
+    {
+      "id": "community",
+      "title": {
+        "zh": "社区讨论",
+        "en": "Community"
+      },
+      "blocks": [
+        "**cudaMemcpy 调参在 CPU expert offload 上的实例** — [作者帖子](https://www.reddit.com/r/LocalLLaMA/comments/1xx1owx/moe_offload_on_a_3090_prefill_345_466_ts_by/)：3090 + 7800X3D、Qwen3.6-35B Q8_0、2048-token prefill 自测 345→466 tok/s；不是 decode 吞吐。分数⬆/评论数💬未取得，RSS 不提供且 JSON 查询失败。",
+        "**inside-llm 比较量化差异出现在哪个 token** — [作者介绍](https://www.reddit.com/r/LocalLLaMA/comments/1xx7qbf/i_have_created_a_tool_to_observe_what_happens/)：lockstep 模式给双模型相同上下文，展示 KL、候选与采样链；适合定位首次分歧，不能替代任务评测，要求同 tokenizer 且双模型同时驻显存。分数⬆/评论数💬未取得。",
+        "**HN 重访推理“效率前沿”** — [讨论，8⬆ / 0💬](https://news.ycombinator.com/item?id=50512233)。[Baseten 原文](https://www.baseten.co/blog/the-efficient-frontier-of-llm-inference/) 是 9-02 发布、11-02 更新，11-15 被分享；用延迟/吞吐的取舍与整体效率改善区分调参，按今日讨论记录，不算今日技术发布。"
+      ]
+    },
+    {
+      "id": "discovery",
+      "title": {
+        "zh": "新兴方向",
+        "en": "Emerging directions"
+      },
+      "blocks": [
+        "**cudamemcpy-tuner：不改应用的 pageable copy 自动调参** — 11-15 发布，把主机 staging 的线程/缓冲策略当作可优化对象，值得看 MoE offload 和 sleep/wake 的实际收益；目前仍是作者基准。\n↳ [代码](https://github.com/Maknee/cudamemcpy-tuner) ｜ 发现于：社区拓源",
+        "**HRX / Loom：模型自带实现程序的轻量编译栈** — 10-29 已发布 0.1，本轮补源；把模型、kernel 和执行依赖放在模型程序里，经 AOT/JIT 生成 CPU/GPU/NPU 代码，观察能否减少引擎逐模型移植成本，当前为 tech preview。\n↳ [官方介绍](https://rocm.github.io/hrx-system/loom/) ｜ 发现于：novelty 搜索",
+        "**inferzero：Intel iGPU 的原生 Level Zero 路线** — 从 GGUF 直接加载，用 DP4a 做矩阵乘、SSD 流式专家配 GPU 缓存；11-10 从 arcinferzero 改名，属近期补源，作者笔记本自测不能代表全部 Arc 卡。\n↳ [仓库](https://github.com/rizagp/inferzero) ｜ 发现于：novelty 搜索",
+        "**QVB8：有界压缩与跨架构 KV 恢复结合** — v1.2 实验路径让 DGX Spark prefill 状态恢复到 V100，并提供 QVB8R 权重与 DFlash2；逐元素误差界不能保证模型输出相同，先看第三方复测。\n↳ [仓库与边界说明](https://github.com/addiesam/qvb8) ｜ 发现于：novelty 搜索"
+      ]
+    },
+    {
+      "id": "insights",
+      "title": {
+        "zh": "跨源洞察",
+        "en": "Cross-source insights"
+      },
+      "blocks": [
+        "**缓存收益正在取决于“保存什么、谁能读、何时能重用”。** [vLLM 精确结束点](https://github.com/vllm-project/vllm/pull/66881) 缩小重算，[SGLang padding 恢复](https://github.com/sgl-project/sglang/pull/50731) 保证图回放读址，[Dynamo 完整 catalog](https://github.com/ai-dynamo/dynamo/pull/18781) 防止部分恢复冒充成功；据此推断，缓存命中率应和状态完整性、配置兼容矩阵一起看。",
+        "**消费级算力路线分成专用 kernel 与数据搬运两端。** [SM120 HPC-Ops](https://github.com/vllm-project/vllm/pull/64464) 优化计算，[cudamemcpy-tuner](https://github.com/Maknee/cudamemcpy-tuner) 优化主机传输，[Maya](https://github.com/mw00/project-maya/releases/tag/v1.1.65) 修显存预算与 pin 的生命周期；据此推断，offload 部署应先量化传输和初始化占比，再选优化，不能只比较单层峰值。",
+        "**投机解码必须同时交代质量契约和延迟位置。** [MMFlash](https://arxiv.org/abs/2611.18482) 提高视觉 token 的草稿命中，[ROCm block verification](https://github.com/lightseekorg/tokenspeed/pull/3395) 对齐抽样规则，[prefill draft graph](https://github.com/lightseekorg/tokenspeed/pull/3463) 减短请求 launch 开销；三者作用不同，接受长度、TTFT 与稳态 TPOT 应分开测。"
+      ]
+    }
+  ]
+}

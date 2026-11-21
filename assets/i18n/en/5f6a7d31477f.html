@@ -1,0 +1,42 @@
+<h2 id="an-overview-of-speculative-decoding">An Overview of Speculative Decoding</h2>
+
+<p><strong>Paper</strong></p>
+
+<p><a href="https://arxiv.org/pdf/2401.10774">MEDUSA: Simple LLM Inference Acceleration Framework with Multiple Decoding Heads</a> <a href="https://pytorch.org/blog/hitchhikers-guide-speculative-decoding/">A Hitchhiker’s Guide to Speculative Decoding</a></p>
+
+<p><strong>Motivation</strong></p>
+
+<p>The decode phase of an LLM is usually limited by GPU memory bandwidth (<code class="language-plaintext highlighter-rouge">memory-bandwidth-bound</code>), because decode generates only a single token at a time, which leaves computational efficiency low.</p>
+
+<p>One way to improve the computational efficiency of decode is to raise the arithmetic intensity of a single inference step and reduce the number of decode iterations. The design idea is to use a lightweight <code class="language-plaintext highlighter-rouge">draft model</code> to predict multiple tokens and then have the <code class="language-plaintext highlighter-rouge">original model</code> refine the generated tokens, which reduces the total computation without losing accuracy.</p>
+
+<p><strong>Key Points</strong></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">MEDUSA</code> strategy is:</p>
+
+<p>Multiple heads are added after the last layer’s hidden states. During actual inference, consecutive heads can generate multiple consecutive tokens, and the original model finally confirms the multiple candidates.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-02-%25E6%258A%2595%25E6%259C%25BA%25E6%258E%25A8%25E7%2590%2586%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241002_153902.png" alt="img" class="img-mid" /></p>
+
+<p>For computing multiple tokens, Tree-Attention is used to compute attention.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-02-%25E6%258A%2595%25E6%259C%25BA%25E6%258E%25A8%25E7%2590%2586%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241003_011413.png" alt="img" class="img-mid" /></p>
+
+<p>Some design details in actual deployment:</p>
+
+<ol>
+  <li>
+    <p>Head efficiency: More heads can increase the number of tokens per inference step, and if they are fully accepted by the <code class="language-plaintext highlighter-rouge">original model</code>, efficiency is higher. But more heads make training harder, and if the <code class="language-plaintext highlighter-rouge">draft model</code>’s prediction accuracy is not high, some compute and GPU memory is wasted. In experiments, 3-4 heads give a large gain, and in some common setups 6-8 heads also give a large gain.</p>
+  </li>
+  <li>
+    <p>KV cache design: For the original model’s verification of multiple tokens, the <a href="https://github.com/vllm-project/vllm/pull/3250">Lookahead scheduling</a> design can reduce recomputation of the KV cache for proposal tokens and GPU memory copies.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-02-%25E6%258A%2595%25E6%259C%25BA%25E6%258E%25A8%25E7%2590%2586%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241003_014253.png" alt="img" /></p>
+  </li>
+</ol>
+
+<p><strong>Statistics</strong></p>
+
+<p>The test results on Llama2 13B are as follows. With TTFT/ITL held constant, throughput can be roughly doubled.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-02-%25E6%258A%2595%25E6%259C%25BA%25E6%258E%25A8%25E7%2590%2586%25E6%25A6%2582%25E8%25BF%25B0/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241003_014541.png" alt="img" /></p>

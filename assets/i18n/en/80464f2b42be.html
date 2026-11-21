@@ -1,0 +1,36 @@
+<h4 id="orca-the-continuous-batching-strategy">Orca: The Continuous Batching Strategy</h4>
+
+<p><strong>Paper</strong></p>
+
+<p><a href="https://www.usenix.org/system/files/osdi22-yu.pdf">Orca: A Distributed Serving System for Transformer-Based Generative Models</a></p>
+
+<p>LLM inference is mainly divided into the prefill and decode phases. Prefill is compute-bound, while decode is memory-I/O-bound, which means the GPU memory bandwidth needs to be fully used. But GPU memory is limited. On an A100-40GB with a 13B model, for example, the weights take 26GB and each token consumes about 1MB of GPU memory (activations, cache, and so on), so at a sequence length of 2048 only 7 batches can be served, and compute utilization is very low. To improve compute utilization, one option is to reduce memory through quantization, or to reduce memory I/O by optimizing kernels such as FlashAttention. Another is to improve batching efficiency at the scheduling level through continuous batching.</p>
+
+<p><strong>Motivation</strong></p>
+
+<p>Traditional <code class="language-plaintext highlighter-rouge">static batching</code> looks like this: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-06-Orca-Continuous_Batching%25E7%25AD%2596%25E7%2595%25A5/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240917_010738.png" alt="img" /></p>
+
+<p>Clearly, because different requests in the batch produce different numbers of output tokens, requests 1, 3, and 4 have empty slots, which means that for a period only request 2 is computing. <code class="language-plaintext highlighter-rouge">Continuous batching</code> uses an <code class="language-plaintext highlighter-rouge">iteration-level</code> scheduling strategy:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-06-Orca-Continuous_Batching%25E7%25AD%2596%25E7%2595%25A5/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240917_011245.png" alt="img" /></p>
+
+<p><strong>Key Points</strong></p>
+
+<p>The core ideas of <code class="language-plaintext highlighter-rouge">ORCA</code> are <code class="language-plaintext highlighter-rouge">iteration-level scheduling</code> and <code class="language-plaintext highlighter-rouge">selective batching</code>.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">iteration-level scheduling</code>: The task execution order is adjusted dynamically at every iteration. Hardware utilization can be improved through task priorities and micro-batch pipelining.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-06-Orca-Continuous_Batching%25E7%25AD%2596%25E7%2595%25A5/image-20241222210524196.png" alt="image-20241222210524196" class="img-small" /></p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">selective batching</code>: The model input has shape $[B,L,H]$. <code class="language-plaintext highlighter-rouge">Non-Attention</code> operators, such as matrix multiplication and <code class="language-plaintext highlighter-rouge">LayerNorm</code>, support merging $B \times H$, but the <code class="language-plaintext highlighter-rouge">Attention</code> operator needs the B and L dimensions kept separate. <code class="language-plaintext highlighter-rouge">Selective batching</code> handles the dimensions by splitting and merging before and after <code class="language-plaintext highlighter-rouge">Attention</code>, which supports ORCA’s dynamic batching.</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-06-Orca-Continuous_Batching%25E7%25AD%2596%25E7%2595%25A5/image-20241222205732164.png" alt="image-20241222205732164" class="img-small" /></p>
+  </li>
+</ul>
+
+<p><strong>Statistics</strong></p>
+
+<p><img src="/assets/img/recovered/5b3cb8f69a58681d.png" alt="img" /></p>

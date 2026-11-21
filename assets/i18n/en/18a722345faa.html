@@ -1,0 +1,396 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Design Template</a></li>
+  <li><a href="#sec-3">Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>The Command pattern encapsulates a request as an object, so that clients can be parameterized with different requests, requests can be queued or logged, and commands can be undone and redone. Its core idea is to associate a concrete command with its receiver, so the caller does not need to care who performs the action or how: as long as it sends the right command, the corresponding task is completed correctly. The Command pattern has four core roles:</p>
+
+<ul>
+  <li>Command: the task to be completed, or the action to be executed; the core role of the pattern</li>
+  <li>Receiver: the party that actually carries out the task, or the real executor of the action</li>
+  <li>Invoker: receives tasks and sends commands, connects user requests to internal commands, and handles the interaction between external users and internal commands</li>
+  <li>Client: the user of the command, i.e. the real user</li>
+</ul>
+
+<p>The class diagram of the Command pattern is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-02-01-%25E8%25AE%25BE%25E8%25AE%25A1%25E6%25A8%25A1%25E5%25BC%258F-%25E5%2591%25BD%25E4%25BB%25A4%25E6%25A8%25A1%25E5%25BC%258F/20220202_224441.png" alt="img" /></p>
+
+<p>Its advantages are:</p>
+
+<ul>
+  <li>The sender and the receiver of a command are decoupled; the caller does not need to care about the concrete action or how it is executed</li>
+  <li>Other commands can be added easily</li>
+</ul>
+
+<p>Its disadvantages are:</p>
+
+<ul>
+  <li>Every new command needs a concrete class to encapsulate it, which easily leads to a proliferation of command classes</li>
+</ul>
+
+<p>Main application scenarios:</p>
+
+<ul>
+  <li>Message response mechanisms, such as the click commands of various buttons in a GUI</li>
+  <li>Cases where the request caller and the request receiver need to be decoupled</li>
+</ul>
+
+<h1 id="design-template">Design Template<a id="sec-2"></a></h1>
+
+<p>The framework of the Command pattern is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+
+<span class="k">class</span> <span class="nc">Command</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="s">"""命令的抽象类"""</span>
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">CommandImpl</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="s">"""命令的具体实现类"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">receiver</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__receiver</span> <span class="o">=</span> <span class="n">receiver</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__receiver</span><span class="p">.</span><span class="n">dosomething</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Receiver</span><span class="p">():</span>
+    <span class="s">"""命令的接受者"""</span>
+    <span class="k">def</span> <span class="nf">dosomething</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"Do something..."</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Invoker</span><span class="p">():</span>
+    <span class="s">"""调度者"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__command</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__command</span> <span class="o">=</span> <span class="n">command</span>
+
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">__command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__command</span><span class="p">.</span><span class="n">execute</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="example">Example<a id="sec-3"></a></h1>
+
+<p>Scenario: simulate the basic operations in a game, walking and attacking. Walking includes up/down/left/right, plus the related combined (macro) commands:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">class</span> <span class="nc">GameRole</span><span class="p">():</span>
+    <span class="s">"""游戏的角色"""</span>
+
+    <span class="c1"># 每次移动的步距
+</span>    <span class="n">STEP</span> <span class="o">=</span> <span class="mi">5</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__x</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__z</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">left_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__x</span> <span class="o">-=</span> <span class="bp">self</span><span class="p">.</span><span class="n">STEP</span>
+
+    <span class="k">def</span> <span class="nf">right_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__x</span> <span class="o">+=</span> <span class="bp">self</span><span class="p">.</span><span class="n">STEP</span>
+
+    <span class="k">def</span> <span class="nf">up_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__y</span> <span class="o">+=</span> <span class="bp">self</span><span class="p">.</span><span class="n">STEP</span>
+
+    <span class="k">def</span> <span class="nf">down_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__y</span> <span class="o">-=</span> <span class="bp">self</span><span class="p">.</span><span class="n">STEP</span>
+
+    <span class="k">def</span> <span class="nf">jump_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__z</span> <span class="o">+=</span> <span class="bp">self</span><span class="p">.</span><span class="n">STEP</span>
+
+    <span class="k">def</span> <span class="nf">squat_move</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__z</span> <span class="o">-=</span> <span class="bp">self</span><span class="p">.</span><span class="n">STEP</span>
+
+    <span class="k">def</span> <span class="nf">attack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"%s发动攻击..."</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">show_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"%s 的位置：(x:%s, y:%s, z:%s)"</span> <span class="o">%</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__name</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__x</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__y</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__z</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">GameCommand</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="s">"""游戏角色的命令类"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__role</span> <span class="o">=</span> <span class="n">role</span>
+
+    <span class="k">def</span> <span class="nf">set_role</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__role</span> <span class="o">=</span> <span class="n">role</span>
+
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Left</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""左移命令"""</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">left_move</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">show_position</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Right</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""右移命令"""</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">right_move</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">show_position</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Up</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""上移命令"""</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">up_move</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">show_position</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Left</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""下移命令"""</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">down_move</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">show_position</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Jump</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""弹跳命令"""</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">jump_move</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">show_position</span><span class="p">()</span>
+        <span class="c1"># 跳起后空中半秒
+</span>        <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Squat</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""下蹲命令"""</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">squat_move</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">show_position</span><span class="p">()</span>
+        <span class="c1"># 下蹲后伏地半秒
+</span>        <span class="n">time</span><span class="p">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Attack</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""攻击命令"""</span>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_role</span><span class="p">.</span><span class="n">attack</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">MacroCommand</span><span class="p">(</span><span class="n">GameCommand</span><span class="p">):</span>
+    <span class="s">"""宏命令，也就是组合命令"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">role</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__commands</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__commands</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__commands</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">__commands</span><span class="p">:</span>
+            <span class="n">command</span><span class="p">.</span><span class="n">execute</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">GameInvoker</span><span class="p">():</span>
+    <span class="s">"""命令调度者"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__command</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">set_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">__command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="n">__command</span><span class="p">.</span><span class="n">execute</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
