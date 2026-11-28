@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-27",
+  "language": "zh-Hans",
+  "sections": [
+    {
+      "id": "overview",
+      "title": {
+        "zh": "今日速览",
+        "en": "Overview"
+      },
+      "blocks": [
+        "今天最值得关注的是混合架构的缓存恢复与在线权重生命周期：tokenspeed 的跨层依赖保留、Disk peer 复用和 NPU 更新进入主线，但各自有启用条件与设备边界。另一条线是硬件专用执行路径继续扩张，TileLang、SGLang Intel 与 Trainium3 案例都说明，kernel、内存布局和 host 调度需要一起优化；单个算子或短样本速度不能替代服务指标。",
+        "统计口径：2026-11-27 日报，核心增量窗口自 11-25 起，按历史状态去重；旧论文明确标注今日社区浮出，旧博客已过滤。核心候选保留 198 条、去重剔除 203 条；本文精选 PR 25 条详列＋4 个折叠、版本 4 条、论文 2 条、博客 2 条、社区 1 条、新兴方向 2 条、联动 3 条（后两类会引用前文，不作独立事件累加）。",
+        "覆盖说明：GitHub 搜索中 FlashInfer/Dynamo/Mooncake/lmdeploy/TileLang 及 llm-d/DeepSpec/3FS/TileKernels/DualPipe 两组失败，多仓 release 请求失败，Reddit RSS 404；搜索每组最多返回 100 个 PR，本期并非全量变更清单。"
+      ]
+    },
+    {
+      "id": "highlights",
+      "title": {
+        "zh": "今日要点",
+        "en": "Highlights"
+      },
+      "blocks": [
+        "**混合缓存从按块淘汰走向依赖恢复。** tokenspeed 已合入依赖感知 GDS 与 Disk peer 前缀共享；GDS 需显式启用，默认仍为 lru。[GDS](https://github.com/lightseekorg/tokenspeed/pull/3769) · [Disk peer](https://github.com/lightseekorg/tokenspeed/pull/3835)",
+        "**MoE 通信与 NPU 权重更新均有已落地增量。** DeepEP V2.6 / Ascend V1.1 合入主线，tokenspeed 的 DWDP 在线更新仅覆盖 NPU 的指定路径。[DeepEP](https://github.com/deepseek-ai/DeepEP/pull/841) · [NPU 更新](https://github.com/lightseekorg/tokenspeed/pull/3876)",
+        "**硬件支持应按执行路径选型。** TileLang 发版扩大 kernel 后端能力，SGLang 明确 Intel MXFP4 的压缩与计算边界。[TileLang](https://github.com/tile-ai/tilelang/releases/tag/v0.1.16) · [Intel](https://www.lmsys.org/blog/2026-11-27-sglang-intel)",
+        "**视频推理既要看稳态速度，也要看首片与交互等待。** Trainium3 的 LTX-2.5 工程优化与 ShowNow 的动作分支预计算给出不同解法。[Trainium3](https://huggingface.co/blog/video-trainium3) · [ShowNow](https://arxiv.org/abs/2611.34693)"
+      ]
+    },
+    {
+      "id": "prs",
+      "title": {
+        "zh": "GitHub PR 动态",
+        "en": "GitHub pull requests"
+      },
+      "blocks": [
+        "仅详列 25 条主题，另折叠 4 个 PR；Merged 表示主线已合入，Open 的价值为拟议目标。",
+        "### tokenspeed：前缀共享、缓存驻留与 NPU（8 条）",
+        "[Disk 层 peer 前缀共享 #3835](https://github.com/lightseekorg/tokenspeed/pull/3835) — 将前缀复用扩展到 Disk tier，覆盖 v1 TP/KVP 路径，降低重复读取与重算需求。@MaskVulcan 【Merged】",
+        "[无 Host L2 的 Decode peer 共享 #3865](https://github.com/lightseekorg/tokenspeed/pull/3865) — 设备常驻缓存也能参与前缀共享，减少对 Host L2 配置的依赖。@kangguangli 【Merged】",
+        "[跨层依赖感知 GDS 驻留 #3769](https://github.com/lightseekorg/tokenspeed/pull/3769) — 以 opt-in GreedyDual-Size 策略联合保留 State、历史与滑窗依赖，避免缓存块命中却无法恢复；默认仍为 lru。@cnStevenYu 【Merged】",
+        "[NPU 在线权重更新 #3876](https://github.com/lightseekorg/tokenspeed/pull/3876) — 新增 NPU-only 在线更新和 peer 权重省内存支持，为训练与推理解耦部署补齐执行路径。@wangbo981016 【Merged】",
+        "[NPU Host cache 批量搬运 #3867](https://github.com/lightseekorg/tokenspeed/pull/3867) — 通过 HBM staging 和批量 SDMA 处理 Host 缓存传输，减少细粒度搬运开销。@wangbo981016 【Merged】",
+        "[模型自定 rl-bitwise 策略 #3862](https://github.com/lightseekorg/tokenspeed/pull/3862) — 将逐位一致性的数值约束交由模型策略表达，便于明确 rollout 的正确性边界。@FC-Li 【Merged】",
+        "[Run:ai Model Streamer 加载 #3810](https://github.com/lightseekorg/tokenspeed/pull/3810) — 为本地与对象存储 safetensors 接入流式加载，扩展大模型权重分发路径。@fanyang-real 【Merged】",
+        "[滑窗草稿的分头 peer 读取 #3832](https://github.com/lightseekorg/tokenspeed/pull/3832) — 前缀读取覆盖 head-sharded sliding-window draft，补齐草稿模型并行布局兼容性。@kangguangli 【Merged】",
+        "### SGLang：缓存背压与重算一致性（5 条，均为 Open）",
+        "[HiCache 写穿背压 #53075](https://github.com/sgl-project/sglang/pull/53075) — 限制备份写穿压力以避免 Host 驱逐饥饿，关注高命中率下的缓存可持续回收。@qinzzz 【Open】",
+        "[撤回请求复用首次专家 #53623](https://github.com/sgl-project/sglang/pull/53623) — 拟让被撤回请求 re-prefill 时沿用首次路由专家，减少重算导致的路径漂移。@guapisolo 【Open】",
+        "[会话 re-prefill 路由复用 #46209](https://github.com/sgl-project/sglang/pull/46209) — 同一问题延伸到会话级专家复用，需联合检查状态保存成本与输出一致性。@syeehyn 【Open】",
+        "[路由器 L1 tokenizer cache #53622](https://github.com/sgl-project/sglang/pull/53622) — DeepSeek-V4/V4.1 提示编码拟复用 L1 结果，减少重复 prompt 的前端处理。@ShangmingCai 【Open】",
+        "[PD decode 的 NGRAM 草稿输入 #52551](https://github.com/sgl-project/sglang/pull/52551) — 补充 PD 分离下的草稿输入构造，避免投机解码只在 colocate 配置可用。@PeganovAnton 【Open】",
+        "### vLLM：更新完整性、量化调度与前缀安全（6 条，均为 Open）",
+        "[权重更新未完成时阻止恢复 #70364](https://github.com/vllm-project/vllm/pull/70364) — 拟将更新完成状态作为 scheduler 恢复条件，避免请求使用半更新权重。@aoshen02 【Open】",
+        "[非加密前缀哈希防碰撞 #54727](https://github.com/vllm-project/vllm/pull/54727) — 加强 prefix cache 非加密哈希路径的碰撞防御，多租户服务应关注其验证边界。@jperezdealgaba 【Open】",
+        "[按 prefill/decode 分派 linear #68472](https://github.com/vllm-project/vllm/pull/68472) — 提出 linear.phase 配置与逐阶段分派，为计算密集与带宽密集阶段选择不同线性层路径。@puririshi98 【Open】",
+        "[SM120 稀疏 MLA dense prefill #68818](https://github.com/vllm-project/vllm/pull/68818) — 拟补齐 FlashInfer sparse MLA 的 dense prefill 路径，修复消费级 Blackwell 的配置兼容性。@lingxling 【Open】",
+        "[ROCm sparse MLA 的 ShardQ #70230](https://github.com/vllm-project/vllm/pull/70230) — 探索查询侧分片以调整稀疏 attention 并行粒度，实际收益仍需目标 batch 测量。@simondanielsson 【Open】",
+        "[草稿辅助层索引校验 #70414](https://github.com/vllm-project/vllm/pull/70414) — 在 Eagle3/DFlash 入口检查辅助 hidden-state 层范围，尽早拒绝模型与草稿配置错配。@santoshkkashyap25 【Open】",
+        "### vLLM Omni：中断恢复与多阶段执行（4 条，均为 Open）",
+        "[MiniCPM-o 中断保留 Thinker KV #11293](https://github.com/vllm-project/vllm-omni/pull/11293) — 拟复用中断前仍驻留的 Thinker 缓存，减少实时交互恢复时的重复 prefill。@amy-why-3459 【Open】",
+        "[Thinker-only 跳过 TTS 拷贝 #10814](https://github.com/vllm-project/vllm-omni/pull/10814) — 拟移除不使用语音输出时的 llm2tts latent D2H 传输，降低无效同步。@wuli666 【Open】",
+        "[CFG companion 存活超时 #6941](https://github.com/vllm-project/vllm-omni/pull/6941) — 给伴随分支添加等待边界，避免扩散多分支执行长期卡住。@zupengwang 【Open】",
+        "[MiniMax-H3-Image VAE tile batching #10157](https://github.com/vllm-project/vllm-omni/pull/10157) — 以显式选项批处理 VAE 解码 tiles，需评估峰值显存与时延的交换。@gerayking 【Open】",
+        "### DeepEP / DeepEP-Ascend：通信能力进入主线（2 条）",
+        "[DeepEP V2.6 #841](https://github.com/deepseek-ai/DeepEP/pull/841) — 已合入 EPBuffer resize、FP32 combine 输出和跨域收发恢复，并为 copy-engine collectives 增加 CUDA Graph capture。@sphish 【Merged】",
+        "[DeepEP-Ascend V1.1 #32](https://github.com/deepseek-ai/DeepEP-Ascend/pull/32) — 移除相关 bootstrap/拓扑/通道对 HCCL runtime 的依赖，补入 AICPU、可恢复错误和 ACLGraph 路径；仍需验证 SDK 与拓扑。@sphish 【Merged】",
+        "### 其余仓精选折叠（不作全量清单）",
+        "TensorRT-LLM（2 条 Open）：[KVCacheManagerV2 分层缓存与延迟释放 #22995](https://github.com/NVIDIA/TensorRT-LLM/pull/22995) · [Wide-EP 丢 rank 后继续服务 #22731](https://github.com/NVIDIA/TensorRT-LLM/pull/22731)。",
+        "SGLang Omni（1 条 Merged）：[Voxt Qwen3-ASR 与 Messages API #4747](https://github.com/sgl-project/sglang-omni/pull/4747)。",
+        "DeepGEMM（1 条 Open）：[SM90 BF16 batched SYRK 融合 epilogue #527](https://github.com/deepseek-ai/DeepGEMM/pull/527)。"
+      ]
+    },
+    {
+      "id": "releases",
+      "title": {
+        "zh": "版本发布",
+        "en": "Releases"
+      },
+      "blocks": [
+        "[TileLang v0.1.16](https://github.com/tile-ai/tilelang/releases/tag/v0.1.16)（11-27）— 新增 Ascend 950 PTO/VMI 路径，扩展 CuTeDSL 的 cluster TMA、SM120/121 block-scaled MMA，并补进程并行编译、多根缓存与 NVRTC；重点是跨硬件 kernel 表达和编译部署能力扩大。",
+        "[Strata v0.2.23](https://github.com/Niko1221/Strata/releases/tag/v0.2.23)（11-27）— Inkling 2 Mini 新量化文件与 DFlash2 草稿路径；SQ-20 v2 使用新对齐布局，需一起更新模型与引擎，旧引擎会拒绝新文件。",
+        "[Maya v1.1.83](https://github.com/mw00/project-maya/releases/tag/v1.1.83)（11-27）— Ling-3.2-air 扩展到 Windows NVIDIA 与 Linux AMD；Inkling 2 Mini 优先整层驻留循环层，作者在 8–16GB 卡报告约 1.5–1.8× decode 收益，待同量化独立复测。",
+        "[Voxt v2.1.5 beta.149](https://github.com/sgl-project/sglang-omni/releases/tag/voxt-v2.1.5-beta.20261127.149)（11-27）— 合并同日重复 beta，仅保留最新：录音时提前识别、复用预览，在作者 M4 Air / 1.7B 的 40 段录音测试中停止后平均等待 0.53→0.29 秒；beta 的测试保障弱于稳定版。"
+      ]
+    },
+    {
+      "id": "papers",
+      "title": {
+        "zh": "论文",
+        "en": "Papers"
+      },
+      "blocks": [
+        "[Stable Gated DeltaNet-2](https://arxiv.org/abs/2611.34051) — 对称擦除与受衰减约束的写入控制 recurrent state 增长，保留 chunkwise 并行；约 1.6B 模型的长上下文结果值得混合架构部署关注，但需要模型训练配合，并非现有引擎的无损补丁。11-25 提交，今日 HF 128 票。",
+        "[ShowNow：细粒度投机流式世界模型](https://arxiv.org/abs/2611.34693) — 在视频播放期间提前计算动作分支，共享历史树执行并按单 latent 提交；单 H100 的 5B 模型以八个候选维持 480p/16fps，ViZDoom 输入到显示中位时延 620→208ms，同时存在画质与长程一致性取舍。11-25 提交，今日 HF 19 票。"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
+        "[SGLang 的 Intel Xeon / XPU 执行路径](https://www.lmsys.org/blog/2026-11-27-sglang-intel)（11-27）— CPU 侧强调 AMX、NUMA 亲和和图执行；Xe2 MXFP4 在 kernel 内将压缩专家 tile 转成 BF16，避免完整 BF16 权重副本。W4A16 不等于原生 FP4 计算，XPU graph 仍需显式开启，EP 与异构 EPD 组合尚未完成验证。",
+        "[Trainium3 上的 LTX-2.5 视频生成](https://huggingface.co/blog/video-trainium3)（11-27）— TP4×SP8 使用 32 NeuronCores，在模型加载后以 22–23 秒生成 10 秒 2048×1024 有声视频；host 编码、线程争用和数据布局的修复贡献显著，进程加载约 3 分钟、首片约 80 秒。起点仅 4 cores 且分辨率较低，文中的 14× 不能视作同资源或对 CUDA 的加速比。"
+      ]
+    },
+    {
+      "id": "community",
+      "title": {
+        "zh": "社区讨论",
+        "en": "Community"
+      },
+      "blocks": [
+        "[Show HN：单 GB10 的 Inkling 2 Mini / vLLM 调优](https://news.ycombinator.com/item?id=50670443) — 31⬆ / 7💬；作者标题报告 101 tok/s，可作为端侧配置线索，但正文未能独立打开，本期不据此认定跨引擎性能排名。",
+        "Reddit RSS 本轮返回 404，未获得可用增量；Ask HN 的 RL 理解话题与部署优化关联弱，未选入。"
+      ]
+    },
+    {
+      "id": "discovery",
+      "title": {
+        "zh": "新兴方向",
+        "en": "Emerging directions"
+      },
+      "blocks": [
+        "**FLYX：轻量本地引擎集成自动 KV 放置与草稿执行** — 11-26 v0.2.1 将单文件 C++/CUDA 引擎扩展到 Inkling + DSpark 和视觉输入；四卡结果按模型、量化与提示类型区分，适合观察消费卡长上下文部署，短代码样本峰值不能代表通用吞吐。\n↳ [官方 v0.2.1](https://github.com/enwove/flyx/releases/tag/v0.2.1) ｜ 发现于：novelty 搜索，本轮补源。",
+        "**RustingStrata：本地 Rust 引擎走向批量服务** — 11-26 v1.4.0 增加 CUDA/Vulkan 批处理和按需增长的 slot KV，今日 v1.4.1 加 GPU vision 与 RAM 专家 CPU/PCIe 协同；新版同时修复并发 33–64 行 GEMM 读错输入，评测应优先核对正确性。\n↳ [官方 v1.4.1](https://github.com/RustingStudio/RustingStrata/releases/tag/v1.4.1) ｜ 发现于：novelty 搜索，既有项目的新能力。"
+      ]
+    },
+    {
+      "id": "insights",
+      "title": {
+        "zh": "跨源洞察",
+        "en": "Cross-source insights"
+      },
+      "blocks": [
+        "**前缀复用的收益取决于“可恢复”，不只取决于命中。** [tokenspeed GDS #3769](https://github.com/lightseekorg/tokenspeed/pull/3769)联合保留 State、历史和滑窗依赖，[SGLang #53075](https://github.com/sgl-project/sglang/pull/53075)则给慢存储写穿施加背压；前者已合入但 opt-in，后者仍 Open。工程判断：应将有效恢复点、pending 写入和池回收能力一起观察。",
+        "**后端扩张需要独立验证数值和生命周期。** [DeepEP-Ascend V1.1](https://github.com/deepseek-ai/DeepEP-Ascend/pull/32)补入通信与恢复能力，[Intel 路径说明](https://www.lmsys.org/blog/2026-11-27-sglang-intel)仍明确限制模型、精度和并行组合；统一 API 并不意味着不同设备具备同等功能覆盖。",
+        "**交互指标正在细化到用户动作之后。** [ShowNow](https://arxiv.org/abs/2611.34693)优化按键到显示的延迟，[Voxt #4747](https://github.com/sgl-project/sglang-omni/pull/4747)优化停止录音后的等待；这是两个场景的共同工程方向，不构成可直接比较的性能数值。",
+        "采集附记：核心保留量为 PR 160、release 10、arXiv 0、HF 论文 21、模型权重 0、HN 2、Reddit 0、博客 5；arXiv 0 指去重后无增量。拓源脚本返回 Trending 7、rising 20、awesome 新增 0、新词候选 0；旧项目与应用层条目未冒充新方向，另由搜索和一手材料新增候选源 3 个、术语/概念 6 组，已写回注册表，本轮无晋升或淘汰。"
+      ]
+    }
+  ]
+}
