@@ -1,0 +1,892 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Classic Problem Types</a>
+    <ul>
+      <li><a href="#sec-2-1">Common Operations</a></li>
+      <li><a href="#sec-2-2">Validating Strings</a></li>
+      <li><a href="#sec-2-3">Palindromic Substrings</a></li>
+      <li><a href="#sec-2-4">DP Algorithms</a></li>
+    </ul>
+  </li>
+  <li><a href="#sec-3">Tricks</a>
+    <ul>
+      <li><a href="#sec-3-1">The re Module</a></li>
+      <li><a href="#sec-3-2">Using format</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>String problems cover a wide range of algorithms. The data structures and algorithms that commonly appear are:</p>
+
+<ul>
+  <li>Recursion</li>
+  <li>Stack</li>
+  <li>DP</li>
+  <li>Two pointers</li>
+</ul>
+
+<h1 id="classic-problem-types">Classic Problem Types<a id="sec-2"></a></h1>
+
+<h2 id="common-operations">Common Operations<a id="sec-2-1"></a></h2>
+
+<p>Approach: the classic problem type is to implement addition, subtraction, multiplication, and division from a string input. The usual solution splits the original mathematical procedure into smaller steps so that it can be carried out step by step. The data structure most often used is the <code class="language-plaintext highlighter-rouge">stack</code>.</p>
+
+<p>Problems:</p>
+
+<ol>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/multiply-strings/">Multiply Strings</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num1</span><span class="p">,</span> <span class="n">num2</span><span class="p">):</span>
+        <span class="s">"""
+        :type num1: str
+        :type num2: str
+        :rtype: str
+        """</span>
+        <span class="c1"># 关键：抽象为两步：
+</span>        <span class="c1"># 1. 单位乘法
+</span>        <span class="c1"># 2. 各个位数相加
+</span>    
+        <span class="n">res</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">num1</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">num2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">num1</span><span class="p">)):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">num1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">_i</span>
+            <span class="c1"># 单位乘法
+</span>            <span class="n">single_re</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">num2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">single_jinwei</span> <span class="o">=</span> <span class="mi">0</span> 
+            <span class="k">for</span> <span class="n">_j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">num2</span><span class="p">)):</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">num2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">_j</span>
+                <span class="n">n1</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num1</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">n2</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num2</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="n">single_re</span><span class="p">[</span><span class="n">_j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">n1</span> <span class="o">*</span> <span class="n">n2</span> <span class="o">+</span> <span class="n">single_jinwei</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10</span>
+                <span class="n">single_jinwei</span> <span class="o">=</span> <span class="p">(</span><span class="n">n1</span> <span class="o">*</span> <span class="n">n2</span> <span class="o">+</span> <span class="n">single_jinwei</span><span class="p">)</span> <span class="o">//</span> <span class="mi">10</span>
+            <span class="k">if</span> <span class="n">single_jinwei</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">single_re</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">single_jinwei</span>
+            <span class="c1"># 与总的结果相加
+</span>            <span class="c1"># TODO: 和第一步合并: 压缩时间复杂度
+</span>            <span class="n">top_jinwei</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">_j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">single_re</span><span class="p">):</span>
+                <span class="n">ori_value</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">_i</span> <span class="o">+</span> <span class="n">_j</span><span class="p">]</span>
+                <span class="n">res</span><span class="p">[</span><span class="n">_i</span> <span class="o">+</span> <span class="n">_j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">ori_value</span> <span class="o">+</span> <span class="n">n</span> <span class="o">+</span> <span class="n">top_jinwei</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10</span>
+                <span class="n">top_jinwei</span> <span class="o">=</span> <span class="p">(</span><span class="n">ori_value</span> <span class="o">+</span> <span class="n">n</span> <span class="o">+</span> <span class="n">top_jinwei</span><span class="p">)</span> <span class="o">//</span> <span class="mi">10</span>
+    
+        <span class="c1"># 去掉最后的0
+</span>        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">_</span>
+            <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">res</span><span class="p">))</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s">''</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/basic-calculator-ii/">Basic Calculator II</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="s">"""
+        :type s: str
+        :rtype: int
+        """</span>
+        <span class="c1"># 栈存储：数字,"*,/"先做处理
+</span>        <span class="n">num_stack</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># 先清理' '
+</span>        <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span>
+    
+        <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># 记录前置op: 很关键
+</span>        <span class="n">op</span> <span class="o">=</span> <span class="s">'+'</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'+'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'/'</span><span class="p">]:</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'+'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'/'</span><span class="p">]</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'+'</span><span class="p">:</span>
+                    <span class="n">num_stack</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'-'</span><span class="p">:</span>
+                    <span class="n">num_stack</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">num</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s">'*'</span><span class="p">:</span>
+                    <span class="n">num_stack</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">num_stack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span> <span class="o">*</span> <span class="n">num</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">num_pre</span> <span class="o">=</span> <span class="n">num_stack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">num_pre</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">n</span> <span class="o">=</span> <span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="o">-</span><span class="n">num_pre</span> <span class="o">//</span> <span class="n">num</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_pre</span> <span class="o">/</span> <span class="n">num</span><span class="p">)</span>
+                    <span class="n">num_stack</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="n">op</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">num_stack</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="validating-strings">Validating Strings<a id="sec-2-2"></a></h2>
+
+<p>Approach: these problems vary a lot, and usually require checking a string against some matching rules. The common solutions are backtracking or a stack, and handling the details carefully is the key.</p>
+
+<p>Problems:</p>
+
+<ol>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/restore-ip-addresses/">Restore IP Addresses</a></p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">restoreIpAddresses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">SEG_COUNT</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">SEG_COUNT</span>
+    
+        <span class="c1"># 回溯：segId-&gt;ipAdress第几段，segStart-&gt;字符串开始search的位置
+</span>        <span class="k">def</span> <span class="nf">dfs</span><span class="p">(</span><span class="n">segId</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">segStart</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="c1"># 如果找到了 4 段 IP 地址并且遍历完了字符串，那么就是一种答案
+</span>            <span class="k">if</span> <span class="n">segId</span> <span class="o">==</span> <span class="n">SEG_COUNT</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">segStart</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                    <span class="n">ipAddr</span> <span class="o">=</span> <span class="s">"."</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">)</span>
+                    <span class="n">ans</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">ipAddr</span><span class="p">)</span>
+                <span class="k">return</span>
+    
+            <span class="c1"># 如果还没有找到 4 段 IP 地址就已经遍历完了字符串，那么提前回溯
+</span>            <span class="k">if</span> <span class="n">segStart</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+                <span class="k">return</span>
+    
+            <span class="c1"># 由于不能有前导零，如果当前数字为 0，那么这一段 IP 地址只能为 0
+</span>            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="n">segStart</span><span class="p">]</span> <span class="o">==</span> <span class="s">"0"</span><span class="p">:</span>
+                <span class="n">segments</span><span class="p">[</span><span class="n">segId</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">dfs</span><span class="p">(</span><span class="n">segId</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">segStart</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    
+            <span class="c1"># 一般情况，枚举每一种可能性并递归
+</span>            <span class="n">addr</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="c1"># segEnd-&gt;当前字符截取终点（下个字符的起点）
+</span>            <span class="k">for</span> <span class="n">segEnd</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">segStart</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)):</span>
+                <span class="n">addr</span> <span class="o">=</span> <span class="n">addr</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">segEnd</span><span class="p">])</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s">"0"</span><span class="p">))</span>
+                <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">addr</span> <span class="o">&lt;=</span> <span class="mh">0xFF</span><span class="p">:</span>
+                    <span class="n">segments</span><span class="p">[</span><span class="n">segId</span><span class="p">]</span> <span class="o">=</span> <span class="n">addr</span>
+                    <span class="n">dfs</span><span class="p">(</span><span class="n">segId</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">segEnd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+    
+        <span class="n">dfs</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/utf-8-validation/">UTF-8 Validation</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">validUtf8</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="s">"""
+        :type data: List[int]
+        :rtype: bool
+        """</span>
+        <span class="c1"># 记录当前UTF-8的字节数
+</span>        <span class="n">n_bytes</span> <span class="o">=</span> <span class="mi">0</span>
+    
+        <span class="c1"># 对每个字节进行判断
+</span>        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="c1"># 可直接通过format防范进行二进制转换
+</span>            <span class="n">bin_rep</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="s">'#010b'</span><span class="p">)[</span><span class="o">-</span><span class="mi">8</span><span class="p">:]</span>
+    
+            <span class="c1"># 如n_bytes==0，说明开始处理新的UTF-8码
+</span>            <span class="k">if</span> <span class="n">n_bytes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    
+                <span class="c1"># 1位判断字节数
+</span>                <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">bin_rep</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">bit</span> <span class="o">==</span> <span class="s">'0'</span><span class="p">:</span> <span class="k">break</span>
+                    <span class="n">n_bytes</span> <span class="o">+=</span> <span class="mi">1</span>
+    
+                <span class="c1"># 说明首位为0，为单字节
+</span>                <span class="k">if</span> <span class="n">n_bytes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">continue</span>
+    
+                <span class="c1"># 错误格式：不能为1或者超过4个字节
+</span>                <span class="k">if</span> <span class="n">n_bytes</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">n_bytes</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># 如n_bytes非0，则后续字节格式为：`10xxxxxx`
+</span>                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">bin_rep</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">'1'</span> <span class="ow">and</span> <span class="n">bin_rep</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">'0'</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="bp">False</span>
+    
+            <span class="c1"># `10xxxxxx`格式则字节数-1
+</span>            <span class="n">n_bytes</span> <span class="o">-=</span> <span class="mi">1</span>
+    
+        <span class="c1"># 如字节数归0则为正确格式
+</span>        <span class="k">return</span> <span class="n">n_bytes</span> <span class="o">==</span> <span class="mi">0</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/longest-valid-parentheses/">Longest Valid Parentheses</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">longestValidParentheses</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+    
+        <span class="c1"># 考虑用栈
+</span>        <span class="n">idx_stack</span> <span class="o">=</span> <span class="p">[]</span>
+    
+        <span class="n">final_re</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">idx_stack</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 关键点：哨兵；代表前置最近的未匹配）位置
+</span>        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">w</span> <span class="o">==</span> <span class="s">'('</span><span class="p">:</span>
+                <span class="n">idx_stack</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># 有可匹配的）:计算匹配前后的idx差即可
+</span>                <span class="c1"># 注意这里减去的是前一个元素的idx
+</span>                <span class="n">idx_stack</span><span class="p">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx_stack</span><span class="p">):</span>
+                    <span class="c1"># 意味着前面没有(match,那么只更新最新的不match的）的idx
+</span>                    <span class="n">idx_stack</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># 说明前面有可match的idx，这里存的是上一个不match的）的idx
+</span>                    <span class="n">final_re</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="n">idx_stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">final_re</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">final_re</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="palindromic-substrings">Palindromic Substrings<a id="sec-2-3"></a></h2>
+
+<p>Approach: palindromes can be checked with two pointers, moving outward to the left and right from a center character (or from a pair of identical characters):</p>
+
+<ul>
+  <li>If the characters at the left and right positions are the same, keep moving outward</li>
+  <li>If they differ, stop the check</li>
+</ul>
+
+<p>Problems:</p>
+
+<ol>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/longest-palindromic-substring/">Longest Palindromic Substring</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="o">@</span><span class="nb">staticmethod</span>
+    <span class="k">def</span> <span class="nf">judgePalindrome</span><span class="p">(</span><span class="n">idx_left</span><span class="p">,</span> <span class="n">idx_right</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="c1"># 通过双指针左右移动判断回文子串
+</span>        <span class="k">while</span> <span class="n">idx_left</span> <span class="o">&gt;=</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">idx_right</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="n">idx_left</span><span class="p">]</span> <span class="o">!=</span> <span class="n">s</span><span class="p">[</span><span class="n">idx_right</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">idx_left</span><span class="p">,</span> <span class="n">idx_right</span>
+            <span class="n">idx_left</span> <span class="o">=</span> <span class="n">idx_left</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">idx_right</span> <span class="o">=</span> <span class="n">idx_right</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">idx_left</span><span class="p">,</span> <span class="n">idx_right</span>
+    
+    <span class="k">def</span> <span class="nf">longestPalindrome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="s">"""
+        :type s: str
+        :rtype: str
+        """</span>
+        <span class="c1"># 回文子串时间复杂度：M^2
+</span>        <span class="n">max_length</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">res_word</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">num_s</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_s</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">idx_left</span><span class="p">,</span> <span class="n">idx_right</span> <span class="o">=</span> <span class="n">Solution</span><span class="p">.</span><span class="n">judgePalindrome</span><span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+            <span class="n">cur_length</span> <span class="o">=</span> <span class="n">idx_right</span> <span class="o">-</span> <span class="n">idx_left</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+                <span class="n">d_left</span><span class="p">,</span> <span class="n">d_right</span> <span class="o">=</span> <span class="n">Solution</span><span class="p">.</span><span class="n">judgePalindrome</span><span class="p">(</span><span class="n">idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">d_right</span> <span class="o">-</span> <span class="n">d_left</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&gt;</span> <span class="n">cur_length</span><span class="p">:</span>
+                    <span class="n">idx_left</span> <span class="o">=</span> <span class="n">d_left</span>
+                    <span class="n">idx_right</span> <span class="o">=</span> <span class="n">d_right</span>
+                    <span class="n">cur_length</span> <span class="o">=</span> <span class="n">d_right</span> <span class="o">-</span> <span class="n">d_left</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">cur_length</span> <span class="o">&gt;</span> <span class="n">max_length</span><span class="p">:</span>
+                <span class="n">max_length</span> <span class="o">=</span> <span class="n">cur_length</span>
+                <span class="n">res_word</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">idx_left</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">idx_right</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">res_word</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="dp-algorithms">DP Algorithms<a id="sec-2-4"></a></h2>
+
+<p>Approach: DP is often applied to string matching problems, for example the longest common subsequence. Its time complexity is generally O(n<sup>2</sup>).</p>
+
+<p>Problems:</p>
+
+<ol>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/word-break/">Word Break</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">wordBreak</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">wordDict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># 简单的一维DP问题：
+</span>        <span class="c1"># dp[i] = dp[j] &amp;&amp; (s[j+1:i] in wordDict)
+</span>    
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">[</span><span class="bp">True</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">i</span><span class="p">]</span> <span class="ow">in</span> <span class="n">wordDict</span><span class="p">:</span>
+                    <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="k">break</span>
+        <span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/longest-increasing-subsequence/">Longest Increasing Subsequence</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">lengthOfLIS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nums</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># 经典一维DP
+</span>        <span class="k">if</span> <span class="ow">not</span> <span class="n">nums</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)):</span>
+            <span class="n">dp</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                    <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p><a href="https://leetcode-cn.com/problems/longest-common-subsequence/">Longest Common Subsequence</a></p>
+
+    <p>Solution:</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Solution</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">longestCommonSubsequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text1</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text2</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># 经典二维DP
+</span>        <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">text2</span><span class="p">)</span>
+        <span class="n">dp</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">text1</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">text2</span><span class="p">[</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dp</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">dp</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+    
+        <span class="k">return</span> <span class="n">dp</span><span class="p">[</span><span class="n">m</span><span class="p">][</span><span class="n">n</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ol>
+
+<h1 id="tricks">Tricks<a id="sec-3"></a></h1>
+
+<h2 id="the-re-module">The re Module<a id="sec-3-1"></a></h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">re</code> module can be used for regular-expression matching on strings, which is very convenient. Some common usages:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">pattern1</span> <span class="o">=</span> <span class="s">'bc'</span>
+<span class="n">pattern2</span> <span class="o">=</span> <span class="s">'abc'</span>
+<span class="n">pattern3</span> <span class="o">=</span> <span class="s">'BC'</span>
+<span class="n">input_s</span> <span class="o">=</span> <span class="s">'bcabcabcabcbc'</span>
+<span class="c1"># match方法：一次匹配，且默认从头开始匹配
+</span><span class="k">print</span><span class="p">(</span><span class="s">"re.match方法："</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern1</span><span class="p">,</span> <span class="n">input_s</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern2</span><span class="p">,</span> <span class="n">input_s</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern3</span><span class="p">,</span> <span class="n">input_s</span><span class="p">))</span>
+<span class="c1"># 常用的参数：re.I(不区分大小写)/re.M(多行模式)
+</span><span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern3</span><span class="p">,</span> <span class="n">input_s</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="p">.</span><span class="n">I</span><span class="p">))</span>
+
+<span class="c1"># search方法：一次匹配，且从任意位置开始匹配
+</span><span class="k">print</span><span class="p">(</span><span class="s">"re.search方法："</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern1</span><span class="p">,</span> <span class="n">input_s</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern2</span><span class="p">,</span> <span class="n">input_s</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern3</span><span class="p">,</span> <span class="n">input_s</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">re</span><span class="p">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern3</span><span class="p">,</span> <span class="n">input_s</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="p">.</span><span class="n">I</span><span class="p">))</span>
+
+<span class="c1"># findall/finditer方法：获取所有匹配结果，两个方法区别:
+# findall:返回匹配到的字符串
+# finditer：返回是匹配结果，一般用这个
+</span><span class="k">print</span><span class="p">(</span><span class="s">"re.finditer方法："</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'/'</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">re</span><span class="p">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">pattern1</span><span class="p">,</span> <span class="n">input_s</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'/'</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">re</span><span class="p">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">pattern3</span><span class="p">,</span> <span class="n">input_s</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="p">.</span><span class="n">I</span><span class="p">)))</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre></td><td class="rouge-code"><pre><span class="c">#+RESULTS:</span>
+<span class="c">#+begin_example</span>
+re.match方法：
+&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>0, 2<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>
+None
+None
+&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>0, 2<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>
+re.search方法：
+&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>0, 2<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>
+&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>2, 5<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'abc'</span><span class="o">&gt;</span>
+None
+&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>0, 2<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>
+re.finditer方法：
+&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>0, 2<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>3, 5<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>6, 8<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>9, 11<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>11, 13<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>
+&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>0, 2<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>3, 5<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>6, 8<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>9, 11<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>/&lt;re.Match object<span class="p">;</span> <span class="nv">span</span><span class="o">=(</span>11, 13<span class="o">)</span>, <span class="nv">match</span><span class="o">=</span><span class="s1">'bc'</span><span class="o">&gt;</span>
+<span class="c">#+end_example</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="using-format">Using format<a id="sec-3-2"></a></h2>
+
+<p>format is often used for well-formed string output:</p>
+
+<ul>
+  <li>
+    <p>String formatting</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="k">print</span><span class="p">(</span><span class="s">"{} {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="s">"hello"</span><span class="p">,</span> <span class="s">"world"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"{0} {1}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="s">"hello"</span><span class="p">,</span> <span class="s">"world"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"{1} {0} {1}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="s">"hello"</span><span class="p">,</span> <span class="s">"world"</span><span class="p">))</span>
+<span class="n">personal_info</span> <span class="o">=</span> <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">"wgzheng"</span><span class="p">}</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"name:{name}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="o">**</span><span class="n">personal_info</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="c">#+RESULTS:</span>
+<span class="c">#+begin_example</span>
+hello world
+hello world
+world hello world
+name:wgzheng
+<span class="c">#+end_example</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Number formatting</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre></td><td class="rouge-code"><pre><span class="c1"># 格式化数字
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mf">3.1415926</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"{:+.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="o">-</span><span class="mf">3.1415926</span><span class="p">))</span>
+<span class="c1"># 补零，左补齐
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{:0&gt;3d}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="c1"># 补零，右补齐
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{:0&lt;3d}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="c1"># 中间对齐
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{:^3d}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="c1"># 百分比格式
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{:.2%}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="c1"># 指数格式
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{:.2e}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="c1"># 逗号分隔
+</span><span class="k">print</span><span class="p">(</span><span class="s">"{:,}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">100000</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre></td><td class="rouge-code"><pre><span class="c">#+RESULTS:</span>
+<span class="c">#+begin_example</span>
+3.14
+<span class="nt">-3</span>.14
+003
+300
+3 
+300.00%
+3.00e+00
+100,000
+<span class="c">#+end_example</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Base conversion</p>
+
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="n">num</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"10进制：{0:d}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"2进制：{0:b}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"8进制：{0:o}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"16进制：{0:x}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="c1"># 保留进制标志
+</span><span class="k">print</span><span class="p">(</span><span class="s">"10进制：{0:#d}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"2进制：{0:#b}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"8进制：{0:#o}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"16进制：{0:#x}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+<span class="c1"># 直接format
+</span><span class="n">num_b</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="s">'b'</span><span class="p">)</span>
+<span class="n">num_o</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="s">'o'</span><span class="p">)</span>
+<span class="n">num_x</span> <span class="o">=</span> <span class="nb">format</span><span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="s">'x'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"2进制："</span><span class="p">,</span> <span class="n">num_b</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"8进制："</span><span class="p">,</span> <span class="n">num_o</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"16进制："</span><span class="p">,</span> <span class="n">num_x</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="c">#+RESULTS:</span>
+<span class="c">#+begin_example</span>
+10进制：10
+2进制：1010
+8进制：12
+16进制：a
+10进制：10
+2进制：0b1010
+8进制：0o12
+16进制：0xa
+2进制： 1010
+8进制： 12
+16进制： a
+<span class="c">#+end_example</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+  </li>
+</ul>

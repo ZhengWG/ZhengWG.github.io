@@ -1,0 +1,17 @@
+<h4 id="deploying-llms-with-pipeline-and-tensor-parallelism">Deploying LLMs with Pipeline and Tensor Parallelism</h4>
+
+<p>For training, the parallelism strategies include DP, TP, PP, and EP, combinations of these strategies, and offload strategies such as ZeRO.</p>
+
+<p>For inference, the most commonly used strategies are TP and PP. The most common TP strategy splits the <code class="language-plaintext highlighter-rouge">MLP/Self-Attention</code> (splitting by num_head), following the overall pattern <code class="language-plaintext highlighter-rouge">col-spllit-&gt;row-split-&gt;all-reduce</code>.</p>
+
+<p>In terms of parameter count, each GPU holds $\frac {1}{TP}$ of the weights, $\frac {1}{TP}$ of the computation, and $\frac {1}{TP}$ of the activations, but since the input is the full seqlen, the KV cache is held in full. The communication volume is $2 \times b \times s \times h + 2 \times b \times s \times h$, which is large, so TP generally needs high communication bandwidth.</p>
+
+<p><img src="/assets/img/recovered/f7c85b4b33045ae0.png" alt="img" class="img-mid" /></p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-07-PP&amp;&amp;TP_LLMs%25E9%2583%25A8%25E7%25BD%25B2/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241004_160758.png" alt="img" class="img-mid" /></p>
+
+<p>The PP partitioning strategy is relatively simple. It usually splits by Transformer Block (<code class="language-plaintext highlighter-rouge">num_layers/pp_world_size</code>), with different blocks communicating through send/recv. Since inference involves only the forward phase, pipeline bubbles are not significant either, as long as the Transformer Block computation is balanced across GPUs. In terms of parameter count, each GPU holds $\frac1{PP}$ of the weights, $\frac {1}{PP}$ of the computation, $\frac1{PP}$ of the activations, and $\frac1{PP}$ of the KV cache. The communication volume is $b \times s \times h$.</p>
+
+<p><strong>Micro-Batch</strong>: A large batch (Global Batch) is split into multiple small batches that are passed along the pipeline batch by batch. While each device processes one micro-batch, it can receive the data of another, so execution proceeds in parallel, which reduces PP bubbles:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-10-07-PP&amp;&amp;TP_LLMs%25E9%2583%25A8%25E7%25BD%25B2/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20241004_162455.png" alt="img" /></p>

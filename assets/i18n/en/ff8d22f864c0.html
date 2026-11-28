@@ -1,0 +1,206 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Class-Based Context Managers</a></li>
+  <li><a href="#sec-3">Generator-Based Context Managers</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>A context manager helps to allocate and release resources automatically. The most typical example is the <code class="language-plaintext highlighter-rouge">with</code> statement:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000000</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'test.txt'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">'hello'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>It is equivalent to:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'test.txt'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">'hello'</span><span class="p">)</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>As you can see, the structure with <code class="language-plaintext highlighter-rouge">with</code> is more concise. Context managers are usually used for opening and closing files, opening and closing databases, acquiring and releasing thread locks, and similar operations. They ensure that used resources are released promptly, which effectively improves the safety of a program. In principle there are two kinds of context managers, which are functionally the same:</p>
+
+<ul>
+  <li>Generator-based context managers: convenient and concise, suitable for small and medium-sized programs</li>
+  <li>Class-based context managers: more flexible, suitable for large-scale system development</li>
+</ul>
+
+<h1 id="class-based-context-managers">Class-Based Context Managers<a id="sec-2"></a></h1>
+
+<p>For a class-based context manager, the key is to define a few key methods:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__init__</code>: the initialization method that creates the class</li>
+  <li><code class="language-plaintext highlighter-rouge">__enter__</code>: returns the resource to be managed</li>
+  <li><code class="language-plaintext highlighter-rouge">__exit__</code>: usually contains operations that release or clean up resources, such as closing a file</li>
+</ul>
+
+<p>Take <code class="language-plaintext highlighter-rouge">FileManager</code>, a context manager for opening and closing a file, as an example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre></td><td class="rouge-code"><pre>
+<span class="k">class</span> <span class="nc">FileManager</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'calling __init__ method'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span> 
+        <span class="bp">self</span><span class="p">.</span><span class="nb">file</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'calling __enter__ method'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="nb">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="nb">file</span>
+
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'calling __exit__ method'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="nb">file</span><span class="p">:</span>
+            <span class="bp">self</span><span class="p">.</span><span class="nb">file</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">FileManager</span><span class="p">(</span><span class="s">'test.txt'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'ready to write to file'</span><span class="p">)</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">'hello world'</span><span class="p">)</span>
+
+<span class="c1">## 输出
+</span><span class="n">calling</span> <span class="n">__init__</span> <span class="n">method</span>
+<span class="n">calling</span> <span class="n">__enter__</span> <span class="n">method</span>
+<span class="n">ready</span> <span class="n">to</span> <span class="n">write</span> <span class="n">to</span> <span class="nb">file</span>
+<span class="n">calling</span> <span class="n">__exit__</span> <span class="n">method</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>In addition, the <code class="language-plaintext highlighter-rouge">__exit__</code> method can be used to manage exceptions, through the parameters <code class="language-plaintext highlighter-rouge">exec_type/exc_val/exc_tb</code>, which stand for <code class="language-plaintext highlighter-rouge">exception_type/exeception_value/traceback</code>. When a <code class="language-plaintext highlighter-rouge">with</code> statement that contains a context manager is executed and an exception is raised, the exception information is contained in these three variables and passed to the <code class="language-plaintext highlighter-rouge">__exit__()</code> method:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre>
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'__init__ called'</span><span class="p">)</span>        
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'__enter__ called'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'__exit__ called'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exc_type</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'exc_type: </span><span class="si">{</span><span class="n">exc_type</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'exc_value: </span><span class="si">{</span><span class="n">exc_value</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="sa">f</span><span class="s">'exc_traceback: </span><span class="si">{</span><span class="n">exc_tb</span><span class="si">}</span><span class="s">'</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'exception handled'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+<span class="k">with</span> <span class="n">Foo</span><span class="p">()</span> <span class="k">as</span> <span class="n">obj</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="nb">Exception</span><span class="p">(</span><span class="s">'exception raised'</span><span class="p">).</span><span class="n">with_traceback</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+<span class="c1"># 输出
+</span><span class="n">__init__</span> <span class="n">called</span>
+<span class="n">__enter__</span> <span class="n">called</span>
+<span class="n">__exit__</span> <span class="n">called</span>
+<span class="n">exc_type</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">class</span> <span class="err">'</span><span class="nc">Exception</span><span class="s">'&gt;
+exc_value: exception raised
+exc_traceback: &lt;traceback object at 0x1046036c8&gt;
+exception handled
+</span></pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Note, however, that <code class="language-plaintext highlighter-rouge">__exit__</code> must return <code class="language-plaintext highlighter-rouge">True</code> at the end, otherwise the exception is still raised.</p>
+
+<h1 id="generator-based-context-managers">Generator-Based Context Managers<a id="sec-3"></a></h1>
+
+<p>The decorator <code class="language-plaintext highlighter-rouge">contextlib.contextmanager</code> can be used to define a context manager that supports the <code class="language-plaintext highlighter-rouge">with</code> statement:</p>
+
+<p>In the code above, <code class="language-plaintext highlighter-rouge">file_manager()</code> is a generator that returns the file object f, and after the <code class="language-plaintext highlighter-rouge">with</code> statement finishes, the <code class="language-plaintext highlighter-rouge">finally block</code> runs to close the file. There is no need to define the <code class="language-plaintext highlighter-rouge">__enter__()</code> and <code class="language-plaintext highlighter-rouge">__exit__()</code> methods here, but it depends on <code class="language-plaintext highlighter-rouge">@contextmanager</code></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+<span class="o">@</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">file_manager</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">f</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">f</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">file_manager</span><span class="p">(</span><span class="s">'test.txt'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="s">'hello world'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

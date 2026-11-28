@@ -1,0 +1,500 @@
+<ul>
+  <li><a href="#sec-1">Introduction</a></li>
+  <li><a href="#sec-2">SOLID Principles</a>
+    <ul>
+      <li><a href="#sec-2-1">Single Responsibility Principle</a></li>
+      <li><a href="#sec-2-2">Open-Closed Principle</a></li>
+      <li><a href="#sec-2-3">Liskov Substitution Principle</a></li>
+      <li><a href="#sec-2-4">Dependency Inversion Principle</a></li>
+      <li><a href="#sec-2-5">Interface Segregation Principle</a></li>
+    </ul>
+  </li>
+  <li><a href="#sec-3">Other Principles</a>
+    <ul>
+      <li><a href="#sec-3-1">LoD Principle</a></li>
+      <li><a href="#sec-3-2">KISS Principle</a></li>
+      <li><a href="#sec-3-3">DRY Principle</a></li>
+      <li><a href="#sec-3-4">YAGBI Principle</a></li>
+      <li><a href="#sec-3-5">Rule Of Three Principle</a></li>
+      <li><a href="#sec-3-6">CQS Principle</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="introduction">Introduction<a id="sec-1"></a></h1>
+
+<p>Design patterns can be seen as the programming ideas of object-oriented programming, and design principles are the guiding outline for those ideas. SOLID is an acronym for the five basic principles of object-oriented design (OOD): S - Single Responsibility Principle; O - Open-Closed Principle; L - Liskov Substitution Principle; I - Interface Segregation Principle; D - Dependency Inversion Principle</p>
+
+<h1 id="solid-principles">SOLID Principles<a id="sec-2"></a></h1>
+
+<h2 id="single-responsibility-principle">Single Responsibility Principle<a id="sec-2-1"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">A class should have one, and only one, reason to change</code> . In plain words: a class is responsible for only one function, or one group of similar functions. The following code for animal behavior clearly violates the single responsibility principle: if other scenarios need to be added, the runnning method must be modified, which creates risks for the existing logic:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Animal</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__type</span> <span class="o">=</span> <span class="nb">type</span>
+
+    <span class="k">def</span> <span class="nf">running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">__type</span> <span class="o">==</span> <span class="s">"水生"</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">+</span> <span class="s">"在水里游"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">+</span> <span class="s">"在陆上跑"</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>A better design extracts classes:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">TerrestrialAnimal</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">+</span> <span class="s">"在陆上跑"</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">AquaticAnimal</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">+</span> <span class="s">"在水里游"</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="open-closed-principle">Open-Closed Principle<a id="sec-2-2"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">OCP (Open Close Principle): software entities (such as classes, modules, and functions) should be open for extension but closed for modification</code> . That is, when designing code you need to consider later changes: when adding a function, modify the original code as little as possible, and when modifying a module, do not affect other modules. For example, add an interface for observing animals on top of the animals above. The following way of writing violates the OCP, because the display_activity method has to be modified whenever a class is added:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Zoo</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">TerrestrialAnimal</span><span class="p">(</span><span class="s">"狗"</span><span class="p">),</span>
+            <span class="n">AquaticAnimal</span><span class="p">(</span><span class="s">"鱼"</span><span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">display_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">animal</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">animal</span><span class="p">,</span> <span class="n">TerrestrialAnimal</span><span class="p">):</span>
+                <span class="n">animal</span><span class="p">.</span><span class="n">running</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">animal</span><span class="p">.</span><span class="n">swimming</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>A reasonable modification is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">BirdAnimal</span><span class="p">(</span><span class="n">Animal</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 需要定义一致的接口
+</span>        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__name</span> <span class="o">+</span> <span class="s">"在天上飞"</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Zoo</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add_animal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">animal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">display_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">animal</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span><span class="p">:</span>
+            <span class="n">animal</span><span class="p">.</span><span class="n">moving</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="liskov-substitution-principle">Liskov Substitution Principle<a id="sec-2-3"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">LSP (Liskov Substitution Principle): everywhere a base class can be referenced, a subclass must be usable transparently</code> . That is, wherever a parent class can appear, a subclass can replace it and provide the same functionality, but not the other way around. Below, a subclass of terrestrial animals is created: the monkey. The monkey class can replace the terrestrial animal class, but the terrestrial animal class cannot replace the monkey class’s functionality:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Monkey</span><span class="p">(</span><span class="n">TerrestrialAnimal</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">climbing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">+</span> <span class="s">'在爬树，动作灵活轻盈'</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Zoo</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add_animal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">animal</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">display_activity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">animal</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">__animals</span><span class="p">:</span>
+            <span class="n">animal</span><span class="p">.</span><span class="n">moving</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">mokey_climbing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monkey</span><span class="p">):</span>
+        <span class="c1"># 子类特有的功能
+</span>        <span class="n">monkey</span><span class="p">.</span><span class="n">climbing</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="dependency-inversion-principle">Dependency Inversion Principle<a id="sec-2-4"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">DIP (Dependency Inversion Principle): high-level modules should not depend on low-level modules; both should depend on abstractions. Abstractions should not depend on details; details should depend on abstractions.</code> That is, classes with the same or similar functionality need to be abstracted into an interface or abstract class, and the concrete implementation classes inherit from that abstract class. Suppose an interface for eating needs to be added to the animals above. A simple design is as follows. The problem is that food is not isolated from animals, so it becomes hard to modify the code when scenarios such as adding a food type arise.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="k">class</span> <span class="nc">Dog</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">eat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">meat</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Fish</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">eat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grass</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>A better design is to create abstract classes for animals and food, so that the eating implementation of an animal depends on the abstract food class rather than on a concrete food instance. The code is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+
+<span class="k">class</span> <span class="nc">Animal</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">eat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">food</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">check_food</span><span class="p">(</span><span class="n">food</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">+</span> <span class="s">"eat"</span> <span class="o">+</span> <span class="n">food</span><span class="p">.</span><span class="n">get_name</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">+</span> <span class="s">"doesn't eat"</span> <span class="o">+</span> <span class="n">food</span><span class="p">.</span><span class="n">get_name</span><span class="p">())</span>
+
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">check_food</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">food</span><span class="p">):</span>
+        <span class="s">"""检查食物是否能吃"""</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Food</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_name</span>
+
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""食物类别"""</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">Dog</span><span class="p">(</span><span class="n">Animal</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="s">"Dog"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">check_food</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">food</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">food</span><span class="p">.</span><span class="n">category</span><span class="p">()</span> <span class="o">==</span> <span class="s">"Meat"</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="interface-segregation-principle">Interface Segregation Principle<a id="sec-2-5"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">ISP (Interface Segregation Principle): clients should not depend on interfaces they do not need. Use multiple fine-grained interfaces instead of one complex interface made of many methods, with each interface serving one submodule.</code> That is, make interfaces as fine-grained as possible, with interface methods as small as possible (in moderation). For example, when designing interfaces that describe animal behavior, animals have many characteristics, and these characteristics need to be split at a fine granularity, such as running, swimming, and flying:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+
+<span class="k">class</span> <span class="nc">Animal</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_name</span>
+
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">feature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">IRunnable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="s">"""奔跑接口"""</span>
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">IFlyable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="s">"""飞行接口"""</span>
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">flying</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">INataable</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="s">"""游泳接口"""</span>
+    <span class="o">@</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">swimming</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">MammalAnimal</span><span class="p">(</span><span class="n">Animal</span><span class="p">,</span> <span class="n">IRunable</span><span class="p">):</span>
+    <span class="s">"""哺乳动物"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">feature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">+</span> <span class="s">"的生理特征：恒温，胎生，哺乳。"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"在陆上跑"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_name</span> <span class="o">+</span> <span class="s">"的活动方式："</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">""</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">running</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">Bat</span><span class="p">(</span><span class="n">MammalAnimal</span><span class="p">,</span> <span class="n">IFlyable</span><span class="p">):</span>
+    <span class="s">"""蝙蝠：哺乳动物，但是不会走，会飞"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">running</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"行走功能已经退化"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">flying</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"在天空飞..."</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">""</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">moving</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">_name</span><span class="p">,</span> <span class="s">"的活动方式："</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">""</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">flying</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">runing</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="other-principles">Other Principles<a id="sec-3"></a></h1>
+
+<h2 id="lod-principle">LoD Principle<a id="sec-3-1"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">Each logical unit should know as little as possible about other logical units; in other words, it should only be close to its current object. Talk only to your immediate friends, and "don't talk to strangers"</code> . This principle is also called the Law of Demeter. Typical scenario: class A holds an object of class B, and class B in turn holds an object of C. Now A needs to access an attribute of C, which is written as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="c1"># 不合理写法
+</span><span class="n">a</span><span class="p">.</span><span class="n">get_B</span><span class="p">().</span><span class="n">get_C</span><span class="p">().</span><span class="n">get_properties</span><span class="p">()</span>
+<span class="c1"># 合理写法
+</span><span class="n">a</span><span class="p">.</span><span class="n">get_C_properties</span><span class="p">()</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="kiss-principle">KISS Principle<a id="sec-3-2"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">Keep It Simple and Stupid</code> . Code should be designed to be as decoupled as possible; do not over-design, and keep the code simple and easy to understand.</p>
+
+<h2 id="dry-principle">DRY Principle<a id="sec-3-3"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">Don't repeat yourself</code> . When the same problem is encountered many times, extract a common solution to improve code reuse. Ways to implement it:</p>
+
+<ul>
+  <li>Function-level encapsulation</li>
+  <li>Class-level abstraction</li>
+  <li>Generic design</li>
+</ul>
+
+<h2 id="yagbi-principle">YAGBI Principle<a id="sec-3-4"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">You aren't gonna need it, don't implement something until it is necessary.</code> Only consider and design the functions that are necessary, and avoid over-design.</p>
+
+<h2 id="rule-of-three-principle">Rule Of Three Principle<a id="sec-3-5"></a></h2>
+
+<p>Rule of Three: abstract a function only when it appears for the third time. That is, the first time you implement it, just do it boldly; the second time, although you dislike it, you still do it; the third time, you should examine the repeated/similar code and abstract it, wrapping it into a general interface. Purpose: save effort, discover patterns step by step, and prevent excessive redundancy.</p>
+
+<h2 id="cqs-principle">CQS Principle<a id="sec-3-6"></a></h2>
+
+<p><code class="language-plaintext highlighter-rouge">Command-Query Separation</code> . A query returns a value in response to a question, while a command is a method that changes the state of an object. The two should be separated as much as possible, which helps improve system performance and also helps strengthen system security.</p>

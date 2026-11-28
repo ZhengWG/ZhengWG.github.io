@@ -1,0 +1,299 @@
+<h1 id="table-of-contents">Table of Contents</h1>
+
+<ol>
+  <li><a href="#org73044cc">NMS and Soft-NMS</a>
+    <ol>
+      <li><a href="#org06dfa46">NMS</a>
+        <ol>
+          <li><a href="#orga3454df">NMS implementation</a></li>
+        </ol>
+      </li>
+      <li><a href="#org02ecd64">Soft-NMS</a>
+        <ol>
+          <li><a href="#org552e4f8">Soft-NMS implementation</a></li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<p><a id="org73044cc"></a></p>
+
+<h1 id="nms-and-soft-nms">NMS and Soft-NMS</h1>
+
+<p><a id="org06dfa46"></a></p>
+
+<h2 id="nms">NMS</h2>
+
+<p>Non-maximum suppression (NMS) clears overlapping boxes and keeps the main box with the highest score. The implementation steps are:</p>
+
+<ul>
+  <li>Sort all boxes by score in ascending order</li>
+  <li>Check whether the box sequence is empty
+    <ul>
+      <li>Save the index of the current box</li>
+      <li>Compute the IoU between the highest-scoring box and the remaining boxes</li>
+      <li>Remove the boxes whose IoU is greater than the threshold, which leaves the remaining box sequence</li>
+      <li>Update the box sequence</li>
+    </ul>
+  </li>
+</ul>
+
+<p><a id="orga3454df"></a></p>
+
+<h3 id="nms-implementation">NMS implementation</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+</pre></td><td class="rouge-code"><pre>    <span class="c1">#coding:utf-8
+</span>    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+    <span class="k">def</span> <span class="nf">py_cpu_nms</span><span class="p">(</span><span class="n">dets</span><span class="p">,</span> <span class="n">thre</span><span class="p">):</span>
+        <span class="c1">#输入:dets:为输入的box numpy原始序列:x1,y1,x2,y2,score
+</span>        <span class="c1">#输入:thre:iou阈值
+</span>        <span class="n">xx1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">yy1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">xx2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">yy2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
+        <span class="c1">#+1是因为默认顶点所在的轮廓边也为目标区域
+</span>        <span class="n">areas</span> <span class="o">=</span> <span class="p">(</span><span class="n">xx2</span> <span class="o">-</span> <span class="n">xx1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">yy2</span> <span class="o">-</span><span class="n">yy1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1">#按照score排序
+</span>        <span class="n">order</span> <span class="o">=</span> <span class="n">scores</span><span class="p">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+            <span class="n">_index</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">out</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">_index</span><span class="p">)</span>
+            <span class="c1">#计算index对应的box和剩余box的iou,进行筛选
+</span>            <span class="n">_xx1</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">xx1</span><span class="p">[</span><span class="n">_index</span><span class="p">],</span> <span class="n">xx1</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+            <span class="n">_yy1</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">yy1</span><span class="p">[</span><span class="n">_index</span><span class="p">],</span> <span class="n">yy1</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+            <span class="n">_xx2</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">xx2</span><span class="p">[</span><span class="n">_index</span><span class="p">],</span> <span class="n">xx2</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+            <span class="n">_yy2</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">yy2</span><span class="p">[</span><span class="n">_index</span><span class="p">],</span> <span class="n">yy2</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+            <span class="n">_w</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_xx2</span> <span class="o">-</span> <span class="n">_xx1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">_h</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">_yy2</span> <span class="o">-</span> <span class="n">_yy1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">_areas_inter</span> <span class="o">=</span> <span class="n">_w</span> <span class="o">*</span> <span class="n">_h</span>
+            <span class="n">_overs</span> <span class="o">=</span> <span class="n">_areas_inter</span> <span class="o">/</span> <span class="p">(</span><span class="n">areas</span><span class="p">[</span><span class="n">_index</span><span class="p">]</span> <span class="o">+</span> <span class="n">areas</span><span class="p">[</span><span class="n">order</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span> <span class="o">-</span> <span class="n">_areas_inter</span><span class="p">)</span>
+            <span class="c1">#更新order,_inds:+1,因为len(_overs)+1=len(order)
+</span>            <span class="c1">#np.where(),只有condition的情况下,返回各维度的index tuple,这里只有一维:[0]
+</span>            <span class="n">_inds</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">_overs</span> <span class="o">&lt;=</span> <span class="n">thre</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">order</span> <span class="o">=</span> <span class="n">order</span><span class="p">[</span><span class="n">_inds</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><a id="org02ecd64"></a></p>
+
+<h2 id="soft-nms">Soft-NMS</h2>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/nms_and_soft_nms/shortcoming_for_nms.jpeg" alt="pic-shortcoming for nms" />
+When several objects overlap, traditional NMS filters out the lower-scoring objects, which is too crude (see the figure above). Soft-NMS instead takes the computed IoU and the box’s own score as inputs, recomputes the box’s confidence, and then decides from the new confidence whether to remove the box. The formulas are:</p>
+
+<p>Linear weighting:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/nms_and_soft_nms/ltximg/org-ltximg_1180780576c3081aa0d4eb0be10ec0cfc93e1d40.png" alt="Linear weighting formula" /></p>
+
+<p>Gaussian weighting:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/nms_and_soft_nms/ltximg/org-ltximg_61f6887da1166368bd2448b5a3d8010748c7ff5c.png" alt="Gaussian weighting formula" /></p>
+
+<p>The implementation steps are as follows:</p>
+
+<ul>
+  <li>Because scores are updated during the process, the boxes cannot be sorted by score in advance. Instead, iterate over the boxes to find the index of the box with max_score:
+    <ul>
+      <li>Once the index of the highest-scoring box is found, swap the parameters of the current box and the max-score box, including the score and the box position</li>
+      <li>Iterate over the remaining boxes and compute the IoU with the current highest-scoring box:
+        <ul>
+          <li>Update the score according to the chosen update rule (linear weighting or Gaussian weighting)</li>
+          <li>Swap boxes whose score falls below the threshold to the end of the queue, update the queue length, and stop iterating over those boxes</li>
+          <li>Update the index and keep looping</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><a id="org552e4f8"></a></p>
+
+<h3 id="soft-nms-implementation">Soft-NMS implementation</h3>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+</pre></td><td class="rouge-code"><pre>    <span class="c1">#coding:utf-8
+</span>    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+    <span class="c1">#coding:utf-8
+</span>    <span class="c1">#coding:utf-8
+</span>
+    <span class="k">def</span> <span class="nf">soft</span><span class="o">-</span><span class="n">nms</span><span class="p">(</span><span class="n">dets</span><span class="p">,</span> <span class="n">thre</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1">#输入:dets:为输入的box numpy原始序列
+</span>        <span class="c1">#thre:更新权重后score阈值,Nt为iou阈值,sigma为高斯权重的参数
+</span>        <span class="c1">#method,0:nms,1:线性权重;2:高斯权重
+</span>        <span class="n">N</span> <span class="o">=</span> <span class="n">dets</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="c1">#pos为与i比较的box序号
+</span>            <span class="n">x1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">y2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">max_score</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">pos_tmp</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="c1">#得到最大的score box序号
+</span>            <span class="k">while</span> <span class="p">(</span><span class="n">pos_tmp</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">max_score</span> <span class="o">&lt;</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">4</span><span class="p">]:</span>
+                    <span class="n">max_score</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>
+                    <span class="n">pos</span> <span class="o">=</span> <span class="n">pos_tmp</span>
+                <span class="n">pos_tmp</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1">#swap pos and i index box
+</span>            <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos</span><span class="p">]</span>
+            <span class="n">dets</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span>
+            <span class="n">dets</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">y1</span>
+            <span class="n">dets</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">x2</span>
+            <span class="n">dets</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">y2</span>
+            <span class="n">dets</span><span class="p">[</span><span class="n">pos</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+
+            <span class="c1">#更新max score box的参数
+</span>            <span class="n">x1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">x2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">y2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">pos_tmp</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="k">while</span> <span class="p">(</span><span class="n">pos_tmp</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">):</span>
+                <span class="n">xt1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">yt1</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">xt2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">yt2</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
+                <span class="n">scoret</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span>
+                <span class="n">areat</span> <span class="o">=</span> <span class="p">(</span><span class="n">xt2</span> <span class="o">-</span> <span class="n">xt1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">yt2</span> <span class="o">-</span> <span class="n">yt1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1">#计算iou
+</span>                <span class="n">w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">xt2</span><span class="p">,</span> <span class="n">x2</span><span class="p">)</span> <span class="o">-</span> <span class="nb">max</span><span class="p">(</span><span class="n">xt1</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">yt2</span><span class="p">,</span> <span class="n">y2</span><span class="p">)</span> <span class="o">-</span> <span class="nb">max</span><span class="p">(</span><span class="n">yt1</span><span class="p">,</span> <span class="n">y1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1">#if inter_area &gt; 0
+</span>                <span class="k">if</span> <span class="n">w</span><span class="o">*</span><span class="n">h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">iou</span> <span class="o">=</span> <span class="n">w</span><span class="o">*</span><span class="n">h</span> <span class="o">/</span> <span class="p">(</span><span class="n">area</span> <span class="o">+</span> <span class="n">areat</span> <span class="o">-</span> <span class="n">w</span><span class="o">*</span><span class="n">h</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">iou</span> <span class="o">&gt;</span> <span class="n">Nt</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">weight</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">iou</span>
+                        <span class="k">else</span> <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="n">weight</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">iou</span> <span class="o">*</span> <span class="n">iou</span> <span class="o">/</span> <span class="n">sigma</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">weight</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="c1">#更新score
+</span>                        <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">*=</span> <span class="n">weight</span>
+                <span class="c1">#如果score小于阈值,则将box扔到最后面废弃,pos_tmp-=1重新计算
+</span>                <span class="k">if</span> <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">thre</span><span class="p">:</span>
+                    <span class="n">dets</span><span class="p">[</span><span class="n">pos_tmp</span><span class="p">]</span> <span class="o">=</span> <span class="n">dets</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">dets</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">xt1</span>
+                    <span class="n">dets</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">yt1</span>
+                    <span class="n">dets</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">xt2</span>
+                    <span class="n">dets</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">yt2</span>
+                    <span class="n">dets</span><span class="p">[</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">scoret</span>
+                    <span class="n">N</span> <span class="o">=</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span>
+                    <span class="n">pos_tmp</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">pos_tmp</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="p">[</span><span class="n">_</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">N</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">out</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Paper reference: <a href="http://link.zhihu.com/?target=http%3A//cn.arxiv.org/abs/1704.04503">Soft-NMS paper</a></p>

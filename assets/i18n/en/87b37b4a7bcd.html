@@ -1,0 +1,99 @@
+<h2 id="prefill-decode-disaggregation">Prefill-Decode Disaggregation</h2>
+
+<h3 id="background">Background</h3>
+
+<p>The computation patterns of the <code class="language-plaintext highlighter-rouge">Prefill</code> and <code class="language-plaintext highlighter-rouge">Decode</code> phases are completely different: prefill is a compute-intensive task, and decode is an I/O-intensive task.</p>
+
+<p>When prefill and decode run together, prefill interrupts decode inference, which prevents better batching and lowers the upper limit on the decode batch size. Several strategies for mixed execution are listed below, and each has problems:</p>
+
+<ol>
+  <li>Request-level: The queuing time between requests is very long.</li>
+  <li>Continuous: Prefill delays the start of decode inference, which makes TTFT too long.</li>
+  <li>Mixed: Running them together lengthens the latency of some decode phases.</li>
+</ol>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-25-Prefill_Decode%25E5%2588%2586%25E7%25A6%25BB%25E9%2583%25A8%25E7%25BD%25B2/image-20241222221346715.png" alt="image-20241222221346715" /></p>
+
+<h3 id="motivation">Motivation</h3>
+
+<p>The purpose of prefill-decode disaggregation is to deploy the prefill and decode tasks on different machines or clusters, with the $KV_Cache$ they depend on passed between them through $KV_Transfer$.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-25-Prefill_Decode%25E5%2588%2586%25E7%25A6%25BB%25E9%2583%25A8%25E7%25BD%25B2/image-20241222222435633.png" alt="image-20241222222435633" /></p>
+
+<p>Assessing the benefits of prefill-decode disaggregation:</p>
+
+<ul>
+  <li>
+    <p>Benefit assessment: $Bandwidth = \frac {QPS \times KVCache} {TTFT}$,</p>
+
+    <p>Taking RoCE bandwidth of 25GB/s as a reference, a 1.9 G KV cache takes 40ms, so the bandwidth requirement is manageable.</p>
+  </li>
+</ul>
+
+<p>Engineering benefits:</p>
+
+<ul>
+  <li>
+    <p>Prefill and decode can be optimized separately in both business and engineering terms. On the prefill side, prefix caching, PP partitioning, and so on can be applied; decode can focus on large-batch-size inference and on optimizing the KV cache, the inference pipeline, and scheduling.</p>
+  </li>
+  <li>
+    <p>Hardware cost: It makes heterogeneous cluster deployment easy and lets the hardware’s compute throughput be fully used.</p>
+  </li>
+</ul>
+
+<h3 id="framework-design">Framework Design</h3>
+
+<p>Several key points in the design of a prefill-decode disaggregation framework:</p>
+
+<ol>
+  <li>
+    <p>Scheduler</p>
+
+    <p><a href="https://arxiv.org/pdf/2311.18677">Splitwise</a> designs <code class="language-plaintext highlighter-rouge">CLS (Cluster-level scheduling)</code> and <code class="language-plaintext highlighter-rouge">MLS (Machine-level scheduling)</code>. <code class="language-plaintext highlighter-rouge">CLS</code> dynamically adjusts the prefill/decode machines based on request load and token distribution, and assigns prompt and decode machines through <code class="language-plaintext highlighter-rouge">Request routing</code>. <code class="language-plaintext highlighter-rouge">MLS</code> schedules requests on a single machine using <code class="language-plaintext highlighter-rouge">FCFS (first-come-first-serve)</code>.</p>
+
+    <p><a href="https://arxiv.org/pdf/2407.00079">Mooncake</a> designs a <code class="language-plaintext highlighter-rouge">KVCache-centric Conductor</code> to build a <code class="language-plaintext highlighter-rouge">KVCache</code>-centric scheduler, which mainly addresses the following problems:</p>
+
+    <ul>
+      <li>
+        <p>Prefill Global Scheduling</p>
+
+        <p>The choice of prefill instance considers several factors: the load and hit length of the prefix cache, and the reusable <code class="language-plaintext highlighter-rouge">KVCache blocks</code>. Following a <code class="language-plaintext highlighter-rouge">Cache-aware</code> approach, prefill instances are assigned by combining this with the prefill time under prefix caching.</p>
+      </li>
+      <li>
+        <p>Cache Load Balancing</p>
+
+        <p>The core is to raise the <code class="language-plaintext highlighter-rouge">KVCache</code> hit rate as much as possible while reducing the time to load and transfer the cache, which requires choosing the best strategy among recomputation, remote cache, and local cache.</p>
+      </li>
+    </ul>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-25-Prefill_Decode%25E5%2588%2586%25E7%25A6%25BB%25E9%2583%25A8%25E7%25BD%25B2/image-20241222220722327.png" alt="image-20241222220722327" class="img-mid" /></p>
+  </li>
+  <li>
+    <p>Distributed deployment</p>
+
+    <p>One advantage of prefill-decode disaggregation is that prefill and decode can use different deployment methods. In particular, prefill deployment can be more flexible. For example, when the QPS requirement is low and the latency requirement is high, TP can be used; when the QPS requirement is high, chunked prefill plus PP can be used.</p>
+  </li>
+  <li>
+    <p>KV cache transfer</p>
+
+    <p>The core challenge of disaggregated KVCache deployment is resolving the conflict between a high cache hit rate and hiding cache transfer behind a pipeline. The design needs to consider:</p>
+
+    <ol>
+      <li>Distributed KVCache cluster design: multi-level storage, HBM/DRAM/SSD.</li>
+      <li>Scheduling design: Prefill/decode nodes are assigned based on cache matching, and <code class="language-plaintext highlighter-rouge">KVCache Block</code>s are managed in pages so they can be reused flexibly.</li>
+      <li>KVCache transfer: prefill-&gt;decode, asynchronous transfer per layer.</li>
+    </ol>
+  </li>
+</ol>
+
+<p>​	<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-25-Prefill_Decode%25E5%2588%2586%25E7%25A6%25BB%25E9%2583%25A8%25E7%25BD%25B2/image-20241222220840813.png" alt="image-20241222220840813" class="img-mid" /></p>
+
+<h3 id="reference">Reference</h3>
+
+<p><a href="https://zhuanlan.zhihu.com/p/8056351077">https://zhuanlan.zhihu.com/p/8056351077</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/706097807">Zhihu: Mooncake reading notes</a></p>
+
+<p><a href="https://arxiv.org/pdf/2407.00079">Mooncake: A KVCache-centric Disaggregated Architecture for LLM Serving</a></p>
+
+<p><a href="https://arxiv.org/pdf/2311.18677">Splitwise: Efficient Generative LLM Inference Using Phase Splitting</a></p>

@@ -1,0 +1,60 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">UML Class Diagrams</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p><code class="language-plaintext highlighter-rouge">UML</code> is short for <code class="language-plaintext highlighter-rouge">Unified Modeling Language</code>. It provides a standardized modeling language made up of a set of diagrams, which helps system developers clarify, design, and build software systems. UML diagrams generally fall into two groups: structural diagrams, such as class diagrams, component diagrams, and deployment diagrams, and behavioral diagrams, such as use case diagrams, activity diagrams, and sequence diagrams. The most widely used is the class diagram, which is commonly used in system software design.</p>
+
+<h1 id="uml-class-diagrams">UML Class Diagrams<a id="sec-2"></a></h1>
+
+<p>The most common relationships in UML class diagrams are generalization, realization, composition, aggregation, association, and dependency. In order of strength: generalization = realization &gt; composition &gt; aggregation &gt; association &gt; dependency.</p>
+
+<ol>
+  <li>Generalization</li>
+</ol>
+
+<p>Generalization describes an inheritance relationship. It expresses the relationship between the general and the specific, that is, how a subclass specializes all the features and behaviors of its parent class. An example is the relationship between mammals and cats/dogs.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-12-12-%25E8%25AE%25BE%25E8%25AE%25A1%25E6%25A8%25A1%25E5%25BC%258F-UML/20211211_235123.png" alt="img" /></p>
+
+<ol>
+  <li>Realization</li>
+</ol>
+
+<p>Realization describes the relationship between a class and an interface: the class implements all the features and behaviors of the interface. For example, a dog is a mammal, and now we need to provide interactions between an owner and a dog. We can define an IDog interface that represents the interaction between an owner and a pet, and the dog has to implement this interface.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-12-12-%25E8%25AE%25BE%25E8%25AE%25A1%25E6%25A8%25A1%25E5%25BC%258F-UML/20211211_235443.png" alt="img" /></p>
+
+<ol>
+  <li>Composition</li>
+</ol>
+
+<p>Composition describes a whole-part relationship in which the parts cannot exist on their own once they are separated from the whole. An example is the relationship between a human body and its head and legs.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-12-12-%25E8%25AE%25BE%25E8%25AE%25A1%25E6%25A8%25A1%25E5%25BC%258F-UML/20211211_235544.png" alt="img" /></p>
+
+<ol>
+  <li>Aggregation</li>
+</ol>
+
+<p>Aggregation describes a whole-part relationship in which the parts can exist on their own apart from the whole, so it is weaker than composition. Examples are the relationship between a company and its employees, or between a vehicle and its engine and tires.</p>
+
+<p><img src="/assets/img/recovered/1cd44e600ff56d7d.png" alt="img" /></p>
+
+<ol>
+  <li>Association</li>
+</ol>
+
+<p>Association describes an “owns” relationship: one class knows the attributes and methods of another class. An association can be one-way or two-way. For example, the relationship between a book and its reader is two-way, while the relationship between a book and its author is one-way.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-12-12-%25E8%25AE%25BE%25E8%25AE%25A1%25E6%25A8%25A1%25E5%25BC%258F-UML/20211212_000541.png" alt="img" /></p>
+
+<ol>
+  <li>Dependency</li>
+</ol>
+
+<p>Dependency describes a “uses” relationship: the implementation of one class needs the help of another class, so two-way mutual dependencies should be avoided where possible. An example is the relationship between a driver and a car: being a driver depends on the existence of a car.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-12-12-%25E8%25AE%25BE%25E8%25AE%25A1%25E6%25A8%25A1%25E5%25BC%258F-UML/20211212_000649.png" alt="img" /></p>

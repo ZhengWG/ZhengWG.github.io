@@ -1,0 +1,82 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Development History of BERT</a></li>
+  <li><a href="#sec-3">BERT Algorithm Details</a></li>
+  <li><a href="#sec-4">Later Development of BERT</a></li>
+  <li><a href="#sec-5">References</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>A brief discussion of the <code class="language-plaintext highlighter-rouge">BERT</code> family of networks, introduced along three dimensions: development history, algorithm details, and later developments. Background: Natural language processing (NLP) has the ultimate goal of understanding complex language/text, and its main tasks include:</p>
+
+<ul>
+  <li>Sequence labeling: such as Chinese word segmentation, part-of-speech tagging, named entity recognition, semantic role labeling, etc.</li>
+  <li>Classification tasks: text classification, sentiment analysis, etc.</li>
+  <li>Sentence relation judgment: such as QA, natural language inference, etc.</li>
+  <li>Generative tasks: machine translation, text summarization, writing poems and sentences, etc.</li>
+</ul>
+
+<h1 id="development-history-of-bert">Development History of BERT<a id="sec-2"></a></h1>
+
+<p>At its core, NLP is about giving language/text a reasonable mathematical representation that machines can understand; the central problem is how to convert language and text into a reasonable “mathematical space representation”. From the simplest one-hot encoding to today’s BERT, everything revolves around this problem: how to learn from existing corpora (most of which may be unlabeled data) and perform the mathematical conversion or feature extraction of language/text for specific NLP tasks, where the specific tasks can be regarded as downstream tasks built on these features. Feature extraction in NLP is analogous to the “pre-training process” in CV: a base network pre-trained on <code class="language-plaintext highlighter-rouge">ImageNet</code> can continue to be <code class="language-plaintext highlighter-rouge">finetune</code>d for other downstream tasks. The pre-training process in NLP usually uses language model technology (Language Model, whose core is the quantitative estimation of words/sentences by analyzing context). This technology went through several stages of development:</p>
+
+<ol>
+  <li>NNLM (Neural Network Language Model): the most primitive model that applied neural networks to NLP problems. Its algorithmic idea is: one-hot encode the words of the input sentence, multiply by a matrix Q to convert them into vectors C, feed the concatenated sentence vector into a <code class="language-plaintext highlighter-rouge">hiddedn layer</code> followed by <code class="language-plaintext highlighter-rouge">softmax</code>, and predict the probability of the next word. The vector C here is in fact the result of <code class="language-plaintext highlighter-rouge">word embedding</code>. Compared with one-hot encoding, this result has the advantages of lower dimension, and the converted vectors contain semantic information; for example, words that are semantically closer usually have smaller distances.</li>
+  <li>Word2Vec: Word2Vec goes a step further than NNLM. NNLM itself is a language-task model for word prediction and is not dedicated to <code class="language-plaintext highlighter-rouge">word embedding</code>. Word2Vec uses a network structure similar to NNLM but a different training method: <code class="language-plaintext highlighter-rouge">CBOW(Continuous Bag-of-Words Model)</code> and <code class="language-plaintext highlighter-rouge">Skip-gram(Continuous Skip-gram Model)</code>. CBOW removes a word from a sentence and predicts it from the context, while Skip-gram predicts the context from a single word.</li>
+  <li>
+    <p>ELMO (Embedding from Language Models): the limitation of language models such as Word2Vec/Glove is that they cannot handle polysemy; that is, the vector obtained for a single word is constant and cannot reflect multiple meanings according to context. For example, in <code class="language-plaintext highlighter-rouge">play music</code> and <code class="language-plaintext highlighter-rouge">play football</code>, the meaning of <code class="language-plaintext highlighter-rouge">play</code> is not the same. ELMO’s idea is to add embedding features of the surrounding words’ semantics to supplement the single word embedding feature. Its basic structure is as follows:</p>
+
+    <p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-05-03-Bert:%25E8%25BF%2587%25E5%258E%25BB-%25E7%258E%25B0%25E5%259C%25A8-%25E6%259C%25AA%25E6%259D%25A5/BERT:%E8%BF%87%E5%8E%BB-%E7%8E%B0%E5%9C%A8-%E6%9C%AA%E6%9D%A5_20220503_143946.png" alt="img" /></p>
+
+    <p>The ELMO input is the word embedding of the corresponding word, and the training network contains left and right parts, each a “two-layer LSTM structure”. The left part takes the sentence as input from front to back (forward), and the right part takes it from back to front (backward). The two LSTM layers correspond to the syntactic features and the semantic features of the sentence. In actual use, ELMO first produces three kinds of embedding features of the sentence, then the weights of the three kinds of features can be learned, and the weighted final features can be used by downstream tasks. ELMO’s advantages are obvious: it introduces LSTM/RNN and supplements the preceding and following context through bidirectional input to solve polysemy. Its disadvantages are that the LSTM/RNN structure cannot be parallelized, so training/inference efficiency is low, and combining multiple embedding features is a non-<code class="language-plaintext highlighter-rouge">end-to-end</code> approach, which performs worse than the later integrated, unified schemes.</p>
+  </li>
+  <li>
+    <p>GPT (Generative Pre-Training): GPT was the first to apply the <code class="language-plaintext highlighter-rouge">Transformer</code> structure to language models. For an introduction to the <code class="language-plaintext highlighter-rouge">Transformer</code>, see <a href="https://johneyzheng.top//posts/Transformer%E5%9C%A8CV%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8%E4%B8%8E%E9%83%A8%E7%BD%B2/#sec-2">Applications of Transformer in CV</a>. Its advantages are better extraction of long-range dependency features and higher parallel efficiency. The structure of GPT is as follows: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-05-03-Bert:%25E8%25BF%2587%25E5%258E%25BB-%25E7%258E%25B0%25E5%259C%25A8-%25E6%259C%25AA%25E6%259D%25A5/BERT:%E8%BF%87%E5%8E%BB-%E7%8E%B0%E5%9C%A8-%E6%9C%AA%E6%9D%A5_20220503_150153.png" alt="img" /></p>
+
+    <p>Structurally, GPT differs from ELMO in that it uses a Transformer instead of an RNN; it uses a unidirectional structure (that is, it only uses the preceding context); and it abandons ELMO’s separate multiple embedding features, with GPT taking an end-to-end approach. The last point means that downstream tasks of GPT need to be designed on top of GPT’s original structure and re-“finetune”d with the weights obtained from GPT pre-training, which is very similar to CV scenarios. Recommended downstream task networks for GPT: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-05-03-Bert:%25E8%25BF%2587%25E5%258E%25BB-%25E7%258E%25B0%25E5%259C%25A8-%25E6%259C%25AA%25E6%259D%25A5/BERT:%E8%BF%87%E5%8E%BB-%E7%8E%B0%E5%9C%A8-%E6%9C%AA%E6%9D%A5_20220503_150711.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>BERT: BERT can be considered an upgraded version of GPT, as can be seen from the structure: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-05-03-Bert:%25E8%25BF%2587%25E5%258E%25BB-%25E7%258E%25B0%25E5%259C%25A8-%25E6%259C%25AA%25E6%259D%25A5/BERT:%E8%BF%87%E5%8E%BB-%E7%8E%B0%E5%9C%A8-%E6%9C%AA%E6%9D%A5_20220503_150838.png" alt="img" /></p>
+
+    <p>The difference is that BERT uses a bidirectional language model structure (through masking, similar to CBOW in design), adds the <code class="language-plaintext highlighter-rouge">Next Sentence Prediction</code> multi-task objective, and is trained at a larger scale.</p>
+  </li>
+</ol>
+
+<h1 id="bert-algorithm-details">BERT Algorithm Details<a id="sec-3"></a></h1>
+
+<p>The basic building block of the BERT network is the <code class="language-plaintext highlighter-rouge">Transformer</code> structure; the <a href="https://johneyzheng.top//posts/Transformer%E5%9C%A8CV%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8%E4%B8%8E%E9%83%A8%E7%BD%B2/#sec-2">earlier article</a> introduced the basic principles and structure of the Transformer. Here is a supplementary note on the Attention mechanism: the q/k/v Attention mechanism in the Transformer actually comes from the concept of <code class="language-plaintext highlighter-rouge">Addressing</code>. Given a task-related Query vector q, the attention distribution over the Keys is computed and applied to the Values to get the final Attention value. The difference with <code class="language-plaintext highlighter-rouge">self-Attention</code> is that the q/k/v values are all transformations of the input itself (obtained by matrix multiplication). The encoder-decoder structure in the Transformer contains <code class="language-plaintext highlighter-rouge">self Attention</code> and <code class="language-plaintext highlighter-rouge">encoder-decoder-attention</code>, and also adds positional encoding information and mask information (to make bidirectional training convenient): <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-05-03-Bert:%25E8%25BF%2587%25E5%258E%25BB-%25E7%258E%25B0%25E5%259C%25A8-%25E6%259C%25AA%25E6%259D%25A5/BERT:%E8%BF%87%E5%8E%BB-%E7%8E%B0%E5%9C%A8-%E6%9C%AA%E6%9D%A5_20220503_160835.png" alt="img" /></p>
+
+<p>BERT’s improvements over the Transformer are:</p>
+
+<ol>
+  <li>
+    <p>Unsupervised training: the original transformer model did not consider unsupervised training. With the Masked LM method, 15% of the words are randomly masked for BERT to predict, which also solves the problem of only having the preceding context. <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-05-03-Bert:%25E8%25BF%2587%25E5%258E%25BB-%25E7%258E%25B0%25E5%259C%25A8-%25E6%259C%25AA%25E6%259D%25A5/BERT:%E8%BF%87%E5%8E%BB-%E7%8E%B0%E5%9C%A8-%E6%9C%AA%E6%9D%A5_20220503_161841.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>Multi-task training: the BERT input is two sentences, separated by the separator sep and distinguished by adding a segment embedding. Sentences are selected during training as follows: with 50% probability the next consecutive sentence is taken as a positive sample; with 50% probability a random sentence is taken as a negative sample. This task is well suited to question-answering scenarios. Adapting BERT to downstream tasks: different NLP tasks use it in different ways, as shown in the figure below. BERT’s advantages are: it achieves true bidirectionality and solves polysemy; its computation is parallel and very efficient; and it transfers well and is easy to adapt to downstream tasks. <img src="/assets/img/recovered/cc8f8cfe5abb5bfc.png" alt="img" /></p>
+  </li>
+</ol>
+
+<h1 id="later-development-of-bert">Later Development of BERT<a id="sec-4"></a></h1>
+
+<p>After BERT, various improved versions of BERT emerged, along dimensions that mainly include improving the training method, optimizing the model structure, and making the model smaller. Several classic models are introduced below:</p>
+
+<ol>
+  <li>XL-Net: mainly uses a better training method: it adopts the AR approach, avoiding the mask token (whose inconsistency between finetune and pretrain training introduces error), and replaces the transformer with transformer-XL.</li>
+  <li>ELECTRA: proposes a new pre-training task and framework: the original Masked LM approach is replaced by a discriminative Replaced token detection task, using adversarial training.</li>
+  <li>ERNIE: uses a better mask design and more corpora (knowledge-type Chinese corpora) for pre-training.</li>
+  <li>RoBERTA: improves the training method: changes the way of masking; drops the NSP task; tunes hyperparameters; and uses larger-scale training data.</li>
+  <li>ALBERT: focuses on a network design that reduces memory: factorizes the Embedding; shares parameters across layers (both the fully connected layers and the attention layers share parameters); and optimizes the training method (removes some tasks and the dropout layers).</li>
+  <li>TinyBERT: designs a smaller transformer structure and specially designs a transformer distillation method to maintain accuracy.</li>
+</ol>
+
+<h1 id="references">References<a id="sec-5"></a></h1>
+
+<p><a href="https://mp.weixin.qq.com/s/p16IEzlaDGRNt8h6WkP-dQ">From Word Embedding to the BERT Model: A History of Pre-training Techniques in Natural Language Processing</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/53682800">Attention Mechanism in NLP + A Detailed Explanation of the Transformer</a></p>
+
+<p><a href="https://mp.weixin.qq.com/s/H4at_BDLwZWqlBHLjMZWRQ">Understanding BERT Step by Step</a></p>
+
+<p><a href="https://mp.weixin.qq.com/s/wWlPWYlwZn7s749XhVrdwg">The Story After BERT</a></p>

@@ -1,0 +1,64 @@
+<h1 id="contents">Contents</h1>
+
+<ol>
+  <li><a href="#org0da6097">Background and Core Idea</a></li>
+  <li><a href="#org940fe0a">Algorithm Pipeline</a></li>
+  <li><a href="#orgf014bef">Algorithm Details</a></li>
+</ol>
+
+<p><a href="https://arxiv.org/pdf/1811.03818.pdf">RoarNet: A Robust 3D Object Detection based on RegiOn Approximation Refinement</a></p>
+
+<p><a id="org0da6097"></a></p>
+
+<h1 id="background-and-core-idea">Background and Core Idea</h1>
+
+<p>Motivation: the idea is similar to Frustum ConvNet. The authors argue that obtaining 3D proposals directly from the 2D image is inaccurate and can also be affected by time desynchronization between different sensors, so they propose spatial scattering to expand the proposal region.</p>
+
+<p><a id="org940fe0a"></a></p>
+
+<h1 id="algorithm-pipeline">Algorithm Pipeline</h1>
+
+<ul>
+  <li>
+    <p>Algorithm idea:</p>
+
+    <p>The overall idea of RoarNet is somewhat similar to Frustum PointNets and Frustum ConvNet. A 2D detector first extracts ROIs from the 2D RGB image, and after the ROIs are extracted, RoarNet uses a Det+Pose CNN to further predict a 3D box in 3D space, giving a roughly estimated 3D box.</p>
+
+    <p>Because the 3D position estimated directly from the RGB image is imprecise, the authors use spatial scattering (shrinking and enlarging the predicted box to some degree, which produces a series of box estimates at different distances and sizes, similar to the frustum in Frustum ConvNet). The point cloud data of these proposals is then extracted (sample 256 point clouds for training, 512 for prediction) to predict the position of the final 3D box. Unlike the run-twice operation in Frustum ConvNet (the paper shows that this also improves performance), this paper uses two simplified PointNet networks with the same structure: the first estimates the location and objectness of the 3D box, and the second refines the location and estimates the rotation and size.</p>
+  </li>
+  <li>
+    <p>Algorithm framework:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-12-RoarNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_RoarNet_20210710_004242.png" alt="img" />
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-12-RoarNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_RoarNet_20210710_004306.png" alt="img" />
+<img src="/assets/img/recovered/de492b50973d829a.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>Core points:</p>
+    <ul>
+      <li>RoarBNet_2D is designed to roughly estimate the 2D boxes and poses of all objects in the image</li>
+      <li>3D proposals are obtained and expanded through the projection relationship and spatial scattering</li>
+      <li>A two-stage PointNet regresses and predicts the 3D box</li>
+    </ul>
+  </li>
+</ul>
+
+<p><a id="orgf014bef"></a></p>
+
+<h1 id="algorithm-details">Algorithm Details</h1>
+
+<ul>
+  <li>Key points:
+    <ul>
+      <li>A front-end 2D detector is designed</li>
+      <li>It is verified that a two-stage approach works better for predicting the 3D position from the point cloud
+        <ul>
+          <li>AP of the three approaches: 54.3%, 59.9%, 74.02%:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-12-RoarNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_RoarNet_20210710_004417.png" alt="img" /></li>
+        </ul>
+      </li>
+      <li>Spatial scattering can mitigate the loss of prediction accuracy caused by time desynchronization</li>
+    </ul>
+  </li>
+  <li>Experimental results:
+<img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog/2020-01-12-RoarNet%E8%AE%BA%E6%96%87%E8%A7%A3%E8%AF%BB/2020_01_04_RoarNet_20210710_004455.png" alt="img" /></li>
+</ul>

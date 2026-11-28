@@ -1,0 +1,1139 @@
+<p>Reason about parallel layouts for attention and MoE from the budgets for weights, the KV cache, activations, and communication, including the extra constraints of long context and pipeline parallelism.</p>
+
+<h2 id="combining-attention-and-moe-parallelism">Combining attention and MoE parallelism</h2>
+
+<p>How Attention-TP/DP relates to MLA:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>GQA: KV is <span class="nb">split </span>along the n_kv heads → TP ≤ n_kv <span class="o">(</span>with 8 KV heads, TP8 fits exactly<span class="o">)</span>, and TP also spreads the KV memory ✅
+MLA: KV is a single latent shared by all heads → no <span class="nb">head </span>dimension to <span class="nb">split</span> → under TP it can only be <span class="o">[</span>replicated], although TP can still shard the weights to <span class="nb">cut </span>compute
+     TP8 <span class="o">=</span> the same KV stored 8 <span class="nb">times</span> → GPU memory blows up ❌
+⟹ attention <span class="k">in </span>MLA models must use DP: each GPU owns its own requests and KV, with no replication
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>How the communication mechanism differs across combinations of Attention-DP/TP and MoE-TP/EP:</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/attn_moe_parallel_matrix_formula.svg" alt="Communication matrix for combinations of attention and MoE parallelism" width="720" style="display:block;margin:0 auto;" />
+</p>
+<p>Here dispatch/combine are built on all2all:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Operation</th>
+      <th>Underlying primitive</th>
+      <th>Extra non-communication work</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>dispatch</td>
+      <td>AllToAllv</td>
+      <td>routing computation, token permute</td>
+    </tr>
+    <tr>
+      <td>combine</td>
+      <td>AllToAllv</td>
+      <td>weighted sum of k copies (local on the source GPU)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Attn-TP/Attn-DP can also often be combined with MoE-EP (32 GPUs, EP32, k=8, MLA, d is the hidden size, B is the global batch):</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/attn_hybrid_grid_with_moe_ep_domains.svg" alt="Hybrid attention parallelism and MoE expert-parallel domains" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>Pure Attn-TP32</th>
+      <th><strong>TP4 × DP8</strong></th>
+      <th>Pure Attn-DP32</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>KV replicas</td>
+      <td>32 copies</td>
+      <td>4 copies</td>
+      <td>1 copy</td>
+    </tr>
+    <tr>
+      <td>KV read bandwidth/GPU</td>
+      <td>B·ctx·35KB</td>
+      <td>(B/8)·ctx·35KB</td>
+      <td>(B/32)·ctx·35KB</td>
+    </tr>
+    <tr>
+      <td>MLA projection weights/GPU</td>
+      <td>W/32</td>
+      <td>W/4</td>
+      <td>full W</td>
+    </tr>
+    <tr>
+      <td>attn communication domain</td>
+      <td>32 GPUs (c=31/32)</td>
+      <td>4 GPUs (c=3/4)</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>attn tokens per GPU</td>
+      <td>B</td>
+      <td>B/8</td>
+      <td>B/32</td>
+    </tr>
+    <tr>
+      <td>①④ layout conversion</td>
+      <td>0.969×2 = 1.94 B·d</td>
+      <td>0.19 B·d</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>②③ MoE a2a</td>
+      <td>0.48 B·d</td>
+      <td>0.48 B·d</td>
+      <td>0.48 B·d</td>
+    </tr>
+    <tr>
+      <td><strong>Total communication</strong></td>
+      <td><strong>2.42 B·d</strong></td>
+      <td><strong>0.67 B·d</strong></td>
+      <td><strong>0.484 B·d</strong></td>
+    </tr>
+    <tr>
+      <td>attn compute/GPU</td>
+      <td>B/32</td>
+      <td>B/32</td>
+      <td>B/32 (same for all three)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>For MoE, the differences between MoE-TP and MoE-EP (with Attn-DP) are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Dimension</th>
+      <th>MoE-TP32</th>
+      <th> </th>
+      <th>MoE-EP32</th>
+      <th>Winner</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>gate/up shape</strong></td>
+      <td>[B·k, 7168] × [7168, <strong>64</strong>]</td>
+      <td> </td>
+      <td>[B·k/32, 7168] × [7168, 2048]</td>
+      <td><strong>EP</strong></td>
+    </tr>
+    <tr>
+      <td><strong>down shape</strong></td>
+      <td>[B·k, <strong>64</strong>] × [64, 7168], followed by an AllReduce</td>
+      <td> </td>
+      <td>[B·k/32, 2048] × [2048, 7168]</td>
+      <td><strong>EP</strong></td>
+    </tr>
+    <tr>
+      <td>Tiles along N (BN=128)</td>
+      <td>1, and 64 of its 128 columns are padding</td>
+      <td> </td>
+      <td>16, all full</td>
+      <td><strong>EP</strong></td>
+    </tr>
+    <tr>
+      <td>Total tiles / 78 SMs (B=512)</td>
+      <td>32 → 41% utilization × 50% padding inside each tile ≈ <strong>20%</strong></td>
+      <td> </td>
+      <td>16 → 21%, but every tile is full</td>
+      <td>Both fall short, for different reasons</td>
+    </tr>
+    <tr>
+      <td><strong>Can batching fix the shape?</strong></td>
+      <td>N/K are model dimensions, independent of B</td>
+      <td> </td>
+      <td>M_e=B·k/32 grows with B, and the tile count grows with it</td>
+      <td><strong>EP, the most fundamental difference</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Expert weight reads/GPU</strong></td>
+      <td>u(B)/256 × W_e/32 (the kernel skips experts that receive no tokens)</td>
+      <td> </td>
+      <td>u(B)/256 × W_e/32 u(B)=256(1−e^(−Bk/256))</td>
+      <td>Equal in expectation; EP only has higher variance</td>
+    </tr>
+    <tr>
+      <td><strong>Activation memory/GPU</strong></td>
+      <td>full [B·k, d], about <strong>59 MB</strong> at B=512 (BF16)</td>
+      <td> </td>
+      <td>[B·k/32, d], about <strong>1.8 MB</strong> at B=512</td>
+      <td><strong>EP, 32× smaller</strong>, but only MB-scale in decode</td>
+    </tr>
+    <tr>
+      <td><strong>Communication primitives</strong></td>
+      <td>AllGather on entry + ReduceScatter on exit</td>
+      <td> </td>
+      <td>a2a dispatch + combine</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td><strong>Communication bytes/GPU</strong></td>
+      <td>2c·B’·d</td>
+      <td> </td>
+      <td>2c·(B’/P_EP)·k·d</td>
+      <td>Ratio <strong>r = k/P_EP</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Token permute volume</strong></td>
+      <td>4 × B·k·d (full reorder)</td>
+      <td> </td>
+      <td>4 × (B·k/32)·d, and it can be fused into the a2a</td>
+      <td><strong>EP, 32× less</strong></td>
+    </tr>
+    <tr>
+      <td><strong>L2 reuse</strong></td>
+      <td>The B matrix is only 459KB and stays fully resident, so repeated reads are free, but that does not recover the wasted compute</td>
+      <td> </td>
+      <td>8 experts per GPU are 352MB ≫ 60MB, and the experts hit change every step, so the hit rate is inherently low</td>
+      <td>Neither is ideal</td>
+    </tr>
+    <tr>
+      <td><strong>Load balancing</strong></td>
+      <td>✅ Naturally balanced; step time is predictable</td>
+      <td> </td>
+      <td>Needs EPLB; hot experts slow everyone down</td>
+      <td><strong>TP</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Static shapes</strong></td>
+      <td>✅ Fixed; CUDA Graph works directly</td>
+      <td> </td>
+      <td>M_e is dynamic; needs masked GEMM</td>
+      <td><strong>TP</strong></td>
+    </tr>
+    <tr>
+      <td><strong>Deployment complexity</strong></td>
+      <td>✅ Single stack, no routing, no permute</td>
+      <td> </td>
+      <td>routing + permute + EPLB + two kernels</td>
+      <td><strong>TP</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Measured (DeepGEMM masked, fused gate_up, 235 MB of weights per GPU in both cases): the EP32 shape takes 129 μs and the TP32 shape (256 experts × N=128) takes 153 μs, so TP is only 18% slower. With gate/up fused, N=128 has no padding; the half-empty tiles in the table above appear only when gate/up are kept separate (N=64).</p>
+
+<p>A few key parameters explained:</p>
+
+<p><strong>Communication ratio r = k / P_EP</strong></p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">k</code> = the number of experts each token is routed to (top-k)</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">P</code> = the number of GPUs taking part in the communication, <code class="language-plaintext highlighter-rouge">c = (P−1)/P</code> (the discount for the local share that is not sent)</p>
+  </li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>EP domain</th>
+      <th>r (k=8)</th>
+      <th>Conclusion</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>EP8</td>
+      <td>1.0</td>
+      <td><strong>Same</strong> as MoE-TP; EP has no communication advantage</td>
+    </tr>
+    <tr>
+      <td>EP32</td>
+      <td>0.25</td>
+      <td>EP saves 4×</td>
+    </tr>
+    <tr>
+      <td>EP144</td>
+      <td>0.055</td>
+      <td>EP saves 18×</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>★ EP’s communication advantage comes <strong>entirely from the EP domain being larger than k</strong>; there is nothing magical about EP itself.</p>
+
+<p><strong>② The upper limit on MoE-TP sharding (the watershed is N = BN)</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>TP degree</th>
+      <th>N of gate/up</th>
+      <th>Tiles along N</th>
+      <th>Full?</th>
+      <th>Verdict</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TP4</td>
+      <td>512</td>
+      <td>4</td>
+      <td>Full</td>
+      <td>Usable</td>
+    </tr>
+    <tr>
+      <td>TP8</td>
+      <td>256</td>
+      <td>2</td>
+      <td>Full</td>
+      <td>Barely acceptable</td>
+    </tr>
+    <tr>
+      <td>TP16</td>
+      <td>128</td>
+      <td>1</td>
+      <td>Just full</td>
+      <td>Borderline</td>
+    </tr>
+    <tr>
+      <td>TP32</td>
+      <td><strong>64</strong></td>
+      <td>1</td>
+      <td><strong>Half empty</strong></td>
+      <td>Breaks down</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>★ Switching to BN=64 removes the padding, but halves the reuse along K and doubles the memory traffic — <strong>both paths are blocked</strong>.</p>
+
+<p><strong>③ The union effect on expert weight reads (EP32, 8 experts/GPU)</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>B</th>
+      <th>Experts hit u(B)</th>
+      <th>EP reads per GPU (expected)</th>
+      <th>TP reads per GPU (skipping empty experts)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>8</td>
+      <td>57</td>
+      <td>≈1.8 experts</td>
+      <td>57/32 ≈ 1.8 experts</td>
+    </tr>
+    <tr>
+      <td>128</td>
+      <td>251.6</td>
+      <td>≈7.9 experts</td>
+      <td>≈7.9 experts</td>
+    </tr>
+    <tr>
+      <td>512</td>
+      <td>≈256</td>
+      <td>8 experts</td>
+      <td>8 experts</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>★ As long as the TP-side kernel also skips experts that receive no tokens (fused_moe already does), the expected bytes read per GPU are the same on both sides, so “the two sides are byte-for-byte identical” holds. The difference is that EP places only 8 experts on each GPU, so the number of experts hit has higher variance, and the slowest GPU determines the whole layer.</p>
+
+<p>In terms of GPU memory, the distributed strategies differ as follows:</p>
+
+<p><strong>Baseline</strong>: DeepSeek V3 figures, 32 GPUs (96 GB/GPU), FP8, KV 35 KB/token, MLA projection weights 11.4 GB, expert weights W_e.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Memory item</th>
+      <th>Sharded by</th>
+      <th>Not sharded by</th>
+      <th>Attn-TP32</th>
+      <th><strong>TP4×DP8</strong></th>
+      <th>Attn-DP32</th>
+      <th>MoE-TP32</th>
+      <th>MoE-EP32</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>MLA projection weights</strong></td>
+      <td>the attn TP degree</td>
+      <td>the attn DP degree</td>
+      <td>0.36 GB</td>
+      <td>2.85 GB</td>
+      <td>11.4 GB</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><strong>KV cache</strong></td>
+      <td>the attn DP degree</td>
+      <td>the attn TP degree (MLA must replicate)</td>
+      <td>full 73 GB</td>
+      <td>9.2 GB</td>
+      <td>2.3 GB</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><strong>Weights + KV per GPU</strong> (B=256, ctx=8K)</td>
+      <td>—</td>
+      <td>—</td>
+      <td><strong>73.4 GB</strong></td>
+      <td><strong>12.0 GB</strong></td>
+      <td>13.7 GB</td>
+      <td>—</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td><strong>Expert weights</strong></td>
+      <td>the MoE TP or EP degree</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td>W_e/32</td>
+      <td>W_e/32</td>
+    </tr>
+    <tr>
+      <td><strong>Peak MoE activations/GPU</strong> (B=512, k=8)</td>
+      <td><strong>only EP can shard it</strong></td>
+      <td>complete on every GPU under MoE-TP</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td><strong>≈59 MB</strong></td>
+      <td><strong>≈1.8 MB</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Three rules for GPU memory:</strong></p>
+
+<ol>
+  <li><strong>KV and MLA weights are the two ends of the same knob</strong>. Which way to turn the TP degree depends on <code class="language-plaintext highlighter-rouge">TP* = √(W_MLA × P ÷ KV_total)</code>: short context pushes toward TP, long context toward DP, and the optimum is a flat-bottomed valley (anything from TP2 to TP8 is acceptable).</li>
+  <li><strong>Only EP can shard MoE activations, but they are not the memory bottleneck in decode</strong>: at B=512, MoE-TP holds [B·k,d] at about 59 MB per GPU versus about 1.8 MB for EP; that is 32× apart, but both are MB-scale. Only large prefills (tens of thousands of tokens) reach GB scale; what really consumes memory is expert weights and KV.</li>
+  <li>
+    <p><strong>The two decisions are fully decoupled in communication and compute, and share only one per-GPU memory budget.</strong> Weight memory saved by the attention-side TP degree turns directly into more KV (a larger B or a longer ctx) rather than affecting the EP domain, whose size is essentially set by the number of GPUs deployed. The only place memory affects EP is “whether to add replicas” (EP16×2 vs EP32): only with spare memory can you afford replicas to buy balance, at the cost of doubling r.</p>
+  </li>
+  <li><strong>On the attention side, look at the model architecture</strong>: grouped-query attention (GQA) can split KV along the head dimension, so pure TP works directly; multi-head latent attention (MLA) cannot, so fix TP at 2 to 4 (within one node) and add DP, which makes attention a constant module independent of scale.</li>
+  <li><strong>On the expert side, look at scale</strong>: with few GPUs (8 or fewer), use TP; it is simple and loses nothing. With many GPUs you must use EP, because TP chops the intermediate dimension into fragments (half-empty tiles appear when N is smaller than the tile width), and token-side communication and reordering grow linearly with P — batching cannot win these back.</li>
+  <li><strong>The two are linked by batch size</strong>: the larger the expert-parallel domain, the bigger the batch needed to saturate the expert GEMMs and suppress load variance, and a big batch pushes up KV read bandwidth and capacity, which in turn forces Attn-TP to shrink. So large EP, small Attn-TP, and a large batch are one package, not three independent choices.</li>
+</ol>
+
+<h2 id="choose-capacity-batch-size-and-ep-size-together">Choose capacity, batch size, and EP size together</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>Usable request memory per GPU = HBM − this GPU's weights − graph/communication/temporary buffers − safety margin
+B_memory ≈ usable request memory per GPU / bytes of state and KV per request on this GPU
+B_run ≤ min(B_memory, B_SLO, available concurrency)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Take two per-GPU capacities, 96GB and 141GB, as examples: 8 GPUs total 768GB and 1128GB respectively. That is raw capacity and cannot be treated directly as the KV pool. Using about 397GB of FP8 weights as a rough estimate, 8×96GB leaves only about 371GB of raw headroom, before subtracting the runtime overheads above. Low-bit models must also account for scales, unquantized layers, and the post-load layout; you cannot substitute parameter count times 0.5B for the actual footprint.</p>
+
+<p>Growing EP lowers expert weights per GPU, frees KV capacity, and raises <code class="language-plaintext highlighter-rouge">M_e=B_local·P·k/E</code>. This chain of benefits is complete only if the freed capacity turns into usable batch. If the batch is already limited by the SLO or by traffic, the capacity benefit of large EP may never materialize, and you still pay the cross-node communication cost. <code class="language-plaintext highlighter-rouge">P≈BM·E/(k·B_local)</code> is only a reference point at which the average M_e fills a tile; the final comparison is throughput versus GPU cost under the same SLO.</p>
+
+<h2 id="why-cp-is-necessary">Why CP is necessary</h2>
+
+<p><strong>Notation</strong>: N = degree of parallelism, T = sequence length, B = batch, H = number of heads, D = head dimension, d = H·D (hidden dimension), E = KV bytes per token, c = (N−1)/N (the discount for the local share that is not sent).</p>
+
+<p><strong>Why split along the sequence:</strong></p>
+
+<p>Tensor parallelism splits weights and KV along the <strong>head</strong> dimension, but there are two cases it cannot split:</p>
+
+<ul>
+  <li><strong>GQA</strong>: once TP exceeds the number of KV heads, the extra GPUs can only replicate the same KV</li>
+  <li><strong>MLA</strong>: the latent vector is effectively a single head, so pure TP <strong>cannot shrink</strong> the KV at all</li>
+</ul>
+
+<p>So a third dimension comes in — the <strong>sequence</strong>. But the motivation is completely different in the two phases:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Bottleneck</th>
+      <th>What to split</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Prefill</td>
+      <td>O(T²) compute + O(T·d) activations; TTFT explodes</td>
+      <td><strong>Compute</strong> (Q / hidden)</td>
+    </tr>
+    <tr>
+      <td>Decode</td>
+      <td>Q is tiny and KV is very long; KV capacity caps concurrency</td>
+      <td><strong>Storage</strong> (KV cache)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Three routes for prefill CP:</strong></p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/prefill_cp_three_routes_and_sharding.svg" alt="Three routes for prefill context parallelism and sequence sharding" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p><strong>Communication patterns compared</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Communication within each layer</th>
+      <th>Head-count limit</th>
+      <th>Activations/GPU</th>
+      <th>Communication per GPU</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Ring</strong> (Pass-KV)</td>
+      <td>block by block around a ring, N−1 iterative steps</td>
+      <td>None</td>
+      <td>T·d/N</td>
+      <td><code class="language-plaintext highlighter-rouge">2c · T · d</code>, linear in T</td>
+    </tr>
+    <tr>
+      <td><strong>Ulysses</strong> (switch the split dimension)</td>
+      <td>two all-to-alls</td>
+      <td><strong>N ≤ number of heads</strong></td>
+      <td>T·d/N</td>
+      <td><code class="language-plaintext highlighter-rouge">4c · T · d / N</code>, <strong>2/N</strong> of Ring</td>
+    </tr>
+    <tr>
+      <td><strong>Split + AllGather</strong></td>
+      <td>one gather between layers / at the end</td>
+      <td>None</td>
+      <td><strong>T·d (no saving)</strong></td>
+      <td>on the order of <code class="language-plaintext highlighter-rouge">c · T · d</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Ring</strong>: each GPU holds T/N each of Q_i, K_i, and V_i. KV blocks travel once around the ring; each received block is combined with the local Q in one partial attention, accumulated with online softmax. It has no head-count limit, and communication can overlap with compute; the cost is a serial chain of N−1 steps and communication that grows with T.</p>
+
+<p><strong>Ulysses</strong>: first split along the sequence. After the QKV projection, one all-to-all <strong>switches the split dimension from sequence to head</strong> (<code class="language-plaintext highlighter-rouge">[T/N, H, D] → [T, H/N, D]</code>). Each GPU then runs full attention over “the full sequence × a subset of heads”, <strong>with no communication at all in between</strong>, and switches back afterwards. Communication is only 2/N of Ring, but H has to be split into N parts, so <code class="language-plaintext highlighter-rouge">N ≤ number of heads</code> — <strong>multi-head latent attention has a single head, so this is simply unusable</strong>.</p>
+
+<p><strong>Split + AllGather</strong> (the form used by SGLang zigzag/interleave): split Q so that each GPU computes only its own T/N tokens; attention completes locally in one pass, and an all-gather between layers or at the end restores the full sequence, which is then reordered by the inverse index. <strong>Communication is the cheapest (one AG instead of a full pass around the ring), but activations do not shrink with N</strong> — each GPU still materializes the hidden states for the full sequence. In exchange it has no head limit, so it covers multi-head latent attention and sparse-attention paths.</p>
+
+<p><strong>Sharding strategy: load balancing under the causal mask</strong></p>
+
+<p>(This corresponds to the triangle figure above.)</p>
+
+<p>This is not a communication scheme but “how the sequence is assigned to GPUs”, orthogonal to the three routes above:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Compute of block j ∝ (j+1) (under the causal mask, later blocks attend to more KV)
+Contiguous split: the slowest GPU gets 4N−1 units, the average is 2N+1 → about 2× apart
+zigzag: each GPU takes one early and one late block, (j+1) + (2N−j) = 2N+1, independent of j → perfectly balanced
+interleave: tokens assigned round-robin by modulo, equally balanced, and isomorphic to the DCP ownership rule
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>This 2× is free</strong> — no extra communication and no extra compute, only a different assignment. It should be on by default for causal workloads; sparse-attention paths (DSA/NSA) use interleave.</p>
+
+<p><strong>Compute and cost</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Compute/GPU: after balancing = total / N (under the causal mask, total ≈ 2T²·d)
+Wrap-up cost: gather back the full sequence and materialize KV, a one-time O(T · d)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>DCP design details</strong></p>
+
+<p>Position p is owned by <code class="language-plaintext highlighter-rouge">p mod N</code>, at physical slot <code class="language-plaintext highlighter-rouge">p ÷ N</code>. <strong>Using modulo rather than contiguous blocks</strong> means new decode tokens naturally land on the right GPU, with no rebalancing.</p>
+
+<p>In engineering terms: the allocator is built with <code class="language-plaintext highlighter-rouge">size × N</code> and <code class="language-plaintext highlighter-rouge">page_size × N</code>, the index table stores virtual indices, and the kernel filters on the fly with integer division and modulo. The same physical GPU memory can then logically serve about N× the total capacity, and the radix tree and page management above it barely need to change.</p>
+
+<p><strong>Three-step pipeline</strong></p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/dcp_pipeline_and_merge_transpose.svg" alt="Decode context parallelism pipeline and LSE merge" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<p><strong>① AllGather Q</strong>: each GPU originally holds Q only for its own slice of heads, but its KV shard covers all heads, so Q must first be gathered within the group. In decode Q is only 1 token, so this communication is small; enabling Q replication (replicating the Q projection weights at load time) <strong>eliminates this step entirely</strong>.</p>
+
+<p><strong>② Local attention</strong>: compute with the full Q against the local KV shard, returning the partial output and the LSE.</p>
+
+<p><strong>③ Merge by LSE</strong>: this is essentially a <strong>transpose</strong> of <code class="language-plaintext highlighter-rouge">[KV shard × head group]</code>. Before the transpose, each GPU has “local shard × all heads”; after it, each GPU has “its own head group × all shards”, and a local weighted sum finishes the job. Two implementations:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Backend</th>
+      <th>Approach</th>
+      <th>Number of collectives</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>AllGather + ReduceScatter</td>
+      <td>AG the LSE → local correction → RS along heads (the MHA path uses AR and then slices)</td>
+      <td>about 3 per layer (including the Q AG)</td>
+    </tr>
+    <tr>
+      <td>Packed All-to-All</td>
+      <td>pack the output and LSE into one tensor, <strong>one a2a performs the transpose</strong></td>
+      <td>Q AG + 1 a2a</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>★ The two <strong>move the same order of bytes; they differ in the number of collectives and in tail latency</strong> — the same principle as hierarchical All2All, where “the bytes are locked in by the semantics, and only the number of operations can be cut”. The a2a requires the head count to be divisible by N, because the transpose reshapes <code class="language-plaintext highlighter-rouge">[B, H, D]</code> into <code class="language-plaintext highlighter-rouge">[N, B, H/N, D]</code>.</p>
+
+<p><strong>Why the LSE cannot be skipped</strong>: each GPU computes a softmax over only its own 1/N of the positions, with a different denominator, so adding the outputs directly is wrong; they must be renormalized with the global logsumexp. <strong>This is the same math as FlashDecoding’s split-KV merge: one runs across SMs, the other across GPUs.</strong></p>
+
+<p><strong>Compute: not a single extra FLOP</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Without DCP (pure tensor parallelism): per GPU (H/N) heads × KV of all T   ∝ H·T/N
+With DCP:                              per GPU H heads × local T/N of KV   ∝ H·T/N
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>DCP is a pure redistribution of storage and introduces no redundant compute</strong> — the exact opposite of one-shot AllReduce (which trades redundant compute for fewer steps).</p>
+
+<p><strong>Communication, memory, and cost</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Q AllGather:      c · B·H·D           independent of T, removable with Q replication
+merge:            O(B·H·D)            independent of T
+KV storage/GPU:   O((T/N) · E)        the core benefit
+extend path:      O(T · E) temporary  ← the main cost
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>The cost is concentrated in extend</strong>: after decode has written KV in interleaved fashion, an extend that looks only at the local shard is missing the prefix, so the full prefix KV must be temporarily gathered and materialized. <strong>Steady-state decode does not pay this, but each new extend briefly raises memory and bandwidth usage.</strong></p>
+
+<p><strong>Upper bound on the degree of parallelism</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Grouped-query attention:     N ≤ tensor-parallel degree ÷ number of KV heads   (4 KV heads, TP 8 → N ≤ 2)
+Multi-head latent attention: N can equal the tensor-parallel degree            (single head, the largest replication factor)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Overall comparison:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Scheme</th>
+      <th>What is sent</th>
+      <th>Communication per GPU per layer</th>
+      <th>Compute/GPU</th>
+      <th>Memory benefit</th>
+      <th>Hard constraint</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ring</td>
+      <td>KV blocks around a ring</td>
+      <td><code class="language-plaintext highlighter-rouge">2c·T·d</code>, linear in T</td>
+      <td>total/N after balancing</td>
+      <td>activations <code class="language-plaintext highlighter-rouge">O(T·d/N)</code></td>
+      <td>N−1 serial steps; no head limit</td>
+    </tr>
+    <tr>
+      <td>Ulysses</td>
+      <td>two dimension-switching a2a</td>
+      <td><code class="language-plaintext highlighter-rouge">4c·T·d/N</code> (2/N of Ring)</td>
+      <td>same as above</td>
+      <td>activations <code class="language-plaintext highlighter-rouge">O(T·d/N)</code></td>
+      <td><strong>N ≤ number of heads</strong>; MLA unusable</td>
+    </tr>
+    <tr>
+      <td>Split + AG</td>
+      <td>gather at the end</td>
+      <td>on the order of <code class="language-plaintext highlighter-rouge">c·T·d</code></td>
+      <td>same as above</td>
+      <td><strong>no activation saving</strong></td>
+      <td>no head limit; a single GPU must hold the full sequence</td>
+    </tr>
+    <tr>
+      <td>zigzag / interleave</td>
+      <td>— (sharding strategy)</td>
+      <td>no increase</td>
+      <td><strong>slowest GPU 2× → 1×</strong></td>
+      <td>—</td>
+      <td>none; should be on by default</td>
+    </tr>
+    <tr>
+      <td>DCP</td>
+      <td>Q + partial results</td>
+      <td><code class="language-plaintext highlighter-rouge">O(B·H·D)</code>, <strong>independent of T</strong></td>
+      <td>same as without DCP</td>
+      <td>KV <code class="language-plaintext highlighter-rouge">O(T·E/N)</code></td>
+      <td>GQA: N ≤ TP ÷ number of KV heads</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>Scheme</th>
+      <th>Reason</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Long prefill, TTFT-bound, activations do not fit on one GPU</td>
+      <td>Prefill CP</td>
+      <td>compute and activations are spread across N GPUs</td>
+    </tr>
+    <tr>
+      <td>↳ enough heads, high intra-node bandwidth</td>
+      <td><strong>Ulysses</strong></td>
+      <td>communication is only 2/N of Ring, in just 2 steps</td>
+    </tr>
+    <tr>
+      <td>↳ too few heads / MLA / extremely long sequences</td>
+      <td><strong>Ring</strong></td>
+      <td>no head limit; communication can overlap with compute</td>
+    </tr>
+    <tr>
+      <td>↳ only need to spread compute, activations fit</td>
+      <td><strong>Split + AG</strong></td>
+      <td>the cheapest communication; covers MLA and sparse paths</td>
+    </tr>
+    <tr>
+      <td>↳ any causal workload</td>
+      <td><strong>Add zigzag / interleave</strong></td>
+      <td>a free 2×; sparse paths use interleave</td>
+    </tr>
+    <tr>
+      <td>Decode KV capacity caps concurrency</td>
+      <td><strong>DCP</strong></td>
+      <td>per-GPU KV drops to 1/N; communication is decoupled from T</td>
+    </tr>
+    <tr>
+      <td>↳ multi-head latent attention</td>
+      <td>DCP pays off the most</td>
+      <td>tensor parallelism cannot split it at all; N can go up to the TP degree</td>
+    </tr>
+    <tr>
+      <td>↳ GQA with TP degree &gt; number of KV heads</td>
+      <td>DCP</td>
+      <td>turns the excess replication into sequence shards</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Enabling both</strong>: possible in principle with separate communication groups and metadata, but how KV materialization semantics interact with disaggregated deployment and hierarchical caching must be verified case by case (cache keys usually do not yet know about the shard rank).</p>
+
+<p><strong>In three sentences:</strong></p>
+
+<ol>
+  <li><strong>CP and DCP solve two different bottlenecks along the same dimension (the sequence)</strong>: prefill splits compute and activations, decode splits KV storage. When tensor parallelism cannot split by head (single-head MLA, too few GQA heads), the sequence is the only dimension left.</li>
+  <li><strong>The single selection criterion is “send whichever of Q and KV is smaller”</strong>: in prefill both are long, so sending KV can be pipelined and overlapped (Ring), or the split dimension can be switched in one shot (Ulysses, with only 2/N of Ring’s communication but a head limit); in decode Q is a single token, so Q must be sent, and communication is therefore completely decoupled from context length.</li>
+  <li><strong>Their costs take different forms</strong>: prefill CP pays a one-time <code class="language-plaintext highlighter-rouge">O(T·d)</code> for the wrap-up gather, and under the causal mask it needs zigzag/interleave to get the full N×; DCP adds no compute at all and steady-state decode communication is tiny, with the cost concentrated in temporarily materializing the full prefix KV during extend, plus the hard limit <code class="language-plaintext highlighter-rouge">N ≤ TP degree ÷ number of KV heads</code> under GQA.</li>
+</ol>
+
+<h2 id="the-complexity-pp-introduces">The complexity PP introduces</h2>
+
+<p><strong>What PP is for: the dimension with the least communication</strong></p>
+
+<p>Each stage boundary sends the hidden state <code class="language-plaintext highlighter-rouge">[B, d]</code> only once (B=48, d=7168, about 0.69 MB in BF16), and the whole model pays this only (stage−1) times. Compared with TP’s two AllReduces per layer and EP’s two all-to-alls per layer, PP’s communication is two to three orders of magnitude smaller — <strong>this is the only viable form of model parallelism over weak interconnects such as Ethernet/PCIe</strong>.</p>
+
+<p><strong>PP’s scheduling unit</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre>One beat = one target forward pass + sampling one token
+  PP0 already knows its input (the single token from the previous round)
+  Each stage runs only one forward pass
+  Only the last rank has logits, and it samples one token
+  seq_lens grows by exactly 1, each stage writes that one KV slot, no rollback needed
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>PP turns off the generic overlap scheduler and uses its own event loop: <code class="language-plaintext highlighter-rouge">pp_size + async_batch_depth</code> slots, each holding a fixed group of requests. Note that <strong>“overlap” refers to three different things</strong>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mechanism</th>
+      <th>What overlaps</th>
+      <th>Unit of work</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PP micro-batch pipelining</td>
+      <td>different request groups on different stages</td>
+      <td>one target forward pass + one sampled token</td>
+    </tr>
+    <tr>
+      <td>overlap scheduler</td>
+      <td>CPU post-processing of batch N with the GPU work of batch N+1</td>
+      <td>one run_batch</td>
+    </tr>
+    <tr>
+      <td>Two-batch overlap (TBO)</td>
+      <td>two micro-batches within the same forward pass</td>
+      <td>unrelated to PP</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Prefill and decode behave completely differently in the pipeline</strong></p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/pp_prefill_vs_decode_pipeline.svg" alt="How dependencies differ between prefill and decode under pipeline parallelism" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Prefill (chunk)</th>
+      <th>Decode (micro-batch)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Pipeline unit</td>
+      <td>consecutive chunks of the same request</td>
+      <td><strong>different request groups</strong></td>
+    </tr>
+    <tr>
+      <td>Input of the next unit</td>
+      <td><strong>known</strong> (the whole prompt is already in hand)</td>
+      <td><strong>unknown</strong> (must wait for the token to come back around to PP0)</td>
+    </tr>
+    <tr>
+      <td>Can it be filled?</td>
+      <td>yes, apart from fill/drain at the ends</td>
+      <td>yes, but only with <strong>other groups</strong></td>
+    </tr>
+    <tr>
+      <td>Effect on latency</td>
+      <td><strong>TTFT really is reduced</strong></td>
+      <td><strong>TPOT is not reduced</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>The bubble is not the fatal flaw; TPOT is</strong></p>
+
+<p><strong>There is only one way to fill bubbles</strong> — find in-flight work with no dependency: training uses micro-batches (bubble &lt;5% at m=64), prefill uses chunks, and decode uses cross-request groups. Async depth works the same way: it only hides the last rank’s D2H and CPU post-processing inside the next micro-batch’s GPU time, and <strong>it does not start the next step of the same slot early</strong>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>PP: p stages take turns, so times add up — it still reads one full pass of the weights, TPOT ≈ single-GPU level
+TP: p GPUs work at the same time, so time is one share — TPOT really is ÷ p
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The decode SLA constrains exactly this summed time, and <strong>adding concurrency cannot fill it</strong>. Throughput comes from “other slots occupying the other stages”.</p>
+
+<p><strong>Three kinds of imbalance</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Phase</th>
+      <th>Source</th>
+      <th>Nature</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Uneven stage partitioning</strong></td>
+      <td>both</td>
+      <td>embedding at the head; lm_head + sampling + output ring at the tail</td>
+      <td><strong>systematic, paid every beat</strong></td>
+    </tr>
+    <tr>
+      <td>Uneven chunk time</td>
+      <td>prefill</td>
+      <td>under the causal mask, later chunks attend to more KV</td>
+      <td>random, accumulates across stages</td>
+    </tr>
+    <tr>
+      <td>Length spread within a group</td>
+      <td>decode</td>
+      <td>requests naturally differ in length</td>
+      <td>random, accumulates across stages</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>★ <strong>First even out the layer split, then talk about balancing.</strong></p>
+
+<p><strong>Uneven stage partitioning</strong></p>
+
+<p>On large-vocabulary models lm_head is not small (129K × 7168, about 0.9 GB in FP8), and sampling and D2H are a pure CPU tail. Splitting the layers evenly makes the last stage systematically slower, and the pipeline runs at the pace of the slowest stage. <strong>Fix</strong>: split the layers unevenly (give the first and last stages a few fewer layers) + async depth (meaningful only for decode).</p>
+
+<p><strong>Uneven chunk time</strong></p>
+
+<p>With equal-length chunks, <code class="language-plaintext highlighter-rouge">t_k ∝ (1−α) + α·(2k+1)/m</code> (α = attention’s share of the time). With T=32K, m=8, and α≈0.3, the first and last chunks differ by 1.7×, which under PP accumulates into gaps of 30/60/90.</p>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/chunk_balance_summary.svg" alt="Load-balancing methods for pipeline chunks" width="720" style="display:block;margin:0 auto;" />
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Fix</th>
+      <th>Approach</th>
+      <th>Cost</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Equal-time splitting</td>
+      <td><code class="language-plaintext highlighter-rouge">s_k = T·√(k/m)</code>, longer chunks first, shorter later</td>
+      <td>the first chunk takes 35% of the sequence, which is unfriendly to memory and kernel sizes; α must also be estimated</td>
+    </tr>
+    <tr>
+      <td><strong>Mixed-batch filling</strong></td>
+      <td>equal-length chunks, with decode requests making up the difference</td>
+      <td>the scheduler must track a time budget rather than a token budget</td>
+    </tr>
+    <tr>
+      <td><strong>More chunks</strong></td>
+      <td>with m ≥ 4×pp_size, the time difference between adjacent chunks is negligible</td>
+      <td>smaller chunks make GEMMs tall and thin, which lowers MFU</td>
+    </tr>
+    <tr>
+      <td>Mixed budget</td>
+      <td>whichever comes first of a token budget and an attention-work budget</td>
+      <td>an engineering approximation of equal-time splitting that avoids a long first chunk</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Parameters</strong>: chunks no smaller than 512~1024 tokens. In practice, <strong>mixed batching + a larger m</strong> is the most common combination.</p>
+
+<p><strong>Compatibility with other features:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Combination</th>
+      <th>Status</th>
+      <th>Reason</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>PP + hierarchical KV cache</td>
+      <td><strong>Supported</strong></td>
+      <td>PP0 counts DMA acknowledgments and broadcasts along the pipeline; CI covers MHA-style models</td>
+    </tr>
+    <tr>
+      <td>PP + speculative decoding</td>
+      <td>Rejected at startup</td>
+      <td>causal inversion; see below</td>
+    </tr>
+    <tr>
+      <td>PP + DSA layer splitting</td>
+      <td>Rejected at startup</td>
+      <td>layer splitting depends on prefill CP, and CP+PP is unverified</td>
+    </tr>
+    <tr>
+      <td>L3 cache + DCP</td>
+      <td>Rejected at startup</td>
+      <td>the L3 key does not include the shard rank</td>
+    </tr>
+    <tr>
+      <td>PP for PD disaggregation</td>
+      <td>Restricted</td>
+      <td>the decode-side pp_size must equal the prefill side’s, or be 1</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>PP and speculative decoding: why they conflict, and what supporting them together would require:</strong></p>
+
+<p><strong>The root cause is that they define the unit of work differently</strong>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>One PP beat:          one target forward pass + sampling one token, seq_lens grows by exactly 1, no rollback needed
+One speculative step: draft → verify → extend, three forward passes, two sets of weights
+          verify has q_len = gamma+1, and the accepted length is known only after the last rank produces logits
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>The data flows in opposite directions</strong>: draft tokens flow from the last stage to the first, while verify’s hidden states flow from the first stage to the last. Squeezed into one beat, PP0 would have to embed the tokens the draft produces before the draft has even run.</p>
+
+<p><strong>Supporting it requires splitting the step across two beats:</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Previous beat, last rank:  tail of verify + accept + extend + draft
+Next beat, all ranks:      verify only, using the proposals brought back by the output ring
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The four categories of accompanying changes:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>What changes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Protocol</td>
+      <td>the output ring carries <code class="language-plaintext highlighter-rouge">accept_len</code>, the accepted token ids, and the next round’s proposals, instead of a single token id</td>
+    </tr>
+    <tr>
+      <td>Timing</td>
+      <td>the next verify must wait until <strong>all ranks</strong> have trimmed <code class="language-plaintext highlighter-rouge">gamma+1−k</code> KV slots → <strong>async depth drops to zero</strong></td>
+    </tr>
+    <tr>
+      <td>Execution layer</td>
+      <td>each stage needs a CUDA graph with <code class="language-plaintext highlighter-rouge">q_len=gamma+1</code>; non-last ranks cannot call <code class="language-plaintext highlighter-rouge">draft()</code>; verify hidden states must be able to cross stages</td>
+    </tr>
+    <tr>
+      <td>State</td>
+      <td>temporary slots of hybrid-architecture models must be rolled back on every rank</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Performance cost: the last rank becomes a systematic bottleneck:</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>PP0~PP2: 1 unit per slot (verify only)
+PP3:     2 units per slot (verify + tail)
+⟹ throughput roughly halves
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>It also conflicts with async depth — async depth exists precisely to hide the last rank’s tail, yet speculative decoding requires it to be zero. <strong>Deep PP wants point-to-point communication to cover “another micro-batch”; speculative decoding turns the tail into “the next verify of the same slot”, which no other stage can fill.</strong></p>
+
+<p><strong>A workable mitigation</strong>: rebalance the layers. If the tail costs about as much as β stages’ worth of forward time (β≈0.3~0.8 with EAGLE), the last rank gets <code class="language-plaintext highlighter-rouge">(total layers/p)×(1−β)</code> layers and the savings are spread across the earlier stages. With 61 layers, p=4, and β=0.5: PP0~PP2 get 17 layers each, and PP3 gets only 10.</p>
+
+<p><strong>A cache barrier is also needed:</strong></p>
+
+<p>Speculative decoding + hierarchical caching must insert only the accepted prefix:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>Last rank produces logits → computes accept_len = k → broadcasts k
+  → all ranks trim gamma+1−k slots → only then is writing to the radix tree / writing back to the host allowed
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Otherwise, because PP defers result processing to the next beat and overlaps it with another micro-batch’s GPU work, <strong>the cache gets written with tokens that were never accepted</strong>, polluting later requests. Hybrid-architecture models are stricter: their state is one track per request rather than one page per token, and the extra slots occupied by verify must be freed after accept.</p>
+
+<p>The gain is the speculative acceptance multiplier; the cost is double load on the last rank, zero async depth, and five engineering changes. <strong>And PP is fundamentally a throughput tool while speculative decoding is a latency tool: their objective functions are orthogonal.</strong></p>
+
+<p>The scenarios where it is truly worth doing are narrow: the model is so large that it needs cross-node PP, and there is also a decode latency requirement. In that case, the more common approach is not to make PP support speculative decoding but to use <strong>prefill–decode (PD) disaggregation</strong> — deep PP on the prefill side for capacity, and TP + speculative decoding on the decode side for latency. This is also why, in the constraint “the decode pp_size must equal the prefill pp_size or be 1”, <strong>1 is the value normally used</strong>.</p>
+
+<p><strong>Where PP fits in inference:</strong></p>
+
+<p><strong>A pure throughput tool.</strong> It is usable in three scenarios:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>High-concurrency offline batch inference — only throughput matters, TPOT is not sensitive
+Weak interconnect (Ethernet/PCIe) — the communication volume leaves PP as the only choice
+The model does not fit on one node — the only scheme that splits across nodes with acceptable communication
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The practical division: <strong>deep PP for prefill capacity, giving up speculative decoding; speculative decoding for decode latency, flattening PP into TP.</strong></p>
+
+<p><strong>In three sentences:</strong></p>
+
+<ol>
+  <li><strong>PP is the parallel dimension with the least communication</strong>: each stage boundary sends the hidden state only once and the whole model pays only (stage−1) times, so with weak interconnects or when “it does not fit on one node” it is the only option.</li>
+  <li><strong>Bubbles can be filled; TPOT cannot</strong>: prefill chunk inputs are known, so the pipeline can always be filled and TTFT really is reduced; in decode each step depends on the previous step’s output, so the same slot must wait for the token to come back to the first stage — <strong>PP adds times together while TP divides the time</strong>, and this structural difference makes PP ineffective for decode latency.</li>
+  <li><strong>Treat the three imbalances according to their nature</strong>: uneven stage partitioning is systematic (paid every beat; first even out the layers, and with speculative decoding rebalance again for the last rank’s tail), while uneven chunk time and length spread within a group are random (they accumulate linearly across stages; treat them with mixed-batch filling and time-based grouping).</li>
+</ol>
+
+<h2 id="series-navigation">Series navigation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Part</th>
+      <th>Article</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-00-roofline/">Roofline: Performance Budgets from Compute and Bandwidth</a></td>
+      <td>2026-01-01</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a></td>
+      <td>2026-02-13</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><strong>Distributed Inference: Choosing TP, DP, EP, CP, and PP (this post)</strong></td>
+      <td>2026-03-29</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a></td>
+      <td>2026-05-11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-04-attention/">Attention: From GQA and MLA to Hybrid State</a></td>
+      <td>2026-06-24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a></td>
+      <td>2026-08-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-06-pd-epd/">PD and EPD: Disaggregation, State Transfer, and Resource Allocation</a></td>
+      <td>2026-09-19</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></td>
+      <td>2026-11-01</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Previous: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a> · Next: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a></p>

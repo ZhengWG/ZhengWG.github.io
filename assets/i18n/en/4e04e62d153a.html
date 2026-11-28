@@ -1,0 +1,222 @@
+<h2 id="preface">Preface</h2>
+
+<p>A brief account of the distributed communication knowledge stack (<strong>work with ChatGPT</strong>).</p>
+
+<h2 id="buses-and-communication-protocols">Buses and Communication Protocols</h2>
+
+<h3 id="pcie">PCIe</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>PCIe 1.0</th>
+      <th>PCIe 2.0</th>
+      <th>PCIe 3.0</th>
+      <th>PCIe 4.0</th>
+      <th>PCIe 5.0</th>
+      <th>PCIe 6.0</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Year</td>
+      <td>2003</td>
+      <td>2007</td>
+      <td>2010</td>
+      <td>2017</td>
+      <td>2019</td>
+      <td>2021</td>
+    </tr>
+    <tr>
+      <td>Transfer per lane(Gbps)</td>
+      <td>2.5</td>
+      <td>5.0</td>
+      <td>8.0</td>
+      <td>16.0</td>
+      <td>32.0</td>
+      <td>64.0</td>
+    </tr>
+    <tr>
+      <td>x16 bandwidth(GB/s)</td>
+      <td>4.0</td>
+      <td>8.0</td>
+      <td>15.8</td>
+      <td>31.5</td>
+      <td>63.0</td>
+      <td>121</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Bandwidth calculation:</p>
+
+\[\text{x16 bandwidth(GB/s)} ≈\text{Transfer\ per\ lane(Gbps)} \times 16 / 8\]
+
+<h3 id="nvlink">NVLink</h3>
+
+<p>NVLink is a bus and communication protocol developed and released by NVIDIA. It uses a point-to-point structure and serial transmission. It connects a central processing unit (CPU) and a graphics processing unit (GPU), and it can also interconnect multiple NVIDIA GPUs. Products that ship with NVLink have already been released, mostly for high-performance computing. The earliest, in 2016, was the Pascal-architecture GP100 chip and the Tesla P100 accelerator based on that chip, which was equipped with NVLink.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>NV Link 1.0</th>
+      <th>NV Link 2.0</th>
+      <th>NV Link 3.0</th>
+      <th>NV Link 4.0</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Year</td>
+      <td>2014</td>
+      <td>2017</td>
+      <td>2020</td>
+      <td>2022</td>
+    </tr>
+    <tr>
+      <td>Transfer per link(GB/s)</td>
+      <td>20+20</td>
+      <td>25+25</td>
+      <td>25+25</td>
+      <td>25+25</td>
+    </tr>
+    <tr>
+      <td>Link number</td>
+      <td>4</td>
+      <td>6</td>
+      <td>12</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <td>Lane number per link</td>
+      <td>8</td>
+      <td>8</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>Data rate per lan(Gbps)</td>
+      <td>20</td>
+      <td>25</td>
+      <td>50</td>
+      <td>100(PAM4)</td>
+    </tr>
+    <tr>
+      <td>Total bidirectional bandwidth(GB/s)</td>
+      <td>160</td>
+      <td>300</td>
+      <td>600</td>
+      <td>900</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The H100 chip uses NVLink 4.0. Two H00 chips are interconnected by 18 NVLinks. Each link contains 2 lanes, and each lane supports a rate of 100 Gb/s PAM4, so the total bidirectional bandwidth is 900 GB/s.</p>
+
+<p>NVSwitch uses 3.0. Each NVSwitch supports 64 ports, and each port runs at 50 GB/s.</p>
+
+<p>A DGXH100 is built from 8 H100 chips and 4 NVSwitch chips (the NVLink counts are 5+4+4+5). The connection structure is shown below. On the other side of each NVSwitch in the figure, five 800G OSFP optical modules are attached. Take the first switch on the left as an example. The aggregate unidirectional bandwidth on the side connected to the GPUs is 4 Tbps (20NVLink\<em>200Gbps), and the aggregate bandwidth on the side connected to the optical modules is also 4 Tbps (5\</em>800Gbps), forming a <code class="language-plaintext highlighter-rouge">non-blocking network</code>. Note that the bandwidth quoted for an optical module is unidirectional, while AI chips generally quote bidirectional bandwidth.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-23-%25E9%259B%2586%25E7%25BE%25A4%25E9%2580%259A%25E4%25BF%25A1/%E9%9B%86%E7%BE%A4%E9%80%9A%E4%BF%A1_20231022_140852.png" alt="img" /></p>
+
+<h3 id="hccs">HCCS</h3>
+
+<p>The Ascend 910 AI processor is a high-performance AI processor developed by Huawei. The processors inside it are connected by HCCS (for example, A0~A3 form one HCCS). HCCS (<code class="language-plaintext highlighter-rouge">Huawei Collective Communication Server</code>) is the hardware form of HCCL (<code class="language-plaintext highlighter-rouge">Huawei Collective Communication Library</code>). HCCL provides high-performance collective communication between servers for deep learning training.</p>
+
+<p>For the training product line, each machine has two HCCS rings, eight processors in total (A0~A7). Each HCCS has four processors. Processors on the same HCCS can exchange data; processors on different HCCS rings cannot communicate. That is, the Ascend 910 AI processors assigned to the same pod (if there are four or fewer) must lie on the same HCCS ring, or the job fails to run. The interconnect topology of the Ascend 910 AI processor is shown below, where K0~K3 are Kunpeng processors.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-23-%25E9%259B%2586%25E7%25BE%25A4%25E9%2580%259A%25E4%25BF%25A1/%E9%9B%86%E7%BE%A4%E9%80%9A%E4%BF%A1_20231022_143935.png" alt="img" /></p>
+
+<p>For the Atlas 200T A2 Box16 heterogeneous subrack, the AI processors inside it are connected by HCCS. Each Atlas 200T A2 Box16 heterogeneous subrack has two HCCS interconnects and 16 AI processors in total. Each HCCS interconnect has eight AI processors. Processors on the same HCCS interconnect can exchange data; processors on different HCCS interconnects cannot communicate. That is, the Atlas 200T A2 Box16 AI processors assigned to a job (if there are eight or fewer) must lie on the same HCCS interconnect, or the job fails to run. The interconnect topology of the Atlas 200T A2 Box16 heterogeneous subrack is shown below:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-23-%25E9%259B%2586%25E7%25BE%25A4%25E9%2580%259A%25E4%25BF%25A1/%E9%9B%86%E7%BE%A4%E9%80%9A%E4%BF%A1_20231022_144848.png" alt="img" /></p>
+
+<h2 id="communication-algorithms">Communication Algorithms<a id="sec-3"></a></h2>
+
+<p>The common communication primitives are as follows:</p>
+
+<ul>
+  <li><strong>Point-to-Point Communication</strong>: includes Send/Recv, and mainly carries out communication between two nodes.</li>
+  <li><strong>Broadcast</strong>: broadcasts the data on one device to every other device.</li>
+  <li><strong>AllReduce</strong>: aggregates data from all devices and then broadcasts it to every device.</li>
+  <li><strong>AllGather</strong>: collects data from all devices and distributes it to all devices.</li>
+  <li><strong>ReduceScatter</strong>: reduces the data and scatters the result across multiple devices.</li>
+  <li><strong>All-to-All</strong>: every node (or process) sends data to all other nodes and, at the same time, receives data from all other nodes. In the end, every node holds the data collected from all the other nodes. It can also be viewed as a distributed <code class="language-plaintext highlighter-rouge">Transpose</code>.</li>
+</ul>
+
+<p>A given communication primitive can be implemented by different communication algorithms, for example:</p>
+
+<ol>
+  <li><strong>Ring</strong>: arrange the nodes in a ring topology. Each node communicates only with its two neighbors. In each communication step, data moves around the ring in a fixed direction, and the reduction or distribution is completed step by step. Each node’s communication volume is $2 \cdot \text{DataSize} / \text{NumNodes}$, and the number of communication steps is $P-1$ ($P$ is the number of nodes).</li>
+  <li><strong>Mesh</strong>: arrange the nodes on a two-dimensional or higher-dimensional grid. Each node communicates only with its neighbors above, below, to the left, and to the right. Communication proceeds in steps along the row direction and the column direction. The number of communication steps is $O(\sqrt{P}) $, which suits a large number of nodes.</li>
+  <li><strong>HD</strong> (<strong>Hierarchical Decomposition</strong>): hierarchical optimization that splits communication into two levels, <strong>intra-node communication</strong> and <strong>inter-node communication</strong>. Intra-node communication uses shared memory or a high-speed link (such as <code class="language-plaintext highlighter-rouge">NVLink</code>); inter-node communication goes over the network (such as <code class="language-plaintext highlighter-rouge">InfiniBand</code>). Bandwidth is used efficiently: intra-node communication is much faster than inter-node communication. It applies to multi-machine, multi-GPU settings: distributed deep learning training and large-scale HPC.</li>
+  <li><strong>Tree</strong>: organize the nodes as a tree. The root gathers and distributes the data. The tree may be a binary tree, a multi-way tree, and so on, matching the communication requirement. The number of communication steps is $O(\log P)$, which suits settings that need low latency.</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th><strong>Property</strong></th>
+      <th><strong>Ring</strong></th>
+      <th><strong>Mesh</strong></th>
+      <th>HD</th>
+      <th><strong>Tree</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Topology</strong></td>
+      <td>Ring</td>
+      <td>Multidimensional grid</td>
+      <td>Hierarchical decomposition</td>
+      <td>Tree</td>
+    </tr>
+    <tr>
+      <td><strong>Communication complexity</strong></td>
+      <td>$O(P)$</td>
+      <td>$O(\sqrt{P})$</td>
+      <td>Depends on the hierarchy</td>
+      <td>$O(\log P)$</td>
+    </tr>
+    <tr>
+      <td><strong>Where it fits</strong></td>
+      <td>Small-scale communication</td>
+      <td>Large-scale distributed training</td>
+      <td>Multi-machine multi-GPU, large-scale parallelism</td>
+      <td>Small messages, low latency</td>
+    </tr>
+    <tr>
+      <td><strong>Implementation complexity</strong></td>
+      <td>Simple</td>
+      <td>Fairly complex</td>
+      <td>High</td>
+      <td>Moderate</td>
+    </tr>
+    <tr>
+      <td><strong>Advantages</strong></td>
+      <td>Easy to implement, balanced communication</td>
+      <td>Scalable, load balanced</td>
+      <td>Uses hardware resources efficiently</td>
+      <td>Few communication steps, low latency</td>
+    </tr>
+    <tr>
+      <td><strong>Disadvantages</strong></td>
+      <td>Latency grows as the number of nodes grows</td>
+      <td>Complex to implement, and there are many communication steps</td>
+      <td>Depends on the hardware topology</td>
+      <td>Data distribution has to be designed precisely</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="references">References<a id="sec-4"></a></h2>
+
+<p><a href="https://mp.weixin.qq.com/s/mVhmLf0uYjicuzLvBfDYuw">The evolution of NVLink</a></p>
+
+<p><a href="https://blog.apnic.net/2023/08/10/large-language-models-the-hardware-connection/">Large Language Models – the hardware connection</a></p>
+
+<p><a href="https://blog.csdn.net/hktkfly6/article/details/104271695">A PCIe primer–an introduction to PCIe (reposted expert article)</a></p>
+
+<p><a href="https://www.zhihu.com/question/63219175">NCCL on Zhihu</a></p>

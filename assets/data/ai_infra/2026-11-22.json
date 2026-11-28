@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-22",
+  "language": "zh-Hans",
+  "sections": [
+    {
+      "id": "overview",
+      "title": {
+        "zh": "今日速览",
+        "en": "Overview"
+      },
+      "blocks": [
+        "本期最强主线是 [Inkling 2 Mini 的多引擎接入](https://vllm.ai/blog/2026-11-20-inkling2-mini)和 [tokenspeed 的三级缓存落地](https://github.com/lightseekorg/tokenspeed/pull/3695)：前者把循环模型的逐 pass 状态管理推入常用服务栈，后者把 NVMe 直接纳入前缀生命周期。工程上更应优先检查 [llm-d 扩缩容口径](https://github.com/llm-d/llm-d/pull/2851)与 [PD 页回收](https://github.com/lightseekorg/tokenspeed/pull/3658)，并区分已合入修复、开放提案和厂商/作者实验。"
+      ]
+    },
+    {
+      "id": "highlights",
+      "title": {
+        "zh": "今日要点",
+        "en": "Highlights"
+      },
+      "blocks": [
+        "**Inkling 2 Mini 的接入已形成多源闭环。** [Transformers 5.24](https://github.com/huggingface/transformers/releases/tag/v5.24.0)、[tokenspeed gfx950](https://github.com/lightseekorg/tokenspeed/pull/3682)、[Basalt](https://github.com/jesdga95/basalt/releases/tag/v0.5.5)/[Maya](https://github.com/mw00/project-maya/releases/tag/v1.1.73)相继落地；不同精度/缓存设计的数字须分别比较，vLLM 的 Ampere/Ada 扩展仍 Open。",
+        "**tokenspeed 本地 NVMe 前缀层已合入。** [kDisk](https://github.com/lightseekorg/tokenspeed/pull/3695)统一 Device/Host/Disk 生命周期，[peer EP 兼容](https://github.com/lightseekorg/tokenspeed/pull/3696)有明确数值策略边界；不等于跨进程持久缓存。",
+        "**现网正确性比孤立速度数字更值得先看。** tokenspeed 修 [PD writer 失效后 pin 泄漏](https://github.com/lightseekorg/tokenspeed/pull/3658)和 [PDL 采样依赖](https://github.com/lightseekorg/tokenspeed/pull/3698)；FlashInfer 的 [大跨度 RMSNorm 回绕修复](https://github.com/flashinfer-ai/flashinfer/pull/9839)仍未合入。",
+        "**llm-d 的扩缩容与路由观察更实用。** [饱和率 Value](https://github.com/llm-d/llm-d/pull/2851)、[三个 overlay graceful shutdown](https://github.com/llm-d/llm-d/pull/3075)及 [KV 索引看板](https://github.com/llm-d/llm-d/pull/2613)已合入，可直接检查自己的部署配置。",
+        "**托管推理用户需关注历史数据公告。** [Together 11-21 公告](https://www.together.ai/blog/security-event-prompt-leakage-for-requests-in-june-and-july-of-2026)披露 6–7 月测试 prompt 样本被下载，调查未结束；新账户默认 ZDR 不涵盖旧账户设置。"
+      ]
+    },
+    {
+      "id": "prs",
+      "title": {
+        "zh": "GitHub PR 动态",
+        "en": "GitHub pull requests"
+      },
+      "blocks": [
+        "### tokenspeed：NVMe 前缀层、跨 EP 复用与恢复证据",
+        "**本地 SSD 进入统一缓存树（[#3695](https://github.com/lightseekorg/tokenspeed/pull/3695)）** — Device/Host 之下新增 kDisk，磁盘前缀先预取到 Host 再准入；后台写回与 peer 传输共用生命周期，磁盘内容不跨进程保存，区别于持久 L3。 @FC-Li 【Merged】",
+        "**P/D 不同专家并行度也可共享 KV（[#3696](https://github.com/lightseekorg/tokenspeed/pull/3696)）** — numerics=auto 放宽 live peer 的 EP 兼容，同时仍校验权重、布局、分片和量化；严格数值策略及持久 L3 key 仍包含 EP，不能外推为任意异构互通。 @kangguangli 【Merged】",
+        "**缓存恢复增加可追溯记录（[#3694](https://github.com/lightseekorg/tokenspeed/pull/3694)）** — 可选有界事件记录关联请求准入、拷贝完成和 slot 世代；需完整无丢失 trace 加成功输出才证明恢复执行，单看命中数或 copy 完成不足以判断。 @FC-Li 【Merged】",
+        "**PD 注册确认与远端失效回收（[#3657](https://github.com/lightseekorg/tokenspeed/pull/3657) · [#3658](https://github.com/lightseekorg/tokenspeed/pull/3658)）** — 注册收到 ACK 才使用路由；P 崩溃后撤销旧 writer 的写权限再回收 D 页，处理“超时不等于 DMA 停止”导致的永久 pin。 @wangbo981016 【Merged】",
+        "**给连续 prefill 让路设上限（[#3689](https://github.com/lightseekorg/tokenspeed/pull/3689)）** — 两项默认关闭的调度限制约束逾期 prompt 连占轮数及 chunk 让路次数，用于持续长 prompt 压力下控制 decode 停顿；不声称默认 ITL 已改善。 @bangtianliu 【Merged】",
+        "**Inkling 2 Mini 在 gfx950 接通（[#3682](https://github.com/lightseekorg/tokenspeed/pull/3682)）** — 为循环层逐 visit 管理 KV/conv 状态、消息控制器和 decode monokernel；支持研究 checkpoint 的循环配置，但拒绝 layerwise PD，图像需配套 SMG。 @Yu-Zhewen 【Merged】",
+        "**采样等待与 MXFP4 scale 转换修复（[#3698](https://github.com/lightseekorg/tokenspeed/pull/3698) · [#3702](https://github.com/lightseekorg/tokenspeed/pull/3702)）** — Top-K/Top-P 各 PDL consumer 先等待 producer，防未完成概率写入污染候选；MXFP4 先加 exponent bias 再转 uint8，移除依赖未定义窄化的实现。 @wangbo981016 / @bangtianliu 【Merged】",
+        "**KDA prefill 改用 FlashInfer CuTe（[#3665](https://github.com/lightseekorg/tokenspeed/pull/3665)）** — 直接消费带 stride 的卷积输出，按形状/SM 数选择 ordinary 或 persistent kernel；保持 FP32 scan state，收益需按请求数和头数复测。 @syuoni 【Merged】",
+        "### vLLM：缓存角色拆分与混合模型状态",
+        "**分层 connector 可分别只读或只写（[#67961](https://github.com/vllm-project/vllm/pull/67961)）** — access_mode 支持 read/write/readwrite，使 CPU→文件写回与文件→GPU 的 GDS 读取可由不同 connector 承担。 @effi-ofer 【Merged】",
+        "**decode 状态保留到前缀哈希边界（[#68966](https://github.com/vllm-project/vllm/pull/68966)）** — 拟缓存最后跨过的 prefix_match_unit 边界状态，减少多轮续聊回退重算；MRv2 系列仍 Open，Qwen3-Next 双轮实验不等于所有混合模型结果。 @Weili-0234 【Open】",
+        "**新副本批量导入 peer CPU 缓存（[#68134](https://github.com/vllm-project/vllm/pull/68134)）** — 滚动升级前预热整个 CPU tier，复用既有 P2P 兼容检查；HTTP 入口依赖另一 RPC PR，当前仅 LRU，可达 socket 的 peer 属信任边界。 @kfirtoledo 【Open】",
+        "**Inkling 2 Mini 下探 Ampere/Ada 与重数量化（[#69165](https://github.com/vllm-project/vllm/pull/69165) · [#69141](https://github.com/vllm-project/vllm/pull/69141)）** — 两项开放提案组合支持 RTX 3090 的 compressed-tensors 专家；两卡实测不代表单卡，量化 PR 仍标 Draft、待 Hopper/Blackwell 验证。 @Ar4ikov 【Open】",
+        "**降低 batch-invariant BF16 GEMM 的成本（[#68239](https://github.com/vllm-project/vllm/pull/68239)）** — 以 FlashInfer 替代 Triton 路径，B300/Qwen3-8B 报告相对旧确定性路径快 1.55–2.86×，仍比非确定性默认吞吐低约 14–32%；尚未合入。 @qiching 【Open】",
+        "### SGLang：先关注状态隔离与编译期内存",
+        "**防 torch.compile 复制整个缓存池（[#51709](https://github.com/sgl-project/sglang/pull/51709)）** — 修复 GDN state 切片与共享 KV view 被 Inductor 克隆导致 graph capture OOM 的路径；是开放修复，不能据此认定当前版本已解决。 @Aagam-Bothara 【Open】",
+        "**隔离 packed chunk 的非有限输入（[#51342](https://github.com/sgl-project/sglang/pull/51342)）** — 用选择操作避免 0×Inf/NaN 穿透到别的请求状态；坏请求自己的 x 在共享 chunk 中仍可能被掩盖，作者明确未覆盖 dt/A/C。 @brianosaurus 【Open】",
+        "**专家搬运与常驻专家计算重叠（[#51471](https://github.com/sgl-project/sglang/pull/51471)）** — Triton/Marlin MoE 内按交错 tile 读取缺失 host 专家，目标是打破“先搬齐再算”的屏障；GH200 kernel 结果不等于 PCIe 全服务收益。 @aojsd 【Open】",
+        "**Hy4-Flash 的 DFly 块投机提案（[#51938](https://github.com/sgl-project/sglang/pull/51938)）** — 草稿复用 target KV 与 indexer top-k，draft/verify 共用前向；限 CUDA，拒绝 PD/PP/CP、DP attention、LoRA 与约束解码等组合。 @Qiaolin-Yu 【Open】",
+        "### FlashInfer：Hopper 量化路径与隐性正确性风险",
+        "**Hopper 原生读取 NVFP4 权重、保留 BF16 激活（[#9837](https://github.com/flashinfer-ai/flashinfer/pull/9837)）** — 开放 W4A16 fused MoE 以软件解码低比特权重并用 BF16 MMA，避免必须将激活压至 FP8；这是 kernel 提案，非 H100 获得 FP4 tensor core。 @DongyunZou 【Open】",
+        "**大张量 RMSNorm 使用 64 位行偏移（[#9839](https://github.com/flashinfer-ai/flashinfer/pull/9839)）** — 当行数×stride 超过 2³² 元素，CUDA JIT 路径可能回绕并静默覆盖旧行；拟只为大跨度选择 int64，小张量保留原 kernel。 @bhargavchintam 【Open】",
+        "**autotune graph 共用每设备内存池（[#9554](https://github.com/flashinfer-ai/flashinfer/pull/9554)）** — 减少反复 capture 留下的大量统计条目，避免 memory_stats 持 GIL 拖慢调度；B300 单例从 21.9ms 降到 0.06ms，仍需审查并发 capture/replay。 @henrylhtsang 【Open】",
+        "**统一 PrimTS 的 PDL 开关与等待语义（[#6605](https://github.com/flashinfer-ai/flashinfer/pull/6605)）** — 修复 NVFP4 QKV 读旧 position/权重、无活跃 token 的 MoE FC2 提前完成等依赖漏洞；部分最初修复已另行合入，本 PR 仍 Open。 @yekerr 【Open】",
+        "### llm-d：路由可观测与升级行为",
+        "**补路由侧 KV 索引看板（[#2613](https://github.com/llm-d/llm-d/pull/2613)）** — 新增 index、事件订阅、tokenization 的吞吐、P99、backlog，以及路由预测命中率与引擎实测命中率对照，便于分辨缓存失效还是索引落后。 @satyamg1620 【Merged】",
+        "**三个 vLLM overlay 补齐优雅退出（[#3075](https://github.com/llm-d/llm-d/pull/3075)）** — 添加 graceful shutdown 和 45 秒 timeout，减少滚动升级、缩容和节点 drain 中断在途请求；范围为指定 GPU/TPU 示例配置。 @TomCoded 【Merged】",
+        "**全池饱和率改用 HPA Value（[#2851](https://github.com/llm-d/llm-d/pull/2851)）** — 避免把 pool-wide ratio 再按副本平均；请求计数 trigger 仍使用 AverageValue，修复的是扩缩容口径。 @dannyward630 【Merged】",
+        "### Mooncake：混合状态驱逐与任务重放（均为开放提案）",
+        "**按 KV 状态种类设置驱逐优先级（[#5471](https://github.com/kvcache-ai/Mooncake/pull/5471)）** — 拟让 Mamba、indexer、SWA 等各自 NORMAL/DEFER/PROTECT；缺省保持旧顺序，PROTECT 可能长期占容量，需配合资源预算。 @stmatengss 【Open】",
+        "**孤立短 RDMA 故障尽快恢复（[#5732](https://github.com/kvcache-ai/Mooncake/pull/5732)）** — 端口在 5 秒内恢复且近 30 秒无抖动时，校验 active/GID 后即可重选；持续故障或抖动仍要求稳定观察，未完成手工验证。 @yyaoling 【Open】",
+        "**按 worker credit 取任务并重放超时请求（[#5742](https://github.com/kvcache-ai/Mooncake/pull/5742)）** — opt-in 自适应取任务和 session/sequence 重放减少过量预留；CPU/TCP 小对象排空中位 3.442→0.943 秒，ledger 不跨 Master failover。 @2995250328 【Open】",
+        "### 其余仓精选折叠（8 仓、11 个 PR）",
+        "Dynamo（1 条）：[#19312](https://github.com/ai-dynamo/dynamo/pull/19312) — 进程内 KVCR 的失效 inventory 清理，Open。",
+        "vLLM-Omni（2 条）：[#10262](https://github.com/vllm-project/vllm-omni/pull/10262) · [#10443](https://github.com/vllm-project/vllm-omni/pull/10443) — Ascend H3 融合与 MRv2 双工/语音接续提案，Open。",
+        "TensorRT-LLM（2 条）：[#22676](https://github.com/NVIDIA/TensorRT-LLM/pull/22676) · [#22282](https://github.com/NVIDIA/TensorRT-LLM/pull/22282) — Wide-EP 成员变化容错与静态 EPLB，Open。",
+        "TileLang（2 条）：[#4447](https://github.com/tile-ai/tilelang/pull/4447) · [#4446](https://github.com/tile-ai/tilelang/pull/4446) — CUDA 本地数组对齐与 Ascend DMA 顺序修复，Open。",
+        "LMDeploy（1 条）：[#5142](https://github.com/InternLM/lmdeploy/pull/5142) — SM75 NVFP4 GEMM 提案，Open。",
+        "DeepGEMM（1 条）：[#515](https://github.com/deepseek-ai/DeepGEMM/pull/515) — SM90 masked GEMM 最后一个 M tile 边界，Open。",
+        "DeepEP（1 条）：[#833](https://github.com/deepseek-ai/DeepEP/pull/833) — Engram fetch 完成的 acquire 顺序，Open。",
+        "DeepInfer（1 条）：[#306](https://github.com/deepseek-ai/DeepInfer/pull/306) — 异步 API server/取消与通信改造提案，Open。"
+      ]
+    },
+    {
+      "id": "releases",
+      "title": {
+        "zh": "版本发布",
+        "en": "Releases"
+      },
+      "blocks": [
+        "**[Transformers 5.24.0](https://github.com/huggingface/transformers/releases/tag/v5.24.0)**（11-21）— 增加 Inkling 2 Mini/可变循环 checkpoint 等架构；该实现加载时解量化 NVFP4/MXFP8，不应套用低比特原生 kernel 的显存假设。另将 past_key_values/cache_params 统一为 cache，旧名暂有弃用警告。",
+        "**[FlashInfer 0.7.6rc1](https://github.com/flashinfer-ai/flashinfer/releases/tag/v0.7.6rc1)**（11-20，预发布）— 汇集稀疏 MLA、batch-invariant BF16 MegaMoE/采样、限定 H100 cuDNN dispatch，以及 TMEM/PDL/非有限输入隔离修复；[0.7.5.post1](https://github.com/flashinfer-ai/flashinfer/releases/tag/v0.7.5.post1)仅给 compare，不推断未写明的修复。",
+        "**[Strata 0.2.18](https://github.com/Niko1221/Strata/releases/tag/v0.2.18)**（11-21）— 新 strata-hy4 引擎接通 Hy4-Flash、DFly2 和视觉，提供 SQ-64/96/128 量化包；SQ-64 的磁盘包仍约 129.61GB，64GiB RAM 门槛不等于模型仅占 64GB 存储。",
+        "**Inkling 2 Mini 的消费级引擎接力：[Basalt 0.5.5](https://github.com/jesdga95/basalt/releases/tag/v0.5.5)（11-21）与 [Maya 1.1.73](https://github.com/mw00/project-maya/releases/tag/v1.1.73)（11-22 UTC）** — 前者给出 5090 投机性能与 KLD；KLD 参考是官方量化权重解成 BF16，非原始 BF16。后者把实验支持扩至 8GB NVIDIA、V100/RTX20 和部分 AMD，8GB 卡仍需约 13GB 主存，RX7000/9000 尚未实测。",
+        "**llama.cpp 连续构建按能力合看**（11-21～22 UTC）— [b12629](https://github.com/ggml-org/llama.cpp/releases/tag/b12629)为 Adreno 850 多种 Q 格式补 OpenCL coopmat GEMM；[b12619](https://github.com/ggml-org/llama.cpp/releases/tag/b12619)接通 Hibiki 实时双工；[b12617](https://github.com/ggml-org/llama.cpp/releases/tag/b12617)增加 SYCL 分列块 GDN。它们是不同 commit 的构建标签，不是三个独立大版本。",
+        "🤗 模型 / 权重发布",
+        "本节为官方博客/模型卡触发的补采，核心 HF 模型抓取为 0；发布日期按公告，仓库 createdAt 更早，不把建仓时间当首发。",
+        "**[thinkingmachines/Inkling-2-Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini)** — 11-20 发布，采集时 3467 likes；约 26B 的文本/图像 MoE，循环核心重复 3 次，原生低比特权重与 DSpark 草稿配套。推理代价由层访问次数及每 pass 缓存共同决定。",
+        "**[thinkingmachines/TML-d24-varloop-research](https://huggingface.co/thinkingmachines/TML-d24-varloop-research)** — 11-20 发布，33 likes；同组权重可选循环次数，用来研究算量、质量和缓存的关系。作者明确不建议生产/面向用户部署，训练后阶段也与固定循环 Mini 不同，不能直接横比质量。"
+      ]
+    },
+    {
+      "id": "papers",
+      "title": {
+        "zh": "论文",
+        "en": "Papers"
+      },
+      "blocks": [
+        "（本轮 arXiv 与 HF Daily Papers 均无窗口内返回条目；不以历史论文补数。）"
+      ]
+    },
+    {
+      "id": "blogs",
+      "title": {
+        "zh": "技术博客",
+        "en": "Engineering blogs"
+      },
+      "blocks": [
+        "**[Inkling 2 Mini 的 vLLM 接入机制](https://vllm.ai/blog/2026-11-20-inkling2-mini)**（11-20）— 共享的是循环权重，每个 pass 仍有独立 KV/conv cache；实现把额外 visit 注册成常规缓存层，并融合消息读出和控制器。部署容量不能只按物理层数估算。",
+        "**[HF 的本地部署说明](https://huggingface.co/blog/inkling2mini)**（11-20）— 串起 Inkling 2 Mini 的权重、推理示例和本地生态；与上面的服务实现及本期 Basalt/Maya 发布配合阅读，先核对精度格式、显存和 backend，再比较速度。",
+        "**[Together 披露历史 prompt 样本泄漏](https://www.together.ai/blog/security-event-prompt-leakage-for-requests-in-june-and-july-of-2026)**（11-21 公告；数据来自 6–7 月）— 私有 HF 仓的凭据进入公开代码仓后，未授权方下载了测试用 prompt 样本；官方调查仍在继续，并将新账户默认改为 ZDR。其声明不是“所有旧账户已自动零保留”，有敏感服务流量的用户应核对自身设置。"
+      ]
+    },
+    {
+      "id": "community",
+      "title": {
+        "zh": "社区讨论",
+        "en": "Community"
+      },
+      "blocks": [
+        "（今日无入选的强相关讨论。HN 的 3 条候选均与推理基础设施关系较弱；Reddit RSS 返回 404，故本节不代表该社区没有动态。）"
+      ]
+    },
+    {
+      "id": "discovery",
+      "title": {
+        "zh": "新兴方向",
+        "en": "Emerging directions"
+      },
+      "blocks": [
+        "**单 checkpoint 的“循环次数 × 缓存共享”联合实验** — 11-20 发布的 TML-d24-varloop-research 让同组权重在推理时选择循环次数；vLLM/tokenspeed 又暴露 pass 间 KV 共享选择，因此可以研究算量与缓存容量的联合权衡，DSpark 仍受固定 visit 假设限制，尚非在线自适应调度功能。\n↳ [官方研究模型卡](https://huggingface.co/thinkingmachines/TML-d24-varloop-research) · [引擎说明](https://vllm.ai/blog/2026-11-20-inkling2-mini) ｜ 发现于：核心盘博客线索与搜索复核",
+        "拓源另补录 [SIE](https://github.com/superlinked/sie) 与 [FreeVideo](https://github.com/FlashML-org/FreeVideo) 两个既有源，分别观察多模型按需加载/LRU 与低显存视频执行规划；它们不计作今日新项目。Trending/rising 中的 OpenVINO、LMCache 等老源及应用工具不凑新方向。"
+      ]
+    },
+    {
+      "id": "insights",
+      "title": {
+        "zh": "跨源洞察",
+        "en": "Cross-source insights"
+      },
+      "blocks": [
+        "**循环权重复用不意味着缓存也同步缩小。** [官方研究模型卡](https://huggingface.co/thinkingmachines/TML-d24-varloop-research)提供可变算量，而 [vLLM 接入文](https://vllm.ai/blog/2026-11-20-inkling2-mini)明确缓存按 pass 分开；[tokenspeed 接入](https://github.com/lightseekorg/tokenspeed/pull/3682)也维护逐 visit 状态。推论：容量评测要同时记录权重格式、循环次数和 cache-sharing，而不只报参数规模。",
+        "**多级缓存正同时补“容量”和“可验证恢复”。** [tokenspeed SSD tier](https://github.com/lightseekorg/tokenspeed/pull/3695)扩展驻留，[恢复事件](https://github.com/lightseekorg/tokenspeed/pull/3694)记录执行证据；[vLLM peer 导入](https://github.com/vllm-project/vllm/pull/68134)与 [Mooncake 分类驱逐](https://github.com/kvcache-ai/Mooncake/pull/5471)仍 Open。推论：试用时需把命中率与拷贝完成、请求恢复、生命周期失效分别测量。",
+        "**服务端稳定性包含扩缩容语义和路由状态新鲜度。** [llm-d 全池饱和率修复](https://github.com/llm-d/llm-d/pull/2851)、[在途请求排空](https://github.com/llm-d/llm-d/pull/3075)已合入；[Dynamo inventory 清理](https://github.com/ai-dynamo/dynamo/pull/19312)仍在 review。推论：扩容收益若被错误平均、冷启动或虚假 cache 命中抵消，仅比较静态 tok/s 会漏掉生产瓶颈。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+<h2 id="preface">Preface</h2>
+
+<p>Many factors affect LLM inference performance, including but not limited to model configuration, hardware type, data distribution, optimization algorithms, and inference strategies. This post surveys the various technical topics, and later posts will expand on the core ones in detail.</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-19-LLM%25E6%258E%25A8%25E7%2590%2586%25E6%258A%2580%25E6%259C%25AF%25E6%25A0%2588_new/image-20241220130643718.png" alt="image-20241220130643718" class="img-mid" /></p>
+
+<h2 id="algorithms">Algorithms</h2>
+
+<h3 id="llm">LLM</h3>
+
+<h4 id="parameter-modeling">Parameter Modeling</h4>
+
+<p><a href="https://johneyzheng.top/posts/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AE%A1%E7%AE%97%E5%BB%BA%E6%A8%A1/">Modeling the computation of large models</a></p>
+
+<p><a href="http://johneyzheng.top/posts/LLMs%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81/">Positional encoding in LLMs</a></p>
+
+<h4 id="transformer">Transformer</h4>
+
+<p><a href="https://johneyzheng.top/posts/FlashAttention%E7%B3%BB%E5%88%97%E4%BC%98%E5%8C%96/">The FlashAttention family of optimizations</a></p>
+
+<p><a href="http://johneyzheng.top/posts/MoEs%E7%AE%97%E6%B3%95&amp;&amp;%E9%83%A8%E7%BD%B2%E6%A6%82%E8%BF%B0/">An overview of MoE algorithms and deployment</a></p>
+
+<h3 id="quantization">Quantization</h3>
+
+<p><a href="http://johneyzheng.top/posts/LLMs%E9%87%8F%E5%8C%96%E7%AE%97%E6%B3%95%E6%A6%82%E8%BF%B0/">An overview of LLM quantization algorithms</a></p>
+
+<h2 id="frameworks">Frameworks</h2>
+
+<p>Open-source LLM inference frameworks include TensorRT-LLM, FasterTransformer, TGI, vLLM, NanoFlow, and SGLANG. Taking vLLM as an example, here is a brief introduction to an inference framework:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-12-19-LLM%25E6%258E%25A8%25E7%2590%2586%25E6%258A%2580%25E6%259C%25AF%25E6%25A0%2588_new/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240917_003702.png" alt="img" class="img-mid" /></p>
+
+<h3 id="serving-strategies">Serving Strategies</h3>
+
+<p><a href="https://johneyzheng.top/posts/Orca-Continuous_Batching%E7%AD%96%E7%95%A5/">Orca: the continuous batching strategy</a></p>
+
+<p><a href="https://johneyzheng.top/posts/SGLang-Prefix_Prompt_Cache%E8%AE%BE%E8%AE%A1/">SGLang: prefix caching design</a></p>
+
+<p><a href="http://johneyzheng.top/posts/Lora&amp;&amp;Multi-Lora/">LoRA and multi-LoRA</a></p>
+
+<p><a href="https://johneyzheng.top/posts/Prefill_Decode%E5%88%86%E7%A6%BB%E9%83%A8%E7%BD%B2/">Prefill-decode disaggregation</a></p>
+
+<p><a href="https://johneyzheng.top/posts/RLHF%E7%AE%97%E6%B3%95%E4%BB%A5%E5%8F%8A%E9%83%A8%E7%BD%B2%E6%A6%82%E8%BF%B0/">An overview of RLHF algorithms and deployment</a></p>
+
+<h3 id="engine-deployment">Engine Deployment</h3>
+
+<p><a href="https://johneyzheng.top/posts/PP&amp;&amp;TP_LLMs%E9%83%A8%E7%BD%B2/">Deploying LLMs with pipeline and tensor parallelism</a></p>
+
+<p><a href="http://johneyzheng.top/posts/LLMs%E5%9B%BE%E7%BC%96%E8%AF%91%E6%A6%82%E8%BF%B0/">An overview of graph compilation for LLMs</a></p>
+
+<h3 id="high-performance-kernels">High-Performance Kernels</h3>
+
+<h4 id="software-stack">Software Stack</h4>
+
+<p><a href="http://johneyzheng.top/posts/%E7%AE%97%E5%AD%90%E7%BC%96%E7%A8%8B%E6%A8%A1%E5%9E%8B/">Kernel programming models</a></p>
+
+<h4 id="kernel-optimization">Kernel Optimization</h4>
+
+<p><a href="http://johneyzheng.top/posts/GEMM%E7%AE%97%E5%AD%90%E4%BC%98%E5%8C%96/">GEMM kernel optimization</a></p>
+
+<p><a href="https://johneyzheng.top/posts/FlashAttention%E7%B3%BB%E5%88%97%E4%BC%98%E5%8C%96/">The FlashAttention family of optimizations</a></p>
+
+<h2 id="middleware-todo">Middleware (TODO)</h2>
+
+<h2 id="hardware-systems">Hardware Systems</h2>
+
+<p><a href="https://johneyzheng.top/posts/AI%E6%A8%A1%E5%9E%8B%E9%83%A8%E7%BD%B2%E7%A1%AC%E4%BB%B6%E7%BB%BC%E8%BF%B0/">A survey of hardware for AI model deployment</a></p>
+
+<p><a href="http://johneyzheng.top/posts/LLMs%E5%AD%98%E5%82%A8/">LLM storage</a></p>
+
+<p><a href="http://johneyzheng.top/posts/%E9%9B%86%E7%BE%A4%E9%80%9A%E4%BF%A1/">Cluster communication</a></p>
+
+<h2 id="scenario-optimization">Scenario Optimization</h2>
+
+<p><a href="http://johneyzheng.top/posts/LLM%E9%95%BF%E6%96%87%E6%9C%AC%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5/">LLM long-context optimization strategies</a></p>
+
+<h2 id="references">References</h2>
+
+<p><a href="https://mp.weixin.qq.com/s/RoWK5au-8Pr-_MJZ3P34xw">Demystifying LLM inference: a full analysis of the key factors in LLM inference performance</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/651359908">Speculative sampling</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/688551989">Continuous Batching</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/646210009">An overview of QLoRA/GPTQ quantization</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/690853855">LLM inference deployment: quantization (llm.int8, AWQ, GPTQ, SMOOTHQUANT)</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/613244988">Some thoughts on understanding OpenAI Triton</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/461060382">CUTLASS: Fast Linear Algebra in CUDA C++</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/630933479">Understanding how TorchDynamo works</a></p>
+
+<p><a href="https://huggingface.co/blog/zh/moe#%E6%B7%B7%E5%90%88%E4%B8%93%E5%AE%B6%E6%A8%A1%E5%9E%8B%E4%B8%AD%E4%BB%A4%E7%89%8C%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1">Mixture-of-Experts (MoE) explained</a></p>
+
+<p><a href="https://www.cnblogs.com/marsggbo/p/17883514.html">LLM study notes: the DeepSpeed-MoE paper</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/689067888">Two leading approaches to sequence parallelism for large-model training: DeepSpeed Ulysses and Ring-Attention</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/718486708">A context-training scheme better suited to FlashAttention</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/697694330">How the GPU works</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/113360369#:~:text=%E4%BB%8E%E6%88%91%E7%9A%84%E7%A0%94%E7%A9%B6%E7%9C%8B%EF%BC%8CSIM">SIMD and SIMT from the perspective of modern GPU programming</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/593537184#:~:text=%E5%9C%A8%20%E3%80%8A%E7%8E%A9%E8%BD%ACSIMD%E6%8C%87%E4%BB%A4%E7%BC%96%E7%A8%8B%E3%80%8B%20%E4%B8%80%E6%96%87%E4%B8%AD%EF%BC%8C%E4%BB%8B%E7%BB%8D%E4%BA%86SIMD%E7%9A%84%E6%A6%82%E5%BF%B5%E5%92%8C%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95%EF%BC%8C%E4%B9%9F%E9%80%9A%E8%BF%87">x64 CPU GEMM optimization</a></p>
+
+<p><a href="https://blog.csdn.net/yiran103/article/details/132216620#:~:text=%E5%9F%BA%E6%9C%AC%E7%9A%84%E4%B8%89%E9%87%8D%E5%B5%8C%E5%A5%97%E5%BE%AA%E7%8E%AF%E8%AE%A1">CUTLASS: Efficient GEMM in CUDA</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/435908830#:~:text=%E6%9C%AC%E7%AF%87%E6%96%87%E7%AB%A0%E6%98%AF%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BAG">A gentle introduction to GPU optimization: GEMM optimization (1)</a></p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/645376942#:~:text=%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C%E6%98%BE%E7%A4%BA%EF%BC%8CFla">FlashAttention2 explained (20% faster than FlashAttention)</a></p>

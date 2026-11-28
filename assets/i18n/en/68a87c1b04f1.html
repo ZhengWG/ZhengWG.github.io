@@ -1,0 +1,234 @@
+<ul>
+  <li><a href="#sec-1">Concept</a></li>
+  <li><a href="#sec-2">Design Template</a></li>
+  <li><a href="#sec-3">Example</a></li>
+</ul>
+
+<h1 id="concept">Concept<a id="sec-1"></a></h1>
+
+<p>The Memento pattern captures an object’s internal state without breaking its internal structure, so that the object can later be restored to its previously saved state. The biggest function of the Memento pattern is backup. It has three main roles:</p>
+
+<ul>
+  <li>Originator: the object that needs to be backed up</li>
+  <li>Memento (written “Mementor” in the source): the backed-up state, i.e. a saved archive</li>
+  <li>Caretaker: the manager of the saved archives, responsible for interacting with the originator</li>
+</ul>
+
+<p>The class diagram of the Memento pattern is as follows:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2022-02-01-%25E8%25AE%25BE%25E8%25AE%25A1%25E6%25A8%25A1%25E5%25BC%258F-%25E5%25A4%2587%25E5%25BF%2598%25E6%25A8%25A1%25E5%25BC%258F/20220202_224605.png" alt="img" /></p>
+
+<p>Advantages of the Memento pattern:</p>
+
+<ul>
+  <li>It can restore a previous state</li>
+  <li>It encapsulates information, so users do not need to care about the details of how state is saved</li>
+</ul>
+
+<p>Common scenarios:</p>
+
+<ul>
+  <li>Save/snapshot scenarios</li>
+  <li>Undo/redo functionality</li>
+  <li>Rollback operations</li>
+</ul>
+
+<h1 id="design-template">Design Template<a id="sec-2"></a></h1>
+
+<p>The code framework of the Memento pattern is as follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+</pre></td><td class="rouge-code"><pre><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+
+<span class="k">class</span> <span class="nc">Memento</span><span class="p">():</span>
+    <span class="s">"""备忘录"""</span>
+    <span class="k">def</span> <span class="nf">set_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="s">"""深度拷贝字典dict中的所有属性"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""获取属性字典"""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">__dict__</span>
+
+
+<span class="k">class</span> <span class="nc">Caretaker</span><span class="p">():</span>
+    <span class="s">"""备忘录管理类"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_mementors</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">add_memento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">memento</span><span class="p">):</span>
+        <span class="c1"># 不同name不同备忘录
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">_mementors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">memento</span>
+
+    <span class="k">def</span> <span class="nf">get_memento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">_mementors</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+<span class="k">class</span> <span class="nc">Originator</span><span class="p">():</span>
+    <span class="s">"""备份发起人"""</span>
+    <span class="k">def</span> <span class="nf">create_memento</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">memento</span> <span class="o">=</span> <span class="n">Memento</span><span class="p">()</span>
+        <span class="n">memento</span><span class="p">.</span><span class="n">set_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__dict__</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">memento</span>
+
+    <span class="k">def</span> <span class="nf">restore_from_memento</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memento</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__dict__</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">memento</span><span class="p">.</span><span class="n">get_attributes</span><span class="p">())</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h1 id="example">Example<a id="sec-3"></a></h1>
+
+<p>Scenario: simulate viewing command history in a DOS command prompt or a Linux terminal:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+</pre></td><td class="rouge-code"><pre><span class="c1"># 模板中的关键类
+</span><span class="kn">from</span> <span class="nn">pattern.Memento</span> <span class="kn">import</span> <span class="n">Originator</span><span class="p">,</span> <span class="n">Caretaker</span><span class="p">,</span> <span class="n">Memento</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="k">class</span> <span class="nc">TerminalCmd</span><span class="p">(</span><span class="n">Originator</span><span class="p">):</span>
+    <span class="s">"""终端命令"""</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__cmd_name</span> <span class="o">=</span> <span class="s">""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">__cmd_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">parse_cmd</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">parse_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="s">"""从字符串中解析命令"""</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">get_arguments_from_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_flag</span><span class="p">):</span>
+        <span class="s">"""通过split_flag进行分割，获取参数数组"""</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">show_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">__cmd_name</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">__cmd_args</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">TerminalCaretaker</span><span class="p">(</span><span class="n">Caretaker</span><span class="p">):</span>
+    <span class="s">"""终端命令的备忘录管理类"""</span>
+    <span class="k">def</span> <span class="nf">show_history_cmds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">"""显示历史命令"""</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">_mementors</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s">""</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="p">.</span><span class="n">_TerminalCmd</span><span class="p">.</span><span class="n">__cmd_name</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">_TerminalCmd</span><span class="p">.</span><span class="n">__cmd_name</span>
+            <span class="k">if</span> <span class="n">obj</span><span class="p">.</span><span class="n">_TerminalCmd</span><span class="p">.</span><span class="n">__cmd_args</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">obj</span><span class="p">.</span><span class="n">_TerminalCmd</span><span class="p">.</span><span class="n">__cmd_args</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">"第%s条命令：%s %s"</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">test_terminal</span><span class="p">():</span>
+    <span class="n">cmd_idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">caretaker</span> <span class="o">=</span> <span class="n">TerminalCaretaker</span><span class="p">()</span>
+    <span class="n">cur_cmd</span> <span class="o">=</span> <span class="n">TerminalCmd</span><span class="p">(</span><span class="s">""</span><span class="p">)</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">str_cmd</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">"请输入指令："</span><span class="p">)</span>
+        <span class="n">str_cmd</span> <span class="o">=</span> <span class="n">str_cmd</span><span class="p">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">str_cmd</span><span class="p">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">"q"</span><span class="p">):</span>
+            <span class="nb">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">str_cmd</span><span class="p">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">"h"</span><span class="p">):</span>
+            <span class="n">caretaker</span><span class="p">.</span><span class="n">show_history_cmds</span><span class="p">()</span>
+        <span class="c1"># 通过"!"符号表示获取历史的某个指令
+</span>        <span class="k">elif</span> <span class="n">str_cmd</span><span class="p">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">"!"</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">str_cmd</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">cur_cmd</span><span class="p">.</span><span class="n">restore_from_memento</span><span class="p">(</span><span class="n">caretaker</span><span class="p">.</span><span class="n">get_memento</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+            <span class="n">cur_cmd</span><span class="p">.</span><span class="n">show_cmd</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cur_cmd</span> <span class="o">=</span> <span class="n">TerminalCmd</span><span class="p">(</span><span class="n">str_cmd</span><span class="p">)</span>
+            <span class="n">cur_cmd</span><span class="p">.</span><span class="n">show_cmd</span><span class="p">()</span>
+            <span class="n">caretaker</span><span class="p">.</span><span class="n">add_memento</span><span class="p">(</span><span class="n">cmd_idx</span><span class="p">,</span> <span class="n">cur_cmd</span><span class="p">.</span><span class="n">create_memento</span><span class="p">())</span>
+        <span class="n">cmdIdx</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></td></tr></tbody></table></code></pre></div></div>

@@ -1,0 +1,232 @@
+<p>Use KV capacity, bytes read per step, and how the operator can be split to see how MLA, GDN, and compressed attention change the inference system.</p>
+
+<h2 id="2026-models-compared-only-the-differences-that-matter-for-deployment">2026 models compared: only the differences that matter for deployment</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Model</th>
+      <th>Size or configuration</th>
+      <th>Attention / state</th>
+      <th>Impact on deployment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://huggingface.co/Qwen/Qwen3.5-397B-A17B">Qwen3.5-397B-A17B</a></td>
+      <td>397B total parameters, 17B active; 60 layers, d=4096</td>
+      <td>45 GDN layers + 15 full-attention layers</td>
+      <td>two budgets, for fixed-size state and for KV; natively multimodal, so the encoder stage is budgeted separately</td>
+    </tr>
+    <tr>
+      <td><a href="https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro">DeepSeek-V4-Pro</a></td>
+      <td>1.6T total parameters, 49B active</td>
+      <td>CSA/HCA hybrid compressed attention</td>
+      <td>compression granularity, tail state, and the indexer all enter the cache/transfer layout; long-context cost drops, but it is not independent of length</td>
+    </tr>
+    <tr>
+      <td><a href="https://huggingface.co/moonshotai/Kimi-K2.6">Kimi K2.6</a></td>
+      <td>1T total parameters, 32B active; 384 experts, top-8</td>
+      <td>MLA, MoonViT 400M</td>
+      <td>latent sharing is decoupled from multimodal encoding; evaluate INT4 weight capacity and actual kernel throughput separately</td>
+    </tr>
+    <tr>
+      <td><a href="https://huggingface.co/zai-org/GLM-5.1/blob/main/config.json">GLM-5.1 config</a></td>
+      <td>78 layers, d=6144; 256 routed + 1 shared, top-8</td>
+      <td><code class="language-plaintext highlighter-rouge">glm_moe_dsa</code>, latent 512, RoPE 64, index top-2048</td>
+      <td>plan for MLA+DSA; do not carry over the earlier draft’s conflicting claim about GDN</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>KV sizes are derived estimates and are not the amount a framework finally allocates: the full-attention part of Qwen is about 30 KiB/token, and Kimi’s <code class="language-plaintext highlighter-rouge">61×576×2</code> is about 68.6 KiB/token; GLM’s <code class="language-plaintext highlighter-rouge">78×576×2</code>, about 87.8 KiB/token, covers only latent+RoPE, and state such as the indexer must be counted separately. The figure of about 10KB/token for DS-V4 is an earlier order-of-magnitude estimate based on the compressed layout and is not to be used as a fixed constant. Mixed precision, page alignment, and extra cache fields all change the actual footprint.</p>
+
+<h2 id="two-family-lineages">Two family lineages</h2>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre>Qwen line:  MHA → GQA (all of Qwen2) → 3:1 GDN+GQA hybrid (validated in Qwen3-Next → scaled up in Qwen3.5)
+           Philosophy: replace 75% of the attention layers outright (linearize to bypass KV)
+DS line:    MHA → MLA (V2, channel-dimension compression) → +DSA (V3.2, sparse reads) → CSA/HCA (V4, sequence-dimension compression)
+           Philosophy: keep softmax and compress internally one dimension at a time (channel → reads → sequence, three orthogonal dimensions)
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<h2 id="what-attention-demands-of-compute-bandwidth-and-communication">What attention demands of compute, bandwidth, and communication</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Structure</th>
+      <th>KV/token (uniform L=61, h_d=128)</th>
+      <th>Read per decode step (s=32K)</th>
+      <th>prefill FLOPs</th>
+      <th>TP splittability</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MHA (n_h=64)</td>
+      <td>2·L·64·h_d·2B ≈ 1.9 MB</td>
+      <td>62 GB 💀</td>
+      <td>O(s²)</td>
+      <td>split along 64 heads, TP≤64</td>
+    </tr>
+    <tr>
+      <td>GQA-8</td>
+      <td>2·L·8·h_d·2B ≈ 244 KB</td>
+      <td>8.0 GB</td>
+      <td>O(s²)</td>
+      <td>split along n_kv, TP≤8</td>
+    </tr>
+    <tr>
+      <td>MLA</td>
+      <td>L·(512+64)·2B ≈ 70 KB<br />(K/V share the latent, so no factor of 2)</td>
+      <td>2.3 GB</td>
+      <td>O(s²)<br />decode needs matrix absorption</td>
+      <td>❌ the latent is shared by all heads and can only be replicated → attention must use DP</td>
+    </tr>
+    <tr>
+      <td>GDN (linear)</td>
+      <td>0;<br />fixed-size state ~94 MB/request ⚠️ (Qwen3.5, 45 layers, assuming d_k=d_v=128;<br />24–40 MB if organized by QK head groups)</td>
+      <td>independent of s</td>
+      <td>O(s)</td>
+      <td>state can be split along V heads;<br />prefix caching needs state checkpoints (the state cannot be truncated)</td>
+    </tr>
+    <tr>
+      <td>DS-V4 (CSA+HCA)</td>
+      <td>~10 KB ⚠️ estimate<br />(alternating CSA 4:1 + HCA 128:1, plus indexer KV;<br />mixed precision: RoPE dims in BF16, the rest in FP8)</td>
+      <td>~0.33 GB</td>
+      <td>CSA O(s·k) k=1024 / HCA O((s/128)²)<br />coefficient ÷16384</td>
+      <td>same as the MLA family, must use DP</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="attention-variants-in-depth">Attention variants in depth</h2>
+
+<h3 id="mla-compress-the-channel-dimension">MLA: compress the channel dimension</h3>
+
+<p>Approach: K and V share one low-rank intermediate, which is not stored per head.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre>x ──W_DKV──→ c_KV(512-dim)──┬──W_UK──→ K_nope
+                            └──W_UV──→ V
+K_rope stored separately (64-dim, position-dependent, cannot be absorbed)
+
+KV/token = L × (512 + 64) × bpp = 61 × 576 × 2 = 70 KB
+vs. MHA's 61 × 16384 × 2 = 1.9 MB → 28× smaller
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>★ Matrix absorption (mandatory for decode): if you decompress back to the full K before computing attention, you save GPU memory but pay for a huge decompression matmul every step. Absorption = fold W_UK into W_UQ ahead of time, so the query takes its dot product directly in latent space. In essence this is amortization: preprocess whichever side has fewer tokens. In decode there is only 1 query, so absorption is a clear win; in prefill both sides are equally long, and absorption instead pays the per-pair overhead of going from 128 to 512 dimensions, so prefill uses the non-absorbed MHA form:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre>q_nope · k_nope^T = (x·W_UQ)·(c_KV·W_UK)^T = x·(W_UQ·W_UK^T)·c_KV^T
+                                              └──── merged in advance ────┘
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The cost of not absorbing: at 128K context, each step wastes about 4400 GFLOPs, 60× more than the compute of the whole model’s active parameters (about 74 GFLOPs).</p>
+
+<p>System consequences:</p>
+
+<p>The latent is shared by all heads, so there is no head dimension to split → under TP it can only be replicated, not split → attention must use data parallelism; this in turn scatters tokens across GPUs, so the MoE layer needs an all-to-all to gather them again. In P/D transfer, the lack of a head dimension actually means no reordering is needed.</p>
+
+<p>Measurements also show the bottleneck shifting: after absorption, 128 heads share the 576-dim latent, and decode has I≈242 (BF16), above this configuration’s ridge point of 37–42, so <strong>decode attention is mainly compute-bound here</strong>. Measured FlashInfer MLA reaches 85–106 TFLOPS while using only 0.4 TB/s of bandwidth; at B=32 and s=32K a single layer takes 3.2 ms, with time ∝ number of heads × context. This conclusion applies to the 128-heads-per-GPU configuration measured here; KV compression still brings a capacity benefit, but latency does not fall in proportion to the reduction in bytes. In this configuration, attention time for verify (q_len=2) rises to 2.0–2.2×. When TP8 splits it down to 16 heads per GPU, I≈30, the M dimension of WGMMA cannot be filled, and it reaches only 23–26 TFLOPS with neither compute nor bandwidth saturated, so the 128-head bottleneck conclusion does not carry over.</p>
+
+<h3 id="gdn-no-compression-just-go-around-it">GDN: no compression, just go around it</h3>
+
+<p>Approach: GDN (Gated DeltaNet) replaces the quadratic complexity of softmax(QK^T)V with a recurrent update of a fixed-size state.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre>Basic linear attention:  S_t = S_{t-1} + k_t v_t^T,        o_t = q_t^T S_t
+Gated DeltaNet:          S_t = α_t·S_{t-1} + β_t·k_t(v_t − k_t^T S_{t-1})^T
+                               └gated forget┘  └─── delta rule: write only the prediction residual ───┘
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>The two mechanisms each have their own job:</p>
+
+<p>Gate α: controls how much history is forgotten, so the state does not accumulate without bound
+Delta rule: writes only “the part that was predicted wrong”. Without it, the same key appearing repeatedly makes the state norm explode (measured with 12 repetitions: the state norm of basic linear attention reaches 18.5, while GDN stays at 3.2)</p>
+
+<p>GDN layers keep no standard KV that grows with the sequence, but they do hold a fixed-size state (about 94 MB/request for Qwen3.5 is a layout estimate; the actual figure depends on state precision, convolution state, and checkpoint policy).</p>
+
+<p>Two system consequences:</p>
+
+<p>The memory curve has two segments. Qwen3.5’s 45 GDN layers hold fixed-size state, and only the 15 full-attention layers have KV:
+Mem(req) = 94 MB + s × 30 KB
+By the layout estimate above, the crossover is at about 3K tokens; for short requests the fixed-size state can be larger than the KV</p>
+
+<p>Capacity-planning formulas must have two segments; a single s×KV term badly underestimates short requests.</p>
+
+<p>★ Prefix caching partly stops working. Standard KV is append-only, so the K/V of a prefix stays intact and can be reused; GDN state, by contrast, is a lossy compressed summary of the entire prefix and cannot be truncated back to the n-th token. The compromise is to keep multiple checkpoints, but these are also windowed rather than continuous.</p>
+
+<h3 id="csahca">CSA/HCA</h3>
+
+<p align="center">
+  <img loading="lazy" src="/assets/img/inference-infra/en/dsv4_attention_full_dataflow.svg" alt="Data flow of DeepSeek V4 compressed attention" width="720" />
+</p>
+
+<h2 id="series-navigation">Series navigation</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Part</th>
+      <th>Article</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-00-roofline/">Roofline: Performance Budgets from Compute and Bandwidth</a></td>
+      <td>2026-01-01</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-01-communication/">Communication: From Collective Primitives to Cross-Node Topology</a></td>
+      <td>2026-02-13</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-02-parallelism/">Distributed Inference: Choosing TP, DP, EP, CP, and PP</a></td>
+      <td>2026-03-29</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a></td>
+      <td>2026-05-11</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><strong>Attention: From GQA and MLA to Hybrid State (this post)</strong></td>
+      <td>2026-06-24</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a></td>
+      <td>2026-08-06</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-06-pd-epd/">PD and EPD: Disaggregation, State Transfer, and Resource Allocation</a></td>
+      <td>2026-09-19</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-07-optimization/">Execution: CUDA Graph, Speculative Decoding, Overlap, and Quantization</a></td>
+      <td>2026-11-01</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Previous: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-03-hardware/">Inference Hardware: GPUs, NPUs, and the Memory Hierarchy</a> · Next: <a href="/posts/%E6%8E%A8%E7%90%86INFRA%E6%96%B9%E6%B3%95%E8%AE%BA-05-moe/">MoE Inference: Batching, DeepEP, DeepGEMM, and Load Balancing</a></p>

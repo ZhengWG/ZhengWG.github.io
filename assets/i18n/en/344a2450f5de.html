@@ -1,0 +1,32 @@
+<h2 id="sglang-prefix-caching-design">SGLang: Prefix Caching Design</h2>
+
+<p><strong>Paper</strong></p>
+
+<p><a href="https://arxiv.org/pdf/2312.07104">SGLang: Efficient Execution of Structured Language Model Prpgrams</a></p>
+
+<p><strong>Motivation</strong></p>
+
+<p>In multi-turn conversations, prompts share a large number of identical prefixes, so reusing the prefix cache (<code class="language-plaintext highlighter-rouge">Prefix prompt cache</code>) is very important. The design needs to consider <code class="language-plaintext highlighter-rouge">efficient prefix search</code>, <code class="language-plaintext highlighter-rouge">reuse</code>, <code class="language-plaintext highlighter-rouge">insertion</code>, <code class="language-plaintext highlighter-rouge">eviction</code>, and the corresponding <code class="language-plaintext highlighter-rouge">cache aware scheduling</code>.</p>
+
+<p><strong>Key Points</strong></p>
+
+<p>SGLang stores the cache in a <code class="language-plaintext highlighter-rouge">prefix tree</code> data structure, whose basic properties are:</p>
+
+<ol>
+  <li>Prefix compression: Multiple keys with the same prefix are stored only once, which reduces duplicate storage.</li>
+  <li>Dynamic extension: Insertion, deletion, and lookup are supported, which adapts to dynamic changes in the symbol set or rules.</li>
+  <li>Fast lookup: The lookup complexity is close to O(k), where k is the average key length.</li>
+  <li>Sparse storage: Only valid paths are stored, which optimizes memory use.</li>
+</ol>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-19-SGLang-Prefix_Prompt_Cache%25E8%25AE%25BE%25E8%25AE%25A1/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240917_013249.png" alt="img" /></p>
+
+<p>In addition, for the scheduling strategy, the matched prefix length is given the highest priority.</p>
+
+<p>vLLM combines PagedAttention (PA) and prefix caching. It defines the corresponding KV block through <code class="language-plaintext highlighter-rouge">hash(prefix tokens + block tokens)</code>, and uses hash mapping to map the prefix cache to physical blocks:</p>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-19-SGLang-Prefix_Prompt_Cache%25E8%25AE%25BE%25E8%25AE%25A1/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240917_013854.png" alt="img" /></p>
+
+<p><strong>Statistics</strong></p>
+
+<p>Performance gains under <code class="language-plaintext highlighter-rouge">multi-call</code>: <img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2024-11-19-SGLang-Prefix_Prompt_Cache%25E8%25AE%25BE%25E8%25AE%25A1/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E6%8E%A8%E7%90%86%E6%8A%80%E6%9C%AF%E6%A0%88_20240917_014206.png" alt="img" /></p>

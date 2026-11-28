@@ -1,0 +1,222 @@
+<ul>
+  <li><a href="#sec-1">Preface</a></li>
+  <li><a href="#sec-2">Garbage Collection Methods</a></li>
+  <li><a href="#sec-3">Debugging Memory Leaks</a></li>
+</ul>
+
+<h1 id="preface">Preface<a id="sec-1"></a></h1>
+
+<p>Garbage collection is essential to every language. Its core function is “memory management”: preventing “memory leaks”. A “memory leak” means that a program fails to release memory that is no longer in use, usually because of a design problem that makes the program lose control of memory it has used, which wastes memory. This article reviews the garbage collection mechanism in <strong>Python</strong>.</p>
+
+<h1 id="garbage-collection-methods">Garbage Collection Methods<a id="sec-2"></a></h1>
+
+<p>The most commonly used mechanism in <strong>Python</strong> is <strong>reference counting</strong>. In <strong>Python</strong> everything is an object, and every variable is a reference to an object. So the most intuitive idea is to collect garbage by counting references to an object: <code class="language-plaintext highlighter-rouge">when an object's reference count is 0, the object is unreachable and needs to be collected</code>. A simple example follows:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># 两次引用，一次来自 a，一次来自 getrefcount
+</span><span class="k">print</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">getrefcount</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+    <span class="c1"># 四次引用，a，python 的函数调用栈，函数参数，和 getrefcount
+</span>    <span class="k">print</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">getrefcount</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+
+<span class="n">func</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="c1"># 两次引用，一次来自 a，一次来自 getrefcount，函数 func 调用已经不存在
+</span><span class="k">print</span><span class="p">(</span><span class="n">sys</span><span class="p">.</span><span class="n">getrefcount</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+
+<span class="c1">########## 输出 ##########
+</span><span class="mi">2</span>
+<span class="mi">4</span>
+<span class="mi">2</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><strong>Python</strong> also allows you to perform garbage collection manually with <code class="language-plaintext highlighter-rouge">del a + gc.collect()</code>, for example:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre></td><td class="rouge-code"><pre>
+<span class="kn">import</span> <span class="nn">gc</span>
+
+<span class="n">show_memory_info</span><span class="p">(</span><span class="s">'initial'</span><span class="p">)</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)]</span>
+
+<span class="n">show_memory_info</span><span class="p">(</span><span class="s">'after a created'</span><span class="p">)</span>
+
+<span class="k">del</span> <span class="n">a</span>
+<span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>
+
+<span class="n">show_memory_info</span><span class="p">(</span><span class="s">'finish'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="c1">########## 输出 ##########
+</span>
+<span class="n">initial</span> <span class="n">memory</span> <span class="n">used</span><span class="p">:</span> <span class="mf">48.1015625</span> <span class="n">MB</span>
+<span class="n">after</span> <span class="n">a</span> <span class="n">created</span> <span class="n">memory</span> <span class="n">used</span><span class="p">:</span> <span class="mf">434.3828125</span> <span class="n">MB</span>
+<span class="n">finish</span> <span class="n">memory</span> <span class="n">used</span><span class="p">:</span> <span class="mf">48.33203125</span> <span class="n">MB</span>
+
+<span class="o">---------------------------------------------------------------------------</span>
+<span class="nb">NameError</span>                                 <span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">ipython</span><span class="o">-</span><span class="nb">input</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mf">153e15063</span><span class="n">d8a</span><span class="o">&gt;</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+     <span class="mi">11</span> 
+     <span class="mi">12</span> <span class="n">show_memory_info</span><span class="p">(</span><span class="s">'finish'</span><span class="p">)</span>
+<span class="o">---&gt;</span> <span class="mi">13</span> <span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="nb">NameError</span><span class="p">:</span> <span class="n">name</span> <span class="s">'a'</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">defined</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Of course, in <strong>Python</strong> a reference count of 0 is not a necessary and sufficient condition for garbage collection to start, because of <strong>circular references</strong>. Inside a function, if a and b reference each other, then after the function call ends a and b no longer have any meaning from the program’s point of view and should be removed. In practice, however, the memory is still occupied in this case and has to be released manually:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre></td><td class="rouge-code"><pre>
+<span class="kn">import</span> <span class="nn">gc</span>
+
+<span class="k">def</span> <span class="nf">func</span><span class="p">():</span>
+    <span class="n">show_memory_info</span><span class="p">(</span><span class="s">'initial'</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)]</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)]</span>
+    <span class="n">show_memory_info</span><span class="p">(</span><span class="s">'after a, b created'</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">b</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="n">func</span><span class="p">()</span>
+<span class="n">show_memory_info</span><span class="p">(</span><span class="s">'before collected'</span><span class="p">)</span>
+<span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="n">show_memory_info</span><span class="p">(</span><span class="s">'finished'</span><span class="p">)</span>
+
+<span class="c1">########## 输出 ##########
+</span>
+<span class="n">initial</span> <span class="n">memory</span> <span class="n">used</span><span class="p">:</span> <span class="mf">49.51171875</span> <span class="n">MB</span>
+<span class="n">after</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="n">created</span> <span class="n">memory</span> <span class="n">used</span><span class="p">:</span> <span class="mf">824.1328125</span> <span class="n">MB</span>
+<span class="n">before</span> <span class="n">collected</span> <span class="n">memory</span> <span class="n">used</span><span class="p">:</span> <span class="mf">824.1328125</span> <span class="n">MB</span>
+<span class="n">finished</span> <span class="n">memory</span> <span class="n">used</span><span class="p">:</span> <span class="mf">49.98046875</span> <span class="n">MB</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>Calling <code class="language-plaintext highlighter-rouge">gc.collect()</code> explicitly cleans up the memory. This shows that besides “reference counting”, the garbage collection mechanism in <strong>Python</strong> has other methods:</p>
+
+<ul>
+  <li>Mark-sweep: the mark-sweep algorithm starts from a single node and traverses the graph, marking all reachable nodes. When the traversal ends, the unmarked nodes are the “unreachable nodes”. Finally, these “unreachable nodes” are garbage collected. In the implementation, “Python” uses a doubly linked list and only considers container objects (only these objects can have circular references).</li>
+  <li>Generational collection: generational collection is an optimization whose core is to optimize the garbage collection strategy. It works by dividing objects into three generations: newly created objects are generation 0, and each time an object survives it is moved to the next generation. The garbage collection threshold of each generation is specified separately. When the number of objects added to the collector minus the number of objects deleted reaches the threshold of a generation, garbage collection is started for that generation. The idea behind the design is that newly created objects are more likely to be collected, while the longer an object has survived, the more likely it is to keep surviving. This approach saves computation and improves the performance of Python.</li>
+</ul>
+
+<h1 id="debugging-memory-leaks">Debugging Memory Leaks<a id="sec-3"></a></h1>
+
+<p>A tool for debugging memory leaks: objgraph, a package that makes it easy to visualize reference relationships. <code class="language-plaintext highlighter-rouge">show_refs()</code> generates a clear reference graph. In the following example you can see a clear graph of the mutual references:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre>
+<span class="kn">import</span> <span class="nn">objgraph</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+
+<span class="n">a</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="n">b</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="n">objgraph</span><span class="p">.</span><span class="n">show_refs</span><span class="p">([</span><span class="n">a</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-7-Python-%25E5%259E%2583%25E5%259C%25BE%25E5%259B%259E%25E6%2594%25B6/20211007_172847.png" alt="img" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">show_backrefs()</code> can likewise generate a graph of the references pointing to an object:</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="kn">import</span> <span class="nn">objgraph</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+
+<span class="n">a</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="n">b</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="n">objgraph</span><span class="p">.</span><span class="n">show_backrefs</span><span class="p">([</span><span class="n">a</span><span class="p">])</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p><img src="https://cdn.jsdelivr.net/gh/ZhengWG/Imgs_blog//2021-10-7-Python-%25E5%259E%2583%25E5%259C%25BE%25E5%259B%259E%25E6%2594%25B6/20211007_173324.png" alt="img" /></p>
